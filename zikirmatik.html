@@ -77,7 +77,7 @@
             backdrop-filter: blur(12px);
             padding: 1rem 1.5rem;
             border-radius: 20px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
@@ -131,6 +131,31 @@
         .icon-btn.active {
             border-color: var(--gold-accent);
             color: var(--gold-accent);
+        }
+
+        /* BİLGİLENDİRME BANNERI */
+        .sync-notice {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--gold-accent);
+            border-radius: 14px;
+            padding: 0.65rem 1rem;
+            font-size: 0.82rem;
+            color: #fcd34d;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            line-height: 1.4;
+        }
+
+        .sync-notice-close {
+            background: transparent;
+            border: none;
+            color: #fcd34d;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0 4px;
         }
 
         /* NAVIGATION TABS */
@@ -740,14 +765,25 @@
                 <button class="icon-btn active" id="soundToggleBtn" title="Ses">🔊</button>
                 <button class="icon-btn active" id="vibeToggleBtn" title="Titreşim">📳</button>
                 <button class="icon-btn" id="themeToggleBtn" title="Tema">🎨</button>
+                <button class="icon-btn" onclick="exportData()" title="Yedek İndir">📥</button>
+                <button class="icon-btn" onclick="document.getElementById('importFile').click()" title="Yedek Yükle">📤</button>
+                <input type="file" id="importFile" style="display:none;" onchange="importData(event)" accept=".json">
             </div>
         </header>
 
+        <!-- BİLGİLENDİRME BANNERI (SİNKRANİZASYON UYARISI) -->
+        <div class="sync-notice" id="syncNotice">
+            <div>
+                <strong>⚠️ Önemli Uyarı:</strong> Tarayıcı güvenlik kısıtlaması nedeniyle veriler farklı cihaz/tarayıcılara <u>otomatik olarak aktarılmaz</u>. Verilerinizi başka bir tarayıcıya taşımak için sağ üstteki <strong>📥 Yedek İndir</strong> ve <strong>📤 Yedek Yükle</strong> butonlarını kullanabilirsiniz.
+            </div>
+            <button class="sync-notice-close" onclick="document.getElementById('syncNotice').style.display='none'" title="Kapat">✕</button>
+        </div>
+
         <!-- NAVIGATION TABS -->
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('tab-zikir')">📿 Zikirmatik</button>
-            <button class="tab-btn" onclick="switchTab('tab-gunluk')">📅 Günlük Takip</button>
-            <button class="tab-btn" onclick="switchTab('tab-kaza')">🕌 Kaza Namazı</button>
+            <button class="tab-btn active" onclick="switchTab(event, 'tab-zikir')">📿 Zikirmatik</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-gunluk')">📅 Günlük Takip</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-kaza')">🕌 Kaza Namazı</button>
         </div>
 
         <!-- TAB 1: ZİKİRMATİK MEKANİK CİHAZ & KÜTÜPHANE -->
@@ -829,18 +865,14 @@
                     <div class="card-title"><span>🌟</span> Bugün Çekilen Zikirler</div>
                     <div class="item-badge" id="todayTotalBadge">0 Zikir</div>
                 </div>
-                <div id="todayBreakdownContainer" class="daily-log-list">
-                    <!-- Bugünün detayları buraya dinamik dolacak -->
-                </div>
+                <div id="todayBreakdownContainer" class="daily-log-list"></div>
             </div>
 
             <div class="panel-card">
                 <div class="card-header">
                     <div class="card-title"><span>🗓️</span> Geçmiş Günlerin Günlüğü</div>
                 </div>
-                <div id="pastLogsContainer" class="daily-log-list">
-                    <!-- Geçmiş günler buraya dolacak -->
-                </div>
+                <div id="pastLogsContainer" class="daily-log-list"></div>
             </div>
         </div>
 
@@ -852,13 +884,11 @@
                     <div style="font-size: 0.8rem; color: var(--text-muted);">Eksilten (-) / Arttıran (+)</div>
                 </div>
 
-                <!-- SUB TAB TOGGLE (MUKİM / SEFERİ) -->
                 <div class="sub-tab-container">
                     <button class="sub-tab-btn active" id="subTabNormal" onclick="setKazaMode('normal')">🏠 Mukim (Normal) Kazalar</button>
                     <button class="sub-tab-btn" id="subTabSeferi" onclick="setKazaMode('seferi')">🚗 Seferi Kazaları</button>
                 </div>
 
-                <!-- FIKHI BİLGİ NOTU (SEFERİ İÇİN) -->
                 <div class="info-box" id="kazaInfoBox" style="display: none;">
                     💡 <strong>Seferi Kaza Hükmü:</strong> Yolculuk sırasındaki kazaya kalan <strong>Öğle, İkindi ve Yatsı</strong> farz namazları, mukimken (evdeyken) kaza edilsalar dahi <strong>2'şer rekat</strong> olarak kaza edilir. Sabah, Akşam ve Vitir namazlarında rekat değişmez.
                 </div>
@@ -921,7 +951,7 @@
         </footer>
     </div>
 
-    <!-- MODAL: ADD / EDIT ZIKIR -->
+    <!-- MODALS -->
     <div class="modal-overlay" id="zikirModal">
         <div class="modal-body">
             <div class="modal-title" id="modalTitle">Yeni Zikir Ekle</div>
@@ -944,7 +974,6 @@
         </div>
     </div>
 
-    <!-- MODAL: COMPLETION CONFIRMATION -->
     <div class="modal-overlay" id="completionModal">
         <div class="modal-body" style="text-align: center;">
             <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎉</div>
@@ -959,7 +988,6 @@
         </div>
     </div>
 
-    <!-- MODAL: SIFIRLAMA ONAY -->
     <div class="modal-overlay" id="resetModal">
         <div class="modal-body" style="text-align: center;">
             <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔄</div>
@@ -967,12 +995,11 @@
             <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Mevcut zikir sayınız <strong>0</strong> yapılacaktır.</p>
             <div class="modal-actions">
                 <button class="modal-btn secondary" id="resetCancelBtn">İptal</button>
-                <button class="modal-btn danger" id="resetConfirmBtn">Sıfırla</button>
+                <button class="modal-btn danger" id="resetConfirmBtn">Sıfırlama İşlemini Onayla</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: DELETE CONFIRMATION -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-body" style="text-align: center;">
             <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🗑️</div>
@@ -985,7 +1012,6 @@
         </div>
     </div>
 
-    <!-- MODAL: QUICK TARGET -->
     <div class="modal-overlay" id="targetModal">
         <div class="modal-body">
             <div class="modal-title">Hedef Sayısını Değiştir</div>
@@ -1022,7 +1048,7 @@
             editingId: null,
             pendingDeleteId: null,
             dailyLogs: {},
-            kazaMode: 'normal', // 'normal' or 'seferi'
+            kazaMode: 'normal',
             kaza: {
                 normal: { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 },
                 seferi: { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 }
@@ -1091,15 +1117,15 @@
             return `${year}-${month}-${day}`;
         }
 
-        // --- LOCAL STORAGE & MIGRATION ---
+        // --- LOCAL STORAGE MANAGEMENT ---
         function loadState() {
             const saved = localStorage.getItem('zikirmatik_pro_data');
             if (saved) {
                 try {
-                    const parsed = JSON.parse(saved);
-                    state = { ...state, ...parsed };
+                    const loadedData = JSON.parse(saved);
+                    state = { ...state, ...loadedData };
                 } catch(e) {
-                    state.zikirs = defaultZikirs;
+                    console.error("Yerel veri okuma hatası:", e);
                 }
             } else {
                 state.zikirs = defaultZikirs;
@@ -1107,7 +1133,6 @@
 
             if (!state.dailyLogs) state.dailyLogs = {};
             
-            // Migration for Kaza Data Structure
             if (!state.kaza || !state.kaza.normal) {
                 const oldKaza = (state.kaza && state.kaza.sabah !== undefined) ? state.kaza : { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 };
                 state.kaza = {
@@ -1126,6 +1151,40 @@
             localStorage.setItem('zikirmatik_pro_data', JSON.stringify(state));
         }
 
+        // --- VERİ DİŞA / İÇE AKTARMA (YEDEKLEME) ---
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `zikirmatik_yedek_${getTodayKey()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedState = JSON.parse(e.target.result);
+                    if (importedState && importedState.zikirs) {
+                        state = importedState;
+                        saveState();
+                        updateUI();
+                        alert("Verileriniz başarıyla içe aktarıldı!");
+                    } else {
+                        alert("Geçersiz yedek dosyası!");
+                    }
+                } catch (err) {
+                    alert("Dosya okunurken bir hata oluştu!");
+                }
+            };
+            reader.readAsText(file);
+        }
+
         function getActiveZikir() {
             return state.zikirs.find(z => z.id === state.activeId) || state.zikirs[0];
         }
@@ -1139,7 +1198,7 @@
         }
 
         // --- TAB NAVIGATION ---
-        function switchTab(tabId) {
+        function switchTab(event, tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
@@ -1217,7 +1276,6 @@
 
             active.count++;
             
-            // Log Daily
             const todayKey = getTodayKey();
             if (!state.dailyLogs[todayKey]) {
                 state.dailyLogs[todayKey] = { total: 0, items: {} };
@@ -1504,7 +1562,7 @@
             }
         });
 
-        // Initialize
+        // Uygulamayı Başlat
         loadState();
     </script>
 </body>

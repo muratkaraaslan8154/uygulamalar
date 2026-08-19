@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijital Sayaç ve Saat</title>
+    <style>
+        /* Orbitron (Başlık/Butonlar için), DS-Digital (Saat için) ve YENİ: Roboto (Tarih için) */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+        @import url('https://fonts.cdnfonts.com/css/ds-digital');
+
+        /* =======================================================
+           AYARLAR BÖLÜMÜ
+           ======================================================= */
+        :root {
+            --genel-olcek: clamp(3px, 0.75vw, 17px); 
+            
+            --ust-saat-boyutu: 10rem;   
+            --alt-sayac-boyutu: 7rem;   
+            
+            /* RENK PALETİ */
+            --dis-arkaplan: #ffffff;
+            --cerceve-rengi: #162a42; 
+            --sayac-zemini: #ffffff; 
+            --sayac-yazisi: #162a42; 
+            --tarih-yazisi: #ffffff; 
+        }
+
+        html {
+            font-size: var(--genel-olcek);
+        }
+        /* ======================================================= */
+
+        body {
+            background-color: var(--dis-arkaplan);
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; 
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            width: 100%; 
+            box-sizing: border-box;
+            overflow-x: hidden; 
+        }
+
+        .main-wrapper {
+            display: flex;
+            flex-direction: column;
+            width: 100%; 
+            max-width: 70rem; 
+            gap: 2.5rem; 
+        }
+
+        /* Çerçeve Görünümleri */
+        .container {
+            background: var(--cerceve-rengi);
+            padding: 3rem; 
+            border-radius: 1.5rem; 
+            box-shadow: 0 0 2rem rgba(0, 0, 0, 0.15); 
+            text-align: center;
+            width: 100%; 
+            box-sizing: border-box;
+        }
+
+        /* YENİ: Üst Kısım Güncel Tarih (Font Değişikliği Burada Yapıldı) */
+        .date-container {
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Göz yormayan klasik ve net font */
+            font-size: 1.6rem; /* Font değiştiği için boyutu bir tık artırıldı */
+            font-weight: 500; /* Yazılar biraz daha dolgun ve okunaklı yapıldı */
+            margin-bottom: 2rem;
+            color: var(--tarih-yazisi);
+            letter-spacing: 0.05rem;
+            line-height: 1.4; /* Satır arası boşluk hafif açıldı */
+        }
+
+        /* Ortak Dijital Saat Görünümü */
+        .digital-clock, .countdown-display {
+            font-family: 'DS-Digital', sans-serif;
+            color: var(--sayac-yazisi);
+            background-color: var(--sayac-zemini);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.15em 0.3em; 
+            border-radius: 0.15em;
+            box-shadow: inset 0 0 0.5rem rgba(0,0,0,0.1); 
+            box-sizing: border-box;
+            margin: 0 auto;
+            width: max-content;
+        }
+
+        .digital-clock {
+            font-size: var(--ust-saat-boyutu);
+            margin-bottom: 0.5rem;
+        }
+
+        .countdown-display {
+            font-size: var(--alt-sayac-boyutu);
+        }
+
+        /* === TİTREŞİM ENGELLEYİCİ HÜCRELER === */
+        .digit-box {
+            display: inline-block;
+            width: 1.3em; 
+            text-align: center;
+        }
+        .colon {
+            display: inline-block;
+            width: 0.4em; 
+            text-align: center;
+            position: relative;
+            top: -0.05em; 
+        }
+        .day-box {
+            display: inline-block;
+            margin-right: 0.4em;
+            text-align: center;
+            font-size: 0.8em; 
+        }
+
+        /* Alt Kısım: Girdi ve Geri Sayım */
+        .input-group {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem; 
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap; 
+        }
+
+        .input-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Label fontunu da uyumlu olması için Roboto yaptık */
+        .input-box label {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.2rem;
+            color: #b0c4de; 
+            margin-bottom: 0.8rem;
+        }
+
+        .input-box input {
+            background: var(--sayac-zemini);
+            border: none;
+            color: var(--sayac-yazisi);
+            font-family: 'DS-Digital', sans-serif;
+            font-size: 2.5rem;
+            padding: 0.5rem;
+            text-align: center;
+            border-radius: 0.6rem;
+            outline: none;
+            width: 5rem;
+            box-shadow: inset 0 0 0.3rem rgba(0,0,0,0.2);
+        }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Buton Stilleri */
+        button {
+            background: #ffffff;
+            color: var(--cerceve-rengi);
+            border: none;
+            padding: 1.2rem 0; 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem; 
+            font-weight: bold;
+            border-radius: 0.8rem;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #e6e6e6;
+            box-shadow: 0 0 1rem rgba(255, 255, 255, 0.5);
+        }
+
+        .cancel-btn {
+            background: #ff4d4d;
+            color: #ffffff;
+            margin-top: 2.5rem; 
+        }
+        
+        .cancel-btn:hover {
+            background: #cc0000;
+            box-shadow: 0 0 1rem rgba(255, 77, 77, 0.5);
+        }
+
+        #countdown-area {
+            display: none;
+        }
+
+        .countdown-title {
+            font-family: 'Roboto', sans-serif;
+            color: #ffffff;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-wrapper">
+        
+        <div class="container">
+            <div class="date-container">
+                <div id="gregorian-date">Miladi: Yükleniyor...</div>
+                <div id="hijri-date">Hicri: Yükleniyor...</div>
+            </div>
+            
+            <div class="digital-clock" id="current-time">
+                <span class="digit-box">00</span><span class="colon">:</span><span class="digit-box">00</span><span class="colon">:</span><span class="digit-box">00</span>
+            </div>
+        </div>
+
+        <div class="container"> 
+            <div id="input-area">
+                <div class="input-group">
+                    <div class="input-box">
+                        <label>Gün</label>
+                        <input type="number" id="inp-d" value="0" min="0">
+                    </div>
+                    <div class="input-box">
+                        <label>Saat</label>
+                        <input type="number" id="inp-h" value="0" min="0" max="23">
+                    </div>
+                    <div class="input-box">
+                        <label>Dakika</label>
+                        <input type="number" id="inp-m" value="0" min="0" max="59">
+                    </div>
+                    <div class="input-box">
+                        <label>Saniye</label>
+                        <input type="number" id="inp-s" value="0" min="0" max="59">
+                    </div>
+                    <div class="input-box">
+                        <label>Salise</label>
+                        <input type="number" id="inp-ms" value="0" min="0" max="99">
+                    </div>
+                </div>
+                <button onclick="startCountdown()">BAŞLAT</button>
+            </div>
+
+            <div id="countdown-area">
+                <div class="countdown-title">Geri Sayım Devam Ediyor</div>
+                <div class="countdown-display" id="cd-time">
+                    <span class="digit-box">00</span><span class="colon">:</span><span class="digit-box">00</span><span class="colon">:</span><span class="digit-box">00</span><span class="colon">:</span><span class="digit-box">00</span>
+                </div>
+                <button class="cancel-btn" onclick="cancelCountdown()">İptal Et</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let countdownInterval;
+
+        function updateCurrentTime() {
+            const now = new Date();
+            
+            const optionsGregorian = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('gregorian-date').innerText = "Miladi: " + now.toLocaleDateString('tr-TR', optionsGregorian);
+            
+            // "Hicri: Hicri" şeklindeki tekrarı engellemek için metni düzelttik
+            let hijriString = now.toLocaleDateString('tr-TR-u-ca-islamic', {year: 'numeric', month: 'long', day: 'numeric'});
+            document.getElementById('hijri-date').innerText = "Hicri: " + hijriString.replace("Hicri ", "");
+
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('current-time').innerHTML = 
+                `<span class="digit-box">${h}</span><span class="colon">:</span><span class="digit-box">${m}</span><span class="colon">:</span><span class="digit-box">${s}</span>`;
+        }
+
+        function startCountdown() {
+            const d = parseInt(document.getElementById('inp-d').value) || 0;
+            const h = parseInt(document.getElementById('inp-h').value) || 0;
+            const m = parseInt(document.getElementById('inp-m').value) || 0;
+            const s = parseInt(document.getElementById('inp-s').value) || 0;
+            const ms = parseInt(document.getElementById('inp-ms').value) || 0;
+
+            const totalMs = (d * 86400000) + (h * 3600000) + (m * 60000) + (s * 1000) + (ms * 10);
+            
+            if(totalMs <= 0) return; 
+
+            const targetTime = Date.now() + totalMs;
+            localStorage.setItem('targetTime', targetTime);
+            
+            runCountdown();
+        }
+
+        function runCountdown() {
+            const target = localStorage.getItem('targetTime');
+            if (!target) return;
+
+            document.getElementById('input-area').style.display = 'none';
+            document.getElementById('countdown-area').style.display = 'block';
+
+            clearInterval(countdownInterval);
+            
+            countdownInterval = setInterval(() => {
+                const now = Date.now();
+                const remaining = target - now;
+
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    localStorage.removeItem('targetTime');
+                    
+                    document.getElementById('input-area').style.display = 'block';
+                    document.getElementById('countdown-area').style.display = 'none';
+                } else {
+                    let remMs = remaining;
+                    const d = Math.floor(remMs / 86400000);
+                    remMs %= 86400000;
+                    const h = Math.floor(remMs / 3600000);
+                    remMs %= 3600000;
+                    const m = Math.floor(remMs / 60000);
+                    remMs %= 60000;
+                    const s = Math.floor(remMs / 1000);
+                    remMs %= 1000;
+                    const salise = Math.floor(remMs / 10);
+
+                    let htmlContent = "";
+                    if (d > 0) {
+                        htmlContent += `<span class="day-box">${d} GÜN</span>`;
+                    }
+                    htmlContent += `
+                        <span class="digit-box">${String(h).padStart(2,'0')}</span><span class="colon">:</span>
+                        <span class="digit-box">${String(m).padStart(2,'0')}</span><span class="colon">:</span>
+                        <span class="digit-box">${String(s).padStart(2,'0')}</span><span class="colon">:</span>
+                        <span class="digit-box">${String(salise).padStart(2,'0')}</span>
+                    `;
+                    
+                    document.getElementById('cd-time').innerHTML = htmlContent;
+                }
+            }, 10); 
+        }
+
+        function cancelCountdown() {
+            clearInterval(countdownInterval);
+            localStorage.removeItem('targetTime');
+            document.getElementById('input-area').style.display = 'block';
+            document.getElementById('countdown-area').style.display = 'none';
+        }
+        
+        window.onload = () => {
+            setInterval(updateCurrentTime, 500); 
+            updateCurrentTime();
+
+            if(localStorage.getItem('targetTime')) {
+                const target = parseInt(localStorage.getItem('targetTime'));
+                if(target > Date.now()) {
+                    runCountdown();
+                } else {
+                    localStorage.removeItem('targetTime');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
