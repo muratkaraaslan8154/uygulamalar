@@ -39,6 +39,15 @@
             touch-action: manipulation;
         }
 
+        /* Sayfa Kilitleme CSS kuralı */
+        body.page-locked {
+            overflow: hidden !important;
+            touch-action: none !important;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -46,7 +55,6 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
         }
 
         body {
@@ -392,24 +400,32 @@
 
         .aux-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
 
         .btn-aux {
             flex: 1;
-            padding: 0.8rem 0.5rem;
+            padding: 0.8rem 0.3rem;
             border-radius: 14px;
             border: 1px solid var(--border-color);
             background: rgba(255,255,255,0.03);
             color: var(--text-light);
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-aux.locked {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: var(--gold-accent);
+            color: var(--gold-accent);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
         }
 
         /* PANEL CARDS */
@@ -819,8 +835,10 @@
                         </button>
                     </div>
 
+                    <!-- ORTAYA SIFIRLA VE HEDEF ARASINA KİLİTLE BUTONU EKLENDİ -->
                     <div class="aux-buttons">
                         <button class="btn-aux" id="resetCurrentBtn">🔄 Sıfırla</button>
+                        <button class="btn-aux" id="lockToggleBtn" onclick="toggleLock()">🔓 Kilit</button>
                         <button class="btn-aux" id="editTargetBtn">🎯 Hedef</button>
                     </div>
                 </div>
@@ -1043,6 +1061,7 @@
             activeId: 1,
             soundEnabled: true,
             vibeEnabled: true,
+            isLocked: false, // Ekran kilidi durumu
             theme: 'emerald',
             totalZikirAllTime: 0,
             editingId: null,
@@ -1054,6 +1073,33 @@
                 seferi: { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 }
             }
         };
+
+        // --- SAYFA KİLİTLEME / KAYMA ENGELLEME MANTIĞI ---
+        function toggleLock() {
+            state.isLocked = !state.isLocked;
+            applyLockState();
+            saveState();
+        }
+
+        function applyLockState() {
+            const lockBtn = document.getElementById('lockToggleBtn');
+            if (state.isLocked) {
+                document.body.classList.add('page-locked');
+                lockBtn.innerHTML = '🔒 Kilitli';
+                lockBtn.classList.add('locked');
+            } else {
+                document.body.classList.remove('page-locked');
+                lockBtn.innerHTML = '🔓 Kilit';
+                lockBtn.classList.remove('locked');
+            }
+        }
+
+        // Dokunmatik cihazlarda kilitliyken kaydırmayı kesin engelle
+        window.addEventListener('touchmove', function(e) {
+            if (state.isLocked) {
+                e.preventDefault();
+            }
+        }, { passive: false });
 
         // --- AUDIO SYNTHESIZER ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1144,6 +1190,7 @@
             if (!state.kazaMode) state.kazaMode = 'normal';
 
             applyTheme();
+            applyLockState();
             updateUI();
         }
 
@@ -1173,6 +1220,7 @@
                     if (importedState && importedState.zikirs) {
                         state = importedState;
                         saveState();
+                        applyLockState();
                         updateUI();
                         alert("Verileriniz başarıyla içe aktarıldı!");
                     } else {
