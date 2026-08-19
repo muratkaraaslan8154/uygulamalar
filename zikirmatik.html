@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profesyonel Zikirmatik & Kaza Portal</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,700;1,400&family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #06120e;
+            --panel-bg: rgba(13, 33, 27, 0.85);
+            --emerald-primary: #10b981;
+            --emerald-glow: #059669;
+            --gold-accent: #f59e0b;
+            --gold-glow: #d97706;
+            --lcd-bg: #032015;
+            --lcd-text: #34d399;
+            --text-light: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        [data-theme="gold"] {
+            --bg-main: #181204;
+            --panel-bg: rgba(36, 26, 8, 0.85);
+            --emerald-primary: #f59e0b;
+            --emerald-glow: #d97706;
+            --lcd-bg: #221703;
+            --lcd-text: #fbbf24;
+            --border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        html, body {
+            touch-action: manipulation;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 70%),
+                radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.08) 0%, transparent 50%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            padding: 1rem 1.5rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--gold-accent), var(--gold-glow));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #ffffff, var(--emerald-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+        }
+
+        .icon-btn.active {
+            border-color: var(--gold-accent);
+            color: var(--gold-accent);
+        }
+
+        /* NAVIGATION TABS */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.2rem;
+            background: rgba(0,0,0,0.3);
+            padding: 6px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.75rem 0.5rem;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--emerald-primary);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        /* SUB TABS FOR KAZA */
+        .sub-tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.2rem;
+        }
+
+        .sub-tab-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.03);
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sub-tab-btn.active {
+            background: var(--gold-accent);
+            color: #000;
+            border-color: var(--gold-accent);
+        }
+
+        /* TAB CONTENT PANELS */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* MAIN GRID */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* MEKANİK CİHAZ */
+        .device-wrapper {
+            background: linear-gradient(145deg, #0d281e, #05150f);
+            border: 2px solid var(--border-color);
+            border-radius: 40px;
+            padding: 1.8rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            box-shadow: 
+                0 20px 50px rgba(0,0,0,0.8),
+                inset 0 2px 3px rgba(255,255,255,0.1),
+                inset 0 -3px 10px rgba(0,0,0,0.9);
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .lcd-screen {
+            background-color: var(--lcd-bg);
+            border: 3px solid #000;
+            outline: 2px solid var(--border-color);
+            border-radius: 20px;
+            width: 100%;
+            padding: 1.2rem 1rem;
+            text-align: center;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            margin-bottom: 1.2rem;
+            overflow: hidden;
+        }
+
+        .active-zikir-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold-accent);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .arabic-display {
+            font-family: 'Amiri', serif;
+            font-size: 1.8rem;
+            color: #ffffff;
+            height: 42px;
+            line-height: 42px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .counter-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 3.6rem;
+            font-weight: 900;
+            color: var(--lcd-text);
+            text-shadow: 0 0 20px var(--lcd-text);
+            letter-spacing: 4px;
+            line-height: 1;
+            margin: 8px 0;
+            font-variant-numeric: tabular-nums;
+            width: 100%;
+            display: block;
+        }
+
+        .lcd-info-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px dashed rgba(255,255,255,0.1);
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .progress-wrapper {
+            width: 100%;
+            margin-bottom: 1.2rem;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--emerald-glow), var(--gold-accent));
+            border-radius: 10px;
+            transition: width 0.2s ease-out;
+            box-shadow: 0 0 10px var(--gold-accent);
+        }
+
+        .main-btn-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 0.5rem 0 1rem 0;
+        }
+
+        .main-trigger-btn {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(145deg, var(--emerald-primary), #047857);
+            color: #ffffff;
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 
+                0 15px 25px rgba(0,0,0,0.6),
+                0 0 30px rgba(16, 185, 129, 0.4),
+                inset 0 4px 6px rgba(255,255,255,0.4),
+                inset 0 -6px 10px rgba(0,0,0,0.6);
+            transition: transform 0.05s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .main-trigger-btn:active {
+            transform: scale(0.95);
+            background: linear-gradient(145deg, #047857, var(--emerald-primary));
+        }
+
+        .aux-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn-aux {
+            flex: 1;
+            padding: 0.8rem 0.5rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.03);
+            color: var(--text-light);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* PANEL CARDS */
+        .panel-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+        }
+
+        .add-zikir-btn {
+            background: linear-gradient(135deg, var(--gold-accent), var(--gold-glow));
+            color: #000;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        /* ZIKIR LIST */
+        .zikir-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .zikir-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 0.9rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .zikir-item.active {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--emerald-primary);
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #fff;
+        }
+
+        .item-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .item-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .item-badge {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            color: var(--gold-accent);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .action-icon-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* KAZA NAMAZI GRID */
+        .kaza-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .kaza-card {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kaza-name {
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--gold-accent);
+        }
+
+        .kaza-count {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .kaza-controls {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .kaza-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .kaza-btn.minus:hover { background: rgba(239, 68, 68, 0.2); }
+        .kaza-btn.plus:hover { background: rgba(16, 185, 129, 0.2); }
+
+        .info-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--gold-accent);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            font-size: 0.8rem;
+            color: #fcd34d;
+            margin-bottom: 1.2rem;
+            line-height: 1.4;
+        }
+
+        /* DAILY LOG LIST */
+        .daily-log-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .daily-log-item {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 14px;
+            padding: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .daily-date {
+            font-weight: 700;
+            color: var(--gold-accent);
+            font-size: 0.9rem;
+        }
+
+        .daily-details {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .daily-total-badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--emerald-primary);
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--emerald-primary);
+            margin-bottom: 2px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* MODALS */
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-body {
+            background: #0d281e;
+            border: 2px solid var(--border-color);
+            border-radius: 24px;
+            padding: 1.8rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--gold-accent);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .modal-btn.primary { background: var(--gold-accent); color: #000; }
+        .modal-btn.danger { background: #ef4444; color: #fff; }
+        .modal-btn.secondary { background: rgba(255,255,255,0.1); color: #fff; }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding: 1.5rem 0 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="brand">
+                <div class="brand-icon">📿</div>
+                <div>
+                    <div class="brand-title">ZİKİRMATİK PRO</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);">Mekanik & Dijital Portal</div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button class="icon-btn active" id="soundToggleBtn" title="Ses">🔊</button>
+                <button class="icon-btn active" id="vibeToggleBtn" title="Titreşim">📳</button>
+                <button class="icon-btn" id="themeToggleBtn" title="Tema">🎨</button>
+            </div>
+        </header>
+
+        <!-- NAVIGATION TABS -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('tab-zikir')">📿 Zikirmatik</button>
+            <button class="tab-btn" onclick="switchTab('tab-gunluk')">📅 Günlük Takip</button>
+            <button class="tab-btn" onclick="switchTab('tab-kaza')">🕌 Kaza Namazı</button>
+        </div>
+
+        <!-- TAB 1: ZİKİRMATİK MEKANİK CİHAZ & KÜTÜPHANE -->
+        <div id="tab-zikir" class="tab-content active">
+            <div class="main-grid">
+                <!-- SAYAÇ CİHAZI -->
+                <div class="device-wrapper">
+                    <div class="lcd-screen">
+                        <div class="active-zikir-title" id="displayZikirTitle">SÜBHANALLAH</div>
+                        <div class="arabic-display" id="displayArabic">سُبْحَانَ ٱللَّٰهِ</div>
+                        <div class="counter-number" id="mainCounter">00000</div>
+                        
+                        <div class="lcd-info-bar">
+                            <span>Hedef: <strong id="displayTarget">33</strong></span>
+                            <span>Tamamlanan Tur: <strong id="displayRounds">0</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="progress-wrapper">
+                        <div class="progress-labels">
+                            <span>İlerleme</span>
+                            <span id="progressPercent">%0</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="progressBar"></div>
+                        </div>
+                    </div>
+
+                    <div class="main-btn-container">
+                        <button class="main-trigger-btn" id="countBtn">
+                            ZİKİR
+                            <span>ÇEK</span>
+                        </button>
+                    </div>
+
+                    <div class="aux-buttons">
+                        <button class="btn-aux" id="resetCurrentBtn">🔄 Sıfırla</button>
+                        <button class="btn-aux" id="editTargetBtn">🎯 Hedef</button>
+                    </div>
+                </div>
+
+                <!-- KÜTÜPHANE & İSTATİSTİK -->
+                <div>
+                    <div class="panel-card">
+                        <div class="card-header">
+                            <div class="card-title"><span>📜</span> Zikir Kütüphanesi</div>
+                            <button class="add-zikir-btn" id="openAddModalBtn">+ Yeni Zikir</button>
+                        </div>
+                        <div class="zikir-list" id="zikirListContainer"></div>
+                    </div>
+
+                    <div class="panel-card">
+                        <div class="card-header">
+                            <div class="card-title"><span>📊</span> Anlık İstatistikler</div>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-value" id="statTotalZikir">0</div>
+                                <div class="stat-label">Genel Toplam</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value" id="statTotalRounds">0</div>
+                                <div class="stat-label">Biten Tur</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value" id="statActiveCount">0</div>
+                                <div class="stat-label">Aktif Zikir</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: GÜNLÜK ÇEKİLEN ZİKİRLER TAKİBİ -->
+        <div id="tab-gunluk" class="tab-content">
+            <div class="panel-card">
+                <div class="card-header">
+                    <div class="card-title"><span>🌟</span> Bugün Çekilen Zikirler</div>
+                    <div class="item-badge" id="todayTotalBadge">0 Zikir</div>
+                </div>
+                <div id="todayBreakdownContainer" class="daily-log-list">
+                    <!-- Bugünün detayları buraya dinamik dolacak -->
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="card-header">
+                    <div class="card-title"><span>🗓️</span> Geçmiş Günlerin Günlüğü</div>
+                </div>
+                <div id="pastLogsContainer" class="daily-log-list">
+                    <!-- Geçmiş günler buraya dolacak -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: KAZA NAMAZI TAKİBİ -->
+        <div id="tab-kaza" class="tab-content">
+            <div class="panel-card">
+                <div class="card-header">
+                    <div class="card-title"><span>🕌</span> Kaza Namazı Borçlarım</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Eksilten (-) / Arttıran (+)</div>
+                </div>
+
+                <!-- SUB TAB TOGGLE (MUKİM / SEFERİ) -->
+                <div class="sub-tab-container">
+                    <button class="sub-tab-btn active" id="subTabNormal" onclick="setKazaMode('normal')">🏠 Mukim (Normal) Kazalar</button>
+                    <button class="sub-tab-btn" id="subTabSeferi" onclick="setKazaMode('seferi')">🚗 Seferi Kazaları</button>
+                </div>
+
+                <!-- FIKHI BİLGİ NOTU (SEFERİ İÇİN) -->
+                <div class="info-box" id="kazaInfoBox" style="display: none;">
+                    💡 <strong>Seferi Kaza Hükmü:</strong> Yolculuk sırasındaki kazaya kalan <strong>Öğle, İkindi ve Yatsı</strong> farz namazları, mukimken (evdeyken) kaza edilsalar dahi <strong>2'şer rekat</strong> olarak kaza edilir. Sabah, Akşam ve Vitir namazlarında rekat değişmez.
+                </div>
+
+                <div class="kaza-grid">
+                    <div class="kaza-card">
+                        <div class="kaza-name">Sabah</div>
+                        <div class="kaza-count" id="kazaSabah">0</div>
+                        <div class="kaza-controls">
+                            <button class="kaza-btn minus" onclick="updateKaza('sabah', -1)">-</button>
+                            <button class="kaza-btn plus" onclick="updateKaza('sabah', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="kaza-card">
+                        <div class="kaza-name">Öğle</div>
+                        <div class="kaza-count" id="kazaOgle">0</div>
+                        <div class="kaza-controls">
+                            <button class="kaza-btn minus" onclick="updateKaza('ogle', -1)">-</button>
+                            <button class="kaza-btn plus" onclick="updateKaza('ogle', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="kaza-card">
+                        <div class="kaza-name">İkindi</div>
+                        <div class="kaza-count" id="kazaIkindi">0</div>
+                        <div class="kaza-controls">
+                            <button class="kaza-btn minus" onclick="updateKaza('ikindi', -1)">-</button>
+                            <button class="kaza-btn plus" onclick="updateKaza('ikindi', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="kaza-card">
+                        <div class="kaza-name">Akşam</div>
+                        <div class="kaza-count" id="kazaAksam">0</div>
+                        <div class="kaza-controls">
+                            <button class="kaza-btn minus" onclick="updateKaza('aksam', -1)">-</button>
+                            <button class="kaza-btn plus" onclick="updateKaza('aksam', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="kaza-card">
+                        <div class="kaza-name">Yatsı</div>
+                        <div class="kaza-count" id="kazaYatsi">0</div>
+                        <div class="kaza-controls">
+                            <button class="kaza-btn minus" onclick="updateKaza('yatsi', -1)">-</button>
+                            <button class="kaza-btn plus" onclick="updateKaza('yatsi', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="kaza-card">
+                        <div class="kaza-name">Vitir</div>
+                        <div class="kaza-count" id="kazaVitir">0</div>
+                        <div class="kaza-controls">
+                            <button class="kaza-btn minus" onclick="updateKaza('vitir', -1)">-</button>
+                            <button class="kaza-btn plus" onclick="updateKaza('vitir', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Tüm Hakları Saklıdır © 2026 Profesyonel Zikirmatik & Dijital Tesbih Portal
+        </footer>
+    </div>
+
+    <!-- MODAL: ADD / EDIT ZIKIR -->
+    <div class="modal-overlay" id="zikirModal">
+        <div class="modal-body">
+            <div class="modal-title" id="modalTitle">Yeni Zikir Ekle</div>
+            <div class="form-group">
+                <label>Zikir Adı / Başlık</label>
+                <input type="text" id="inputName" class="form-control" placeholder="Örn: Ya Kuddûs">
+            </div>
+            <div class="form-group">
+                <label>Arapça Yazılışı (İsteğe Bağlı)</label>
+                <input type="text" id="inputArabic" class="form-control" placeholder="Örn: يَا قُدُّوسُ">
+            </div>
+            <div class="form-group">
+                <label>Hedef Tekrar Sayısı</label>
+                <input type="number" id="inputTarget" class="form-control" value="33" min="1">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="closeModalBtn">İptal</button>
+                <button class="modal-btn primary" id="saveZikirBtn">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: COMPLETION CONFIRMATION -->
+    <div class="modal-overlay" id="completionModal">
+        <div class="modal-body" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎉</div>
+            <div class="modal-title" style="font-size: 1.4rem;">Zikir Tamamlandı!</div>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5;" id="completionText">
+                Zikri tamamladınız.
+            </p>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="completionCancelBtn">Kapat</button>
+                <button class="modal-btn primary" id="completionConfirmBtn">Devam Et (Yeni Tur)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SIFIRLAMA ONAY -->
+    <div class="modal-overlay" id="resetModal">
+        <div class="modal-body" style="text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔄</div>
+            <div class="modal-title" style="font-size: 1.3rem;">Sayaç Sıfırlansın mı?</div>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Mevcut zikir sayınız <strong>0</strong> yapılacaktır.</p>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="resetCancelBtn">İptal</button>
+                <button class="modal-btn danger" id="resetConfirmBtn">Sıfırla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DELETE CONFIRMATION -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-body" style="text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🗑️</div>
+            <div class="modal-title" style="font-size: 1.3rem;">Zikir Silinsin mi?</div>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;" id="deleteModalText">Bu zikri kütüphaneden silmek istediğinize emin misiniz?</p>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="deleteCancelBtn">İptal</button>
+                <button class="modal-btn danger" id="deleteConfirmBtn">Sil</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: QUICK TARGET -->
+    <div class="modal-overlay" id="targetModal">
+        <div class="modal-body">
+            <div class="modal-title">Hedef Sayısını Değiştir</div>
+            <div class="form-group">
+                <label>Yeni Hedef Zikir Sayısı</label>
+                <input type="number" id="quickTargetInput" class="form-control" min="1" value="33">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="targetCancelBtn">İptal</button>
+                <button class="modal-btn primary" id="targetSaveBtn">Güncelle</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- PRESET DEFAULT ZIKIRS ---
+        const defaultZikirs = [
+            { id: 1, name: "Sübhanallah", arabic: "سُبْحَانَ ٱللَّٰهِ", count: 0, target: 33, rounds: 0 },
+            { id: 2, name: "Elhamdulillah", arabic: "ٱلْحَمْدُ لِلَّٰهِ", count: 0, target: 33, rounds: 0 },
+            { id: 3, name: "Allahü Ekber", arabic: "ٱللَّٰهُ أَكْبَرُ", count: 0, target: 33, rounds: 0 },
+            { id: 4, name: "Lâ ilâhe illallâh", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّٰهُ", count: 0, target: 100, rounds: 0 },
+            { id: 5, name: "Estağfirullah", arabic: "أَسْتَغْفِرُ ٱللَّٰهَ", count: 0, target: 100, rounds: 0 },
+            { id: 6, name: "Salavat-ı Şerife", arabic: "ٱللَّٰهُمَّ صَلِّ عَلَىٰ محمَّدٍ", count: 0, target: 100, rounds: 0 }
+        ];
+
+        // --- APP STATE ---
+        let state = {
+            zikirs: [],
+            activeId: 1,
+            soundEnabled: true,
+            vibeEnabled: true,
+            theme: 'emerald',
+            totalZikirAllTime: 0,
+            editingId: null,
+            pendingDeleteId: null,
+            dailyLogs: {},
+            kazaMode: 'normal', // 'normal' or 'seferi'
+            kaza: {
+                normal: { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 },
+                seferi: { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 }
+            }
+        };
+
+        // --- AUDIO SYNTHESIZER ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playClickSound() {
+            if (!state.soundEnabled) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.04);
+
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.04);
+        }
+
+        function playSuccessSound() {
+            if (!state.soundEnabled) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.value = freq;
+
+                const startTime = audioCtx.currentTime + (idx * 0.08);
+                gain.gain.setValueAtTime(0.2, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(startTime);
+                osc.stop(startTime + 0.3);
+            });
+        }
+
+        function triggerVibration(pattern = 30) {
+            if (state.vibeEnabled && navigator.vibrate) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        function getTodayKey() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // --- LOCAL STORAGE & MIGRATION ---
+        function loadState() {
+            const saved = localStorage.getItem('zikirmatik_pro_data');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state = { ...state, ...parsed };
+                } catch(e) {
+                    state.zikirs = defaultZikirs;
+                }
+            } else {
+                state.zikirs = defaultZikirs;
+            }
+
+            if (!state.dailyLogs) state.dailyLogs = {};
+            
+            // Migration for Kaza Data Structure
+            if (!state.kaza || !state.kaza.normal) {
+                const oldKaza = (state.kaza && state.kaza.sabah !== undefined) ? state.kaza : { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 };
+                state.kaza = {
+                    normal: oldKaza,
+                    seferi: { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 }
+                };
+            }
+
+            if (!state.kazaMode) state.kazaMode = 'normal';
+
+            applyTheme();
+            updateUI();
+        }
+
+        function saveState() {
+            localStorage.setItem('zikirmatik_pro_data', JSON.stringify(state));
+        }
+
+        function getActiveZikir() {
+            return state.zikirs.find(z => z.id === state.activeId) || state.zikirs[0];
+        }
+
+        function applyTheme() {
+            if (state.theme === 'gold') {
+                document.body.setAttribute('data-theme', 'gold');
+            } else {
+                document.body.removeAttribute('data-theme');
+            }
+        }
+
+        // --- TAB NAVIGATION ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.currentTarget.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+
+            if (tabId === 'tab-gunluk') renderDailyLogs();
+            if (tabId === 'tab-kaza') renderKazaUI();
+        }
+
+        // --- UI RENDER ENGINE ---
+        function updateUI() {
+            const active = getActiveZikir();
+            if (!active) return;
+
+            document.getElementById('displayZikirTitle').textContent = active.name;
+            document.getElementById('displayArabic').textContent = active.arabic || '';
+            document.getElementById('mainCounter').textContent = String(active.count).padStart(5, '0');
+            document.getElementById('displayTarget').textContent = active.target;
+            document.getElementById('displayRounds').textContent = active.rounds;
+
+            const percent = Math.min(Math.round((active.count / active.target) * 100), 100);
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressPercent').textContent = '%' + percent;
+
+            // Render Library
+            const container = document.getElementById('zikirListContainer');
+            container.innerHTML = '';
+
+            state.zikirs.forEach(z => {
+                const isSelected = z.id === active.id;
+                const item = document.createElement('div');
+                item.className = `zikir-item ${isSelected ? 'active' : ''}`;
+                item.onclick = () => selectZikir(z.id);
+
+                item.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-name">${z.name}</div>
+                        <div class="item-sub">Hedef: ${z.target} | Tur: ${z.rounds}</div>
+                    </div>
+                    <div class="item-right">
+                        <div class="item-badge">${z.count}</div>
+                        <div class="item-actions">
+                            <button class="action-icon-btn" title="Düzenle" onclick="openEditModal(event, ${z.id})">✏️</button>
+                            <button class="action-icon-btn delete-btn" title="Sil" onclick="triggerDeleteZikir(event, ${z.id})">🗑️</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            // Stats
+            const totalZikirsCount = state.zikirs.reduce((acc, curr) => acc + curr.count, 0);
+            const totalRoundsCount = state.zikirs.reduce((acc, curr) => acc + curr.rounds, 0);
+
+            document.getElementById('statTotalZikir').textContent = totalZikirsCount + state.totalZikirAllTime;
+            document.getElementById('statTotalRounds').textContent = totalRoundsCount;
+            document.getElementById('statActiveCount').textContent = active.count;
+
+            document.getElementById('soundToggleBtn').classList.toggle('active', state.soundEnabled);
+            document.getElementById('vibeToggleBtn').classList.toggle('active', state.vibeEnabled);
+
+            renderKazaUI();
+            saveState();
+        }
+
+        // --- CORE ACTIONS ---
+        function incrementCounter() {
+            const active = getActiveZikir();
+
+            if (active.count >= active.target) {
+                showCompletionModal(active);
+                return;
+            }
+
+            active.count++;
+            
+            // Log Daily
+            const todayKey = getTodayKey();
+            if (!state.dailyLogs[todayKey]) {
+                state.dailyLogs[todayKey] = { total: 0, items: {} };
+            }
+            state.dailyLogs[todayKey].total++;
+            state.dailyLogs[todayKey].items[active.name] = (state.dailyLogs[todayKey].items[active.name] || 0) + 1;
+
+            playClickSound();
+            triggerVibration(35);
+
+            if (active.count >= active.target) {
+                updateUI();
+                playSuccessSound();
+                triggerVibration([200, 100, 200, 100, 300]);
+
+                setTimeout(() => {
+                    showCompletionModal(active);
+                }, 150);
+            } else {
+                updateUI();
+            }
+        }
+
+        function selectZikir(id) {
+            state.activeId = id;
+            updateUI();
+        }
+
+        // --- DELETE ZIKIR MODAL ---
+        const deleteModal = document.getElementById('deleteModal');
+
+        function triggerDeleteZikir(event, id) {
+            event.stopPropagation();
+            if (state.zikirs.length <= 1) {
+                alert("Kütüphanede en az bir zikir kalmalıdır!");
+                return;
+            }
+
+            const zikir = state.zikirs.find(z => z.id === id);
+            if (!zikir) return;
+
+            state.pendingDeleteId = id;
+            document.getElementById('deleteModalText').innerHTML = `<strong>"${zikir.name}"</strong> zikrini silmek istediğinize emin misiniz?`;
+            deleteModal.classList.add('open');
+        }
+
+        document.getElementById('deleteCancelBtn').onclick = () => {
+            deleteModal.classList.remove('open');
+            state.pendingDeleteId = null;
+        };
+
+        document.getElementById('deleteConfirmBtn').onclick = () => {
+            if (state.pendingDeleteId) {
+                state.zikirs = state.zikirs.filter(z => z.id !== state.pendingDeleteId);
+                if (state.activeId === state.pendingDeleteId) {
+                    state.activeId = state.zikirs[0].id;
+                }
+                state.pendingDeleteId = null;
+                deleteModal.classList.remove('open');
+                updateUI();
+            }
+        };
+
+        // --- GÜNLÜK LOG RENDER ENGINE ---
+        function renderDailyLogs() {
+            const todayKey = getTodayKey();
+            const todayData = state.dailyLogs[todayKey] || { total: 0, items: {} };
+
+            document.getElementById('todayTotalBadge').textContent = `${todayData.total} Zikir`;
+
+            const todayContainer = document.getElementById('todayBreakdownContainer');
+            todayContainer.innerHTML = '';
+
+            const itemNames = Object.keys(todayData.items);
+            if (itemNames.length === 0) {
+                todayContainer.innerHTML = `<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1rem;">Bugün henüz zikir çekilmedi.</div>`;
+            } else {
+                itemNames.forEach(name => {
+                    const row = document.createElement('div');
+                    row.className = 'daily-log-item';
+                    row.innerHTML = `
+                        <div>
+                            <div class="daily-date">${name}</div>
+                        </div>
+                        <div class="daily-total-badge">${todayData.items[name]}</div>
+                    `;
+                    todayContainer.appendChild(row);
+                });
+            }
+
+            // Past Logs
+            const pastContainer = document.getElementById('pastLogsContainer');
+            pastContainer.innerHTML = '';
+
+            const pastDates = Object.keys(state.dailyLogs)
+                .filter(d => d !== todayKey)
+                .sort()
+                .reverse();
+
+            if (pastDates.length === 0) {
+                pastContainer.innerHTML = `<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1rem;">Geçmiş gün kaydı bulunmuyor.</div>`;
+            } else {
+                pastDates.forEach(dateStr => {
+                    const log = state.dailyLogs[dateStr];
+                    const detailsStr = Object.entries(log.items).map(([k, v]) => `${k}: ${v}`).join(' | ');
+
+                    const row = document.createElement('div');
+                    row.className = 'daily-log-item';
+                    row.innerHTML = `
+                        <div>
+                            <div class="daily-date">${dateStr}</div>
+                            <div class="daily-details">${detailsStr}</div>
+                        </div>
+                        <div class="daily-total-badge">${log.total}</div>
+                    `;
+                    pastContainer.appendChild(row);
+                });
+            }
+        }
+
+        // --- KAZA NAMAZI ENGINE ---
+        function setKazaMode(mode) {
+            state.kazaMode = mode;
+            document.getElementById('subTabNormal').classList.toggle('active', mode === 'normal');
+            document.getElementById('subTabSeferi').classList.toggle('active', mode === 'seferi');
+            document.getElementById('kazaInfoBox').style.display = (mode === 'seferi') ? 'block' : 'none';
+            renderKazaUI();
+            saveState();
+        }
+
+        function renderKazaUI() {
+            const kazaData = state.kaza[state.kazaMode] || state.kaza.normal;
+            document.getElementById('kazaSabah').textContent = kazaData.sabah;
+            document.getElementById('kazaOgle').textContent = kazaData.ogle;
+            document.getElementById('kazaIkindi').textContent = kazaData.ikindi;
+            document.getElementById('kazaAksam').textContent = kazaData.aksam;
+            document.getElementById('kazaYatsi').textContent = kazaData.yatsi;
+            document.getElementById('kazaVitir').textContent = kazaData.vitir;
+        }
+
+        function updateKaza(type, amount) {
+            const currentObj = state.kaza[state.kazaMode];
+            if (currentObj && currentObj[type] !== undefined) {
+                currentObj[type] = Math.max(0, currentObj[type] + amount);
+                triggerVibration(25);
+                renderKazaUI();
+                saveState();
+            }
+        }
+
+        // --- SIFIRLAMA MODALI ---
+        const resetModal = document.getElementById('resetModal');
+        document.getElementById('resetCurrentBtn').onclick = () => resetModal.classList.add('open');
+        document.getElementById('resetCancelBtn').onclick = () => resetModal.classList.remove('open');
+        document.getElementById('resetConfirmBtn').onclick = () => {
+            const active = getActiveZikir();
+            active.count = 0;
+            resetModal.classList.remove('open');
+            updateUI();
+        };
+
+        // --- HEDEF DEĞİŞTİRME MODALI ---
+        const targetModal = document.getElementById('targetModal');
+        document.getElementById('editTargetBtn').onclick = () => {
+            const active = getActiveZikir();
+            document.getElementById('quickTargetInput').value = active.target;
+            targetModal.classList.add('open');
+        };
+        document.getElementById('targetCancelBtn').onclick = () => targetModal.classList.remove('open');
+        document.getElementById('targetSaveBtn').onclick = () => {
+            const val = parseInt(document.getElementById('quickTargetInput').value);
+            if (val && val > 0) {
+                const active = getActiveZikir();
+                active.target = val;
+                targetModal.classList.remove('open');
+                updateUI();
+            }
+        };
+
+        // --- COMPLETION MODAL ---
+        const completionModal = document.getElementById('completionModal');
+
+        function showCompletionModal(active) {
+            document.getElementById('completionText').innerHTML = 
+                `<strong>"${active.name}"</strong> zikrini <strong>${active.target}</strong> defa çekerek tamamladınız.<br><br>Yeni tura geçmek istiyor musunuz?`;
+            completionModal.classList.add('open');
+        }
+
+        document.getElementById('completionConfirmBtn').onclick = () => {
+            const active = getActiveZikir();
+            active.rounds++;
+            active.count = 0;
+            completionModal.classList.remove('open');
+            updateUI();
+        };
+
+        document.getElementById('completionCancelBtn').onclick = () => completionModal.classList.remove('open');
+
+        // --- ADD/EDIT ZIKIR MODAL ---
+        const modal = document.getElementById('zikirModal');
+
+        document.getElementById('openAddModalBtn').onclick = () => {
+            state.editingId = null;
+            document.getElementById('modalTitle').textContent = "Yeni Zikir Ekle";
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputArabic').value = '';
+            document.getElementById('inputTarget').value = 33;
+            modal.classList.add('open');
+        };
+
+        function openEditModal(event, id) {
+            event.stopPropagation();
+            const zikir = state.zikirs.find(z => z.id === id);
+            if (!zikir) return;
+
+            state.editingId = id;
+            document.getElementById('modalTitle').textContent = "Zikri Düzenle";
+            document.getElementById('inputName').value = zikir.name;
+            document.getElementById('inputArabic').value = zikir.arabic || '';
+            document.getElementById('inputTarget').value = zikir.target;
+            modal.classList.add('open');
+        }
+
+        document.getElementById('closeModalBtn').onclick = () => modal.classList.remove('open');
+
+        document.getElementById('saveZikirBtn').onclick = () => {
+            const name = document.getElementById('inputName').value.trim();
+            const arabic = document.getElementById('inputArabic').value.trim();
+            const target = parseInt(document.getElementById('inputTarget').value);
+
+            if (!name) {
+                alert("Lütfen bir zikir adı giriniz!");
+                return;
+            }
+
+            if (state.editingId) {
+                const zikir = state.zikirs.find(z => z.id === state.editingId);
+                if (zikir) {
+                    zikir.name = name;
+                    zikir.arabic = arabic;
+                    zikir.target = target || 33;
+                }
+            } else {
+                const newZikir = {
+                    id: Date.now(),
+                    name: name,
+                    arabic: arabic,
+                    count: 0,
+                    target: target || 33,
+                    rounds: 0
+                };
+                state.zikirs.push(newZikir);
+                state.activeId = newZikir.id;
+            }
+
+            modal.classList.remove('open');
+            updateUI();
+        };
+
+        // --- GENERAL CONTROLS ---
+        document.getElementById('countBtn').onclick = incrementCounter;
+
+        document.getElementById('soundToggleBtn').onclick = () => {
+            state.soundEnabled = !state.soundEnabled;
+            updateUI();
+        };
+
+        document.getElementById('vibeToggleBtn').onclick = () => {
+            state.vibeEnabled = !state.vibeEnabled;
+            updateUI();
+        };
+
+        document.getElementById('themeToggleBtn').onclick = () => {
+            state.theme = state.theme === 'emerald' ? 'gold' : 'emerald';
+            applyTheme();
+            updateUI();
+        };
+
+        // Spacebar Shortcut
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !document.querySelector('.modal-overlay.open')) {
+                e.preventDefault();
+                incrementCounter();
+            }
+        });
+
+        // Initialize
+        loadState();
+    </script>
+</body>
+</html>
