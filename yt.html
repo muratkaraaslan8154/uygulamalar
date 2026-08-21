@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Yatırım Takip Portföyü (Firebase & Mobil Uyumlu)</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --gold: #eab308;
+      --silver: #94a3b8;
+      --dollar: #22c55e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 12px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
+    .container { max-width: 1400px; margin: 0 auto; }
+
+    /* Header & Navigation */
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px; }
+    h1 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+    
+    .status-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px; }
+
+    .btn { background-color: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; min-height: 42px; touch-action: manipulation; }
+    .btn:active { transform: scale(0.98); }
+    .btn:hover { background-color: var(--primary-hover); }
+    .btn-danger { background-color: var(--danger); }
+    .btn-danger:hover { background-color: #dc2626; }
+    .btn-secondary { background-color: #475569; }
+    .btn-secondary:hover { background-color: #334155; }
+    .btn-sm { padding: 6px 12px; font-size: 0.8rem; min-height: 34px; }
+
+    /* Cards Layout */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
+    .card-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .card-value { font-size: 1.5rem; font-weight: 700; }
+
+    /* Rates & KPI Bar */
+    .rate-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .rate-box { background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+    .rate-box label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
+    .rate-box input { width: 100%; background: #0f172a; border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 6px; font-size: 1rem; font-weight: 600; }
+
+    /* Forms */
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 0.8rem; color: var(--text-muted); }
+    .form-group input, .form-group select { background: #0f172a; border: 1px solid var(--border-color); color: #fff; padding: 10px 12px; border-radius: 8px; outline: none; font-size: 1rem; }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+
+    /* Badge & Indicators */
+    .profit { color: var(--success); }
+    .loss { color: var(--danger); }
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+    .badge-gold { background: rgba(234, 179, 8, 0.2); color: var(--gold); }
+    .badge-silver { background: rgba(148, 163, 184, 0.2); color: var(--silver); }
+    .badge-dollar { background: rgba(34, 197, 94, 0.2); color: var(--dollar); }
+
+    /* Tables Layout */
+    .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .table-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
+    .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); }
+    
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 320px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+    th { color: var(--text-muted); font-weight: 600; }
+    tbody tr:hover { background-color: rgba(255,255,255,0.02); }
+
+    /* Pagination */
+    .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Modal */
+    .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+    .modal { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 480px; padding: 20px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .close-modal { cursor: pointer; font-size: 1.4rem; color: var(--text-muted); padding: 4px; }
+
+    /* Mobil Düzenleme */
+    @media (max-width: 600px) {
+      body { padding: 8px; }
+      h1 { font-size: 1.1rem; }
+      .grid { grid-template-columns: 1fr; }
+      .rate-inputs { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .tables-grid { grid-template-columns: 1fr; }
+      .form-actions { flex-direction: column; width: 100%; }
+      .form-actions button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>📈 Yatırım Takip Portföyü</h1>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span id="sync-status" class="status-badge">🔄 Yükleniyor...</span>
+      <button class="btn btn-secondary" onclick="openSettingsModal()">⚙️ Ayarlar</button>
+    </div>
+  </header>
+
+  <!-- Top KPI Dashboard -->
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Toplam Portföy Değeri</div>
+      <div class="card-value" id="total-portfolio-val">₺0,00</div>
+      <div style="font-size:0.85rem; margin-top:4px;" id="total-portfolio-sub">Maliyet: ₺0,00</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Toplam Net Kâr / Zarar</div>
+      <div class="card-value" id="total-profit-val">₺0,00</div>
+      <div style="font-size:0.85rem; margin-top:4px;" id="total-profit-pct">%0,00</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Varlık Dağılımı K/Z (₺)</div>
+      <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:4px; margin-top:6px;">
+        <div>🟡 Altın: <span id="kpi-gold-pz" class="profit">₺0,00</span></div>
+        <div>⚪ Gümüş: <span id="kpi-silver-pz" class="profit">₺0,00</span></div>
+        <div>🟢 Dolar: <span id="kpi-dollar-pz" class="profit">₺0,00</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Güncel Satış Kurları Giriş Alanı -->
+  <div class="card" style="margin-bottom: 16px;">
+    <div class="card-title">💲 Güncel Piyasa Satış Kurları</div>
+    <div class="rate-inputs">
+      <div class="rate-box">
+        <label>Altın Satış Kuru (₺/Gr)</label>
+        <input type="number" id="rate-gold" step="0.01" placeholder="3000.00" oninput="updateCalculationsAndSave()">
+      </div>
+      <div class="rate-box">
+        <label>Gümüş Satış Kuru (₺/Gr)</label>
+        <input type="number" id="rate-silver" step="0.01" placeholder="35.00" oninput="updateCalculationsAndSave()">
+      </div>
+      <div class="rate-box">
+        <label>Dolar Satış Kuru (₺/$)</label>
+        <input type="number" id="rate-dollar" step="0.01" placeholder="36.00" oninput="updateCalculationsAndSave()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Yeni Alım Kayıt Formu -->
+  <div class="card" style="margin-bottom: 16px;">
+    <div class="card-title">➕ Yeni Alım Kaydı Ekle</div>
+    <form id="trade-form" onsubmit="handleTradeSubmit(event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Varlık Türü</label>
+          <select id="form-asset" onchange="applyDefaultCommission()">
+            <option value="altin">🟡 Altın (Gram)</option>
+            <option value="gumus">⚪ Gümüş (Gram)</option>
+            <option value="dolar">🟢 Dolar ($)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tarih</label>
+          <input type="date" id="form-date" required>
+        </div>
+        <div class="form-group">
+          <label>Alım Miktarı</label>
+          <input type="number" id="form-amount" step="0.01" placeholder="Miktar" required oninput="calculateFormTotal()">
+        </div>
+        <div class="form-group">
+          <label>Birim Alış Fiyatı (₺)</label>
+          <input type="number" id="form-price" step="0.01" placeholder="Birim Fiyat" required oninput="calculateFormTotal()">
+        </div>
+        <div class="form-group">
+          <label>Komisyon / Masraf (%)</label>
+          <input type="number" id="form-commission-rate" step="0.01" placeholder="Örn: 0.5" oninput="calculateFormTotal()">
+        </div>
+        <div class="form-group">
+          <label>Ödenen Ücret (₺)</label>
+          <input type="number" id="form-total-cost" step="0.01" placeholder="Toplam Maliyet" readonly style="background:#0f172a; font-weight:bold;">
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top: 14px; display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" id="btn-cancel-edit" class="btn btn-secondary" style="display:none;" onclick="resetForm()">İptal</button>
+        <button type="submit" id="btn-submit-form" class="btn">💾 Kaydet</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 3 Varlık İçin Ayrı Tablolar -->
+  <div class="tables-grid">
+    
+    <!-- ALTIN TABLOSU -->
+    <div class="table-container">
+      <div>
+        <div class="table-header">
+          <h3>🟡 Altın İşlemleri</h3>
+          <span class="badge badge-gold" id="gold-summary-badge">0 Gram</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Tarih</th>
+                <th>Miktar</th>
+                <th>Alış (₺)</th>
+                <th>Maliyet (₺)</th>
+                <th>K/Z (₺)</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-altin"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pagination">
+        <button class="btn btn-secondary btn-sm" onclick="changePage('altin', -1)">❮ Geri</button>
+        <span id="page-info-altin">Sayfa 1/1</span>
+        <button class="btn btn-secondary btn-sm" onclick="changePage('altin', 1)">İleri ❯</button>
+      </div>
+    </div>
+
+    <!-- GÜMÜŞ TABLOSU -->
+    <div class="table-container">
+      <div>
+        <div class="table-header">
+          <h3>⚪ Gümüş İşlemleri</h3>
+          <span class="badge badge-silver" id="silver-summary-badge">0 Gram</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Tarih</th>
+                <th>Miktar</th>
+                <th>Alış (₺)</th>
+                <th>Maliyet (₺)</th>
+                <th>K/Z (₺)</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-gumus"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pagination">
+        <button class="btn btn-secondary btn-sm" onclick="changePage('gumus', -1)">❮ Geri</button>
+        <span id="page-info-gumus">Sayfa 1/1</span>
+        <button class="btn btn-secondary btn-sm" onclick="changePage('gumus', 1)">İleri ❯</button>
+      </div>
+    </div>
+
+    <!-- DOLAR TABLOSU -->
+    <div class="table-container">
+      <div>
+        <div class="table-header">
+          <h3>🟢 Dolar İşlemleri</h3>
+          <span class="badge badge-dollar" id="dollar-summary-badge">$0</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Tarih</th>
+                <th>Miktar</th>
+                <th>Alış (₺)</th>
+                <th>Maliyet (₺)</th>
+                <th>K/Z (₺)</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-dolar"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pagination">
+        <button class="btn btn-secondary btn-sm" onclick="changePage('dolar', -1)">❮ Geri</button>
+        <span id="page-info-dolar">Sayfa 1/1</span>
+        <button class="btn btn-secondary btn-sm" onclick="changePage('dolar', 1)">İleri ❯</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AYARLAR MODAL -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>⚙️ Genel Ayarlar</h3>
+      <span class="close-modal" onclick="closeSettingsModal()">✖</span>
+    </div>
+    
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>Varsayılan Altın Komisyon Oranı (%)</label>
+      <input type="number" id="setting-comm-gold" step="0.01">
+    </div>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>Varsayılan Gümüş Komisyon Oranı (%)</label>
+      <input type="number" id="setting-comm-silver" step="0.01">
+    </div>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>Varsayılan Dolar Komisyon Oranı (%)</label>
+      <input type="number" id="setting-comm-dollar" step="0.01">
+    </div>
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label>Düzenle/Sil Şifresi (PIN)</label>
+      <input type="password" id="setting-pin" placeholder="Varsayılan: 1234">
+    </div>
+
+    <hr style="border-color: var(--border-color); margin: 16px 0;">
+
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button class="btn" onclick="saveSettings()">💾 Ayarları Kaydet</button>
+      <button class="btn btn-secondary" onclick="exportData()">📥 Yedek İndir (JSON)</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">📤 Yedek Yükle (JSON)</button>
+      <input type="file" id="import-file" style="display:none;" accept=".json" onchange="importData(event)">
+      <button class="btn btn-danger" onclick="resetAllData()">⚠️ Tüm Verileri Sıfırla</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // FIREBASE REALTIME DATABASE URL (Görseldeki Veritabanınız)
+  const DB_URL = "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app/yatirimPortfoy.json";
+
+  // Uygulama Durumu (State)
+  let trades = [];
+  let rates = { altin: 0, gumus: 0, dolar: 0 };
+  let settings = { commGold: 0.2, commSilver: 0.5, commDollar: 0.1, pin: '1234' };
+
+  let currentPage = { altin: 1, gumus: 1, dolar: 1 };
+  const ITEMS_PER_PAGE = 10;
+  let editingId = null;
+
+  // Başlatma
+  window.onload = async () => {
+    document.getElementById('form-date').valueAsDate = new Date();
+    await fetchFromFirebase();
+  };
+
+  // Status Göstergesi Güncelle
+  function setStatus(text, color) {
+    const statusEl = document.getElementById('sync-status');
+    statusEl.innerText = text;
+    statusEl.style.color = color || 'var(--text-muted)';
+  }
+
+  // Firebase'den Verileri Çek
+  async function fetchFromFirebase() {
+    setStatus('🔄 Senkronize ediliyor...', 'var(--warning)');
+    try {
+      const response = await fetch(DB_URL);
+      if (response.ok) {
+        const data = await response.json();
+        if (data) {
+          trades = data.trades || [];
+          rates = data.rates || { altin: 0, gumus: 0, dolar: 0 };
+          settings = data.settings || settings;
+        }
+        setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+      } else {
+        setStatus('🔴 Sunucu Hatası', 'var(--danger)');
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus('🔴 Bağlantı Kesildi', 'var(--danger)');
+    }
+
+    // Arayüzü doldur
+    document.getElementById('rate-gold').value = rates.altin || '';
+    document.getElementById('rate-silver').value = rates.gumus || '';
+    document.getElementById('rate-dollar').value = rates.dolar || '';
+
+    applyDefaultCommission();
+    updateCalculations();
+  }
+
+  // Firebase'e Verileri Kaydet (Eşzamanlama)
+  async function saveToFirebase() {
+    setStatus('⏳ Kaydediliyor...', 'var(--warning)');
+    try {
+      const payload = { trades, rates, settings };
+      const response = await fetch(DB_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+      } else {
+        setStatus('🔴 Kayıt Başarısız', 'var(--danger)');
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus('🔴 Bağlantı Hatası', 'var(--danger)');
+    }
+  }
+
+  // Ayarlardaki sabit komisyonu forma uygula
+  function applyDefaultCommission() {
+    if(editingId) return;
+    const asset = document.getElementById('form-asset').value;
+    let rate = 0;
+    if (asset === 'altin') rate = settings.commGold;
+    if (asset === 'gumus') rate = settings.commSilver;
+    if (asset === 'dolar') rate = settings.commDollar;
+    document.getElementById('form-commission-rate').value = rate;
+    calculateFormTotal();
+  }
+
+  // Form Toplam Tutarı Otomatik Hesapla
+  function calculateFormTotal() {
+    const amount = parseFloat(document.getElementById('form-amount').value) || 0;
+    const price = parseFloat(document.getElementById('form-price').value) || 0;
+    const commRate = parseFloat(document.getElementById('form-commission-rate').value) || 0;
+
+    const baseCost = amount * price;
+    const totalCost = baseCost + (baseCost * (commRate / 100));
+    document.getElementById('form-total-cost').value = totalCost ? totalCost.toFixed(2) : '';
+  }
+
+  // Yeni İşlem Ekleme / Güncelleme
+  async function handleTradeSubmit(e) {
+    e.preventDefault();
+
+    const tradeData = {
+      id: editingId || Date.now(),
+      asset: document.getElementById('form-asset').value,
+      date: document.getElementById('form-date').value,
+      amount: parseFloat(document.getElementById('form-amount').value),
+      price: parseFloat(document.getElementById('form-price').value),
+      commRate: parseFloat(document.getElementById('form-commission-rate').value) || 0,
+      totalCost: parseFloat(document.getElementById('form-total-cost').value)
+    };
+
+    if (editingId) {
+      trades = trades.map(t => t.id === editingId ? tradeData : t);
+      editingId = null;
+    } else {
+      trades.push(tradeData);
+    }
+
+    resetForm();
+    updateCalculations();
+    await saveToFirebase();
+  }
+
+  function resetForm() {
+    editingId = null;
+    document.getElementById('trade-form').reset();
+    document.getElementById('form-date').valueAsDate = new Date();
+    document.getElementById('btn-submit-form').innerText = '💾 Kaydet';
+    document.getElementById('btn-cancel-edit').style.display = 'none';
+    applyDefaultCommission();
+  }
+
+  // PIN Koruması
+  function checkPin() {
+    const inputPin = prompt("İşleme devam etmek için şifrenizi giriniz:");
+    if (inputPin === settings.pin) return true;
+    alert("❌ Hatalı Şifre!");
+    return false;
+  }
+
+  // Düzenleme Başlat
+  function editTrade(id) {
+    if (!checkPin()) return;
+
+    const trade = trades.find(t => t.id === id);
+    if (!trade) return;
+
+    editingId = trade.id;
+    document.getElementById('form-asset').value = trade.asset;
+    document.getElementById('form-date').value = trade.date;
+    document.getElementById('form-amount').value = trade.amount;
+    document.getElementById('form-price').value = trade.price;
+    document.getElementById('form-commission-rate').value = trade.commRate;
+    document.getElementById('form-total-cost').value = trade.totalCost;
+
+    document.getElementById('btn-submit-form').innerText = '✏️ Güncelle';
+    document.getElementById('btn-cancel-edit').style.display = 'inline-block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // İşlem Silme
+  async function deleteTrade(id) {
+    if (!checkPin()) return;
+    if (confirm("Bu işlemi silmek istediğinize emin misiniz?")) {
+      trades = trades.filter(t => t.id !== id);
+      updateCalculations();
+      await saveToFirebase();
+    }
+  }
+
+  function updateCalculationsAndSave() {
+    updateCalculations();
+    saveToFirebase();
+  }
+
+  // Hesaplamalar ve UI Güncelleme
+  function updateCalculations() {
+    rates.altin = parseFloat(document.getElementById('rate-gold').value) || 0;
+    rates.gumus = parseFloat(document.getElementById('rate-silver').value) || 0;
+    rates.dolar = parseFloat(document.getElementById('rate-dollar').value) || 0;
+
+    renderTable('altin');
+    renderTable('gumus');
+    renderTable('dolar');
+
+    let grandTotalCost = 0;
+    let grandCurrentVal = 0;
+
+    let pzData = { altin: 0, gumus: 0, dolar: 0 };
+    let qtyData = { altin: 0, gumus: 0, dolar: 0 };
+
+    trades.forEach(t => {
+      const currentRate = rates[t.asset] || 0;
+      const currentVal = t.amount * currentRate;
+      const pz = currentVal - t.totalCost;
+
+      grandTotalCost += t.totalCost;
+      grandCurrentVal += currentVal;
+
+      pzData[t.asset] += pz;
+      qtyData[t.asset] += t.amount;
+    });
+
+    const grandPZ = grandCurrentVal - grandTotalCost;
+    const grandPct = grandTotalCost > 0 ? (grandPZ / grandTotalCost) * 100 : 0;
+
+    document.getElementById('total-portfolio-val').innerText = formatCurrency(grandCurrentVal);
+    document.getElementById('total-portfolio-sub').innerText = `Maliyet: ${formatCurrency(grandTotalCost)}`;
+    
+    const profitValEl = document.getElementById('total-profit-val');
+    profitValEl.innerText = formatCurrency(grandPZ);
+    profitValEl.className = `card-value ${grandPZ >= 0 ? 'profit' : 'loss'}`;
+
+    const profitPctEl = document.getElementById('total-profit-pct');
+    profitPctEl.innerText = `%${grandPct.toFixed(2)}`;
+    profitPctEl.className = grandPZ >= 0 ? 'profit' : 'loss';
+
+    setSummaryText('kpi-gold-pz', pzData.altin);
+    setSummaryText('kpi-silver-pz', pzData.gumus);
+    setSummaryText('kpi-dollar-pz', pzData.dolar);
+
+    document.getElementById('gold-summary-badge').innerText = `${qtyData.altin.toFixed(2)} Gram`;
+    document.getElementById('silver-summary-badge').innerText = `${qtyData.gumus.toFixed(2)} Gram`;
+    document.getElementById('dollar-summary-badge').innerText = `$${qtyData.dolar.toFixed(2)}`;
+  }
+
+  function setSummaryText(id, val) {
+    const el = document.getElementById(id);
+    el.innerText = formatCurrency(val);
+    el.className = val >= 0 ? 'profit' : 'loss';
+  }
+
+  // Tablo Render ve Sayfalama
+  function renderTable(asset) {
+    const tbody = document.getElementById(`tbody-${asset}`);
+    tbody.innerHTML = '';
+
+    const assetTrades = trades.filter(t => t.asset === asset).sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    const totalPages = Math.ceil(assetTrades.length / ITEMS_PER_PAGE) || 1;
+    if (currentPage[asset] > totalPages) currentPage[asset] = totalPages;
+    if (currentPage[asset] < 1) currentPage[asset] = 1;
+
+    document.getElementById(`page-info-${asset}`).innerText = `Sayfa ${currentPage[asset]}/${totalPages}`;
+
+    const startIdx = (currentPage[asset] - 1) * ITEMS_PER_PAGE;
+    const pageTrades = assetTrades.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+    const currentRate = rates[asset] || 0;
+
+    pageTrades.forEach(t => {
+      const currentVal = t.amount * currentRate;
+      const profitLoss = currentVal - t.totalCost;
+      const pzClass = profitLoss >= 0 ? 'profit' : 'loss';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${formatDate(t.date)}</td>
+        <td><b>${t.amount}</b></td>
+        <td>₺${t.price.toFixed(2)}</td>
+        <td>₺${t.totalCost.toFixed(2)}</td>
+        <td class="${pzClass}"><b>${formatCurrency(profitLoss)}</b></td>
+        <td>
+          <button class="btn btn-secondary btn-sm" onclick="editTrade(${t.id})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTrade(${t.id})">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    if(pageTrades.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Kayıt yok.</td></tr>`;
+    }
+  }
+
+  function changePage(asset, direction) {
+    currentPage[asset] += direction;
+    renderTable(asset);
+  }
+
+  function formatCurrency(val) {
+    return (val >= 0 ? '+' : '') + val.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺';
+  }
+
+  function formatDate(dateStr) {
+    if(!dateStr) return '';
+    const parts = dateStr.split('-');
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+  }
+
+  // Modallar ve Ayarlar
+  function openSettingsModal() {
+    document.getElementById('setting-comm-gold').value = settings.commGold;
+    document.getElementById('setting-comm-silver').value = settings.commSilver;
+    document.getElementById('setting-comm-dollar').value = settings.commDollar;
+    document.getElementById('setting-pin').value = settings.pin;
+    document.getElementById('settings-modal').style.display = 'flex';
+  }
+
+  function closeSettingsModal() {
+    document.getElementById('settings-modal').style.display = 'none';
+  }
+
+  async function saveSettings() {
+    settings.commGold = parseFloat(document.getElementById('setting-comm-gold').value) || 0;
+    settings.commSilver = parseFloat(document.getElementById('setting-comm-silver').value) || 0;
+    settings.commDollar = parseFloat(document.getElementById('setting-comm-dollar').value) || 0;
+    
+    const newPin = document.getElementById('setting-pin').value.trim();
+    if(newPin) settings.pin = newPin;
+
+    closeSettingsModal();
+    applyDefaultCommission();
+    await saveToFirebase();
+    alert("✅ Ayarlar Firebase'e Kaydedildi!");
+  }
+
+  function exportData() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ trades, settings, rates }));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `yatirim_portfoy_yedek_${new Date().toISOString().slice(0,10)}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  }
+
+  function importData(event) {
+    const fileReader = new FileReader();
+    fileReader.onload = async function(e) {
+      try {
+        const imported = JSON.parse(e.target.result);
+        if (imported.trades) trades = imported.trades;
+        if (imported.settings) settings = imported.settings;
+        if (imported.rates) rates = imported.rates;
+        
+        await saveToFirebase();
+        location.reload();
+      } catch (err) {
+        alert("❌ Geçersiz Yedek Dosyası!");
+      }
+    };
+    fileReader.readAsText(event.target.files[0]);
+  }
+
+  async function resetAllData() {
+    if (!checkPin()) return;
+    if (confirm("⚠️ TÜM VERİLERİNİZ SİLİNECEKTİR! Emin misiniz?")) {
+      trades = [];
+      rates = { altin: 0, gumus: 0, dolar: 0 };
+      await saveToFirebase();
+      location.reload();
+    }
+  }
+</script>
+</body>
+</html>
