@@ -262,9 +262,23 @@
             </div>
         </div>
 
+        <!-- YENİ EKLENEN KRONOMETRE BÖLÜMÜ -->
+        <div class="container">
+            <div class="countdown-title">Kronometre</div>
+            <div class="countdown-display" id="sw-time">
+                <span class="digit-box">00</span><span class="colon">:</span><span class="digit-box">00</span><span class="colon">:</span><span class="digit-box">00</span><span class="colon">:</span><span class="digit-box">00</span>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button id="sw-start-btn" onclick="startStopwatch()">Başlat</button>
+                <button id="sw-stop-btn" onclick="stopStopwatch()" style="display: none;">Durdur</button>
+                <button class="cancel-btn" onclick="resetStopwatch()" style="margin-top: 0;">Sıfırla</button>
+            </div>
+        </div>
+
     </div>
 
     <script>
+        // --- SAAT VE GERİ SAYIM KODLARI ---
         let countdownInterval;
 
         function updateCurrentTime() {
@@ -273,7 +287,6 @@
             const optionsGregorian = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
             document.getElementById('gregorian-date').innerText = "Miladi: " + now.toLocaleDateString('tr-TR', optionsGregorian);
             
-            // "Hicri: Hicri" şeklindeki tekrarı engellemek için metni düzelttik
             let hijriString = now.toLocaleDateString('tr-TR-u-ca-islamic', {year: 'numeric', month: 'long', day: 'numeric'});
             document.getElementById('hijri-date').innerText = "Hicri: " + hijriString.replace("Hicri ", "");
 
@@ -356,6 +369,69 @@
             document.getElementById('countdown-area').style.display = 'none';
         }
         
+        // --- KRONOMETRE KODLARI ---
+        let swInterval;
+        let swStartTime = 0;
+        let swElapsedTime = 0;
+        let swIsRunning = false;
+
+        function startStopwatch() {
+            if (!swIsRunning) {
+                swStartTime = Date.now() - swElapsedTime;
+                swInterval = setInterval(updateStopwatch, 10);
+                swIsRunning = true;
+                document.getElementById('sw-start-btn').style.display = 'none';
+                document.getElementById('sw-stop-btn').style.display = 'block';
+            }
+        }
+
+        function stopStopwatch() {
+            if (swIsRunning) {
+                clearInterval(swInterval);
+                swIsRunning = false;
+                document.getElementById('sw-start-btn').style.display = 'block';
+                document.getElementById('sw-start-btn').innerText = 'Devam Et';
+                document.getElementById('sw-stop-btn').style.display = 'none';
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(swInterval);
+            swIsRunning = false;
+            swElapsedTime = 0;
+            document.getElementById('sw-start-btn').style.display = 'block';
+            document.getElementById('sw-start-btn').innerText = 'Başlat';
+            document.getElementById('sw-stop-btn').style.display = 'none';
+            
+            document.getElementById('sw-time').innerHTML = `
+                <span class="digit-box">00</span><span class="colon">:</span>
+                <span class="digit-box">00</span><span class="colon">:</span>
+                <span class="digit-box">00</span><span class="colon">:</span>
+                <span class="digit-box">00</span>
+            `;
+        }
+
+        function updateStopwatch() {
+            swElapsedTime = Date.now() - swStartTime;
+            let time = swElapsedTime;
+            
+            const h = Math.floor(time / 3600000);
+            time %= 3600000;
+            const m = Math.floor(time / 60000);
+            time %= 60000;
+            const s = Math.floor(time / 1000);
+            time %= 1000;
+            const ms = Math.floor(time / 10); // Salise
+
+            document.getElementById('sw-time').innerHTML = `
+                <span class="digit-box">${String(h).padStart(2, '0')}</span><span class="colon">:</span>
+                <span class="digit-box">${String(m).padStart(2, '0')}</span><span class="colon">:</span>
+                <span class="digit-box">${String(s).padStart(2, '0')}</span><span class="colon">:</span>
+                <span class="digit-box">${String(ms).padStart(2, '0')}</span>
+            `;
+        }
+
+        // --- SAYFA YÜKLENDİĞİNDE ÇALIŞACAKLAR ---
         window.onload = () => {
             setInterval(updateCurrentTime, 500); 
             updateCurrentTime();
