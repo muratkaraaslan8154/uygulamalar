@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Harcama & KK Analiz Raporu - Karaaslan Home</title>
+  <title>Gelişmiş Harcama & Kasa Analiz Paneli - Karaaslan Home</title>
   
   <!-- Firebase SDK (v10 Compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -19,19 +19,24 @@
       --text-color: #333333;
       --primary: #2563eb;
       --primary-hover: #1d4ed8;
-      --border-color: #e5e7eb;
+      --secondary: #27ae60;
+      --danger: #e74c3c;
+      --purple: #8e44ad;
+      --border-color: #cbd5e1;
     }
+
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
       margin: 0;
-      padding: 20px;
+      padding: 15px;
     }
 
     .container {
-      max-width: 1280px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
@@ -44,6 +49,8 @@
       border-radius: 12px;
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06);
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     header h1 {
@@ -68,22 +75,20 @@
       transition: background 0.2s;
     }
 
-    .btn-back:hover {
-      background-color: var(--primary-hover);
-    }
+    .btn-back:hover { background-color: var(--primary-hover); }
 
-    /* KPI Kartları */
+    /* KPI Kartları Grid */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
       margin-bottom: 20px;
     }
 
     .kpi-card {
       background: var(--card-bg);
-      padding: 18px;
-      border-radius: 12px;
+      padding: 15px;
+      border-radius: 10px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       border-left: 5px solid var(--primary);
     }
@@ -96,10 +101,16 @@
     }
 
     .kpi-value {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: bold;
-      margin-top: 6px;
+      margin-top: 5px;
       color: #0f172a;
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 4px;
     }
 
     /* Filtre Bölümü */
@@ -110,7 +121,7 @@
       margin-bottom: 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       display: flex;
-      gap: 15px;
+      gap: 12px;
       flex-wrap: wrap;
       align-items: center;
     }
@@ -118,62 +129,59 @@
     .filter-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .filter-card select, .filter-card input {
-      padding: 8px 12px;
+      padding: 7px 10px;
       border: 1px solid var(--border-color);
       border-radius: 6px;
       outline: none;
       font-size: 13px;
       background: #f8fafc;
+      font-weight: 600;
     }
 
     /* Grafik Izgarası */
     .charts-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(430px, 1fr));
+      gap: 18px;
       margin-bottom: 20px;
     }
 
     @media (max-width: 600px) {
-      .charts-grid {
-        grid-template-columns: 1fr;
-      }
+      .charts-grid { grid-template-columns: 1fr; }
     }
 
     .chart-card {
       background: var(--card-bg);
-      padding: 20px;
+      padding: 18px;
       border-radius: 12px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
-    .chart-card.full-width {
-      grid-column: 1 / -1;
-    }
+    .chart-card.full-width { grid-column: 1 / -1; }
 
     .chart-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 2px solid var(--bg-color);
-      padding-bottom: 10px;
-      margin-bottom: 15px;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
     }
 
     .chart-card h3 {
       margin: 0;
-      font-size: 16px;
+      font-size: 15px;
       color: #334155;
     }
 
     /* Tablo Alanı */
     .table-card {
       background: var(--card-bg);
-      padding: 20px;
+      padding: 18px;
       border-radius: 12px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       margin-bottom: 20px;
@@ -187,9 +195,9 @@
     }
 
     th, td {
-      padding: 10px 12px;
+      padding: 9px 11px;
       border-bottom: 1px solid var(--border-color);
-      font-size: 13px;
+      font-size: 12.5px;
     }
 
     th {
@@ -197,12 +205,10 @@
       color: #475569;
     }
 
-    tr:hover {
-      background-color: #f1f5f9;
-    }
+    tr:hover { background-color: #f1f5f9; }
 
     .badge {
-      padding: 3px 8px;
+      padding: 3px 7px;
       border-radius: 4px;
       font-size: 11px;
       font-weight: bold;
@@ -211,19 +217,22 @@
     .badge-pazar { background: #ffedd5; color: #9a3412; }
     .badge-kk { background: #f3e8ff; color: #6b21a8; font-weight: bold; }
     .badge-nakit { background: #dcfce7; color: #166534; font-weight: bold; }
-    .week-days-tag { display: inline-block; background: #e2e8f0; color: #334155; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 4px; }
+    .badge-odeme { background: #fce7f3; color: #9d174d; font-weight: bold; }
 
     .fis-img-thumb {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       object-fit: cover;
-      border-radius: 6px;
+      border-radius: 5px;
       border: 1px solid #cbd5e1;
       cursor: pointer;
-      transition: transform 0.2s;
     }
-    .fis-img-thumb:hover {
-      transform: scale(1.15);
+
+    /* Modal */
+    .modal {
+      display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+      width: 100%; height: 100%; background-color: rgba(0,0,0,0.7);
+      justify-content: center; align-items: center;
     }
   </style>
 </head>
@@ -231,25 +240,33 @@
 
 <div class="container">
   <header>
-    <h1>📊 Harcama, Kasa & KK Analiz Paneli</h1>
-    <a href="Ev otomasyonu market pazar harcama takip.html" class="btn-back">
-      🏠 Ana Sayfaya Dön
+    <h1>📊 Genel Harcama, Kasa & KK Analiz Paneli</h1>
+    <a href="index.html" class="btn-back">
+      🏛️ Kasa Yönetimine Dön
     </a>
   </header>
 
   <!-- Özet Göstergeleri (KPI) -->
   <div class="kpi-grid">
     <div class="kpi-card" style="border-color: #2563eb;">
-      <div class="kpi-title">Toplam Harcama</div>
+      <div class="kpi-title">Toplam Genel Harcama</div>
       <div class="kpi-value" id="kpi-toplam">₺0,00</div>
+      <div class="kpi-sub" id="kpi-toplam-sub">Normal Fiş / Alışverişler</div>
     </div>
     <div class="kpi-card" style="border-color: #8b5cf6;">
       <div class="kpi-title">💳 Kredi Kartı (KK)</div>
       <div class="kpi-value" id="kpi-kk" style="color: #6b21a8;">₺0,00</div>
+      <div class="kpi-sub" id="kpi-kk-sub">Harcanan Kart Tutarı</div>
     </div>
     <div class="kpi-card" style="border-color: #10b981;">
-      <div class="kpi-title">💵 Nakit Ödeme</div>
+      <div class="kpi-title">💵 Harcanan Nakit</div>
       <div class="kpi-value" id="kpi-nakit" style="color: #15803d;">₺0,00</div>
+      <div class="kpi-sub">Fiziksel Kasadan Çıkan</div>
+    </div>
+    <div class="kpi-card" style="border-color: #e67e22;">
+      <div class="kpi-title">🏛️ Kasadan KK / Borç Ödenen</div>
+      <div class="kpi-value" id="kpi-kk-odenen" style="color: #d35400;">₺0,00</div>
+      <div class="kpi-sub">Kasadan Çekilen Borç/Bireysel</div>
     </div>
     <div class="kpi-card" style="border-color: #0284c7;">
       <div class="kpi-title">🛒 Market Harcaması</div>
@@ -259,10 +276,23 @@
       <div class="kpi-title">🧺 Pazar / Manav</div>
       <div class="kpi-value" id="kpi-pazar">₺0,00</div>
     </div>
+    <div class="kpi-card" style="border-color: #27ae60;">
+      <div class="kpi-title">💰 Biriken Ana Kasa</div>
+      <div class="kpi-value" id="kpi-biriken" style="color: #27ae60;">₺0,00</div>
+      <div class="kpi-sub" id="kpi-biriken-detay">Market: 0₺ | Pazar: 0₺</div>
+    </div>
   </div>
 
   <!-- Filtreler -->
   <div class="filter-card">
+    <div class="filter-group">
+      <label><strong>🗓️ Dönem Seçimi:</strong></label>
+      <select id="filter-donem" onchange="verileriFiltrele()">
+        <option value="aktif" selected>⚡ Aktif Dönem</option>
+        <option value="hepsi">♾️ Tüm Zamanlar (Tüm Kayıtlar)</option>
+      </select>
+    </div>
+
     <div class="filter-group">
       <label><strong>👤 Kişi:</strong></label>
       <select id="filter-kisi" onchange="verileriFiltrele()">
@@ -280,19 +310,21 @@
     </div>
 
     <div class="filter-group">
-      <label><strong>💳 Ödeme Türü:</strong></label>
+      <label><strong>💳 İşlem Türü:</strong></label>
       <select id="filter-odeme" onchange="verileriFiltrele()">
-        <option value="hepsi">Nakit & Kredi Kartı</option>
-        <option value="kk">Sadece Kredi Kartı (KK)</option>
-        <option value="nakit">Sadece Nakit</option>
+        <option value="hepsi">Tüm İşlemler (Normal + Kasadan Ödemeler)</option>
+        <option value="normal">Sadece Normal Harcamalar</option>
+        <option value="kk">Sadece KK Kullanılanlar</option>
+        <option value="nakit">Sadece Nakit Harcamalar</option>
+        <option value="kk-odeme">Sadece Kasadan KK/Borç Ödemeleri</option>
       </select>
     </div>
 
     <div class="filter-group">
-      <label><strong>📅 Zaman Görünümü:</strong></label>
+      <label><strong>📈 Zaman Kırılımı:</strong></label>
       <select id="filter-zaman-tipi" onchange="verileriFiltrele()">
-        <option value="haftalik" selected>Haftalık Devir Kırılımı (Cuma - Perşembe)</option>
-        <option value="gunluk">Günlük Kırılım</option>
+        <option value="gunluk" selected>Günlük Kırılım</option>
+        <option value="haftalik">Haftalık Devir Aralığı Kırılımı</option>
         <option value="aylik">Aylık Kırılım</option>
       </select>
     </div>
@@ -300,71 +332,102 @@
 
   <!-- Grafikler -->
   <div class="charts-grid">
-    <!-- Haftalık/Zaman Bazlı Harcama ve KK Sütun Grafiği -->
+    <!-- Zaman Bazlı Günlük/Haftalık Harcama Grafiği -->
     <div class="chart-card full-width">
       <div class="chart-header">
-        <h3 id="zaman-chart-title">📅 Zaman Bazlı Harcama & KK Kullanım Dağılımı (Sütun Grafik)</h3>
+        <h3 id="zaman-chart-title">📅 Günlük / Dönemsel Harcama & KK Trendi</h3>
       </div>
       <canvas id="chartZamanSutun" style="max-height: 380px;"></canvas>
     </div>
 
-    <!-- Kategori Dağılım Grafiği -->
+    <!-- Kategori Dağılımı -->
     <div class="chart-card">
       <div class="chart-header">
         <h3>🏷️ Kategori Payı (Market vs Pazar)</h3>
       </div>
-      <canvas id="chartKategori" style="max-height: 280px;"></canvas>
+      <canvas id="chartKategori" style="max-height: 260px;"></canvas>
     </div>
 
-    <!-- Ödeme Türü (Nakit vs KK) -->
+    <!-- Ödeme Yöntemi -->
     <div class="chart-card">
       <div class="chart-header">
-        <h3>💳 Ödeme Yöntemi Oranı (Nakit / KK)</h3>
+        <h3>💳 Ödeme Yöntemleri (Nakit / KK / Kasadan Ödeme)</h3>
       </div>
-      <canvas id="chartOdeme" style="max-height: 280px;"></canvas>
+      <canvas id="chartOdeme" style="max-height: 260px;"></canvas>
+    </div>
+
+    <!-- Kişi Bazlı Dağılım -->
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <h3>👤 Kişilere Göre Toplam Harcama Kırılımı</h3>
+      </div>
+      <canvas id="chartKisi" style="max-height: 280px;"></canvas>
     </div>
   </div>
 
-  <!-- Haftalık Devir Detay Tablosu (Kayıtlı Günler) -->
-  <div class="table-card" id="haftalik-ozet-alani">
-    <h3>🗓️ Haftalık Devir Dönemleri (Cuma - Perşembe), Kayıtlı Tarihler ve Günler Özeti</h3>
+  <!-- Günlük / Dönemsel Özet Tablosu -->
+  <div class="table-card">
+    <h3 id="ozet-tablo-baslik">📆 Günlük Kırılım Özeti</h3>
     <table>
       <thead>
         <tr>
-          <th>Hafta Dönemi</th>
-          <th>Kayıt Yapılan Tarihler</th>
-          <th>İşlem Yapılan Günler</th>
-          <th>Nakit Harcama</th>
-          <th>KK Harcama</th>
-          <th>Haftalık Toplam</th>
+          <th>Tarih / Dönem</th>
+          <th>İşlem Sayısı</th>
+          <th>Market Nakit</th>
+          <th>Market KK</th>
+          <th>Pazar Nakit</th>
+          <th>Pazar KK</th>
+          <th>Kasadan KK Ödenen</th>
+          <th>Toplam Nakit</th>
+          <th>Toplam Genel</th>
         </tr>
       </thead>
-      <tbody id="haftalik-devir-tbody">
-        <!-- JS ile Doldurulur -->
-      </tbody>
+      <tbody id="ozet-tbody"></tbody>
     </table>
   </div>
 
-  <!-- Detay Tablosu -->
-  <div class="table-card">
-    <h3>📋 Tüm Harcama Detay Kayıtları</h3>
+  <!-- Arşivlenen Devirler Tablosu -->
+  <div class="table-card" id="devir-gecmisi-alani">
+    <h3>📦 Arşivlenmiş Haftalık Devir Geçmişi</h3>
     <table>
       <thead>
         <tr>
-          <th>Tarih / Gün</th>
-          <th>Kayıt Eden / Kişi</th>
+          <th>Dönem Aralığı</th>
           <th>Kategori</th>
-          <th>Fiş</th>
-          <th>Açıklama</th>
-          <th>Nakit</th>
-          <th>KK (Kredi Kartı)</th>
-          <th>Toplam Tutar</th>
+          <th>Devir Türü</th>
+          <th>Kasanın Birikene Aktardığı</th>
+          <th>Tanımlanan Yeni Bütçe</th>
         </tr>
       </thead>
-      <tbody id="tablo-govde">
-        <!-- Veriler Firebase'den yüklenir -->
-      </tbody>
+      <tbody id="devir-gecmisi-tbody"></tbody>
     </table>
+  </div>
+
+  <!-- Detay Kayıtlar Tablosu -->
+  <div class="table-card">
+    <h3>📋 Filtrelenmiş Tüm İşlem Kayıtları</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Tarih / Saat</th>
+          <th>Kişi</th>
+          <th>Kategori / Kasa</th>
+          <th>İşlem Türü</th>
+          <th>Açıklama</th>
+          <th>Nakit</th>
+          <th>KK</th>
+          <th>Toplam Tutar</th>
+          <th>Fiş</th>
+        </tr>
+      </thead>
+      <tbody id="tablo-govde"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="fis-modal" class="modal" onclick="if(event.target===this) this.style.display='none'">
+  <div style="margin: auto; text-align: center; padding: 20px;">
+    <img id="modal-fis-resim" src="" style="max-width: 90vw; max-height: 85vh; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); background: white; padding: 5px;">
   </div>
 </div>
 
@@ -373,121 +436,199 @@
     apiKey: "AIzaSyD1hbPbA81qldXCsQxSM4Ozxr9L8sdRTMk",
     authDomain: "karaaslanhomebutcetakip.firebaseapp.com",
     databaseURL: "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "karaaslanhomebutcetakip",
-    storageBucket: "karaaslanhomebutcetakip.firebasestorage.app",
-    messagingSenderId: "566343253682",
-    appId: "1:566343253682:web:c32d2821f65dcf2b9813ab"
+    projectId: "karaaslanhomebutcetakip"
   };
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
   let harcamalarListesi = [];
-  let kullanicilar = [];
-  let zamanChart, kategoriChart, odemeChart;
+  let devirGecmisiListesi = [];
+  let birikenKasaObje = { Market: 0, Pazar: 0 };
+  let aktifHaftaBaslangic = "";
 
+  let zamanChart, kategoriChart, odemeChart, kisiChart;
   const gunIsimleri = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
 
   window.onload = () => {
-    kullanicilariYukle();
-    harcamalariYukle();
+    veriDinleyicileriniBaslat();
   };
 
-  // 1. Ayarlar DB'sinden Kullanıcıları Al (Admin Hariç)
-  function kullanicilariYukle() {
-    db.ref('usersDB').on('value', (snapshot) => {
-      const usersData = snapshot.val() || {};
-      const kisiSelect = document.getElementById('filter-kisi');
-      
-      kisiSelect.innerHTML = '<option value="hepsi">Tüm Kişiler</option>';
-      kullanicilar = [];
+  function veriDinleyicileriniBaslat() {
+    // 1. Aktif Dönem Başlangıcı
+    db.ref('aktifHaftaBaslangic').on('value', s => {
+      aktifHaftaBaslangic = s.val() || new Date().toISOString().split('T')[0];
+      filtreDonemSecenekleriniDoldur();
+      verileriFiltrele();
+    });
 
-      Object.keys(usersData).forEach(uKey => {
-        const username = uKey.toLowerCase().trim();
-        if (username !== 'admin') {
-          kullanicilar.push(username);
-          const formatliIsim = username.charAt(0).toUpperCase() + username.slice(1);
-          kisiSelect.innerHTML += `<option value="${username}">${formatliIsim}</option>`;
-        }
-      });
+    // 2. Biriken Kasa
+    db.ref('birikenKasa').on('value', s => {
+      birikenKasaObje = s.val() || { Market: 0, Pazar: 0 };
+      const bm = parseFloat(birikenKasaObje.Market) || 0;
+      const bp = parseFloat(birikenKasaObje.Pazar) || 0;
+      document.getElementById('kpi-biriken').innerText = `₺${(bm + bp).toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
+      document.getElementById('kpi-biriken-detay').innerText = `Market: ₺${bm.toFixed(0)} | Pazar: ₺${bp.toFixed(0)}`;
+    });
+
+    // 3. Devir Geçmişi
+    db.ref('devirGecmisi').on('value', s => {
+      const data = s.val() || {};
+      devirGecmisiListesi = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+      filtreDonemSecenekleriniDoldur();
+      devirTablosunuCiz();
+      verileriFiltrele();
+    });
+
+    // 4. Harcamalar
+    db.ref('harcamalar').on('value', s => {
+      const data = s.val() || {};
+      harcamalarListesi = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+      kisiListesiniGuncelle();
+      verileriFiltrele();
+    });
+
+    // 5. Kullanıcılar DB
+    db.ref('usersDB').on('value', () => {
+      kisiListesiniGuncelle();
     });
   }
 
-  // 2. Harcamalar DB'sini Çek
-  function harcamalariYukle() {
-    db.ref('harcamalar').on('value', (snapshot) => {
-      const data = snapshot.val() || {};
-      harcamalarListesi = Object.keys(data).map(key => ({
-        id: key,
-        ...data[key]
-      }));
+  function matchKategori(h, kat) {
+    if (!h) return false;
+    const target = kat.toLowerCase();
+    const hKat = (h.kategori || '').toLowerCase();
+    const hKasa = (h.kasaTipi || '').toLowerCase();
+    return hKat.includes(target) || hKasa.includes(target);
+  }
 
-      verileriFiltrele();
+  function isKKRecord(h) {
+    if (!h) return false;
+    if (h.isKKOdeme === true) return true;
+    const tur = (h.odemeTuru || '').toLowerCase();
+    const acik = (h.aciklama || '').toLowerCase();
+    return tur.includes('kk') || acik.includes('kk') || tur.includes('bireysel');
+  }
+
+  function filtreDonemSecenekleriniDoldur() {
+    const sel = document.getElementById('filter-donem');
+    const suAnki = sel.value;
+    
+    // Mükerrer tarih aralığı kontrolü için Set
+    const eklenenAraliklar = new Set();
+    
+    sel.innerHTML = `
+      <option value="aktif">⚡ Aktif Dönem (${aktifHaftaBaslangic || 'Güncel'})</option>
+      <option value="hepsi">♾️ Tüm Zamanlar (Tüm Kayıtlar)</option>
+    `;
+
+    devirGecmisiListesi.slice().reverse().forEach(d => {
+      const etiket = `${d.baslangic || ''} / ${d.bitis || ''}`;
+      if (etiket !== ' / ' && !eklenenAraliklar.has(etiket)) {
+        eklenenAraliklar.add(etiket);
+        sel.innerHTML += `<option value="${etiket}">📁 Arşiv: ${etiket} (${d.tur || 'Devir'})</option>`;
+      }
     });
+
+    sel.value = suAnki || 'aktif';
+  }
+
+  function kisiListesiniGuncelle() {
+    const kisiSelect = document.getElementById('filter-kisi');
+    const secili = kisiSelect.value;
+    
+    const kisiler = new Set();
+    harcamalarListesi.forEach(h => {
+      if (h.kisi) kisiler.add(h.kisi.trim());
+    });
+
+    kisiSelect.innerHTML = '<option value="hepsi">Tüm Kişiler</option>';
+    Array.from(kisiler).sort().forEach(k => {
+      kisiSelect.innerHTML += `<option value="${k}">${k}</option>`;
+    });
+
+    kisiSelect.value = secili || 'hepsi';
   }
 
   function verileriFiltrele() {
-    const seciliKisi = document.getElementById('filter-kisi').value;
-    const seciliKat = document.getElementById('filter-kategori').value;
-    const seciliOdeme = document.getElementById('filter-odeme').value;
+    const donemSecim = document.getElementById('filter-donem').value;
+    const kisiSecim = document.getElementById('filter-kisi').value;
+    const katSecim = document.getElementById('filter-kategori').value;
+    const odemeSecim = document.getElementById('filter-odeme').value;
 
     const filtrelenmis = harcamalarListesi.filter(item => {
-      // Kişi Kontrolü
-      const itemKisi = (item.kisi || item.user || '').toLowerCase();
-      const kisiUyum = (seciliKisi === 'hepsi') || (itemKisi === seciliKisi);
-      
-      // Kategori Kontrolü
-      const itemKat = item.kategori || 'Market';
-      const katUyum = (seciliKat === 'hepsi') || (itemKat.toLowerCase().includes(seciliKat.toLowerCase()));
+      // 1. Dönem Filtresi
+      let donemUyum = true;
+      if (donemSecim === 'aktif') {
+        donemUyum = item.tarih >= aktifHaftaBaslangic;
+      } else if (donemSecim !== 'hepsi') {
+        const [bas, bit] = donemSecim.split(' / ');
+        donemUyum = item.tarih >= bas && item.tarih <= bit;
+      }
 
-      // Ödeme Türü Kontrolü (Nakit / KK)
-      const kkTutar = Number(item.kk) || 0;
-      const nakitTutar = Number(item.nakit) || 0;
+      // 2. Kişi Filtresi
+      let kisiUyum = (kisiSecim === 'hepsi') || ((item.kisi || '').trim() === kisiSecim);
+
+      // 3. Kategori Filtresi
+      let katUyum = (katSecim === 'hepsi') || matchKategori(item, katSecim);
+
+      // 4. İşlem Türü Filtresi
+      const kkIslem = isKKRecord(item);
+      const nakitVal = Number(item.nakit) || 0;
+      const kkVal = Number(item.kk) || 0;
+
       let odemeUyum = true;
-      if (seciliOdeme === 'kk') odemeUyum = (kkTutar > 0);
-      else if (seciliOdeme === 'nakit') odemeUyum = (nakitTutar > 0);
+      if (odemeSecim === 'normal') odemeUyum = !kkIslem;
+      else if (odemeSecim === 'kk') odemeUyum = !kkIslem && kkVal > 0;
+      else if (odemeSecim === 'nakit') odemeUyum = !kkIslem && nakitVal > 0;
+      else if (odemeSecim === 'kk-odeme') odemeUyum = kkIslem;
 
-      return kisiUyum && katUyum && odemeUyum;
+      return donemUyum && kisiUyum && katUyum && odemeUyum;
     });
 
     analiziGuncelle(filtrelenmis);
   }
 
   function analiziGuncelle(veri) {
-    let toplam = 0, marketToplam = 0, pazarToplam = 0, kkToplam = 0, nakitToplam = 0;
+    let topHarcama = 0, kkHarcama = 0, nakitHarcama = 0, kasadanKK = 0;
+    let marketTop = 0, pazarTop = 0;
 
     veri.forEach(item => {
-      const tutar = Number(item.toplam) || 0;
-      const kk = Number(item.kk) || 0;
+      const isKK = isKKRecord(item);
       const nakit = Number(item.nakit) || 0;
+      const kk = Number(item.kk) || 0;
+      const toplam = Number(item.toplam) || (nakit + kk);
 
-      toplam += tutar;
-      kkToplam += kk;
-      nakitToplam += nakit;
-
-      if ((item.kategori || '').toLowerCase().includes('pazar')) {
-        pazarToplam += tutar;
+      if (isKK) {
+        kasadanKK += nakit;
       } else {
-        marketToplam += tutar;
+        topHarcama += toplam;
+        kkHarcama += kk;
+        nakitHarcama += nakit;
+
+        if (matchKategori(item, 'Pazar')) pazarTop += toplam;
+        else marketTop += toplam;
       }
     });
 
     // KPI Güncellemeleri
-    document.getElementById('kpi-toplam').innerText = `₺${toplam.toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
-    document.getElementById('kpi-kk').innerText = `₺${kkToplam.toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
-    document.getElementById('kpi-nakit').innerText = `₺${nakitToplam.toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
-    document.getElementById('kpi-market').innerText = `₺${marketToplam.toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
-    document.getElementById('kpi-pazar').innerText = `₺${pazarToplam.toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
+    document.getElementById('kpi-toplam').innerText = `₺${topHarcama.toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
+    document.getElementById('kpi-kk').innerText = `₺${kkHarcama.toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
+    document.getElementById('kpi-nakit').innerText = `₺${nakitHarcama.toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
+    document.getElementById('kpi-kk-odenen').innerText = `₺${kasadanKK.toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
+    document.getElementById('kpi-market').innerText = `₺${marketTop.toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
+    document.getElementById('kpi-pazar').innerText = `₺${pazarTop.toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
 
-    // Ana Detay Tablosunu Doldur
+    // Detay Tablosu
     const tbody = document.getElementById('tablo-govde');
     tbody.innerHTML = '';
     
-    const siraliVeri = [...veri].sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
+    const sirali = [...veri].sort((a, b) => (b.tarih + (b.saat||'')).localeCompare(a.tarih + (a.saat||'')));
 
-    siraliVeri.forEach(item => {
-      const katClass = (item.kategori || '').toLowerCase().includes('pazar') ? 'badge-pazar' : 'badge-market';
-      const kisiAd = item.kisi || item.user || 'Sistem / Genel';
+    sirali.forEach(item => {
+      const isKK = isKKRecord(item);
+      const katClass = matchKategori(item, 'Pazar') ? 'badge-pazar' : 'badge-market';
+      const turBadge = isKK ? '<span class="badge badge-odeme">💳 Kasadan Ödeme</span>' : '<span class="badge badge-nakit">🛒 Normal Alışveriş</span>';
       
       let gunAdi = "";
       if (item.tarih) {
@@ -495,227 +636,203 @@
         if (!isNaN(d.getTime())) gunAdi = ` (${gunIsimleri[d.getDay()]})`;
       }
 
-      const gorselHtml = item.gorsel 
-        ? `<a href="${item.gorsel}" target="_blank"><img src="${item.gorsel}" class="fis-img-thumb" title="Fişi Gör/Büyüt"></a>` 
+      const fisHtml = item.gorsel 
+        ? `<img src="${item.gorsel}" class="fis-img-thumb" onclick="fisGoster('${item.gorsel}')" title="Fişi Büyüt">` 
         : '-';
+
+      const katIsim = item.kasaTipi || item.kategori || 'Market';
 
       tbody.innerHTML += `
         <tr>
-          <td><b>${item.tarih || '-'}${gunAdi}</b></td>
-          <td><b>${kisiAd.charAt(0).toUpperCase() + kisiAd.slice(1)}</b></td>
-          <td><span class="badge ${katClass}">${item.kategori || 'Market'}</span></td>
-          <td style="text-align:center;">${gorselHtml}</td>
-          <td>${item.aciklama || '-'}</td>
-          <td><span class="badge badge-nakit">₺${(Number(item.nakit) || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span></td>
-          <td><span class="badge badge-kk">₺${(Number(item.kk) || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span></td>
-          <td><b>₺${(Number(item.toplam) || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</b></td>
+          <td><b>${item.tarih}${gunAdi}</b><br><small style="color:#64748b">${item.saat || ''}</small></td>
+          <td><b>${item.kisi || 'Bilinmiyor'}</b></td>
+          <td><span class="badge ${katClass}">${katIsim}</span></td>
+          <td>${turBadge}</td>
+          <td>${item.aciklama || item.odemeTuru || '-'}</td>
+          <td><b style="color:#15803d;">₺${(Number(item.nakit)||0).toFixed(2)}</b></td>
+          <td><b style="color:#6b21a8;">₺${(Number(item.kk)||0).toFixed(2)}</b></td>
+          <td><b>₺${(Number(item.toplam)||(Number(item.nakit)+Number(item.kk))||0).toFixed(2)}</b></td>
+          <td style="text-align:center;">${fisHtml}</td>
         </tr>
       `;
     });
 
-    // Grafikleri ve Haftalık Devir Özeti Tablosunu Çiz
-    grafikleriOlustur(veri);
+    grafikleriVeOzetTabloyuCiz(veri);
   }
 
-  // Tarih Bilgisinden Haftanın Başlangıç (Cuma) ve Bitiş (Perşembe) Etiketini Üretme
-  function getHaftaAraligiVeGunler(tarihStr) {
-    if (!tarihStr) return { anahtar: 'Bilinmiyor', etiket: 'Tarihsiz' };
-    const d = new Date(tarihStr);
-    if (isNaN(d.getTime())) return { anahtar: 'Bilinmiyor', etiket: 'Tarihsiz' };
-
-    // Cuma başlangıçlı hafta hesabı (Cuma = 0, Cumartesi = 1, ... Perşembe = 6)
-    const day = d.getDay(); 
-    const diffToFriday = (day + 2) % 7;
-
-    const cuma = new Date(d);
-    cuma.setDate(d.getDate() - diffToFriday);
-
-    const persembe = new Date(cuma);
-    persembe.setDate(cuma.getDate() + 6);
-
-    const fmt = (date) => `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}`;
-    const anahtar = `${cuma.toISOString().split('T')[0]}_hafta`;
-    const etiket = `${fmt(cuma)} - ${fmt(persembe)} Haftası`;
-
-    return { anahtar, etiket, cuma, persembe };
-  }
-
-  function grafikleriOlustur(veri) {
+  function grafikleriVeOzetTabloyuCiz(veri) {
     const zamanTipi = document.getElementById('filter-zaman-tipi').value;
-    const haftalikOzetAlani = document.getElementById('haftalik-ozet-alani');
-    
-    const zamanGruplari = {};
+    const gruplar = {};
 
     veri.forEach(item => {
-      let etiket = item.tarih || 'Bilinmiyor';
-      let detayTarih = item.tarih;
-
-      if (zamanTipi === 'haftalik') {
-        const haftaInfo = getHaftaAraligiVeGunler(item.tarih);
-        etiket = haftaInfo.etiket;
-      } else if (zamanTipi === 'aylik') {
-        if (item.tarih) {
-          const d = new Date(item.tarih);
-          etiket = d.toLocaleString('tr-TR', { month: 'long', year: 'numeric' });
-        }
+      let etiket = item.tarih || 'Tarihsiz';
+      if (zamanTipi === 'aylik' && item.tarih) {
+        etiket = item.tarih.substring(0, 7); // YYYY-MM
+      } else if (zamanTipi === 'haftalik' && item.tarih) {
+        etiket = getHaftaEtiketi(item.tarih);
       }
 
-      if (!zamanGruplari[etiket]) {
-        zamanGruplari[etiket] = {
-          MarketNakit: 0,
-          MarketKK: 0,
-          PazarNakit: 0,
-          PazarKK: 0,
-          ToplamKK: 0,
-          ToplamNakit: 0,
-          Tarihler: new Set(),
-          Gunler: new Set()
+      if (!gruplar[etiket]) {
+        gruplar[etiket] = {
+          adet: 0,
+          marketNakit: 0, marketKK: 0,
+          pazarNakit: 0, pazarKK: 0,
+          kasadanKK: 0,
+          topNakit: 0, topKK: 0, topGenel: 0
         };
       }
 
+      const isKK = isKKRecord(item);
       const nakit = Number(item.nakit) || 0;
       const kk = Number(item.kk) || 0;
+      const top = Number(item.toplam) || (nakit + kk);
 
-      zamanGruplari[etiket].ToplamNakit += nakit;
-      zamanGruplari[etiket].ToplamKK += kk;
+      gruplar[etiket].adet++;
 
-      if (detayTarih) {
-        zamanGruplari[etiket].Tarihler.add(detayTarih);
-        const d = new Date(detayTarih);
-        if (!isNaN(d.getTime())) {
-          zamanGruplari[etiket].Gunler.add(gunIsimleri[d.getDay()]);
-        }
-      }
-
-      if ((item.kategori || '').toLowerCase().includes('pazar')) {
-        zamanGruplari[etiket].PazarNakit += nakit;
-        zamanGruplari[etiket].PazarKK += kk;
+      if (isKK) {
+        gruplar[etiket].kasadanKK += nakit;
       } else {
-        zamanGruplari[etiket].MarketNakit += nakit;
-        zamanGruplari[etiket].MarketKK += kk;
+        gruplar[etiket].topNakit += nakit;
+        gruplar[etiket].topKK += kk;
+        gruplar[etiket].topGenel += top;
+
+        if (matchKategori(item, 'Pazar')) {
+          gruplar[etiket].pazarNakit += nakit;
+          gruplar[etiket].pazarKK += kk;
+        } else {
+          gruplar[etiket].marketNakit += nakit;
+          gruplar[etiket].marketKK += kk;
+        }
       }
     });
 
-    // HAFTALIK DEVİR TABLOSUNU DOLDURMA
-    const devirTbody = document.getElementById('haftalik-devir-tbody');
-    devirTbody.innerHTML = '';
+    // Özet Tablosu
+    const ozetTbody = document.getElementById('ozet-tbody');
+    ozetTbody.innerHTML = '';
+    const etiketler = Object.keys(gruplar).sort();
 
-    if (zamanTipi === 'haftalik') {
-      haftalikOzetAlani.style.display = 'block';
-      
-      Object.keys(zamanGruplari).forEach(hEtiket => {
-        const g = zamanGruplari[hEtiket];
-        const kayitliTarihler = Array.from(g.Tarihler).sort().join(', ') || '-';
-        const kayitliGunler = Array.from(g.Gunler).map(gn => `<span class="week-days-tag">${gn}</span>`).join(' ') || '-';
-        const hToplam = g.ToplamNakit + g.ToplamKK;
+    document.getElementById('ozet-tablo-baslik').innerText = 
+      zamanTipi === 'gunluk' ? '📆 Günlük Kırılım Özeti' :
+      zamanTipi === 'haftalik' ? '🗓️ Haftalık Kırılım Özeti' : '📅 Aylık Kırılım Özeti';
 
-        devirTbody.innerHTML += `
-          <tr>
-            <td><b>${hEtiket}</b></td>
-            <td><small>${kayitliTarihler}</small></td>
-            <td>${kayitliGunler}</td>
-            <td><span class="badge badge-nakit">₺${g.ToplamNakit.toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span></td>
-            <td><span class="badge badge-kk">₺${g.ToplamKK.toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span></td>
-            <td><b>₺${hToplam.toLocaleString('tr-TR', {minimumFractionDigits: 2})}</b></td>
-          </tr>
-        `;
-      });
-    } else {
-      haftalikOzetAlani.style.display = 'none';
-    }
+    etiketler.forEach(e => {
+      const g = gruplar[e];
+      ozetTbody.innerHTML += `
+        <tr>
+          <td><b>${e}</b></td>
+          <td>${g.adet} Kayıt</td>
+          <td>₺${g.marketNakit.toFixed(2)}</td>
+          <td>₺${g.marketKK.toFixed(2)}</td>
+          <td>₺${g.pazarNakit.toFixed(2)}</td>
+          <td>₺${g.pazarKK.toFixed(2)}</td>
+          <td style="color:#d35400; font-weight:bold;">₺${g.kasadanKK.toFixed(2)}</td>
+          <td style="color:#15803d; font-weight:bold;">₺${g.topNakit.toFixed(2)}</td>
+          <td style="color:#2563eb; font-weight:bold;">₺${g.topGenel.toFixed(2)}</td>
+        </tr>
+      `;
+    });
 
-    // 1. ZAMAN BAZLI SÜTUN GRAFİĞİ (KK ve Nakit Kırılımlı Sütunlar)
-    const zamanEtiketleri = Object.keys(zamanGruplari);
-    const nakitVerileri = zamanEtiketleri.map(e => zamanGruplari[e].ToplamNakit);
-    const kkVerileri = zamanEtiketleri.map(e => zamanGruplari[e].ToplamKK);
-
+    // 1. ZAMAN BAZLI SÜTUN GRAFİĞİ
     if (zamanChart) zamanChart.destroy();
-    const ctxZaman = document.getElementById('chartZamanSutun').getContext('2d');
+    ctxZaman = document.getElementById('chartZamanSutun').getContext('2d');
     zamanChart = new Chart(ctxZaman, {
       type: 'bar',
       data: {
-        labels: zamanEtiketleri,
+        labels: etiketler,
         datasets: [
-          {
-            label: '💳 Kredi Kartı (KK) Harcaması (₺)',
-            data: kkVerileri,
-            backgroundColor: '#8b5cf6',
-            borderRadius: 6
-          },
-          {
-            label: '💵 Nakit Harcama (₺)',
-            data: nakitVerileri,
-            backgroundColor: '#10b981',
-            borderRadius: 6
-          }
+          { label: '💵 Harcanan Nakit (₺)', data: etiketler.map(e => gruplar[e].topNakit), backgroundColor: '#10b981' },
+          { label: '💳 KK Harcaması (₺)', data: etiketler.map(e => gruplar[e].topKK), backgroundColor: '#8b5cf6' },
+          { label: '🏛️ Kasadan KK Ödenen (₺)', data: etiketler.map(e => gruplar[e].kasadanKK), backgroundColor: '#e67e22' }
         ]
       },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'top' },
-          tooltip: {
-            callbacks: {
-              afterBody: function(context) {
-                const etiket = context[0].label;
-                if (zamanGruplari[etiket] && zamanGruplari[etiket].Gunler) {
-                  const gunlerStr = Array.from(zamanGruplari[etiket].Gunler).join(', ');
-                  return `Kayıtlı Günler: ${gunlerStr}`;
-                }
-                return '';
-              }
-            }
-          }
-        },
-        scales: {
-          x: { stacked: false },
-          y: { beginAtZero: true }
-        }
-      }
+      options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }
     });
 
     // 2. KATEGORİ PASTA GRAFİĞİ
-    let katMarket = 0, katPazar = 0;
-    veri.forEach(item => {
-      const tutar = Number(item.toplam) || 0;
-      if ((item.kategori || '').toLowerCase().includes('pazar')) katPazar += tutar;
-      else katMarket += tutar;
+    let mSum = 0, pSum = 0;
+    veri.forEach(i => {
+      if (!isKKRecord(i)) {
+        const t = Number(i.toplam) || ((Number(i.nakit)||0) + (Number(i.kk)||0));
+        if (matchKategori(i, 'Pazar')) pSum += t; else mSum += t;
+      }
     });
 
     if (kategoriChart) kategoriChart.destroy();
-    const ctxKat = document.getElementById('chartKategori').getContext('2d');
-    kategoriChart = new Chart(ctxKat, {
+    kategoriChart = new Chart(document.getElementById('chartKategori').getContext('2d'), {
       type: 'doughnut',
       data: {
-        labels: ['Market', 'Pazar / Manav'],
-        datasets: [{
-          data: [katMarket, katPazar],
-          backgroundColor: ['#2563eb', '#f97316']
-        }]
+        labels: ['Market Harcaması', 'Pazar Harcaması'],
+        datasets: [{ data: [mSum, pSum], backgroundColor: ['#2563eb', '#f97316'] }]
       },
       options: { responsive: true }
     });
 
-    // 3. ÖDEME TÜRÜ (NAKİT vs KK) PASTA GRAFİĞİ
-    let toplamNakit = 0, toplamKK = 0;
-    veri.forEach(item => {
-      toplamNakit += Number(item.nakit) || 0;
-      toplamKK += Number(item.kk) || 0;
+    // 3. ÖDEME YÖNTEMİ PASTA GRAFİĞİ
+    let nSum = 0, kkSum = 0, odeneSum = 0;
+    veri.forEach(i => {
+      if (isKKRecord(i)) odeneSum += Number(i.nakit) || 0;
+      else { nSum += Number(i.nakit) || 0; kkSum += Number(i.kk) || 0; }
     });
 
     if (odemeChart) odemeChart.destroy();
-    const ctxOdeme = document.getElementById('chartOdeme').getContext('2d');
-    odemeChart = new Chart(ctxOdeme, {
+    odemeChart = new Chart(document.getElementById('chartOdeme').getContext('2d'), {
       type: 'pie',
       data: {
-        labels: ['💵 Nakit', '💳 Kredi Kartı (KK)'],
-        datasets: [{
-          data: [toplamNakit, toplamKK],
-          backgroundColor: ['#10b981', '#8b5cf6']
-        }]
+        labels: ['💵 Harcanan Nakit', '💳 KK Harcaması', '🏛️ Kasadan Ödeme'],
+        datasets: [{ data: [nSum, kkSum, odeneSum], backgroundColor: ['#10b981', '#8b5cf6', '#e67e22'] }]
       },
       options: { responsive: true }
     });
+
+    // 4. KİŞİ BAZLI HARCAMA GRAFİĞİ
+    const kisiGruplari = {};
+    veri.forEach(i => {
+      const kisi = i.kisi || 'Bilinmiyor';
+      const t = Number(i.toplam) || ((Number(i.nakit)||0) + (Number(i.kk)||0));
+      kisiGruplari[kisi] = (kisiGruplari[kisi] || 0) + t;
+    });
+
+    if (kisiChart) kisiChart.destroy();
+    kisiChart = new Chart(document.getElementById('chartKisi').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(kisiGruplari),
+        datasets: [{ label: 'Toplam İşlem Tutarı (₺)', data: Object.values(kisiGruplari), backgroundColor: '#3b82f6' }]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  function devirTablosunuCiz() {
+    const tbody = document.getElementById('devir-gecmisi-tbody');
+    tbody.innerHTML = '';
+    devirGecmisiListesi.slice().reverse().forEach(d => {
+      tbody.innerHTML += `
+        <tr>
+          <td><b>${d.baslangic || ''} / ${d.bitis || ''}</b></td>
+          <td>${d.kategori}</td>
+          <td><b>${d.tur || 'Devir'}</b></td>
+          <td style="color:#27ae60; font-weight:bold;">+₺${(Number(d.devredenKalan)||0).toFixed(2)}</td>
+          <td><b>₺${(Number(d.yeniAktifButce)||0).toFixed(2)}</b></td>
+        </tr>
+      `;
+    });
+  }
+
+  function getHaftaEtiketi(tarihStr) {
+    const d = new Date(tarihStr);
+    if (isNaN(d.getTime())) return tarihStr;
+    const day = d.getDay();
+    const diffToFriday = (day + 2) % 7;
+    const cuma = new Date(d); cuma.setDate(d.getDate() - diffToFriday);
+    const persembe = new Date(cuma); persembe.setDate(cuma.getDate() + 6);
+    const fmt = date => `${String(date.getDate()).padStart(2,'0')}.${String(date.getMonth()+1).padStart(2,'0')}`;
+    return `${fmt(cuma)} - ${fmt(persembe)} Haftası`;
+  }
+
+  function fisGoster(url) {
+    document.getElementById('modal-fis-resim').src = url;
+    document.getElementById('fis-modal').style.display = 'flex';
   }
 </script>
 </body>
