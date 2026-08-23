@@ -9,84 +9,37 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         :root {
-            --primary: #2c3e50;
-            --secondary: #27ae60;
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --bg: #f4f6f9;
-            --card-bg: #ffffff;
+            --primary: #2c3e50; --secondary: #27ae60; --danger: #e74c3c;
+            --warning: #f39c12; --bg: #f4f6f9; --card-bg: #ffffff;
         }
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg); margin: 0; padding: 10px; color: #333; }
         
-        .header { 
-            display: grid; 
-            grid-template-columns: auto 1fr auto; 
-            align-items: center; 
-            margin-bottom: 12px; 
-            padding: 12px 20px;
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-            gap: 15px;
-        }
-        
-        .header-clock-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .header-clock-box {
-            justify-self: start;
-            background: #f8f9fa;
-            border: 1.5px solid #cbd5e1;
-            padding: 8px 18px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .header-clock-box:hover {
-            background: #e2e8f0;
-            border-color: #94a3b8;
-        }
-
+        .header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; margin-bottom: 12px; padding: 12px 20px; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); gap: 15px; }
+        .header-clock-container { display: flex; align-items: center; gap: 10px; }
+        .header-clock-box { background: #f8f9fa; border: 1.5px solid #cbd5e1; padding: 8px 18px; border-radius: 8px; display: flex; flex-direction: column; gap: 3px; cursor: pointer; transition: all 0.2s ease; }
+        .header-clock-box:hover { background: #e2e8f0; border-color: #94a3b8; }
         .clock-date { font-size: 1.05rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 6px; }
-        .clock-time { font-size: 1.55rem; font-weight: 800; color: var(--secondary); font-family: 'Consolas', 'Courier New', monospace; letter-spacing: 1px; }
+        .clock-time { font-size: 1.55rem; font-weight: 800; color: var(--secondary); font-family: 'Consolas', monospace; letter-spacing: 1px; }
 
-        .header-title { 
-            font-size: 2.1rem; font-weight: 800; margin: 0; text-align: center;
-            background: linear-gradient(135deg, #1e3c72 0%, #27ae60 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
+        .header-title { font-size: 2.1rem; font-weight: 800; margin: 0; text-align: center; background: linear-gradient(135deg, #1e3c72 0%, #27ae60 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .header-actions { justify-self: end; display: flex; gap: 6px; }
-        .btn-settings { background-color: var(--primary); color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
-        .btn-devret { background-color: #e67e22; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
+        .btn-settings, .btn-devret, .btn-ara-devret { color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
+        .btn-settings { background-color: var(--primary); }
+        .btn-devret { background-color: #e67e22; }
+        .btn-ara-devret { background-color: #8e44ad; }
 
-        .top-banner {
-            color: white; padding: 6px 10px; border-radius: 6px; text-align: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08); position: relative; height: 60px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 8px;
-        }
+        .top-banner { color: white; padding: 6px 10px; border-radius: 6px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); position: relative; min-height: 60px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 8px; }
         .top-banner.market { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
         .top-banner.pazar { background: linear-gradient(135deg, #d35400 0%, #e67e22 100%); }
         .top-banner.kk-card { background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); }
         .top-banner.harcama-gecmisi-banner { background: linear-gradient(135deg, #2c3e50 0%, #16a085 100%); }
         
-        .top-banner h2 { margin: 0; font-size: 0.7rem; text-transform: uppercase; opacity: 0.95; font-weight: bold; line-height: 1.1; }
+        .top-banner h2 { margin: 0; font-size: 0.7rem; text-transform: uppercase; font-weight: bold; line-height: 1.1; }
         .top-banner .amount { font-size: 1.25rem; font-weight: bold; margin-top: 1px; color: #2ecc71; line-height: 1.1; }
         .top-banner.pazar .amount { color: #f1c40f; }
         .top-banner.kk-card .amount { color: #e0affc; }
-
-        .btn-edit-accumulated {
-            position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.25);
-            border: 1px solid rgba(255,255,255,0.5); color: white; border-radius: 4px;
-            padding: 2px 6px; font-size: 0.62rem; cursor: pointer;
-        }
+        .btn-edit-accumulated { position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: white; border-radius: 4px; padding: 2px 6px; font-size: 0.62rem; cursor: pointer; }
 
         .main-dashboard-grid { display: grid; grid-template-columns: 0.48fr 0.48fr 0.85fr 1.35fr; gap: 8px; }
         .col-section { display: flex; flex-direction: column; height: 100%; }
@@ -95,8 +48,7 @@
         .card h2 { margin-top: 0; color: var(--primary); font-size: 0.85rem; border-bottom: 2px solid var(--bg); padding-bottom: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         
         .compact-kasa-card { padding: 10px; margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between; flex: 1; }
-        .denominations { display: flex; flex-direction: column; justify-content: space-between; flex: 1; margin-bottom: 6px; }
-        .denom-row { display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 2px 6px; border-radius: 4px; border: 1px solid #edf2f7; }
+        .denom-row { display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 2px 6px; border-radius: 4px; border: 1px solid #edf2f7; margin-bottom: 2px;}
         .denom-row label { font-weight: bold; width: 60px; font-size: 0.83rem; color: #2c3e50; }
         .denom-row input { width: 65px; padding: 3px 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-weight: bold; font-size: 0.83rem; }
         
@@ -104,27 +56,29 @@
         .kasa-sonuc.eksik { background: #fadbd8; color: #c0392b; }
         .kasa-sonuc.fazla { background: #d4efdf; color: #27ae60; }
         
-        .btn-action { background-color: var(--secondary); color: white; border: none; padding: 5px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 3px; font-size: 0.78rem; }
+        .btn-action, .btn-small-danger, .btn-submit { color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 3px; }
+        .btn-action { background-color: var(--secondary); padding: 5px; font-size: 0.78rem; }
         .btn-action.default-fill { background-color: #3498db; }
-        .btn-small-danger { background-color: var(--danger); color: white; border: none; padding: 4px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; margin-top: 3px; width: 100%; }
+        .btn-small-danger { background-color: var(--danger); padding: 4px; font-size: 0.75rem; }
+        .btn-submit { background-color: var(--secondary); padding: 6px; font-size: 0.8rem; }
 
         .form-group { margin-bottom: 5px; }
         .form-group label { display: block; margin-bottom: 1px; font-weight: bold; font-size: 0.75rem; }
         .form-group input, .form-group select { width: 100%; padding: 3px 4px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.75rem; }
-        .btn-submit { background-color: var(--secondary); color: white; border: none; padding: 6px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 2px; }
         table, th, td { border: 1px solid #ddd; }
         th, td { padding: 3px 4px; text-align: center; vertical-align: middle; font-size: 0.7rem; }
         th { background-color: var(--primary); color: white; }
         
-        .btn-sil { background-color: var(--danger); color: white; border: none; padding: 2px 4px; border-radius: 3px; cursor: pointer; font-size: 0.65rem; font-weight: bold; }
-        .btn-duzenle { background-color: #f39c12; color: white; border: none; padding: 2px 4px; border-radius: 3px; cursor: pointer; font-size: 0.65rem; font-weight: bold; }
-        .btn-fis { background-color: #3498db; color: white; border: none; padding: 2px 4px; border-radius: 3px; cursor: pointer; font-size: 0.65rem; font-weight: bold; }
+        .btn-sil { background-color: var(--danger); color: white; border: none; padding: 2px 4px; border-radius: 3px; cursor: pointer; font-size: 0.65rem; }
+        .btn-duzenle { background-color: #f39c12; color: white; border: none; padding: 2px 4px; border-radius: 3px; cursor: pointer; font-size: 0.65rem; }
+        .btn-fis { background-color: #3498db; color: white; border: none; padding: 2px 4px; border-radius: 3px; cursor: pointer; font-size: 0.65rem; }
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 15px; border-radius: 6px; max-width: 400px; width: 90%; }
         #gorsel-onizleme { max-width: 100%; max-height: 90px; margin-top: 3px; border-radius: 3px; border: 1px solid #ddd; display: none; }
+        .scrollable-table { overflow-y: auto; max-height: 250px; }
     </style>
 </head>
 <body>
@@ -136,14 +90,11 @@
                 <div class="clock-time" id="canli-saat">⏰ --:--:--</div>
             </div>
         </div>
-
         <h1 class="header-title">
-            <span>🏛️</span>
-            <span>Karaaslan Home Bütçe & Kasa Yönetimi</span>
-            <span>📊</span>
+            <span>🏛️</span><span>Karaaslan Home Bütçe & Kasa Yönetimi</span><span>📊</span>
         </h1>
-
         <div class="header-actions">
+            <button class="btn-ara-devret" onclick="araDevirModaliAc()">⚡ Ara Devir</button>
             <button class="btn-settings" onclick="ayarlarModaliAc()">⚙️ Sabit Sayım Ayarları</button>
             <button class="btn-devret" onclick="manuelHaftayiDevret()">🔄 Haftayı Devret</button>
         </div>
@@ -151,19 +102,19 @@
 
     <div class="main-dashboard-grid">
         
-        <!-- 1. SÜTUN: MARKET KASASI -->
+        <!-- SÜTUN 1: MARKET -->
         <div class="col-section">
             <div class="top-banner market">
                 <button class="btn-edit-accumulated" onclick="birikenDuzenleModalAc('Market')">✏️ Düzenle</button>
-                <h2>🛒 MARKET BİRİKEN KASA</h2>
-                <div class="amount" id="toplam-biriken-market">0.00 TL</div>
+                <h2>🛒 MARKET KASASI</h2>
+                <div style="font-size:0.75rem; opacity:0.9; margin-top:5px;">AKTİF HARCANABİLİR NAKİT</div>
+                <div class="amount" id="kasada-kalan-market">0.00 TL</div>
+                <div style="font-size:0.65rem; opacity:0.8;" id="market-butce-detay">Aktif Bütçe: 0 TL</div>
+                <hr style="border:0; border-top:1px solid rgba(255,255,255,0.2); margin:6px 0;">
+                <div style="font-size:0.8rem;"> Biriken Kasa: <b id="toplam-biriken-market">0.00 TL</b></div>
             </div>
-            
             <div class="card compact-kasa-card">
-                <div>
-                    <h2>🛒 Market Sayımı</h2>
-                    <div class="denominations" id="market-kasa-inputs"></div>
-                </div>
+                <div><h2>🛒 Market Sayımı</h2><div id="market-kasa-inputs"></div></div>
                 <div>
                     <div id="market-sonuc" class="kasa-sonuc">Sayılan: 0 TL</div>
                     <button class="btn-action default-fill" onclick="sabitKasalariYukle('Market')">⚡ Sabit Değerler</button>
@@ -173,19 +124,19 @@
             </div>
         </div>
 
-        <!-- 2. SÜTUN: PAZAR KASASI -->
+        <!-- SÜTUN 2: PAZAR -->
         <div class="col-section">
             <div class="top-banner pazar">
                 <button class="btn-edit-accumulated" onclick="birikenDuzenleModalAc('Pazar')">✏️ Düzenle</button>
-                <h2>🧺 PAZAR / MANAV BİRİKEN KASA</h2>
-                <div class="amount" id="toplam-biriken-pazar">0.00 TL</div>
+                <h2>🧺 PAZAR KASASI</h2>
+                <div style="font-size:0.75rem; opacity:0.9; margin-top:5px;">AKTİF HARCANABİLİR NAKİT</div>
+                <div class="amount" id="kasada-kalan-pazar">0.00 TL</div>
+                <div style="font-size:0.65rem; opacity:0.8;" id="pazar-butce-detay">Aktif Bütçe: 0 TL</div>
+                <hr style="border:0; border-top:1px solid rgba(255,255,255,0.2); margin:6px 0;">
+                <div style="font-size:0.8rem;"> Biriken Kasa: <b id="toplam-biriken-pazar">0.00 TL</b></div>
             </div>
-
             <div class="card compact-kasa-card">
-                <div>
-                    <h2>🧺 Pazar Sayımı</h2>
-                    <div class="denominations" id="pazar-kasa-inputs"></div>
-                </div>
+                <div><h2>🧺 Pazar Sayımı</h2><div id="pazar-kasa-inputs"></div></div>
                 <div>
                     <div id="pazar-sonuc" class="kasa-sonuc">Sayılan: 0 TL</div>
                     <button class="btn-action default-fill" onclick="sabitKasalariYukle('Pazar')">⚡ Sabit Değerler</button>
@@ -195,7 +146,7 @@
             </div>
         </div>
 
-        <!-- 3. SÜTUN: FORM VE İCMAL -->
+        <!-- SÜTUN 3: FORMLAR VE İCMAL -->
         <div class="col-section">
             <div class="top-banner kk-card">
                 <h2>💳 KREDİ KARTI HARCAMALARI</h2>
@@ -206,144 +157,156 @@
             <div class="card">
                 <h2>➕ Harcama / Fiş Ekle</h2>
                 <form id="harcama-form">
-                    <div class="form-group">
-                        <label>Tarih</label>
-                        <input type="date" id="harcama-tarihi" required>
+                    <div style="display:flex; gap:5px;">
+                        <div class="form-group" style="flex:1"><label>Tarih</label><input type="date" id="harcama-tarihi" required></div>
+                        <div class="form-group" style="flex:1"><label>Kategori</label>
+                            <select id="kategori"><option value="Market">Market</option><option value="Pazar">Pazar / Manav</option></select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Kategori</label>
-                        <select id="kategori">
-                            <option value="Market">Market</option>
-                            <option value="Pazar">Pazar / Manav</option>
-                        </select>
+                    <div class="form-group"><label>Açıklama (Opsiyonel)</label><input type="text" id="harcama-aciklama" placeholder="Not..."></div>
+                    <div style="display:flex; gap:5px;">
+                        <div class="form-group" style="flex:1"><label>Toplam Tutar</label><input type="number" id="toplam-tutar" step="0.01" min="0" oninput="kkHesapla()" required></div>
+                        <div class="form-group" style="flex:1"><label>Nakit Ödenen</label><input type="number" id="nakit-odenen" step="0.01" min="0" oninput="kkHesapla()" required></div>
                     </div>
-                    <div class="form-group">
-                        <label>Açıklama</label>
-                        <input type="text" id="harcama-aciklama" placeholder="Not...">
+                    <div style="display:flex; gap:5px;">
+                        <div class="form-group" style="flex:1"><label>KK (Otomatik)</label><input type="number" id="kk-odenen" readonly></div>
+                        <div class="form-group" style="flex:1"><label>🧾 Fiş</label><input type="file" id="harcama-gorsel" accept="image/*" onchange="gorselHazirla(event)"></div>
                     </div>
-                    <div class="form-group">
-                        <label>Toplam Tutar (TL)</label>
-                        <input type="number" id="toplam-tutar" step="0.01" min="0" oninput="kkHesapla()" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nakit Ödenen (TL)</label>
-                        <input type="number" id="nakit-odenen" step="0.01" min="0" oninput="kkHesapla()" required>
-                    </div>
-                    <div class="form-group">
-                        <label>KK (Otomatik)</label>
-                        <input type="number" id="kk-odenen" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>🧾 Fiş Fotoğrafı</label>
-                        <input type="file" id="harcama-gorsel" accept="image/*" onchange="gorselHazirla(event)">
-                        <img id="gorsel-onizleme" alt="Fiş Önizleme">
-                    </div>
+                    <img id="gorsel-onizleme" alt="Fiş Önizleme">
                     <button type="submit" class="btn-submit">Kaydet</button>
                 </form>
             </div>
 
-            <div class="card">
-                <h2>📊 Aktif Hafta Bütçe İcmali</h2>
+            <!-- KASADAN ÖDEME FORM -->
+            <div class="card" style="background-color: #f5eef8; border: 1px solid #d7bde2;">
+                <h2 style="color: #8e44ad;">💳 Kasadan KK Borcu Öde</h2>
+                <form id="kk-odeme-form">
+                    <div class="form-group"><label>Tarih</label><input type="date" id="kk-odeme-tarih" required></div>
+                    <div class="form-group"><label>Hangi Kasadan Çıkacak?</label>
+                        <select id="kk-odeme-kasa">
+                            <option value="Market">Market (Aktif Dönem)</option>
+                            <option value="Pazar">Pazar (Aktif Dönem)</option>
+                            <option value="Market Ana Kasa">Market Ana Kasa (Biriken)</option>
+                            <option value="Pazar Ana Kasa">Pazar Ana Kasa (Biriken)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Ödeme Türü / Harcama Türü</label>
+                        <select id="kk-odeme-tur">
+                            <option value="KK Borcu" selected>KK Borcu Ödeme</option>
+                            <option value="Bireysel Harcama">Bireysel Harcama</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Kasadan Çıkan Nakit (TL)</label><input type="number" id="kk-odeme-tutar" step="0.01" required></div>
+                    <div class="form-group"><label>Not / Açıklama (Opsiyonel)</label><input type="text" id="kk-odeme-not" placeholder="Hangi kart veya detay..."></div>
+                    <button type="submit" class="btn-submit" style="background-color: #8e44ad;">Ödemeyi Al & Düş</button>
+                </form>
+            </div>
+
+            <!-- Bütçe İcmali -->
+            <div class="card" style="margin-bottom:0;">
+                <h2>
+                    <span>📊 Aktif Dönem İcmali</span>
+                    <button class="btn-edit-accumulated" style="position:static; font-size:0.68rem; background:#3498db; border:none; padding:3px 8px;" onclick="butceHedefDuzenleModalAc()">✏️ Düzenle</button>
+                </h2>
                 <table>
-                    <thead>
-                        <tr><th>Kategori</th><th>Hedef</th><th>Nakit</th><th>KK</th><th>Kalan</th></tr>
-                    </thead>
+                    <thead><tr><th>Kat.</th><th>Aktif Bütçe</th><th>Nakit</th><th>KK</th><th>Kalan</th></tr></thead>
                     <tbody id="ozet-icmal-body"></tbody>
                 </table>
             </div>
-
-            <div class="card" style="margin-bottom:0;">
-                <h2>📜 Geçmiş Devirler</h2>
-                <div style="overflow-x: auto; max-height: 140px;">
-                    <table>
-                        <thead>
-                            <tr><th>Dönem</th><th>Kat.</th><th>Devreden Kalan</th><th>Birikene Eklenen</th></tr>
-                        </thead>
-                        <tbody id="devir-gecmisi-body"></tbody>
-                    </table>
-                </div>
-            </div>
         </div>
 
-        <!-- 4. SÜTUN: HARCAMA GEÇMİŞİ VE FİLTRE -->
+        <!-- SÜTUN 4: İKİYE BÖLÜNMÜŞ TABLOLAR -->
         <div class="col-section">
             <div class="top-banner harcama-gecmisi-banner">
-                <h2>🧾 HARCAMA GEÇMİŞİ</h2>
+                <h2>🧾 İŞLEM GEÇMİŞİ</h2>
                 <div class="amount" id="harcama-gecmisi-toplam-tutar">0.00 TL</div>
                 <div style="font-size:0.68rem; margin-top:2px; display:flex; gap:6px; align-items:center; justify-content:center;">
-                    <span id="harcama-gecmisi-adet-metin">0 Kayıt</span>
-                    <span>|</span>
-                    <!-- DÖNEM FİLTRESİ -->
+                    <span id="harcama-gecmisi-adet-metin">0 Kayıt</span> | 
                     <select id="harcama-filtre" onchange="tümHesaplamalariGuncelle()" style="font-size:0.68rem; padding:1px 4px; border-radius:3px; border:none; background:rgba(255,255,255,0.9); font-weight:bold; color:#2c3e50; cursor:pointer;">
-                        <option value="bu-hafta" selected>Aktif Hafta</option>
+                        <option value="bu-hafta" selected>Aktif Dönem</option>
                         <option value="hepsi">Tüm Zamanlar</option>
                     </select>
-                    <!-- KİŞİ FİLTRESİ -->
                     <select id="kisi-filtre" onchange="tümHesaplamalariGuncelle()" style="font-size:0.68rem; padding:1px 4px; border-radius:3px; border:none; background:rgba(255,255,255,0.9); font-weight:bold; color:#2c3e50; cursor:pointer;">
                         <option value="hepsi">Tüm Kişiler</option>
                     </select>
                 </div>
             </div>
 
-            <div class="card" style="margin-bottom:0;">
-                <div style="overflow-x: auto; max-height: 570px;">
+            <!-- Normal Harcamalar -->
+            <div class="card" style="flex:1; display:flex; flex-direction:column;">
+                <h2>🛍️ Normal Harcamalar</h2>
+                <div class="scrollable-table">
                     <table id="harcama-tablosu">
-                        <thead>
-                            <tr>
-                                <th>Tarih</th>
-                                <th>Kat.</th>
-                                <th>Kişi</th>
-                                <th>Tutar</th>
-                                <th>Nakit</th>
-                                <th>KK</th>
-                                <th>Fiş</th>
-                                <th>İşlem</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Tarih</th><th>Kat.</th><th>Kişi</th><th>Tutar</th><th>Nakit</th><th>KK</th><th>Fiş/İşl.</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </div>
-        </div>
 
+            <!-- Kasadan KK Ödemeleri -->
+            <div class="card" style="flex:1; display:flex; flex-direction:column; background-color: #fdf2e9; border: 1px solid #f5cba7;">
+                <h2 style="color: #d35400;">💳 Kasadan KK'ya Aktarılanlar</h2>
+                <div class="scrollable-table">
+                    <table id="kk-odeme-tablosu">
+                        <thead><tr><th>Tarih/Saat</th><th>Kasa</th><th>Ödeme Türü</th><th>Kişi</th><th>Tutar</th><th>Açıklama</th><th>İşlem</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Devir Geçmişi -->
+<div class="card" style="flex:0.8; display:flex; flex-direction:column; margin-bottom:0; background-color: #e8f8f5; border: 1px solid #a3e4d7;">
+    <h2 style="color: #16a085;">📦 Arşivlenmiş Dönemler & Devirler</h2>
+    <div class="scrollable-table">
+        <table id="devir-tablosu">
+            <thead>
+                <tr>
+                    <th>Dönem Aralığı</th>
+                    <th>Kat.</th>
+                    <th>Tür</th>
+                    <th>Kalan (Birikene)</th>
+                    <th>Yeni Bütçe</th>
+                    <th>İşlem</th> <!-- YENİ EKLENEN SÜTUN -->
+                </tr>
+            </thead>
+            <tbody id="devir-gecmisi-body"></tbody>
+        </table>
     </div>
+</div>
 
     <!-- MODALLAR -->
+    <div id="ara-devir-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-top:0; color:#8e44ad;">⚡ Ara Devir Yap & Yeni Nakit Tanımla</h3>
+            <p style="font-size:0.75rem; color:#666;">Cuma'dan bugüne kadarki harcamalar dondurulacak, kalan bakiye biriken kasaya atılacak ve aşağıdaki yeni tutarlar yeni aktif harcama bütçeniz olacaktır.</p>
+            <div class="form-group">
+                <label>Market Kasasına Eklenecek Yeni Nakit (TL)</label>
+                <input type="number" id="ara-devir-market" step="0.01" value="0">
+            </div>
+            <div class="form-group">
+                <label>Pazar Kasasına Eklenecek Yeni Nakit (TL)</label>
+                <input type="number" id="ara-devir-pazar" step="0.01" value="0">
+            </div>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn-submit" style="background:#8e44ad;" onclick="araDevirKaydet()">Devret, Arşivle & Yeni Bütçeyi Başlat</button>
+                <button class="btn-small-danger" onclick="modalKapat('ara-devir-modal')">İptal</button>
+            </div>
+        </div>
+    </div>
+
     <div id="edit-modal" class="modal">
         <div class="modal-content">
             <h3 style="margin-top:0;">✏️ Harcama Düzenle</h3>
             <input type="hidden" id="edit-key">
-            <div class="form-group">
-                <label>Tarih</label>
-                <input type="date" id="edit-tarih">
+            <div class="form-group"><label>Tarih</label><input type="date" id="edit-tarih"></div>
+            <div class="form-group"><label>Kategori</label>
+                <select id="edit-kategori"><option value="Market">Market</option><option value="Pazar">Pazar / Manav</option></select>
             </div>
-            <div class="form-group">
-                <label>Kategori</label>
-                <select id="edit-kategori">
-                    <option value="Market">Market</option>
-                    <option value="Pazar">Pazar / Manav</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Harcayan Kişi</label>
-                <input type="text" id="edit-kisi">
-            </div>
-            <div class="form-group">
-                <label>Açıklama</label>
-                <input type="text" id="edit-aciklama">
-            </div>
-            <div class="form-group">
-                <label>Toplam Tutar (TL)</label>
-                <input type="number" id="edit-toplam" step="0.01" oninput="editKkHesapla()">
-            </div>
-            <div class="form-group">
-                <label>Nakit Ödenen (TL)</label>
-                <input type="number" id="edit-nakit" step="0.01" oninput="editKkHesapla()">
-            </div>
-            <div class="form-group">
-                <label>KK Ödenen (TL)</label>
-                <input type="number" id="edit-kk" readonly>
-            </div>
+            <div class="form-group"><label>Harcayan Kişi</label><input type="text" id="edit-kisi"></div>
+            <div class="form-group"><label>Açıklama</label><input type="text" id="edit-aciklama"></div>
+            <div class="form-group"><label>Toplam Tutar (TL)</label><input type="number" id="edit-toplam" step="0.01" oninput="editKkHesapla()"></div>
+            <div class="form-group"><label>Nakit Ödenen (TL)</label><input type="number" id="edit-nakit" step="0.01" oninput="editKkHesapla()"></div>
+            <div class="form-group"><label>KK Ödenen (TL)</label><input type="number" id="edit-kk" readonly></div>
             <div style="display:flex; gap:8px; margin-top:10px;">
                 <button class="btn-submit" onclick="harcamaGuncelleKaydet()">Kaydet</button>
                 <button class="btn-small-danger" onclick="modalKapat('edit-modal')">İptal</button>
@@ -351,370 +314,383 @@
         </div>
     </div>
 
-    <div id="fis-modal" class="modal">
-        <div class="modal-content" style="text-align: center;">
-            <h3 style="margin-top:0;">🧾 Fiş Detayı</h3>
-            <img id="modal-fis-resim" src="" style="max-width: 100%; max-height: 70vh; border-radius: 6px;">
-            <div style="margin-top: 12px;">
-                <button class="btn-small-danger" style="width: auto; padding: 5px 15px;" onclick="modalKapat('fis-modal')">Kapat</button>
-            </div>
+    <div id="fis-modal" class="modal" onclick="if(event.target===this) modalKapat('fis-modal')">
+        <div class="modal-content" style="text-align: center; background:transparent; box-shadow:none;">
+            <img id="modal-fis-resim" src="" style="max-width: 100%; max-height: 80vh; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); background: white; padding: 5px;">
         </div>
     </div>
 
     <div id="ayarlar-modal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-top:0;">⚙️ Sabit Sayım Ayarları</h3>
-            <div class="form-group"><label>Market 200 TL Adedi</label><input type="number" id="cfg-market-200"></div>
-            <div class="form-group"><label>Pazar 200 TL Adedi</label><input type="number" id="cfg-pazar-200"></div>
-            <div style="display:flex; gap:8px; margin-top:10px;">
-                <button class="btn-submit" onclick="ayarlariKaydet()">Kaydet</button>
-                <button class="btn-small-danger" onclick="modalKapat('ayarlar-modal')">İptal</button>
-            </div>
+        <div class="modal-content"><h3 style="margin-top:0;">⚙️ Sabit Sayım Ayarları (Hızlı Dolum & Otomatik Cuma Bütçesi)</h3>
+            <div class="form-group"><label>Market 200 TL Adedi (Varsayılan Bütçe: Adet x 200 TL)</label><input type="number" id="cfg-market-200"></div>
+            <div class="form-group"><label>Pazar 200 TL Adedi (Varsayılan Bütçe: Adet x 200 TL)</label><input type="number" id="cfg-pazar-200"></div>
+            <div style="display:flex; gap:8px; margin-top:10px;"><button class="btn-submit" onclick="ayarlariKaydet()">Kaydet</button><button class="btn-small-danger" onclick="modalKapat('ayarlar-modal')">İptal</button></div>
+        </div>
+    </div>
+
+    <div id="butce-hedef-modal" class="modal">
+        <div class="modal-content"><h3 style="margin-top:0;">🎯 Aktif Dönem Bütçesini Manuel Düzenle</h3>
+            <div class="form-group"><label>Market Aktif Bütçe (TL)</label><input type="number" id="cfg-target-market" step="10"></div>
+            <div class="form-group"><label>Pazar Aktif Bütçe (TL)</label><input type="number" id="cfg-target-pazar" step="10"></div>
+            <div style="display:flex; gap:8px; margin-top:10px;"><button class="btn-submit" onclick="butceHedefleriKaydet()">Kaydet</button><button class="btn-small-danger" onclick="modalKapat('butce-hedef-modal')">İptal</button></div>
         </div>
     </div>
 
     <div id="biriken-modal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-top:0;" id="biriken-modal-baslik">Biriken Bakiye Düzenle</h3>
+        <div class="modal-content"><h3 style="margin-top:0;" id="biriken-modal-baslik">Biriken Bakiye Düzenle</h3>
             <input type="hidden" id="biriken-modal-kat">
             <div class="form-group"><label>Yeni Bakiye (TL)</label><input type="number" id="biriken-modal-tutar" step="0.01"></div>
-            <div style="display:flex; gap:8px; margin-top:10px;">
-                <button class="btn-submit" onclick="birikenBakiyeKaydet()">Kaydet</button>
-                <button class="btn-small-danger" onclick="modalKapat('biriken-modal')">İptal</button>
-            </div>
+            <div style="display:flex; gap:8px; margin-top:10px;"><button class="btn-submit" onclick="birikenBakiyeKaydet()">Kaydet</button><button class="btn-small-danger" onclick="modalKapat('biriken-modal')">İptal</button></div>
         </div>
     </div>
 
     <script>
+function devirKaydiSil(key) {
+    if (prompt("Arşiv devir kaydını silmek için yönetici şifresini giriniz:") === YONETICI_SIFRESI) {
+        db.ref('devirGecmisi/' + key).remove().then(() => {
+            alert("Devir kaydı başarıyla silindi.");
+        });
+    }
+}
+
+
+
+
+
         const firebaseConfig = {
             apiKey: "AIzaSyD1hbPbA81qldXCsQxSM4Ozxr9L8sdRTMk",
             authDomain: "karaaslanhomebutcetakip.firebaseapp.com",
             databaseURL: "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "karaaslanhomebutcetakip",
-            storageBucket: "karaaslanhomebutcetakip.firebasestorage.app",
-            messagingSenderId: "566343253682",
-            appId: "1:566343253682:web:c32d2821f65dcf2b9813ab"
+            projectId: "karaaslanhomebutcetakip"
         };
-        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
         const YONETICI_SIFRESI = "1234";
         const degerler = [200, 100, 50, 20, 10, 5, 1, 0.50, 0.25, 0.10, 0.05];
-        let harcamalarObje = {}; 
-        let birikenKasaObje = {};
-        let devirGecmisiObje = {};
-        let aktifHaftaBaslangic = "";
-        let hazirGorselBase64 = "";
+        let harcamalarObje = {}; let birikenKasaObje = {}; let devirGecmisiObje = {}; let devirToplamKasaObje = {};
+        let aktifDonemBaslangic = ""; let hazirGorselBase64 = "";
         let sabitAyarlar = { market200: 17, pazar200: 15 };
+        let aktifButce = { Market: 3400, Pazar: 3000 };
+        let devirIslemiCalisiyor = false;
 
         function getAktifKullanici() {
             const urlParams = new URLSearchParams(window.location.search);
-            let user = urlParams.get('user') || localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') || localStorage.getItem('aktifKullanici') || '';
-            return user.trim();
+            let user = urlParams.get('user') || localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') || 'Admin';
+            return user.trim() || 'Admin';
+        }
+
+        function matchKategori(h, kat) {
+            if (!h) return false;
+            const target = kat.toLowerCase();
+            const hKat = (h.kategori || '').toLowerCase();
+            const hKasa = (h.kasaTipi || '').toLowerCase();
+            return hKat.includes(target) || hKasa.includes(target);
+        }
+
+        function isKKRecord(h) {
+            if (!h) return false;
+            if (h.isKKOdeme === true) return true;
+            const tur = (h.odemeTuru || '').toLowerCase();
+            const acik = (h.aciklama || '').toLowerCase();
+            return tur.includes('kk') || acik.includes('kk') || tur.includes('bireysel');
         }
 
         function canlıSaatiGuncelle() {
             const simdi = new Date();
             const gunler = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
-            const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylul", "Ekim", "Kasım", "Aralık"];
-
+            const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
             document.getElementById('canli-tarih').innerHTML = `📅 ${simdi.getDate()} ${aylar[simdi.getMonth()]} ${simdi.getFullYear()}, ${gunler[simdi.getDay()]}`;
             document.getElementById('canli-saat').innerHTML = `⏰ ${String(simdi.getHours()).padStart(2, '0')}:${String(simdi.getMinutes()).padStart(2, '0')}:${String(simdi.getSeconds()).padStart(2, '0')}`;
         }
 
-        function getHedef(kategori) {
-            if (kategori === 'Market') return (sabitAyarlar.market200 || 17) * 200;
-            if (kategori === 'Pazar') return (sabitAyarlar.pazar200 || 15) * 200;
-            return 0;
+        function getAktifButce(kategori) { 
+            if (aktifButce && aktifButce[kategori] !== undefined && aktifButce[kategori] !== null) {
+                return parseFloat(aktifButce[kategori]) || 0;
+            }
+            return (kategori === 'Market' ? (sabitAyarlar.market200 || 17) : (sabitAyarlar.pazar200 || 15)) * 200; 
+        }
+
+        function getSabitBütce(kategori) {
+            return (kategori === 'Market' ? (sabitAyarlar.market200 || 17) : (sabitAyarlar.pazar200 || 15)) * 200;
         }
 
         window.onload = () => {
-            canlıSaatiGuncelle();
-            setInterval(canlıSaatiGuncelle, 1000);
+            canlıSaatiGuncelle(); setInterval(canlıSaatiGuncelle, 1000);
             document.getElementById('harcama-tarihi').value = new Date().toISOString().split('T')[0];
+            document.getElementById('kk-odeme-tarih').value = new Date().toISOString().split('T')[0];
 
-            inputlariOlustur('Market');
-            inputlariOlustur('Pazar');
+            ['Market', 'Pazar'].forEach(kat => {
+                const container = document.getElementById(`${kat.toLowerCase()}-kasa-inputs`);
+                degerler.forEach(deger => {
+                    const labelText = deger >= 1 ? `${deger} TL` : `${deger * 100} Kr`;
+                    container.innerHTML += `<div class="denom-row"><label>${labelText}</label><input type="number" min="0" data-deger="${deger}" class="${kat.toLowerCase()}-input" oninput="kasaKaydet('${kat}')"></div>`;
+                });
+            });
 
-            // Kasa Sayımı Dinleyicisi (Kasalara girilen adetleri otomatik yükler)
-            db.ref('kasaSayimi').on('value', (snapshot) => {
-                const veriler = snapshot.val();
-                if (veriler) {
-                    ['Market', 'Pazar'].forEach(kat => {
-                        if (veriler[kat]) {
-                            Object.keys(veriler[kat]).forEach(degerKey => {
-                                const deger = degerKey.replace('_', '.');
-                                const input = document.querySelector(`.${kat.toLowerCase()}-input[data-deger="${deger}"]`);
-                                if (input) input.value = veriler[kat][degerKey] || '';
-                            });
-                            kasaHesapla(kat);
-                        }
+            db.ref('kasaSayimi').on('value', (s) => {
+                const v = s.val();
+                if (v) ['Market', 'Pazar'].forEach(kat => {
+                    if (v[kat]) Object.keys(v[kat]).forEach(k => {
+                        const i = document.querySelector(`.${kat.toLowerCase()}-input[data-deger="${k.replace('_', '.')}"]`);
+                        if (i) i.value = v[kat][k] || '';
                     });
-                }
+                });
+                kasaHesapla('Market'); kasaHesapla('Pazar');
             });
 
-            db.ref('sabitAyarlar').on('value', (snapshot) => {
-                if (snapshot.exists()) sabitAyarlar = snapshot.val();
-                tümHesaplamalariGuncelle();
+            db.ref('sabitAyarlar').on('value', s => { if (s.exists()) sabitAyarlar = s.val(); tümHesaplamalariGuncelle(); });
+            db.ref('aktifButce').on('value', s => { if (s.exists()) aktifButce = s.val(); tümHesaplamalariGuncelle(); });
+            db.ref('aktifHaftaBaslangic').on('value', s => { 
+                aktifDonemBaslangic = s.val() || new Date().toISOString().split('T')[0]; 
+                tümHesaplamalariGuncelle(); 
             });
-
-            db.ref('aktifHaftaBaslangic').on('value', (snapshot) => {
-                aktifHaftaBaslangic = snapshot.val() || new Date().toISOString().split('T')[0];
-                otomatikCumaKontrol();
-                tümHesaplamalariGuncelle();
+            db.ref('harcamalar').on('value', s => { harcamalarObje = s.val() || {}; tümHesaplamalariGuncelle(); });
+            db.ref('birikenKasa').on('value', s => { 
+                birikenKasaObje = s.val() || {}; 
+                const elM = document.getElementById('toplam-biriken-market');
+                if (elM) elM.innerText = (parseFloat(birikenKasaObje.Market) || 0).toFixed(2) + ' TL';
+                const elP = document.getElementById('toplam-biriken-pazar');
+                if (elP) elP.innerText = (parseFloat(birikenKasaObje.Pazar) || 0).toFixed(2) + ' TL';
             });
-
-            db.ref('harcamalar').on('value', (snapshot) => {
-                harcamalarObje = snapshot.val() || {};
-                tümHesaplamalariGuncelle();
-            });
-
-            db.ref('birikenKasa').on('value', (snapshot) => {
-                birikenKasaObje = snapshot.val() || {};
-                document.getElementById('toplam-biriken-market').innerText = (parseFloat(birikenKasaObje.Market) || 0).toFixed(2) + ' TL';
-                document.getElementById('toplam-biriken-pazar').innerText = (parseFloat(birikenKasaObje.Pazar) || 0).toFixed(2) + ' TL';
-                altTablolariCiz();
-            });
-
-            db.ref('devirGecmisi').on('value', (snapshot) => {
-                devirGecmisiObje = snapshot.val() || {};
-                tümHesaplamalariGuncelle();
-            });
+            db.ref('devirGecmisi').on('value', s => { devirGecmisiObje = s.val() || {}; tümHesaplamalariGuncelle(); });
         };
 
+        // OTOMATİK DÖNGÜSEL DEVİR (Cuma tespiti ve çoklu hafta yakalama)
         function otomatikCumaKontrol() {
-            const bugun = new Date();
-            const gunIndeks = bugun.getDay();
-            const bugunStr = bugun.toISOString().split('T')[0];
+            if (!aktifDonemBaslangic || devirIslemiCalisiyor) return;
+            
+            let periodStart = new Date(aktifDonemBaslangic + "T00:00:00");
+            let bugun = new Date();
+            bugun.setHours(0,0,0,0);
 
-            if (gunIndeks === 5 && aktifHaftaBaslangic !== bugunStr) {
-                devirIsleminiGerceklestir("Cuma Otomatik Devri");
-            }
-        }
+            let checkDate = new Date(periodStart);
+            checkDate.setDate(checkDate.getDate() + 1);
 
-        function manuelHaftayiDevret() {
-            if (confirm("Mevcut haftayı devredip kalan tutarları Biriken Kasa'ya aktarmak istiyor musunuz?")) {
-                const onay = prompt("Devir işlemini onaylamak için yönetici şifresini giriniz:");
-                if (onay === YONETICI_SIFRESI) {
-                    devirIsleminiGerceklestir("Manuel Devir");
-                } else {
-                    alert("Hatalı şifre! Devir yapılmadı.");
+            let updatesToPerform = [];
+
+            while (checkDate <= bugun) {
+                if (checkDate.getDay() === 5) { // Cuma günü
+                    let diffDays = Math.round((checkDate - periodStart) / (1000 * 60 * 60 * 24));
+                    if (diffDays >= 1) {
+                        let periodStartStr = periodStart.toISOString().split('T')[0];
+                        let periodEndStr = checkDate.toISOString().split('T')[0];
+
+                        updatesToPerform.push({ baslangic: periodStartStr, bitis: periodEndStr });
+                        periodStart = new Date(checkDate);
+                    }
                 }
+                checkDate.setDate(checkDate.getDate() + 1);
+            }
+
+            if (updatesToPerform.length > 0) {
+                devirIslemiCalisiyor = true;
+                let tempMarket = parseFloat(birikenKasaObje.Market) || 0;
+                let tempPazar = parseFloat(birikenKasaObje.Pazar) || 0;
+                let lastBitis = "";
+
+                updatesToPerform.forEach(p => {
+                    ['Market', 'Pazar'].forEach(kat => {
+                        let harcananNakit = 0;
+                        Object.values(harcamalarObje).forEach(h => {
+                            if (matchKategori(h, kat) && h.tarih >= p.baslangic && h.tarih <= p.bitis && !h.anaKasaMi) {
+                                harcananNakit += Number(h.nakit) || 0;
+                            }
+                        });
+                        
+                        const kalanNakit = Math.max(0, getAktifButce(kat) - harcananNakit);
+                        if (kat === 'Market') tempMarket += kalanNakit;
+                        if (kat === 'Pazar') tempPazar += kalanNakit;
+
+                        const sabitBütce = getSabitBütce(kat);
+
+                        db.ref('devirGecmisi').push({
+                            baslangic: p.baslangic,
+                            bitis: p.bitis,
+                            kategori: kat,
+                            devredenKalan: kalanNakit,
+                            yeniAktifButce: sabitBütce,
+                            tur: "Cuma Devri (Otomatik)"
+                        });
+                    });
+                    lastBitis = p.bitis;
+                });
+
+                // Cuma devri yapıldığında aktif bütçeyi Sabit Sayım Ayarlarına geri döndür
+                const yeniMarketButce = getSabitBütce('Market');
+                const yeniPazarButce = getSabitBütce('Pazar');
+
+                db.ref(`birikenKasa/Market`).set(tempMarket);
+                db.ref(`birikenKasa/Pazar`).set(tempPazar);
+                db.ref('aktifButce').set({ Market: yeniMarketButce, Pazar: yeniPazarButce });
+                db.ref('aktifHaftaBaslangic').set(lastBitis).then(() => {
+                    devirIslemiCalisiyor = false;
+                });
             }
         }
 
-        function devirIsleminiGerceklestir(devirTuru) {
-            const bugünStr = new Date().toISOString().split('T')[0];
+        // ARA DEVİR FONKSİYONU (Cuma'dan bugüne kadarki harcamaları dondurur, yeni nakit bütçe tanımlar)
+        function araDevirModaliAc() {
+            if (prompt("Ara devir yapmak için yönetici şifresini giriniz:") === YONETICI_SIFRESI) {
+                document.getElementById('ara-devir-market').value = getSabitBütce('Market');
+                document.getElementById('ara-devir-pazar').value = getSabitBütce('Pazar');
+                document.getElementById('ara-devir-modal').style.display = 'flex';
+            }
+        }
+
+        function araDevirKaydet() {
+            const yeniMarketNakit = parseFloat(document.getElementById('ara-devir-market').value) || 0;
+            const yeniPazarNakit = parseFloat(document.getElementById('ara-devir-pazar').value) || 0;
+            const bugunStr = new Date().toISOString().split('T')[0];
+
+            let tempMarket = parseFloat(birikenKasaObje.Market) || 0;
+            let tempPazar = parseFloat(birikenKasaObje.Pazar) || 0;
 
             ['Market', 'Pazar'].forEach(kat => {
                 let harcananNakit = 0;
                 Object.values(harcamalarObje).forEach(h => {
-                    if (h.kategori === kat && h.tarih >= aktifHaftaBaslangic) {
+                    if (matchKategori(h, kat) && h.tarih >= aktifDonemBaslangic && !h.anaKasaMi) {
                         harcananNakit += Number(h.nakit) || 0;
                     }
                 });
 
-                const hedef = getHedef(kat);
-                const kalanNakit = Math.max(0, hedef - harcananNakit);
+                const kalanNakit = Math.max(0, getAktifButce(kat) - harcananNakit);
+                if (kat === 'Market') tempMarket += kalanNakit;
+                if (kat === 'Pazar') tempPazar += kalanNakit;
 
-                const mevcutBiriken = parseFloat(birikenKasaObje[kat]) || 0;
-                const yeniBiriken = mevcutBiriken + kalanNakit;
-                db.ref(`birikenKasa/${kat}`).set(yeniBiriken);
+                const eklenenNakit = (kat === 'Market') ? yeniMarketNakit : yeniPazarNakit;
 
                 db.ref('devirGecmisi').push({
-                    baslangic: aktifHaftaBaslangic,
-                    bitis: bugünStr,
+                    baslangic: aktifDonemBaslangic,
+                    bitis: bugunStr,
                     kategori: kat,
                     devredenKalan: kalanNakit,
-                    birikeneEklenen: kalanNakit,
-                    tur: devirTuru
+                    yeniAktifButce: eklenenNakit,
+                    tur: '⚡ Ara Devir'
                 });
             });
 
+            // Biriken kasayı güncelle, aktif bütçeleri yeni girilen nakit yap ve aktif dönemi bugüne çek
+            db.ref('birikenKasa/Market').set(tempMarket);
+            db.ref('birikenKasa/Pazar').set(tempPazar);
+            db.ref('aktifButce').set({ Market: yeniMarketNakit, Pazar: yeniPazarNakit });
+            db.ref('aktifHaftaBaslangic').set(bugunStr);
+
+            modalKapat('ara-devir-modal');
+            alert("Ara devir başarıyla tamamlandı! Eski dönem arşivlendi ve yeni aktif bütçeler tanımlandı.");
+        }
+
+        // MANUEL HAFTALIK DEVİR
+        function manuelHaftayiDevret() {
+            if (prompt("Devir işlemini onaylamak için yönetici şifresini giriniz:") === YONETICI_SIFRESI) devirIsleminiGerceklestir("Manuel Devir");
+        }
+
+        function devirIsleminiGerceklestir(devirTuru) {
+            const bugünStr = new Date().toISOString().split('T')[0];
+            let tempMarket = parseFloat(birikenKasaObje.Market) || 0;
+            let tempPazar = parseFloat(birikenKasaObje.Pazar) || 0;
+
+            ['Market', 'Pazar'].forEach(kat => {
+                let harcananNakit = 0;
+                Object.values(harcamalarObje).forEach(h => {
+                    if (matchKategori(h, kat) && h.tarih >= aktifDonemBaslangic && !h.anaKasaMi) {
+                        harcananNakit += Number(h.nakit) || 0;
+                    }
+                });
+
+                const kalanNakit = Math.max(0, getAktifButce(kat) - harcananNakit);
+                if (kat === 'Market') tempMarket += kalanNakit;
+                if (kat === 'Pazar') tempPazar += kalanNakit;
+
+                const sabitBütce = getSabitBütce(kat);
+
+                db.ref('devirGecmisi').push({ 
+                    baslangic: aktifDonemBaslangic, 
+                    bitis: bugünStr, 
+                    kategori: kat, 
+                    devredenKalan: kalanNakit, 
+                    yeniAktifButce: sabitBütce,
+                    tur: devirTuru 
+                });
+            });
+
+            const varsayılanMarket = getSabitBütce('Market');
+            const varsayılanPazar = getSabitBütce('Pazar');
+
+            db.ref('birikenKasa/Market').set(tempMarket);
+            db.ref('birikenKasa/Pazar').set(tempPazar);
+            db.ref('aktifButce').set({ Market: varsayılanMarket, Pazar: varsayılanPazar });
             db.ref('aktifHaftaBaslangic').set(bugünStr);
-            alert(`Haftalık devir (${devirTuru}) başarıyla tamamlandı! Kalan bakiyeler biriken kasaya eklendi.`);
+
+            alert(`Haftalık devir (${devirTuru}) tamamlandı! Dönem arşivlendi ve sabit sayım bütçeleri yüklendi.`);
         }
 
         function tümHesaplamalariGuncelle() {
+            otomatikCumaKontrol();
             filtreSecenekleriniGuncelle();
-            tabloyuCiz();
-            kasaHesapla('Market');
-            kasaHesapla('Pazar');
-            kkHesaplamaCiz();
+            tablolariCiz();
+            kasaHesapla('Market'); kasaHesapla('Pazar');
             altTablolariCiz();
-            harcamaGecmisiOzetGuncelle();
         }
 
         function filtreSecenekleriniGuncelle() {
-            const select = document.getElementById('harcama-filtre');
-            const kisiSelect = document.getElementById('kisi-filtre');
-            if (!select) return;
-
-            const seciliDonem = select.value || "bu-hafta";
-            select.innerHTML = `
-                <option value="bu-hafta">Aktif Hafta</option>
-                <option value="hepsi">Tüm Zamanlar</option>
-            `;
-
-            const devirler = Object.values(devirGecmisiObje).reverse();
-            const benzersizDonemler = [...new Set(devirler.map(d => `${d.baslangic} / ${d.bitis}`))];
-
-            benzersizDonemler.forEach(donem => {
-                const opt = document.createElement('option');
-                opt.value = donem;
-                opt.innerText = `🗓️ ${donem}`;
-                if (donem === seciliDonem) opt.selected = true;
-                select.appendChild(opt);
-            });
-
-            if (kisiSelect) {
-                const seciliKisi = kisiSelect.value || "hepsi";
-                kisiSelect.innerHTML = `<option value="hepsi">Tüm Kişiler</option>`;
-                const kisiler = [...new Set(Object.values(harcamalarObje).map(h => h.kisi).filter(Boolean))];
-                kisiler.forEach(kisi => {
-                    const opt = document.createElement('option');
-                    opt.value = kisi;
-                    opt.innerText = `👤 ${kisi}`;
-                    if (kisi === seciliKisi) opt.selected = true;
-                    kisiSelect.appendChild(opt);
-                });
-            }
+            const s = document.getElementById('harcama-filtre'), ks = document.getElementById('kisi-filtre');
+            if(!s) return;
+            const sec = s.value || "bu-hafta";
+            s.innerHTML = `<option value="bu-hafta">Aktif Dönem</option><option value="hepsi">Tüm Zamanlar</option>`;
+            [...new Set(Object.values(devirGecmisiObje).map(d => `${d.baslangic} / ${d.bitis}`))]
+                .forEach(d => s.innerHTML += `<option value="${d}" ${d===sec?'selected':''}>🗓️ ${d}</option>`);
+            
+            const kSec = ks.value || "hepsi";
+            ks.innerHTML = `<option value="hepsi">Tüm Kişiler</option>`;
+            [...new Set(Object.values(harcamalarObje).map(h => h.kisi).filter(Boolean))]
+                .forEach(k => ks.innerHTML += `<option value="${k}" ${k===kSec?'selected':''}>👤 ${k}</option>`);
         }
 
-        function harcamaGecmisiOzetGuncelle() {
-            let toplamTutar = 0;
-            let count = 0;
-            const filtre = document.getElementById('harcama-filtre') ? document.getElementById('harcama-filtre').value : 'bu-hafta';
-            const kisiFiltre = document.getElementById('kisi-filtre') ? document.getElementById('kisi-filtre').value : 'hepsi';
+        function tablolariCiz() {
+            const ht = document.querySelector('#harcama-tablosu tbody'), kt = document.querySelector('#kk-odeme-tablosu tbody');
+            if(!ht || !kt) return;
+            ht.innerHTML = ''; kt.innerHTML = '';
+            const f = document.getElementById('harcama-filtre') ? document.getElementById('harcama-filtre').value : "bu-hafta";
+            const kf = document.getElementById('kisi-filtre') ? document.getElementById('kisi-filtre').value : "hepsi";
+            let topTutar = 0, count = 0;
 
-            Object.values(harcamalarObje).forEach(h => {
-                let goster = false;
-                if (filtre === 'bu-hafta') {
-                    goster = (h.tarih >= aktifHaftaBaslangic);
-                } else if (filtre === 'hepsi') {
-                    goster = true;
-                } else {
-                    const [bas, bit] = filtre.split(' / ');
-                    goster = (h.tarih >= bas && h.tarih <= bit);
-                }
-
-                if (kisiFiltre !== 'hepsi' && h.kisi !== kisiFiltre) {
-                    goster = false;
-                }
-
-                if (goster) {
-                    toplamTutar += Number(h.toplam) || 0;
-                    count++;
-                }
-            });
-            document.getElementById('harcama-gecmisi-toplam-tutar').innerText = toplamTutar.toFixed(2) + ' TL';
-            document.getElementById('harcama-gecmisi-adet-metin').innerText = `${count} Kayıt`;
-        }
-
-        function kkHesaplamaCiz() {
-            let mKK = 0, pKK = 0;
-            Object.values(harcamalarObje).forEach(h => {
-                if (h.tarih >= aktifHaftaBaslangic) {
-                    if (h.kategori === 'Market') mKK += Number(h.kk) || 0;
-                    if (h.kategori === 'Pazar') pKK += Number(h.kk) || 0;
-                }
-            });
-            const topKK = mKK + pKK;
-            document.getElementById('toplam-kk-harcama').innerText = topKK.toFixed(2) + ' TL';
-            document.getElementById('kk-detay-metin').innerText = `Market: ${mKK.toFixed(2)} TL | Pazar: ${pKK.toFixed(2)} TL`;
-        }
-
-        function kasaHesapla(kategori) {
-            let sayilan = 0;
-            document.querySelectorAll(`.${kategori.toLowerCase()}-input`).forEach(input => {
-                sayilan += (parseInt(input.value) || 0) * parseFloat(input.getAttribute('data-deger'));
-            });
-
-            let harcananNakit = 0;
-            Object.values(harcamalarObje).forEach(h => {
-                if (h.kategori === kategori && h.tarih >= aktifHaftaBaslangic) {
-                    harcananNakit += Number(h.nakit) || 0;
-                }
-            });
-
-            const hedefTutar = getHedef(kategori);
-            const olmasiGerekenNakit = hedefTutar - harcananNakit;
-            const fark = sayilan - olmasiGerekenNakit;
-
-            const sonucDiv = document.getElementById(`${kategori.toLowerCase()}-sonuc`);
-            sonucDiv.className = 'kasa-sonuc';
-
-            let msg = `Sayılan: <b>${sayilan.toFixed(2)} ₺</b><br>Kalan: <b>${olmasiGerekenNakit.toFixed(2)} ₺</b><br>`;
-            if (Math.abs(fark) < 0.01) {
-                msg += `<span style="color:#27ae60;">✅ Denk</span>`;
-                sonucDiv.classList.add('fazla');
-            } else if (fark > 0) {
-                msg += `<span style="color:#27ae60;">🟢 +${fark.toFixed(2)}₺ FAZLA</span>`;
-                sonucDiv.classList.add('fazla');
-            } else {
-                msg += `<span style="color:#c0392b;">🔴 -${Math.abs(fark).toFixed(2)}₺ EKSİK</span>`;
-                sonucDiv.classList.add('eksik');
-            }
-            sonucDiv.innerHTML = msg;
-        }
-
-        function tabloyuCiz() {
-            const tbody = document.querySelector('#harcama-tablosu tbody');
-            tbody.innerHTML = '';
-            const filtre = document.getElementById('harcama-filtre') ? document.getElementById('harcama-filtre').value : 'bu-hafta';
-            const kisiFiltre = document.getElementById('kisi-filtre') ? document.getElementById('kisi-filtre').value : 'hepsi';
-            const keys = Object.keys(harcamalarObje).reverse();
-
-            keys.forEach(key => {
+            Object.keys(harcamalarObje).reverse().forEach(key => {
                 const h = harcamalarObje[key];
-                let goster = false;
-
-                if (filtre === 'bu-hafta') goster = (h.tarih >= aktifHaftaBaslangic);
-                else if (filtre === 'hepsi') goster = true;
-                else {
-                    const [bas, bit] = filtre.split(' / ');
-                    goster = (h.tarih >= bas && h.tarih <= bit);
-                }
-
-                if (kisiFiltre !== 'hepsi' && h.kisi !== kisiFiltre) {
-                    goster = false;
-                }
+                let goster = (f === 'bu-hafta') ? (h.tarih >= aktifDonemBaslangic) : (f === 'hepsi') ? true : (h.tarih >= f.split(' / ')[0] && h.tarih <= f.split(' / ')[1]);
+                if (kf !== 'hepsi' && h.kisi !== kf) goster = false;
 
                 if (goster) {
-                    const fisBtn = h.gorsel ? `<button class="btn-fis" onclick="fisGoster('${key}')">🖼️</button>` : '-';
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><b>${h.tarih || '-'}</b></td>
-                            <td>${h.kategori || '-'}</td>
-                            <td>${h.kisi || '-'}</td>
-                            <td>${(Number(h.toplam)||0).toFixed(0)}₺</td>
-                            <td>${(Number(h.nakit)||0).toFixed(0)}₺</td>
-                            <td>${(Number(h.kk)||0).toFixed(0)}₺</td>
-                            <td>${fisBtn}</td>
-                            <td>
-                                <button class="btn-duzenle" onclick="onayliHarcamaDuzenleModal('${key}')">✏️</button>
-                                <button class="btn-sil" onclick="onayliHarcamaSil('${key}')">❌</button>
-                            </td>
-                        </tr>
-                    `;
+                    if (isKKRecord(h)) {
+                        const turMetin = h.odemeTuru || 'KK Borcu';
+                        const kisiMetin = h.kisi || 'Bilinmiyor';
+                        const kasaMetin = h.kasaTipi || h.kategori || 'Market';
+                        kt.innerHTML += `<tr>
+                            <td>${h.tarih}<br><small style="color:#7f8c8d">${h.saat || ''}</small></td>
+                            <td>${kasaMetin}</td>
+                            <td><b>${turMetin}</b></td>
+                            <td><b>${kisiMetin}</b></td>
+                            <td><b style="color:#c0392b;">-${Math.abs(Number(h.nakit)||0).toFixed(2)}₺</b></td>
+                            <td>${h.aciklama||'-'}</td>
+                            <td><button class="btn-sil" onclick="kayitSil('${key}')">❌</button></td>
+                        </tr>`;
+                    } else {
+                        topTutar += Number(h.toplam) || 0; count++;
+                        const fis = h.gorsel ? `<button class="btn-fis" onclick="fisGoster('${key}')">🖼️</button>` : '-';
+                        ht.innerHTML += `<tr><td><b>${h.tarih}</b></td><td>${h.kategori}</td><td><b>${h.kisi || 'Bilinmiyor'}</b></td><td>${(Number(h.toplam)||0).toFixed(0)}₺</td><td>${(Number(h.nakit)||0).toFixed(0)}₺</td><td>${(Number(h.kk)||0).toFixed(0)}₺</td><td>${fis} <button class="btn-duzenle" onclick="onayliHarcamaDuzenleModal('${key}')">✏️</button> <button class="btn-sil" onclick="kayitSil('${key}')">❌</button></td></tr>`;
+                    }
                 }
             });
+            const elTop = document.getElementById('harcama-gecmisi-toplam-tutar');
+            if(elTop) elTop.innerText = topTutar.toFixed(2) + ' TL';
+            const elAdet = document.getElementById('harcama-gecmisi-adet-metin');
+            if(elAdet) elAdet.innerText = `${count} Kayıt`;
         }
 
-        function onayliHarcamaSil(key) {
-            const onay = prompt("Harcama kaydını SİLMEK üzeresiniz. Onaylamak için şifreyi girin:");
-            if (onay === YONETICI_SIFRESI) {
-                db.ref('harcamalar/' + key).remove();
-                alert("Kayıt başarıyla silindi.");
-            } else if (onay !== null) {
-                alert("Hatalı şifre! Silme işlemi iptal edildi.");
-            }
-        }
-
+        function kayitSil(key) { if (prompt("Silmek için şifre:") === YONETICI_SIFRESI) db.ref('harcamalar/' + key).remove(); }
+        
         function onayliHarcamaDuzenleModal(key) {
-            const onay = prompt("Harcama kaydını DÜZENLEMEK üzeresiniz. Onaylamak için şifreyi girin:");
-            if (onay === YONETICI_SIFRESI) {
+            if (prompt("Düzenlemek için şifre:") === YONETICI_SIFRESI) {
                 const h = harcamalarObje[key];
                 document.getElementById('edit-key').value = key;
                 document.getElementById('edit-tarih').value = h.tarih;
@@ -725,220 +701,215 @@
                 document.getElementById('edit-nakit').value = h.nakit;
                 document.getElementById('edit-kk').value = h.kk;
                 document.getElementById('edit-modal').style.display = 'flex';
-            } else if (onay !== null) {
-                alert("Hatalı şifre! Düzenleme yetkisi verilmedi.");
             }
         }
-
-        function editKkHesapla() {
-            const top = parseFloat(document.getElementById('edit-toplam').value) || 0;
-            const nak = parseFloat(document.getElementById('edit-nakit').value) || 0;
-            document.getElementById('edit-kk').value = Math.max(0, top - nak).toFixed(2);
-        }
-
+        function editKkHesapla() { document.getElementById('edit-kk').value = Math.max(0, (parseFloat(document.getElementById('edit-toplam').value)||0) - (parseFloat(document.getElementById('edit-nakit').value)||0)).toFixed(2); }
         function harcamaGuncelleKaydet() {
-            const key = document.getElementById('edit-key').value;
-            const tarih = document.getElementById('edit-tarih').value;
-            const kategori = document.getElementById('edit-kategori').value;
-            const kisi = document.getElementById('edit-kisi').value;
-            const aciklama = document.getElementById('edit-aciklama').value;
-            const toplam = parseFloat(document.getElementById('edit-toplam').value) || 0;
-            const nakit = parseFloat(document.getElementById('edit-nakit').value) || 0;
-            const kk = parseFloat(document.getElementById('edit-kk').value) || 0;
-
-            db.ref('harcamalar/' + key).update({ tarih, kategori, kisi, aciklama, toplam, nakit, kk });
+            db.ref('harcamalar/' + document.getElementById('edit-key').value).update({
+                tarih: document.getElementById('edit-tarih').value, kategori: document.getElementById('edit-kategori').value,
+                kisi: document.getElementById('edit-kisi').value, aciklama: document.getElementById('edit-aciklama').value,
+                toplam: parseFloat(document.getElementById('edit-toplam').value)||0, nakit: parseFloat(document.getElementById('edit-nakit').value)||0, kk: parseFloat(document.getElementById('edit-kk').value)||0
+            });
             modalKapat('edit-modal');
-            alert("Kayıt başarıyla güncellendi.");
         }
 
-        function inputlariOlustur(kategori) {
-            const container = document.getElementById(`${kategori.toLowerCase()}-kasa-inputs`);
-            container.innerHTML = '';
-            degerler.forEach(deger => {
-                const labelText = deger >= 1 ? `${deger} TL` : `${deger * 100} Kr`;
-                const div = document.createElement('div');
-                div.className = 'denom-row';
-                div.innerHTML = `
-                    <label>${labelText}</label>
-                    <input type="number" min="0" data-deger="${deger}" class="${kategori.toLowerCase()}-input" placeholder="Adet" oninput="kasaKaydet('${kategori}')">
-                `;
-                container.appendChild(div);
+        function kasaHesapla(kategori) {
+            let sayilan = 0; document.querySelectorAll(`.${kategori.toLowerCase()}-input`).forEach(i => sayilan += (parseInt(i.value)||0) * parseFloat(i.getAttribute('data-deger')));
+            let harcanan = 0; 
+            Object.values(harcamalarObje).forEach(h => { 
+                if(matchKategori(h, kategori) && h.tarih >= aktifDonemBaslangic && !h.anaKasaMi) {
+                    harcanan += Number(h.nakit) || 0; 
+                }
             });
-        }
-
-        function kasaKaydet(kat) {
-            const mInputs = {};
-            document.querySelectorAll(`.${kat.toLowerCase()}-input`).forEach(inp => {
-                mInputs[inp.getAttribute('data-deger').replace('.', '_')] = inp.value;
-            });
-            db.ref('kasaSayimi/' + kat).set(mInputs);
-        }
-
-        function kasaAktar(kat) {
-            let sayilan = 0;
-            document.querySelectorAll(`.${kat.toLowerCase()}-input`).forEach(input => {
-                sayilan += (parseInt(input.value) || 0) * parseFloat(input.getAttribute('data-deger'));
-            });
-
-            if (sayilan <= 0) {
-                alert(`${kat} kasasında aktarılacak tutar (0 TL) bulunamadı.`);
-                return;
-            }
-
-            if (confirm(`${kat} kasasındaki sayılan ${sayilan.toFixed(2)} TL tutarı Biriken Kasa'ya eklemek istiyor musunuz?`)) {
-                const mevcutBiriken = parseFloat(birikenKasaObje[kat]) || 0;
-                db.ref(`birikenKasa/${kat}`).set(mevcutBiriken + sayilan).then(() => {
-                    alert(`${sayilan.toFixed(2)} TL Biriken Kasa'ya eklendi!`);
-                    document.querySelectorAll(`.${kat.toLowerCase()}-input`).forEach(inp => inp.value = "");
-                    kasaKaydet(kat);
-                });
+            const kalan = getAktifButce(kategori) - harcanan; const fark = sayilan - kalan;
+            const d = document.getElementById(`${kategori.toLowerCase()}-sonuc`);
+            if(d) {
+                d.className = 'kasa-sonuc ' + (fark >= -0.01 ? 'fazla' : 'eksik');
+                d.innerHTML = `Sayılan: <b>${sayilan.toFixed(2)}₺</b><br>Kalan: <b>${kalan.toFixed(2)}₺</b><br>` + (fark >= -0.01 ? `<span style="color:#27ae60;">✅ +${fark.toFixed(2)}₺</span>` : `<span style="color:#c0392b;">🔴 ${fark.toFixed(2)}₺</span>`);
             }
         }
 
         function altTablolariCiz() {
-            const icmalBody = document.getElementById('ozet-icmal-body');
-            if (icmalBody) {
-                icmalBody.innerHTML = '';
-                ['Market', 'Pazar'].forEach(kat => {
-                    let nakit = 0, kk = 0;
-                    Object.values(harcamalarObje).forEach(h => {
-                        if (h.kategori === kat && h.tarih >= aktifHaftaBaslangic) {
-                            nakit += Number(h.nakit) || 0;
-                            kk += Number(h.kk) || 0;
+            let mKK = 0, pKK = 0; 
+            const ib = document.getElementById('ozet-icmal-body'); 
+            if (ib) ib.innerHTML = '';
+            
+            ['Market', 'Pazar'].forEach(kat => {
+                let n = 0, kkHarcama = 0, kkOdeme = 0;
+                Object.values(harcamalarObje).forEach(h => {
+                    if (h.tarih >= aktifDonemBaslangic && matchKategori(h, kat)) {
+                        if (!isKKRecord(h)) {
+                            n += Number(h.nakit) || 0;
+                            kkHarcama += Number(h.kk) || 0;
+                        } else {
+                            if (!h.anaKasaMi && !(h.kasaTipi && h.kasaTipi.includes('Ana Kasa'))) {
+                                n += Number(h.nakit) || 0;
+                            }
+                            const tur = (h.odemeTuru || '').toLowerCase();
+                            const acik = (h.aciklama || '').toLowerCase();
+                            if (!h.odemeTuru || tur.includes('kk') || acik.includes('kk')) {
+                                kkOdeme += Number(h.nakit) || 0;
+                            }
                         }
-                    });
-                    const hedef = getHedef(kat);
-                    const kalanNakit = hedef - nakit;
-                    icmalBody.innerHTML += `
-                        <tr>
-                            <td><b>${kat}</b></td>
-                            <td>${hedef.toFixed(0)}₺</td>
-                            <td>${nakit.toFixed(0)}₺</td>
-                            <td>${kk.toFixed(0)}₺</td>
-                            <td style="font-weight:bold; color: ${kalanNakit >= 0 ? '#27ae60' : '#c0392b'}">${kalanNakit.toFixed(0)}₺</td>
-                        </tr>
-                    `;
+                    }
                 });
-            }
+                
+                const netKK = Math.max(0, kkHarcama - kkOdeme);
+                if(kat === 'Market') mKK = netKK; else pKK = netKK;
+                
+                const bütce = getAktifButce(kat);
+                const kalanNakit = bütce - n;
 
-            const devirBody = document.getElementById('devir-gecmisi-body');
-            if (devirBody) {
-                devirBody.innerHTML = '';
-                const keys = Object.keys(devirGecmisiObje).reverse();
-                if (keys.length === 0) {
-                    devirBody.innerHTML = '<tr><td colspan="4">Henüz devir kaydı yok.</td></tr>';
-                } else {
-                    keys.forEach(k => {
-                        const d = devirGecmisiObje[k];
-                        devirBody.innerHTML += `
-                            <tr>
-                                <td>${d.baslangic || ''} / ${d.bitis || ''}</td>
-                                <td>${d.kategori || '-'}</td>
-                                <td>${(Number(d.devredenKalan)||0).toFixed(2)}₺</td>
-                                <td>${(Number(d.birikeneEklenen)||0).toFixed(2)}₺</td>
-                            </tr>
-                        `;
-                    });
-                }
-            }
+                const elKalan = document.getElementById(`kasada-kalan-${kat.toLowerCase()}`);
+                if (elKalan) elKalan.innerText = kalanNakit.toFixed(2) + ' TL';
+
+                const elButceDetay = document.getElementById(`${kat.toLowerCase()}-butce-detay`);
+                if (elButceDetay) elButceDetay.innerText = `Aktif Bütçe: ${bütce.toFixed(0)} TL`;
+
+                if(ib) ib.innerHTML += `<tr><td><b>${kat}</b></td><td>${bütce}₺</td><td>${n.toFixed(0)}₺</td><td>${netKK.toFixed(0)}₺</td><td style="color:${kalanNakit>=0?'#27ae60':'#c0392b'}; font-weight:bold;">${kalanNakit.toFixed(0)}₺</td></tr>`;
+            });
+
+            const elKK = document.getElementById('toplam-kk-harcama');
+            if(elKK) elKK.innerText = (mKK+pKK).toFixed(2) + ' TL';
+            const elKKD = document.getElementById('kk-detay-metin');
+            if(elKKD) elKKD.innerText = `Market: ${mKK.toFixed(2)} TL | Pazar: ${pKK.toFixed(2)} TL`;
+
+            const elBM = document.getElementById('toplam-biriken-market');
+            if(elBM) elBM.innerText = (parseFloat(birikenKasaObje.Market) || 0).toFixed(2) + ' TL';
+            const elBP = document.getElementById('toplam-biriken-pazar');
+            if(elBP) elBP.innerText = (parseFloat(birikenKasaObje.Pazar) || 0).toFixed(2) + ' TL';
+
+            const dbd = document.getElementById('devir-gecmisi-body'); 
+if(dbd) {
+    dbd.innerHTML = '';
+    Object.keys(devirGecmisiObje).reverse().forEach(key => {
+        const d = devirGecmisiObje[key];
+        dbd.innerHTML += `<tr>
+            <td>${d.baslangic || ''} / ${d.bitis || ''}</td>
+            <td>${d.kategori}</td>
+            <td><b>${d.tur || 'Devir'}</b></td>
+            <td style="color:#27ae60;">+${Number(d.devredenKalan || 0).toFixed(0)}₺</td>
+            <td><b>${Number(d.yeniAktifButce || 0).toFixed(0)}₺</b></td>
+            <td><button class="btn-sil" onclick="devirKaydiSil('${key}')">❌</button></td>
+        </tr>`;
+    });
+}
         }
 
+        // Harcama Ekleme Formu
         document.getElementById('harcama-form').onsubmit = (e) => {
             e.preventDefault();
-            const tarih = document.getElementById('harcama-tarihi').value;
-            const kategori = document.getElementById('kategori').value;
-            const kisi = getAktifKullanici() || 'Bilinmiyor';
-            const aciklama = document.getElementById('harcama-aciklama').value;
-            const toplam = parseFloat(document.getElementById('toplam-tutar').value) || 0;
-            const nakit = parseFloat(document.getElementById('nakit-odenen').value) || 0;
-            const kk = parseFloat(document.getElementById('kk-odenen').value) || 0;
-
-            db.ref('harcamalar').push({ tarih, kategori, kisi, aciklama, toplam, nakit, kk, gorsel: hazirGorselBase64 });
-
-            document.getElementById('harcama-form').reset();
-            hazirGorselBase64 = "";
-            document.getElementById('gorsel-onizleme').style.display = 'none';
+            db.ref('harcamalar').push({
+                tarih: document.getElementById('harcama-tarihi').value, 
+                kategori: document.getElementById('kategori').value,
+                kisi: getAktifKullanici(), 
+                aciklama: document.getElementById('harcama-aciklama').value,
+                toplam: parseFloat(document.getElementById('toplam-tutar').value)||0, 
+                nakit: parseFloat(document.getElementById('nakit-odenen').value)||0,
+                kk: parseFloat(document.getElementById('kk-odenen').value)||0, 
+                gorsel: hazirGorselBase64, 
+                isKKOdeme: false, 
+                anaKasaMi: false
+            });
+            e.target.reset(); hazirGorselBase64 = ""; document.getElementById('gorsel-onizleme').style.display = 'none';
             document.getElementById('harcama-tarihi').value = new Date().toISOString().split('T')[0];
         };
 
-        function sabitKasalariYukle(kat) {
-            const banknot200Adet = kat === 'Market' ? (sabitAyarlar.market200 || 17) : (sabitAyarlar.pazar200 || 15);
-            document.querySelectorAll(`.${kat.toLowerCase()}-input`).forEach(inp => {
-                if (inp.getAttribute('data-deger') === "200") inp.value = banknot200Adet;
-                else inp.value = "";
-            });
-            kasaKaydet(kat);
-        }
+        // KASADAN ÖDEME FORMU
+        document.getElementById('kk-odeme-form').onsubmit = e => {
+            e.preventDefault();
+            const simdi = new Date();
+            const saat = simdi.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+            
+            const secilenKasa = document.getElementById('kk-odeme-kasa').value;
+            const tur = document.getElementById('kk-odeme-tur').value;
+            const tutar = parseFloat(document.getElementById('kk-odeme-tutar').value) || 0;
+            const notMetin = document.getElementById('kk-odeme-not').value;
+            const aciklama = notMetin || tur;
+            
+            const anaKasaMi = secilenKasa.includes('Ana Kasa');
+            const kategori = secilenKasa.includes('Market') ? 'Market' : 'Pazar';
 
-        function kasaSifirlaAyrilmis(kat) {
-            if (confirm(`${kat} kasa sayımını sıfırlamak istiyor musunuz?`)) {
-                document.querySelectorAll(`.${kat.toLowerCase()}-input`).forEach(inp => inp.value = "");
-                kasaKaydet(kat);
+            if (anaKasaMi) {
+                const mevcutBiriken = parseFloat(birikenKasaObje[kategori]) || 0;
+                db.ref('birikenKasa/' + kategori).set(mevcutBiriken - tutar);
             }
-        }
 
-        function kkHesapla() {
-            const toplam = parseFloat(document.getElementById('toplam-tutar').value) || 0;
-            const nakit = parseFloat(document.getElementById('nakit-odenen').value) || 0;
-            document.getElementById('kk-odenen').value = Math.max(0, toplam - nakit).toFixed(2);
+            db.ref('harcamalar').push({
+                tarih: document.getElementById('kk-odeme-tarih').value, 
+                saat: saat,
+                kategori: kategori,
+                kasaTipi: secilenKasa, 
+                kisi: getAktifKullanici(),
+                odemeTuru: tur,
+                aciklama: aciklama,
+                toplam: 0, 
+                nakit: tutar, 
+                kk: 0, 
+                isKKOdeme: true,
+                anaKasaMi: anaKasaMi
+            });
+
+            e.target.reset(); 
+            document.getElementById('kk-odeme-tarih').value = new Date().toISOString().split('T')[0];
+            document.getElementById('kk-odeme-tur').value = 'KK Borcu';
+        };
+
+        function kkHesapla() { document.getElementById('kk-odenen').value = Math.max(0, (parseFloat(document.getElementById('toplam-tutar').value)||0) - (parseFloat(document.getElementById('nakit-odenen').value)||0)).toFixed(2); }
+        function kasaKaydet(kat) { const m={}; document.querySelectorAll(`.${kat.toLowerCase()}-input`).forEach(i => m[i.getAttribute('data-deger').replace('.','_')] = i.value); db.ref('kasaSayimi/'+kat).set(m); }
+        function sabitKasalariYukle(kat) { document.querySelectorAll(`.${kat.toLowerCase()}-input`).forEach(i => i.value = i.getAttribute('data-deger')==="200" ? (kat==='Market'?sabitAyarlar.market200:sabitAyarlar.pazar200) : ""); kasaKaydet(kat); }
+        function kasaSifirlaAyrilmis(kat) { if(confirm("Sıfırlansın mı?")) { document.querySelectorAll(`.${kat.toLowerCase()}-input`).forEach(i => i.value=""); kasaKaydet(kat); } }
+        
+        function kasaAktar(kat) {
+            let say = 0; document.querySelectorAll(`.${kat.toLowerCase()}-input`).forEach(i => say += (parseInt(i.value)||0) * parseFloat(i.getAttribute('data-deger')));
+            if(say > 0 && confirm(`${say.toFixed(2)} TL Biriken Kasa'ya eklensin mi?`)) { db.ref(`birikenKasa/${kat}`).set((parseFloat(birikenKasaObje[kat])||0) + say).then(() => kasaSifirlaAyrilmis(kat)); }
         }
 
         function gorselHazirla(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width, height = img.height;
-                    if (width > height && width > 800) { height *= 800 / width; width = 800; }
-                    else if (height > 800) { width *= 800 / height; height = 800; }
-                    canvas.width = width; canvas.height = height;
-                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            const file = e.target.files[0]; if (!file) return;
+            const r = new FileReader(); r.onload = (ev) => {
+                const img = new Image(); img.onload = () => {
+                    const canvas = document.createElement('canvas'); let w = img.width, h = img.height;
+                    if (w > h && w > 800) { h *= 800/w; w = 800; } else if (h > 800) { w *= 800/h; h = 800; }
+                    canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                     hazirGorselBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                    const onizleme = document.getElementById('gorsel-onizleme');
-                    onizleme.src = hazirGorselBase64; onizleme.style.display = 'block';
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
+                    const oniz = document.getElementById('gorsel-onizleme'); oniz.src = hazirGorselBase64; oniz.style.display = 'block';
+                }; img.src = ev.target.result;
+            }; r.readAsDataURL(file);
         }
 
-        function fisGoster(key) {
-            if (harcamalarObje[key] && harcamalarObje[key].gorsel) {
-                document.getElementById('modal-fis-resim').src = harcamalarObje[key].gorsel;
-                document.getElementById('fis-modal').style.display = 'flex';
+        function fisGoster(k) { if(harcamalarObje[k] && harcamalarObje[k].gorsel) { document.getElementById('modal-fis-resim').src = harcamalarObje[k].gorsel; document.getElementById('fis-modal').style.display='flex'; } }
+        
+        function ayarlarModaliAc() { 
+            document.getElementById('cfg-market-200').value=sabitAyarlar.market200||17; 
+            document.getElementById('cfg-pazar-200').value=sabitAyarlar.pazar200||15; 
+            document.getElementById('ayarlar-modal').style.display='flex'; 
+        }
+        function ayarlariKaydet() { 
+            db.ref('sabitAyarlar').set({ 
+                market200: parseInt(document.getElementById('cfg-market-200').value)||17, 
+                pazar200: parseInt(document.getElementById('cfg-pazar-200').value)||15 
+            }); 
+            modalKapat('ayarlar-modal'); 
+        }
+
+        function butceHedefDuzenleModalAc() {
+            if (prompt("Aktif dönem bütçesini manuel düzenlemek için şifre:") === YONETICI_SIFRESI) {
+                document.getElementById('cfg-target-market').value = getAktifButce('Market');
+                document.getElementById('cfg-target-pazar').value = getAktifButce('Pazar');
+                document.getElementById('butce-hedef-modal').style.display = 'flex';
             }
         }
-
-        function ayarlarModaliAc() {
-            document.getElementById('cfg-market-200').value = sabitAyarlar.market200 || 17;
-            document.getElementById('cfg-pazar-200').value = sabitAyarlar.pazar200 || 15;
-            document.getElementById('ayarlar-modal').style.display = 'flex';
+        function butceHedefleriKaydet() {
+            const m = parseFloat(document.getElementById('cfg-target-market').value) || 0;
+            const p = parseFloat(document.getElementById('cfg-target-pazar').value) || 0;
+            db.ref('aktifButce').set({ Market: m, Pazar: p }).then(() => {
+                modalKapat('butce-hedef-modal');
+            });
         }
 
-        function ayarlariKaydet() {
-            const m = parseInt(document.getElementById('cfg-market-200').value) || 17;
-            const p = parseInt(document.getElementById('cfg-pazar-200').value) || 15;
-            db.ref('sabitAyarlar').set({ market200: m, pazar200: p });
-            modalKapat('ayarlar-modal');
-        }
-
-        function birikenDuzenleModalAc(kat) {
-            document.getElementById('biriken-modal-kat').value = kat;
-            document.getElementById('biriken-modal-baslik').innerText = `${kat} Biriken Bakiye Düzenle`;
-            document.getElementById('biriken-modal-tutar').value = parseFloat(birikenKasaObje[kat]) || 0;
-            document.getElementById('biriken-modal').style.display = 'flex';
-        }
-
-        function birikenBakiyeKaydet() {
-            const kat = document.getElementById('biriken-modal-kat').value;
-            const tutar = parseFloat(document.getElementById('biriken-modal-tutar').value) || 0;
-            db.ref(`birikenKasa/${kat}`).set(tutar);
-            modalKapat('biriken-modal');
-        }
-
+        function birikenDuzenleModalAc(kat) { document.getElementById('biriken-modal-kat').value=kat; document.getElementById('biriken-modal-tutar').value=parseFloat(birikenKasaObje[kat])||0; document.getElementById('biriken-modal').style.display='flex'; }
+        function birikenBakiyeKaydet() { db.ref(`birikenKasa/${document.getElementById('biriken-modal-kat').value}`).set(parseFloat(document.getElementById('biriken-modal-tutar').value)||0); modalKapat('biriken-modal'); }
         function modalKapat(id) { document.getElementById(id).style.display = 'none'; }
     </script>
 </body>

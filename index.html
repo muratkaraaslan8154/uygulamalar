@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uygulama Portalı</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --accent-color: #38bdf8;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 50px 20px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+        }
+
+        .app-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .app-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-card:hover {
+            background-color: var(--card-hover);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.2);
+        }
+
+        .app-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: rgba(56, 189, 248, 0.1);
+            font-size: 1.25rem;
+        }
+
+        .arrow {
+            color: var(--text-sub);
+            font-size: 1.2rem;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .app-card:hover .arrow {
+            transform: translateX(4px);
+            color: var(--accent-color);
+        }
+
+        footer {
+            margin-top: 50px;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            text-align: center;
+            border-top: 1px solid #1e293b;
+            padding-top: 20px;
+            width: 100%;
+            max-width: 520px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Uygulama Portalı</h1>
+            <p>Tüm araçlarınıza tek noktadan hızlı erişim</p>
+        </header>
+
+        <div class="app-grid">
+            <a href="Ev otomasyonu market pazar harcama takip.html" class="app-card" target="_self">
+                <div class="app-info">
+                    <div class="icon">🏠</div>
+                    <span>Ev Otomasyonu & Harcama Takip</span>
+                </div>
+                <span class="arrow">&rarr;</span>
+            </a>
+
+            <a href="kasa_pratik_bozuk_para_sayaci.html" class="app-card" target="_self">
+                <div class="app-info">
+                    <div class="icon">🪙</div>
+                    <span>Bozuk Para Sayacı</span>
+                </div>
+                <span class="arrow">&rarr;</span>
+            </a>
+
+            <a href="sayac.html" class="app-card" target="_self">
+                <div class="app-info">
+                    <div class="icon">⏱️</div>
+                    <span>Sayaç</span>
+                </div>
+                <span class="arrow">&rarr;</span>
+            </a>
+
+            <a href="yt.html" class="app-card" target="_self">
+                <div class="app-info">
+                    <div class="icon">▶️</div>
+                    <span>YT</span>
+                </div>
+                <span class="arrow">&rarr;</span>
+            </a>
+
+            <a href="zikirmatik.html" class="app-card" target="_self">
+                <div class="app-info">
+                    <div class="icon">📿</div>
+                    <span>Zikirmatik</span>
+                </div>
+                <span class="arrow">&rarr;</span>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        Karaaslan Copyright © 2026
+    </footer>
+
+</body>
+</html>

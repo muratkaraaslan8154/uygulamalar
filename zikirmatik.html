@@ -192,6 +192,7 @@
             justify-content: center;
             gap: 6px;
             transition: all 0.2s;
+            text-align: center;
         }
 
         .tab-btn.active {
@@ -240,12 +241,6 @@
             display: grid;
             grid-template-columns: 420px 1fr;
             gap: 1.5rem;
-        }
-
-        @media (max-width: 900px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         /* MEKANİK CİHAZ */
@@ -762,6 +757,50 @@
             font-size: 0.8rem;
             color: var(--text-muted);
             padding: 1.5rem 0 0.5rem 0;
+        }
+
+        /* 📱 MOBİL UYUMLULUK (MEDIA QUERIES) 📱 */
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 1.2rem 1rem;
+                text-align: center;
+            }
+            .brand {
+                justify-content: center;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .header-controls {
+                justify-content: center;
+                flex-wrap: wrap; /* İkonlar sığmazsa alt satıra geçer */
+                width: 100%;
+                gap: 10px;
+            }
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            .tab-btn {
+                padding: 0.6rem 0.3rem;
+                font-size: 0.78rem;
+            }
+            .sub-tab-container {
+                flex-direction: column; /* Kaza namazı sekmesindeki butonları dar ekranda alt alta alır */
+            }
+            .sync-notice {
+                flex-direction: column;
+                text-align: center;
+            }
+            .sync-notice-close {
+                align-self: flex-end;
+            }
         }
     </style>
 </head>
