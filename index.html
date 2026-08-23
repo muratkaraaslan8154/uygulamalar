@@ -7,13 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --card-hover: #334155;
-            --accent-color: #38bdf8;
+            --bg-dark: #070a13;
+            --bg-card: rgba(30, 41, 59, 0.4);
+            --border-light: rgba(255, 255, 255, 0.08);
+            --accent-primary: #38bdf8;
+            --accent-secondary: #818cf8;
             --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --border-color: #334155;
+            --text-muted: #94a3b8;
         }
 
         * {
@@ -24,111 +24,183 @@
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-dark);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 50px 20px 20px;
+            padding: 60px 20px 30px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Arka Plan Ortam Işığı Efekti */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(7, 10, 19, 0) 70%);
+            border-radius: 50%;
+            z-index: -1;
+            pointer-events: none;
         }
 
         .container {
             width: 100%;
-            max-width: 520px;
+            max-width: 540px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            z-index: 1;
         }
 
         header {
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 45px;
+            animation: fadeInDown 0.8s ease-out;
         }
 
         header h1 {
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            background: linear-gradient(135deg, #ffffff 20%, var(--accent-primary) 80%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            letter-spacing: -0.8px;
         }
 
         header p {
-            color: var(--text-sub);
-            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 0.3px;
         }
 
         .app-grid {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 16px;
             width: 100%;
         }
 
+        /* Premium Cam Efektli Kartlar */
         .app-card {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 20px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            padding: 18px 24px;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
             color: var(--text-main);
             text-decoration: none;
-            font-weight: 500;
-            font-size: 1rem;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
         }
 
+        /* Kartların sırayla gelme efekti */
+        .app-card:nth-child(1) { animation-delay: 0.1s; }
+        .app-card:nth-child(2) { animation-delay: 0.2s; }
+        .app-card:nth-child(3) { animation-delay: 0.3s; }
+        .app-card:nth-child(4) { animation-delay: 0.4s; }
+
         .app-card:hover {
-            background-color: var(--card-hover);
-            border-color: var(--accent-color);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.2);
+            background: rgba(45, 55, 72, 0.6);
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px -5px rgba(56, 189, 248, 0.15);
         }
 
         .app-info {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 18px;
         }
 
+        /* İkon Tasarımı */
         .icon {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            background: rgba(56, 189, 248, 0.1);
-            font-size: 1.25rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.05);
+            font-size: 1.5rem;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .app-card:hover .icon {
+            transform: scale(1.08) rotate(3deg);
+        }
+
+        .text-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .app-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            letter-spacing: -0.2px;
+        }
+
+        .app-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 400;
         }
 
         .arrow {
-            color: var(--text-sub);
+            color: var(--text-muted);
             font-size: 1.2rem;
-            transition: transform 0.2s ease, color 0.2s ease;
+            transition: transform 0.3s ease, color 0.3s ease;
         }
 
         .app-card:hover .arrow {
-            transform: translateX(4px);
-            color: var(--accent-color);
+            transform: translateX(6px);
+            color: var(--accent-primary);
         }
 
         footer {
-            margin-top: 50px;
-            color: var(--text-sub);
+            margin-top: 60px;
+            color: var(--text-muted);
             font-size: 0.85rem;
             text-align: center;
-            border-top: 1px solid #1e293b;
-            padding-top: 20px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255,255,255,0.05);
             width: 100%;
-            max-width: 520px;
+            max-width: 540px;
+            animation: fadeIn 1s ease-out 0.8s forwards;
+            opacity: 0;
+        }
+
+        /* Animasyonlar */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
@@ -144,7 +216,10 @@
             <a href="Ev otomasyonu market pazar harcama takip.html" class="app-card" target="_self">
                 <div class="app-info">
                     <div class="icon">🏠</div>
-                    <span>Ev Otomasyonu & Harcama Takip</span>
+                    <div class="text-group">
+                        <span class="app-title">Ev Otomasyonu & Harcama</span>
+                        <span class="app-desc">Günlük bütçe ve pazar takibi</span>
+                    </div>
                 </div>
                 <span class="arrow">&rarr;</span>
             </a>
@@ -152,7 +227,10 @@
             <a href="kasa_pratik_bozuk_para_sayaci.html" class="app-card" target="_self">
                 <div class="app-info">
                     <div class="icon">🪙</div>
-                    <span>Bozuk Para Sayacı</span>
+                    <div class="text-group">
+                        <span class="app-title">Bozuk Para Sayacı</span>
+                        <span class="app-desc">Kasa sayım ve bakiye hesaplama</span>
+                    </div>
                 </div>
                 <span class="arrow">&rarr;</span>
             </a>
@@ -160,7 +238,10 @@
             <a href="sayac.html" class="app-card" target="_self">
                 <div class="app-info">
                     <div class="icon">⏱️</div>
-                    <span>Sayaç</span>
+                    <div class="text-group">
+                        <span class="app-title">Sayaç Sistemi</span>
+                        <span class="app-desc">Genel amaçlı zaman ve tur sayacı</span>
+                    </div>
                 </div>
                 <span class="arrow">&rarr;</span>
             </a>
@@ -168,7 +249,10 @@
             <a href="zikirmatik.html" class="app-card" target="_self">
                 <div class="app-info">
                     <div class="icon">📿</div>
-                    <span>Zikirmatik</span>
+                    <div class="text-group">
+                        <span class="app-title">Zikirmatik</span>
+                        <span class="app-desc">Kişisel tesbihat ve zikir takibi</span>
+                    </div>
                 </div>
                 <span class="arrow">&rarr;</span>
             </a>
