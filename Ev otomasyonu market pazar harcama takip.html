@@ -72,6 +72,7 @@
         th { background-color: var(--primary); color: white; }
         
         .btn-sil { background-color: var(--danger); color: white; border: none; padding: 2px 4px; border-radius: 3px; cursor: pointer; font-size: 0.65rem; }
+        .btn-sil:disabled { background-color: #cccccc; cursor: not-allowed; opacity: 0.5; }
         .btn-duzenle { background-color: #f39c12; color: white; border: none; padding: 2px 4px; border-radius: 3px; cursor: pointer; font-size: 0.65rem; }
         .btn-fis { background-color: #3498db; color: white; border: none; padding: 2px 4px; border-radius: 3px; cursor: pointer; font-size: 0.65rem; }
         
@@ -179,21 +180,22 @@
 
             <!-- KASADAN ÖDEME FORM -->
             <div class="card" style="background-color: #f5eef8; border: 1px solid #d7bde2;">
-                <h2 style="color: #8e44ad;">💳 Kasadan KK Borcu Öde</h2>
+                <h2 style="color: #8e44ad;">💳 Kasadan Ödeme / KK Borcu Düş</h2>
                 <form id="kk-odeme-form">
                     <div class="form-group"><label>Tarih</label><input type="date" id="kk-odeme-tarih" required></div>
-                    <div class="form-group"><label>Hangi Kasadan Çıkacak?</label>
+                    <div class="form-group"><label>Hangi Kasadan Çıkacak? (Nakit Kaynağı)</label>
                         <select id="kk-odeme-kasa">
-                            <option value="Market">Market (Aktif Dönem)</option>
-                            <option value="Pazar">Pazar (Aktif Dönem)</option>
+                            <option value="Market">Market (Aktif Kasa)</option>
+                            <option value="Pazar">Pazar (Aktif Kasa)</option>
                             <option value="Market Ana Kasa">Market Ana Kasa (Biriken)</option>
                             <option value="Pazar Ana Kasa">Pazar Ana Kasa (Biriken)</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Ödeme Türü / Harcama Türü</label>
+                    <div class="form-group"><label>Ödeme / İşlem Türü (Ne Ödeniyor?)</label>
                         <select id="kk-odeme-tur">
-                            <option value="KK Borcu" selected>KK Borcu Ödeme</option>
-                            <option value="Bireysel Harcama">Bireysel Harcama</option>
+                            <option value="KK Borcu - Market" selected>💳 Market KK Borcu Ödeme</option>
+                            <option value="KK Borcu - Pazar">💳 Pazar KK Borcu Ödeme</option>
+                            <option value="Bireysel Harcama">👤 Bireysel Harcama / Ödeme</option>
                         </select>
                     </div>
                     <div class="form-group"><label>Kasadan Çıkan Nakit (TL)</label><input type="number" id="kk-odeme-tutar" step="0.01" required></div>
@@ -209,7 +211,7 @@
                     <button class="btn-edit-accumulated" style="position:static; font-size:0.68rem; background:#3498db; border:none; padding:3px 8px;" onclick="butceHedefDuzenleModalAc()">✏️ Düzenle</button>
                 </h2>
                 <table>
-                    <thead><tr><th>Kat.</th><th>Aktif Bütçe</th><th>Nakit</th><th>KK</th><th>Kalan</th></tr></thead>
+                    <thead><tr><th>Kat.</th><th>Aktif Bütçe</th><th>Nakit</th><th>KK Borç</th><th>Kalan</th></tr></thead>
                     <tbody id="ozet-icmal-body"></tbody>
                 </table>
             </div>
@@ -245,40 +247,46 @@
 
             <!-- Kasadan KK Ödemeleri -->
             <div class="card" style="flex:1; display:flex; flex-direction:column; background-color: #fdf2e9; border: 1px solid #f5cba7;">
-                <h2 style="color: #d35400;">💳 Kasadan KK'ya Aktarılanlar</h2>
+                <h2 style="color: #d35400;">💳 Kasadan Çıkan / KK Ödemeleri</h2>
                 <div class="scrollable-table">
                     <table id="kk-odeme-tablosu">
-                        <thead><tr><th>Tarih/Saat</th><th>Kasa</th><th>Ödeme Türü</th><th>Kişi</th><th>Tutar</th><th>Açıklama</th><th>İşlem</th></tr></thead>
+                        <thead><tr><th>Tarih/Saat</th><th>Nakit Çıkan Kasa</th><th>Ödeme / İşlem Türü</th><th>Kişi</th><th>Tutar</th><th>Açıklama</th><th>İşlem</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </div>
             
             <!-- Devir Geçmişi -->
-<div class="card" style="flex:0.8; display:flex; flex-direction:column; margin-bottom:0; background-color: #e8f8f5; border: 1px solid #a3e4d7;">
-    <h2 style="color: #16a085;">📦 Arşivlenmiş Dönemler & Devirler</h2>
-    <div class="scrollable-table">
-        <table id="devir-tablosu">
-            <thead>
-                <tr>
-                    <th>Dönem Aralığı</th>
-                    <th>Kat.</th>
-                    <th>Tür</th>
-                    <th>Kalan (Birikene)</th>
-                    <th>Yeni Bütçe</th>
-                    <th>İşlem</th> <!-- YENİ EKLENEN SÜTUN -->
-                </tr>
-            </thead>
-            <tbody id="devir-gecmisi-body"></tbody>
-        </table>
+            <div class="card" style="flex:0.8; display:flex; flex-direction:column; margin-bottom:0; background-color: #e8f8f5; border: 1px solid #a3e4d7;">
+                <h2 style="color: #16a085; display: flex; justify-content: space-between; align-items: center;">
+                    <span>📦 Arşivlenmiş Dönemler & Devirler</span>
+                    <button id="btn-toplu-devir-sil" class="btn-sil" style="font-size:0.68rem; padding:3px 8px;" disabled onclick="secilenDevirleriSil()">🗑️ Seçilenleri Sil</button>
+                </h2>
+                <div class="scrollable-table">
+                    <table id="devir-tablosu">
+                        <thead>
+                            <tr>
+                                <th style="width:25px;"><input type="checkbox" id="devir-tumunu-sec" onchange="tumDevirleriSec(this)"></th>
+                                <th>Dönem Aralığı</th>
+                                <th>Kat.</th>
+                                <th>Tür</th>
+                                <th>Kalan (Birikene)</th>
+                                <th>Yeni Bütçe</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="devir-gecmisi-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
     <!-- MODALLAR -->
     <div id="ara-devir-modal" class="modal">
         <div class="modal-content">
             <h3 style="margin-top:0; color:#8e44ad;">⚡ Ara Devir Yap & Yeni Nakit Tanımla</h3>
-            <p style="font-size:0.75rem; color:#666;">Cuma'dan bugüne kadarki harcamalar dondurulacak, kalan bakiye biriken kasaya atılacak ve aşağıdaki yeni tutarlar yeni aktif harcama bütçeniz olacaktır.</p>
+            <p style="font-size:0.75rem; color:#666;">Bugüne kadarki harcamalar dondurulacak, kalan bakiye biriken kasaya atılacak ve yarından itibaren aşağıdaki tutarlar yeni bütçeniz olacaktır.</p>
             <div class="form-group">
                 <label>Market Kasasına Eklenecek Yeni Nakit (TL)</label>
                 <input type="number" id="ara-devir-market" step="0.01" value="0">
@@ -314,6 +322,29 @@
         </div>
     </div>
 
+    <!-- ARŞİVLENEN DÖNEM DÜZENLEME MODALI -->
+    <div id="devir-edit-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-top:0; color:#16a085;">✏️ Arşivlenen Devir Kaydını Düzenle</h3>
+            <input type="hidden" id="devir-edit-key">
+            <div class="form-group"><label>Başlangıç Tarihi</label><input type="date" id="devir-edit-baslangic"></div>
+            <div class="form-group"><label>Bitiş Tarihi</label><input type="date" id="devir-edit-bitis"></div>
+            <div class="form-group"><label>Kategori</label>
+                <select id="devir-edit-kategori">
+                    <option value="Market">Market</option>
+                    <option value="Pazar">Pazar</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Devir Türü</label><input type="text" id="devir-edit-tur"></div>
+            <div class="form-group"><label>Kalan (Birikene Aktarılan Tutar - TL)</label><input type="number" id="devir-edit-kalan" step="0.01"></div>
+            <div class="form-group"><label>Yeni Aktif Bütçe (TL)</label><input type="number" id="devir-edit-butce" step="0.01"></div>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn-submit" style="background:#16a085;" onclick="devirKaydiGuncelleKaydet()">Değişiklikleri Kaydet & Entegre Et</button>
+                <button class="btn-small-danger" onclick="modalKapat('devir-edit-modal')">İptal</button>
+            </div>
+        </div>
+    </div>
+
     <div id="fis-modal" class="modal" onclick="if(event.target===this) modalKapat('fis-modal')">
         <div class="modal-content" style="text-align: center; background:transparent; box-shadow:none;">
             <img id="modal-fis-resim" src="" style="max-width: 100%; max-height: 80vh; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); background: white; padding: 5px;">
@@ -321,7 +352,7 @@
     </div>
 
     <div id="ayarlar-modal" class="modal">
-        <div class="modal-content"><h3 style="margin-top:0;">⚙️ Sabit Sayım Ayarları (Hızlı Dolum & Otomatik Cuma Bütçesi)</h3>
+        <div class="modal-content"><h3 style="margin-top:0;">⚙️ Sabit Sayım Ayarları</h3>
             <div class="form-group"><label>Market 200 TL Adedi (Varsayılan Bütçe: Adet x 200 TL)</label><input type="number" id="cfg-market-200"></div>
             <div class="form-group"><label>Pazar 200 TL Adedi (Varsayılan Bütçe: Adet x 200 TL)</label><input type="number" id="cfg-pazar-200"></div>
             <div style="display:flex; gap:8px; margin-top:10px;"><button class="btn-submit" onclick="ayarlariKaydet()">Kaydet</button><button class="btn-small-danger" onclick="modalKapat('ayarlar-modal')">İptal</button></div>
@@ -345,18 +376,6 @@
     </div>
 
     <script>
-function devirKaydiSil(key) {
-    if (prompt("Arşiv devir kaydını silmek için yönetici şifresini giriniz:") === YONETICI_SIFRESI) {
-        db.ref('devirGecmisi/' + key).remove().then(() => {
-            alert("Devir kaydı başarıyla silindi.");
-        });
-    }
-}
-
-
-
-
-
         const firebaseConfig = {
             apiKey: "AIzaSyD1hbPbA81qldXCsQxSM4Ozxr9L8sdRTMk",
             authDomain: "karaaslanhomebutcetakip.firebaseapp.com",
@@ -368,24 +387,15 @@ function devirKaydiSil(key) {
 
         const YONETICI_SIFRESI = "1234";
         const degerler = [200, 100, 50, 20, 10, 5, 1, 0.50, 0.25, 0.10, 0.05];
-        let harcamalarObje = {}; let birikenKasaObje = {}; let devirGecmisiObje = {}; let devirToplamKasaObje = {};
+        let harcamalarObje = {}; let birikenKasaObje = {}; let devirGecmisiObje = {};
         let aktifDonemBaslangic = ""; let hazirGorselBase64 = "";
         let sabitAyarlar = { market200: 17, pazar200: 15 };
         let aktifButce = { Market: 3400, Pazar: 3000 };
-        let devirIslemiCalisiyor = false;
 
         function getAktifKullanici() {
             const urlParams = new URLSearchParams(window.location.search);
             let user = urlParams.get('user') || localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') || 'Admin';
             return user.trim() || 'Admin';
-        }
-
-        function matchKategori(h, kat) {
-            if (!h) return false;
-            const target = kat.toLowerCase();
-            const hKat = (h.kategori || '').toLowerCase();
-            const hKasa = (h.kasaTipi || '').toLowerCase();
-            return hKat.includes(target) || hKasa.includes(target);
         }
 
         function isKKRecord(h) {
@@ -456,145 +466,45 @@ function devirKaydiSil(key) {
             db.ref('devirGecmisi').on('value', s => { devirGecmisiObje = s.val() || {}; tümHesaplamalariGuncelle(); });
         };
 
-        // OTOMATİK DÖNGÜSEL DEVİR (Cuma tespiti ve çoklu hafta yakalama)
-        function otomatikCumaKontrol() {
-            if (!aktifDonemBaslangic || devirIslemiCalisiyor) return;
-            
-            let periodStart = new Date(aktifDonemBaslangic + "T00:00:00");
-            let bugun = new Date();
-            bugun.setHours(0,0,0,0);
-
-            let checkDate = new Date(periodStart);
-            checkDate.setDate(checkDate.getDate() + 1);
-
-            let updatesToPerform = [];
-
-            while (checkDate <= bugun) {
-                if (checkDate.getDay() === 5) { // Cuma günü
-                    let diffDays = Math.round((checkDate - periodStart) / (1000 * 60 * 60 * 24));
-                    if (diffDays >= 1) {
-                        let periodStartStr = periodStart.toISOString().split('T')[0];
-                        let periodEndStr = checkDate.toISOString().split('T')[0];
-
-                        updatesToPerform.push({ baslangic: periodStartStr, bitis: periodEndStr });
-                        periodStart = new Date(checkDate);
-                    }
-                }
-                checkDate.setDate(checkDate.getDate() + 1);
-            }
-
-            if (updatesToPerform.length > 0) {
-                devirIslemiCalisiyor = true;
-                let tempMarket = parseFloat(birikenKasaObje.Market) || 0;
-                let tempPazar = parseFloat(birikenKasaObje.Pazar) || 0;
-                let lastBitis = "";
-
-                updatesToPerform.forEach(p => {
-                    ['Market', 'Pazar'].forEach(kat => {
-                        let harcananNakit = 0;
-                        Object.values(harcamalarObje).forEach(h => {
-                            if (matchKategori(h, kat) && h.tarih >= p.baslangic && h.tarih <= p.bitis && !h.anaKasaMi) {
-                                harcananNakit += Number(h.nakit) || 0;
-                            }
-                        });
-                        
-                        const kalanNakit = Math.max(0, getAktifButce(kat) - harcananNakit);
-                        if (kat === 'Market') tempMarket += kalanNakit;
-                        if (kat === 'Pazar') tempPazar += kalanNakit;
-
-                        const sabitBütce = getSabitBütce(kat);
-
-                        db.ref('devirGecmisi').push({
-                            baslangic: p.baslangic,
-                            bitis: p.bitis,
-                            kategori: kat,
-                            devredenKalan: kalanNakit,
-                            yeniAktifButce: sabitBütce,
-                            tur: "Cuma Devri (Otomatik)"
-                        });
-                    });
-                    lastBitis = p.bitis;
-                });
-
-                // Cuma devri yapıldığında aktif bütçeyi Sabit Sayım Ayarlarına geri döndür
-                const yeniMarketButce = getSabitBütce('Market');
-                const yeniPazarButce = getSabitBütce('Pazar');
-
-                db.ref(`birikenKasa/Market`).set(tempMarket);
-                db.ref(`birikenKasa/Pazar`).set(tempPazar);
-                db.ref('aktifButce').set({ Market: yeniMarketButce, Pazar: yeniPazarButce });
-                db.ref('aktifHaftaBaslangic').set(lastBitis).then(() => {
-                    devirIslemiCalisiyor = false;
-                });
-            }
-        }
-
-        // ARA DEVİR FONKSİYONU (Cuma'dan bugüne kadarki harcamaları dondurur, yeni nakit bütçe tanımlar)
         function araDevirModaliAc() {
-            if (prompt("Ara devir yapmak için yönetici şifresini giriniz:") === YONETICI_SIFRESI) {
-                document.getElementById('ara-devir-market').value = getSabitBütce('Market');
-                document.getElementById('ara-devir-pazar').value = getSabitBütce('Pazar');
-                document.getElementById('ara-devir-modal').style.display = 'flex';
+            if (confirm("Ara devir yapmak istediğinize emin misiniz?")) {
+                if (prompt("Ara devir yapmak için yönetici şifresini giriniz:") === YONETICI_SIFRESI) {
+                    document.getElementById('ara-devir-market').value = getSabitBütce('Market');
+                    document.getElementById('ara-devir-pazar').value = getSabitBütce('Pazar');
+                    document.getElementById('ara-devir-modal').style.display = 'flex';
+                }
             }
         }
 
-        function araDevirKaydet() {
-            const yeniMarketNakit = parseFloat(document.getElementById('ara-devir-market').value) || 0;
-            const yeniPazarNakit = parseFloat(document.getElementById('ara-devir-pazar').value) || 0;
-            const bugunStr = new Date().toISOString().split('T')[0];
-
-            let tempMarket = parseFloat(birikenKasaObje.Market) || 0;
-            let tempPazar = parseFloat(birikenKasaObje.Pazar) || 0;
-
-            ['Market', 'Pazar'].forEach(kat => {
-                let harcananNakit = 0;
-                Object.values(harcamalarObje).forEach(h => {
-                    if (matchKategori(h, kat) && h.tarih >= aktifDonemBaslangic && !h.anaKasaMi) {
-                        harcananNakit += Number(h.nakit) || 0;
-                    }
-                });
-
-                const kalanNakit = Math.max(0, getAktifButce(kat) - harcananNakit);
-                if (kat === 'Market') tempMarket += kalanNakit;
-                if (kat === 'Pazar') tempPazar += kalanNakit;
-
-                const eklenenNakit = (kat === 'Market') ? yeniMarketNakit : yeniPazarNakit;
-
-                db.ref('devirGecmisi').push({
-                    baslangic: aktifDonemBaslangic,
-                    bitis: bugunStr,
-                    kategori: kat,
-                    devredenKalan: kalanNakit,
-                    yeniAktifButce: eklenenNakit,
-                    tur: '⚡ Ara Devir'
-                });
-            });
-
-            // Biriken kasayı güncelle, aktif bütçeleri yeni girilen nakit yap ve aktif dönemi bugüne çek
-            db.ref('birikenKasa/Market').set(tempMarket);
-            db.ref('birikenKasa/Pazar').set(tempPazar);
-            db.ref('aktifButce').set({ Market: yeniMarketNakit, Pazar: yeniPazarNakit });
-            db.ref('aktifHaftaBaslangic').set(bugunStr);
-
-            modalKapat('ara-devir-modal');
-            alert("Ara devir başarıyla tamamlandı! Eski dönem arşivlendi ve yeni aktif bütçeler tanımlandı.");
-        }
-
-        // MANUEL HAFTALIK DEVİR
         function manuelHaftayiDevret() {
-            if (prompt("Devir işlemini onaylamak için yönetici şifresini giriniz:") === YONETICI_SIFRESI) devirIsleminiGerceklestir("Manuel Devir");
+            if (confirm("Haftayı devretmek ve yeni dönemi başlatmak istediğinize emin misiniz?")) {
+                if (prompt("Devir işlemini onaylamak için yönetici şifresini giriniz:") === YONETICI_SIFRESI) {
+                    devirIsleminiGerceklestir("Manuel Devir");
+                }
+            }
         }
 
         function devirIsleminiGerceklestir(devirTuru) {
-            const bugünStr = new Date().toISOString().split('T')[0];
+            const bugun = new Date();
+            const bugunStr = bugun.toISOString().split('T')[0];
+            
+            const yarin = new Date(bugun);
+            yarin.setDate(yarin.getDate() + 1);
+            const yarinStr = yarin.toISOString().split('T')[0];
+
             let tempMarket = parseFloat(birikenKasaObje.Market) || 0;
             let tempPazar = parseFloat(birikenKasaObje.Pazar) || 0;
+            const firebaseUpdates = {};
 
             ['Market', 'Pazar'].forEach(kat => {
                 let harcananNakit = 0;
                 Object.values(harcamalarObje).forEach(h => {
-                    if (matchKategori(h, kat) && h.tarih >= aktifDonemBaslangic && !h.anaKasaMi) {
-                        harcananNakit += Number(h.nakit) || 0;
+                    if (h.tarih >= aktifDonemBaslangic && h.tarih <= bugunStr) {
+                        if (!isKKRecord(h)) {
+                            if (h.kategori === kat) harcananNakit += Number(h.nakit) || 0;
+                        } else {
+                            if (h.kasaTipi === kat && !h.anaKasaMi) harcananNakit += Number(h.nakit) || 0;
+                        }
                     }
                 });
 
@@ -603,30 +513,87 @@ function devirKaydiSil(key) {
                 if (kat === 'Pazar') tempPazar += kalanNakit;
 
                 const sabitBütce = getSabitBütce(kat);
+                const newDevirKey = db.ref('devirGecmisi').push().key;
 
-                db.ref('devirGecmisi').push({ 
+                firebaseUpdates[`devirGecmisi/${newDevirKey}`] = { 
                     baslangic: aktifDonemBaslangic, 
-                    bitis: bugünStr, 
+                    bitis: bugunStr, 
                     kategori: kat, 
                     devredenKalan: kalanNakit, 
                     yeniAktifButce: sabitBütce,
                     tur: devirTuru 
-                });
+                };
             });
 
             const varsayılanMarket = getSabitBütce('Market');
             const varsayılanPazar = getSabitBütce('Pazar');
 
-            db.ref('birikenKasa/Market').set(tempMarket);
-            db.ref('birikenKasa/Pazar').set(tempPazar);
-            db.ref('aktifButce').set({ Market: varsayılanMarket, Pazar: varsayılanPazar });
-            db.ref('aktifHaftaBaslangic').set(bugünStr);
+            firebaseUpdates['birikenKasa/Market'] = tempMarket;
+            firebaseUpdates['birikenKasa/Pazar'] = tempPazar;
+            firebaseUpdates['aktifButce'] = { Market: varsayılanMarket, Pazar: varsayılanPazar };
+            firebaseUpdates['aktifHaftaBaslangic'] = yarinStr;
 
-            alert(`Haftalık devir (${devirTuru}) tamamlandı! Dönem arşivlendi ve sabit sayım bütçeleri yüklendi.`);
+            db.ref().update(firebaseUpdates).then(() => {
+                alert(`Haftalık devir (${devirTuru}) tamamlandı! Bugünkü kalan bakiyeler birikene aktarıldı, yeni dönem (${yarinStr}) başlatıldı.`);
+            });
+        }
+
+        function araDevirKaydet() {
+            const yeniMarketNakit = parseFloat(document.getElementById('ara-devir-market').value) || 0;
+            const yeniPazarNakit = parseFloat(document.getElementById('ara-devir-pazar').value) || 0;
+            
+            const bugun = new Date();
+            const bugunStr = bugun.toISOString().split('T')[0];
+            
+            const yarin = new Date(bugun);
+            yarin.setDate(yarin.getDate() + 1);
+            const yarinStr = yarin.toISOString().split('T')[0];
+
+            let tempMarket = parseFloat(birikenKasaObje.Market) || 0;
+            let tempPazar = parseFloat(birikenKasaObje.Pazar) || 0;
+            const firebaseUpdates = {};
+
+            ['Market', 'Pazar'].forEach(kat => {
+                let harcananNakit = 0;
+                Object.values(harcamalarObje).forEach(h => {
+                    if (h.tarih >= aktifDonemBaslangic && h.tarih <= bugunStr) {
+                        if (!isKKRecord(h)) {
+                            if (h.kategori === kat) harcananNakit += Number(h.nakit) || 0;
+                        } else {
+                            if (h.kasaTipi === kat && !h.anaKasaMi) harcananNakit += Number(h.nakit) || 0;
+                        }
+                    }
+                });
+
+                const kalanNakit = Math.max(0, getAktifButce(kat) - harcananNakit);
+                if (kat === 'Market') tempMarket += kalanNakit;
+                if (kat === 'Pazar') tempPazar += kalanNakit;
+
+                const eklenenNakit = (kat === 'Market') ? yeniMarketNakit : yeniPazarNakit;
+                const newDevirKey = db.ref('devirGecmisi').push().key;
+
+                firebaseUpdates[`devirGecmisi/${newDevirKey}`] = {
+                    baslangic: aktifDonemBaslangic,
+                    bitis: bugunStr,
+                    kategori: kat,
+                    devredenKalan: kalanNakit,
+                    yeniAktifButce: eklenenNakit,
+                    tur: '⚡ Ara Devir'
+                };
+            });
+
+            firebaseUpdates['birikenKasa/Market'] = tempMarket;
+            firebaseUpdates['birikenKasa/Pazar'] = tempPazar;
+            firebaseUpdates['aktifButce'] = { Market: yeniMarketNakit, Pazar: yeniPazarNakit };
+            firebaseUpdates['aktifHaftaBaslangic'] = yarinStr;
+
+            db.ref().update(firebaseUpdates).then(() => {
+                modalKapat('ara-devir-modal');
+                alert("Ara devir başarıyla tamamlandı! Bugünkü bakiye birikene atıldı ve yeni aktif dönem başlatıldı.");
+            });
         }
 
         function tümHesaplamalariGuncelle() {
-            otomatikCumaKontrol();
             filtreSecenekleriniGuncelle();
             tablolariCiz();
             kasaHesapla('Market'); kasaHesapla('Pazar');
@@ -662,13 +629,13 @@ function devirKaydiSil(key) {
 
                 if (goster) {
                     if (isKKRecord(h)) {
-                        const turMetin = h.odemeTuru || 'KK Borcu';
+                        const turMetin = h.odemeTuru || (h.kategori ? `KK Borcu - ${h.kategori}` : 'KK Borcu');
                         const kisiMetin = h.kisi || 'Bilinmiyor';
                         const kasaMetin = h.kasaTipi || h.kategori || 'Market';
                         kt.innerHTML += `<tr>
                             <td>${h.tarih}<br><small style="color:#7f8c8d">${h.saat || ''}</small></td>
-                            <td>${kasaMetin}</td>
-                            <td><b>${turMetin}</b></td>
+                            <td><b>${kasaMetin}</b></td>
+                            <td><b style="color:#8e44ad;">${turMetin}</b></td>
                             <td><b>${kisiMetin}</b></td>
                             <td><b style="color:#c0392b;">-${Math.abs(Number(h.nakit)||0).toFixed(2)}₺</b></td>
                             <td>${h.aciklama||'-'}</td>
@@ -676,7 +643,8 @@ function devirKaydiSil(key) {
                         </tr>`;
                     } else {
                         topTutar += Number(h.toplam) || 0; count++;
-                        const fis = h.gorsel ? `<button class="btn-fis" onclick="fisGoster('${key}')">🖼️</button>` : '-';
+                        const gorselData = h.gorsel || h.fisBase64;
+                        const fis = gorselData ? `<button class="btn-fis" onclick="fisGoster('${key}')">🖼️</button>` : '-';
                         ht.innerHTML += `<tr><td><b>${h.tarih}</b></td><td>${h.kategori}</td><td><b>${h.kisi || 'Bilinmiyor'}</b></td><td>${(Number(h.toplam)||0).toFixed(0)}₺</td><td>${(Number(h.nakit)||0).toFixed(0)}₺</td><td>${(Number(h.kk)||0).toFixed(0)}₺</td><td>${fis} <button class="btn-duzenle" onclick="onayliHarcamaDuzenleModal('${key}')">✏️</button> <button class="btn-sil" onclick="kayitSil('${key}')">❌</button></td></tr>`;
                     }
                 }
@@ -687,7 +655,120 @@ function devirKaydiSil(key) {
             if(elAdet) elAdet.innerText = `${count} Kayıt`;
         }
 
-        function kayitSil(key) { if (prompt("Silmek için şifre:") === YONETICI_SIFRESI) db.ref('harcamalar/' + key).remove(); }
+        function kayitSil(key) { 
+            if (prompt("Silmek için şifre:") === YONETICI_SIFRESI) {
+                const h = harcamalarObje[key];
+                if (h && h.isKKOdeme && h.anaKasaMi) {
+                    const kat = (h.kasaTipi && h.kasaTipi.includes('Market')) ? 'Market' : 'Pazar';
+                    const mevcutBiriken = parseFloat(birikenKasaObje[kat]) || 0;
+                    db.ref('birikenKasa/' + kat).set(mevcutBiriken + (Number(h.nakit) || 0));
+                }
+                db.ref('harcamalar/' + key).remove(); 
+            } 
+        }
+
+        function devirKaydiSil(key) {
+            if (prompt("Arşiv devir kaydını silmek için yönetici şifresini giriniz:") === YONETICI_SIFRESI) {
+                db.ref('devirGecmisi/' + key).remove().then(() => {
+                    alert("Devir kaydı başarıyla silindi.");
+                });
+            }
+        }
+
+        function devirCheckboxKontrol() {
+            const seciliKutular = document.querySelectorAll('.devir-checkbox:checked');
+            const tumKutular = document.querySelectorAll('.devir-checkbox');
+            const btnSil = document.getElementById('btn-toplu-devir-sil');
+            const tumunuSec = document.getElementById('devir-tumunu-sec');
+
+            if (btnSil) {
+                btnSil.disabled = seciliKutular.length === 0;
+            }
+            if (tumunuSec && tumKutular.length > 0) {
+                tumunuSec.checked = (seciliKutular.length === tumKutular.length);
+            }
+        }
+
+        function tumDevirleriSec(masterCb) {
+            const checkboxes = document.querySelectorAll('.devir-checkbox');
+            checkboxes.forEach(cb => cb.checked = masterCb.checked);
+            devirCheckboxKontrol();
+        }
+
+        function secilenDevirleriSil() {
+            const seciliKutular = document.querySelectorAll('.devir-checkbox:checked');
+            if (seciliKutular.length === 0) return;
+
+            if (prompt(`${seciliKutular.length} adet devir kaydını silmek için yönetici şifresini giriniz:`) === YONETICI_SIFRESI) {
+                const updates = {};
+                seciliKutular.forEach(cb => {
+                    updates['devirGecmisi/' + cb.value] = null;
+                });
+
+                db.ref().update(updates).then(() => {
+                    const tumunuSec = document.getElementById('devir-tumunu-sec');
+                    if (tumunuSec) tumunuSec.checked = false;
+                    devirCheckboxKontrol();
+                    alert(`${seciliKutular.length} adet devir kaydı başarıyla silindi.`);
+                });
+            }
+        }
+
+        function devirKaydiDuzenleModal(key) {
+            if (prompt("Devir kaydını düzenlemek için yönetici şifresini giriniz:") === YONETICI_SIFRESI) {
+                const d = devirGecmisiObje[key];
+                if (!d) return;
+                document.getElementById('devir-edit-key').value = key;
+                document.getElementById('devir-edit-baslangic').value = d.baslangic || '';
+                document.getElementById('devir-edit-bitis').value = d.bitis || '';
+                document.getElementById('devir-edit-kategori').value = d.kategori || 'Market';
+                document.getElementById('devir-edit-tur').value = d.tur || '';
+                document.getElementById('devir-edit-kalan').value = d.devredenKalan !== undefined ? d.devredenKalan : 0;
+                document.getElementById('devir-edit-butce').value = d.yeniAktifButce !== undefined ? d.yeniAktifButce : 0;
+                document.getElementById('devir-edit-modal').style.display = 'flex';
+            }
+        }
+
+        function devirKaydiGuncelleKaydet() {
+            const key = document.getElementById('devir-edit-key').value;
+            if (!key || !devirGecmisiObje[key]) return;
+
+            const eskiKategori = devirGecmisiObje[key].kategori;
+            const eskiDevredenKalan = parseFloat(devirGecmisiObje[key].devredenKalan) || 0;
+
+            const yeniBaslangic = document.getElementById('devir-edit-baslangic').value;
+            const yeniBitis = document.getElementById('devir-edit-bitis').value;
+            const yeniKategori = document.getElementById('devir-edit-kategori').value;
+            const yeniTur = document.getElementById('devir-edit-tur').value;
+            const yeniDevredenKalan = parseFloat(document.getElementById('devir-edit-kalan').value) || 0;
+            const yeniAktifButceVal = parseFloat(document.getElementById('devir-edit-butce').value) || 0;
+
+            const fark = yeniDevredenKalan - eskiDevredenKalan;
+
+            if (eskiKategori === yeniKategori) {
+                if (fark !== 0) {
+                    const mevcutBiriken = parseFloat(birikenKasaObje[yeniKategori]) || 0;
+                    db.ref(`birikenKasa/${yeniKategori}`).set(Math.max(0, mevcutBiriken + fark));
+                }
+            } else {
+                const mevcutEskiBiriken = parseFloat(birikenKasaObje[eskiKategori]) || 0;
+                const mevcutYeniBiriken = parseFloat(birikenKasaObje[yeniKategori]) || 0;
+                db.ref(`birikenKasa/${eskiKategori}`).set(Math.max(0, mevcutEskiBiriken - eskiDevredenKalan));
+                db.ref(`birikenKasa/${yeniKategori}`).set(mevcutYeniBiriken + yeniDevredenKalan);
+            }
+
+            db.ref('devirGecmisi/' + key).update({
+                baslangic: yeniBaslangic,
+                bitis: yeniBitis,
+                kategori: yeniKategori,
+                tur: yeniTur,
+                devredenKalan: yeniDevredenKalan,
+                yeniAktifButce: yeniAktifButceVal
+            }).then(() => {
+                modalKapat('devir-edit-modal');
+                alert("Devir kaydı ve biriken kasa tutarları başarıyla güncellendi!");
+            });
+        }
         
         function onayliHarcamaDuzenleModal(key) {
             if (prompt("Düzenlemek için şifre:") === YONETICI_SIFRESI) {
@@ -703,7 +784,9 @@ function devirKaydiSil(key) {
                 document.getElementById('edit-modal').style.display = 'flex';
             }
         }
+
         function editKkHesapla() { document.getElementById('edit-kk').value = Math.max(0, (parseFloat(document.getElementById('edit-toplam').value)||0) - (parseFloat(document.getElementById('edit-nakit').value)||0)).toFixed(2); }
+        
         function harcamaGuncelleKaydet() {
             db.ref('harcamalar/' + document.getElementById('edit-key').value).update({
                 tarih: document.getElementById('edit-tarih').value, kategori: document.getElementById('edit-kategori').value,
@@ -717,8 +800,12 @@ function devirKaydiSil(key) {
             let sayilan = 0; document.querySelectorAll(`.${kategori.toLowerCase()}-input`).forEach(i => sayilan += (parseInt(i.value)||0) * parseFloat(i.getAttribute('data-deger')));
             let harcanan = 0; 
             Object.values(harcamalarObje).forEach(h => { 
-                if(matchKategori(h, kategori) && h.tarih >= aktifDonemBaslangic && !h.anaKasaMi) {
-                    harcanan += Number(h.nakit) || 0; 
+                if (h.tarih >= aktifDonemBaslangic) {
+                    if (!isKKRecord(h)) {
+                        if (h.kategori === kategori) harcanan += Number(h.nakit) || 0;
+                    } else {
+                        if (h.kasaTipi === kategori && !h.anaKasaMi) harcanan += Number(h.nakit) || 0;
+                    }
                 }
             });
             const kalan = getAktifButce(kategori) - harcanan; const fark = sayilan - kalan;
@@ -734,21 +821,39 @@ function devirKaydiSil(key) {
             const ib = document.getElementById('ozet-icmal-body'); 
             if (ib) ib.innerHTML = '';
             
+            const currentFiltre = document.getElementById('harcama-filtre') ? document.getElementById('harcama-filtre').value : "bu-hafta";
+            const isPastPeriod = (currentFiltre !== "bu-hafta" && currentFiltre !== "hepsi");
+            let pastBaslangic = "", pastBitis = "";
+            if (isPastPeriod) {
+                const parts = currentFiltre.split(' / ');
+                pastBaslangic = parts[0];
+                pastBitis = parts[1];
+            }
+
             ['Market', 'Pazar'].forEach(kat => {
                 let n = 0, kkHarcama = 0, kkOdeme = 0;
                 Object.values(harcamalarObje).forEach(h => {
-                    if (h.tarih >= aktifDonemBaslangic && matchKategori(h, kat)) {
-                        if (!isKKRecord(h)) {
+                    let isNakitInPeriod = isPastPeriod ? (h.tarih >= pastBaslangic && h.tarih <= pastBitis) : (h.tarih >= aktifDonemBaslangic);
+                    let isKKInPeriod = isPastPeriod ? (h.tarih >= pastBaslangic && h.tarih <= pastBitis) : true;
+
+                    if (!isKKRecord(h)) {
+                        if (h.kategori === kat) {
+                            if (isNakitInPeriod) n += Number(h.nakit) || 0;
+                            if (isKKInPeriod) kkHarcama += Number(h.kk) || 0;
+                        }
+                    } else {
+                        if (isNakitInPeriod && h.kasaTipi === kat && !h.anaKasaMi) {
                             n += Number(h.nakit) || 0;
-                            kkHarcama += Number(h.kk) || 0;
-                        } else {
-                            if (!h.anaKasaMi && !(h.kasaTipi && h.kasaTipi.includes('Ana Kasa'))) {
-                                n += Number(h.nakit) || 0;
-                            }
+                        }
+                        
+                        if (isKKInPeriod) {
                             const tur = (h.odemeTuru || '').toLowerCase();
-                            const acik = (h.aciklama || '').toLowerCase();
-                            if (!h.odemeTuru || tur.includes('kk') || acik.includes('kk')) {
-                                kkOdeme += Number(h.nakit) || 0;
+                            const targetKat = (h.kategori || '').toLowerCase();
+                            
+                            if (tur.includes('kk') || tur.includes('borcu')) {
+                                if (targetKat === kat.toLowerCase() || tur.includes(kat.toLowerCase())) {
+                                    kkOdeme += Number(h.nakit) || 0;
+                                }
                             }
                         }
                     }
@@ -780,23 +885,27 @@ function devirKaydiSil(key) {
             if(elBP) elBP.innerText = (parseFloat(birikenKasaObje.Pazar) || 0).toFixed(2) + ' TL';
 
             const dbd = document.getElementById('devir-gecmisi-body'); 
-if(dbd) {
-    dbd.innerHTML = '';
-    Object.keys(devirGecmisiObje).reverse().forEach(key => {
-        const d = devirGecmisiObje[key];
-        dbd.innerHTML += `<tr>
-            <td>${d.baslangic || ''} / ${d.bitis || ''}</td>
-            <td>${d.kategori}</td>
-            <td><b>${d.tur || 'Devir'}</b></td>
-            <td style="color:#27ae60;">+${Number(d.devredenKalan || 0).toFixed(0)}₺</td>
-            <td><b>${Number(d.yeniAktifButce || 0).toFixed(0)}₺</b></td>
-            <td><button class="btn-sil" onclick="devirKaydiSil('${key}')">❌</button></td>
-        </tr>`;
-    });
-}
+            if(dbd) {
+                dbd.innerHTML = '';
+                Object.keys(devirGecmisiObje).reverse().forEach(key => {
+                    const d = devirGecmisiObje[key];
+                    dbd.innerHTML += `<tr>
+                        <td><input type="checkbox" class="devir-checkbox" value="${key}" onchange="devirCheckboxKontrol()"></td>
+                        <td>${d.baslangic || ''} / ${d.bitis || ''}</td>
+                        <td>${d.kategori}</td>
+                        <td><b>${d.tur || 'Devir'}</b></td>
+                        <td style="color:#27ae60;">+${Number(d.devredenKalan || 0).toFixed(0)}₺</td>
+                        <td><b>${Number(d.yeniAktifButce || 0).toFixed(0)}₺</b></td>
+                        <td>
+                            <button class="btn-duzenle" onclick="devirKaydiDuzenleModal('${key}')" title="Düzenle">✏️</button>
+                            <button class="btn-sil" onclick="devirKaydiSil('${key}')" title="Sil">❌</button>
+                        </td>
+                    </tr>`;
+                });
+                devirCheckboxKontrol();
+            }
         }
 
-        // Harcama Ekleme Formu
         document.getElementById('harcama-form').onsubmit = (e) => {
             e.preventDefault();
             db.ref('harcamalar').push({
@@ -815,7 +924,6 @@ if(dbd) {
             document.getElementById('harcama-tarihi').value = new Date().toISOString().split('T')[0];
         };
 
-        // KASADAN ÖDEME FORMU
         document.getElementById('kk-odeme-form').onsubmit = e => {
             e.preventDefault();
             const simdi = new Date();
@@ -828,17 +936,26 @@ if(dbd) {
             const aciklama = notMetin || tur;
             
             const anaKasaMi = secilenKasa.includes('Ana Kasa');
-            const kategori = secilenKasa.includes('Market') ? 'Market' : 'Pazar';
+            
+            let hedefKategori = 'Market';
+            if (tur === 'KK Borcu - Pazar') {
+                hedefKategori = 'Pazar';
+            } else if (tur === 'KK Borcu - Market') {
+                hedefKategori = 'Market';
+            } else {
+                hedefKategori = secilenKasa.includes('Market') ? 'Market' : 'Pazar';
+            }
 
             if (anaKasaMi) {
-                const mevcutBiriken = parseFloat(birikenKasaObje[kategori]) || 0;
-                db.ref('birikenKasa/' + kategori).set(mevcutBiriken - tutar);
+                const birikenKat = secilenKasa.includes('Market') ? 'Market' : 'Pazar';
+                const mevcutBiriken = parseFloat(birikenKasaObje[birikenKat]) || 0;
+                db.ref('birikenKasa/' + birikenKat).set(mevcutBiriken - tutar);
             }
 
             db.ref('harcamalar').push({
                 tarih: document.getElementById('kk-odeme-tarih').value, 
                 saat: saat,
-                kategori: kategori,
+                kategori: hedefKategori,
                 kasaTipi: secilenKasa, 
                 kisi: getAktifKullanici(),
                 odemeTuru: tur,
@@ -852,7 +969,7 @@ if(dbd) {
 
             e.target.reset(); 
             document.getElementById('kk-odeme-tarih').value = new Date().toISOString().split('T')[0];
-            document.getElementById('kk-odeme-tur').value = 'KK Borcu';
+            document.getElementById('kk-odeme-tur').value = 'KK Borcu - Market';
         };
 
         function kkHesapla() { document.getElementById('kk-odenen').value = Math.max(0, (parseFloat(document.getElementById('toplam-tutar').value)||0) - (parseFloat(document.getElementById('nakit-odenen').value)||0)).toFixed(2); }
@@ -878,7 +995,15 @@ if(dbd) {
             }; r.readAsDataURL(file);
         }
 
-        function fisGoster(k) { if(harcamalarObje[k] && harcamalarObje[k].gorsel) { document.getElementById('modal-fis-resim').src = harcamalarObje[k].gorsel; document.getElementById('fis-modal').style.display='flex'; } }
+        function fisGoster(k) { 
+            if(harcamalarObje[k]) {
+                const gorselData = harcamalarObje[k].gorsel || harcamalarObje[k].fisBase64;
+                if (gorselData) {
+                    document.getElementById('modal-fis-resim').src = gorselData; 
+                    document.getElementById('fis-modal').style.display='flex'; 
+                }
+            } 
+        }
         
         function ayarlarModaliAc() { 
             document.getElementById('cfg-market-200').value=sabitAyarlar.market200||17; 
