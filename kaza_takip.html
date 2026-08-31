@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Kaza & Günlük Namaz Portalı - Kaza Takip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+</head>
+<body class="text-slate-100 font-sans selection:bg-emerald-500 selection:text-white min-h-full pb-10">
+
+    <!-- ÜST NAVİGASYON BARI -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 shadow-2xl">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-lg">
+                    <i class="fa-solid fa-kaaba"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-lg font-black text-white tracking-tight">EDA & KAZA PORTALI</h1>
+                    <span id="dbStatus" class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold rounded-full uppercase inline-flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span> Bağlantı Kontrol Ediliyor...
+                    </span>
+                </div>
+            </div>
+
+            <!-- SAYFA LİNKLERİ -->
+            <nav class="flex items-center gap-2">
+                <a href="index.html" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-house text-sky-400"></i> Ana Sayfa
+                </a>
+                <a href="gunluk.html" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-calendar-check text-emerald-400"></i> Günlük Eda Takip
+                </a>
+                <a href="kaza.html" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-calculator text-amber-400"></i> Kaza Hesaplama & Giriş
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pt-8 space-y-8">
+        
+        <!-- KARŞILAMA VE ÖZET -->
+        <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div class="max-w-2xl">
+                <span class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-full uppercase tracking-wider">Hoş Geldiniz</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-white mt-3">Namaz Edâ ve Mukim / Seferî Kaza Yönetim Merkezi</h2>
+                <p class="text-xs sm:text-sm text-slate-400 mt-2">Günlük vakit namazlarınızı kaydedebilir, mukim ve seferî kaza borçlarınızı tek merkezden senkronize şekilde takip edebilirsiniz.</p>
+            </div>
+        </div>
+
+        <!-- MÜKELLEF & KAZA HESAPLAMA AYARLARI PANENİ (GÖRSEL MODÜLÜ) -->
+        <div class="bg-slate-900 border border-amber-500/30 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2 font-bold text-amber-400 text-xs sm:text-sm uppercase tracking-wider">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>MÜKELLEF & KAZA HESAPLAMA AYARLARI</span>
+                </div>
+                <div class="text-[11px] sm:text-xs text-slate-400 font-medium bg-slate-950/60 px-3 py-1 rounded-lg border border-slate-800">
+                    1 Gün = 20 Rekat Mukim / 14 Rekat Seferî
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1.5 font-medium">Doğum Tarihi</label>
+                    <input type="date" id="inputBirthDate" onchange="saveSettings()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1.5 font-medium">Ergenlik Yaşı</label>
+                    <input type="number" id="inputBaligAge" min="9" max="18" onchange="saveSettings()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1.5 font-medium">Düzenli Namaza Başlama Tarihi</label>
+                    <input type="date" id="inputRegularDate" onchange="saveSettings()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1.5 font-medium">Günlük Ek Kaza Hızı (Gün)</label>
+                    <input type="number" id="inputDailyPace" min="0.1" step="0.5" onchange="saveSettings()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition">
+                </div>
+            </div>
+        </div>
+
+        <!-- ÖZET KPILAR -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-slate-900 border border-emerald-500/30 p-5 rounded-2xl shadow-lg">
+                <span class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Bugünün Eda Durumu</span>
+                <div id="statTodayStatus" class="text-2xl font-black text-white mt-2">0 / 6 Vakit</div>
+                <div class="text-xs text-slate-400 mt-2">Eda Oranı: <strong id="statTodayPercent" class="text-emerald-400">%0</strong></div>
+            </div>
+
+            <div class="bg-slate-900 border border-amber-500/30 p-5 rounded-2xl shadow-lg">
+                <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Kalan Kaza Rekatı</span>
+                <div id="statRemainingRekat" class="text-2xl sm:text-3xl font-black text-amber-400 mt-2">0</div>
+                <div class="text-xs text-slate-400 mt-2">Tamamlanma: <strong id="statRekatPercent" class="text-amber-400">%0</strong></div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-lg">
+                <span class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">Toplam Kaza Süresi & Tarihler</span>
+                <div id="statTotalDays" class="text-xl font-black text-white mt-1">0 Gün</div>
+                <div class="text-[11px] text-slate-400 mt-2 space-y-1">
+                    <div>Mükellefiyet: <strong id="statPubertyDate" class="text-indigo-300 block font-medium">-</strong></div>
+                    <div>Namaza Başlama: <strong id="statRegularDate" class="text-emerald-300 block font-medium">-</strong></div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-lg">
+                <span class="text-[11px] font-bold text-teal-400 uppercase tracking-wider">Kaza Tahmini Bitiş</span>
+                <div id="statEstimatedFinish" class="text-sm sm:text-base font-bold text-teal-300 mt-2 min-h-[48px] flex items-center">-</div>
+                <div class="text-xs text-slate-400 mt-2 border-t border-slate-800/80 pt-2">Günlük Hız: <strong id="statDailyPaceText" class="text-teal-400">1 Gün/Gün</strong></div>
+            </div>
+        </div>
+
+        <!-- HIZLI MODÜL GEÇİŞ KARTLARI -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- GÜNLÜK TAKİP KARTI -->
+            <a href="gunluk.html" class="group bg-slate-900 hover:bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 p-6 rounded-2xl transition duration-300 shadow-xl flex flex-col justify-between space-y-4">
+                <div class="flex justify-between items-start">
+                    <div class="w-12 h-12 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center text-emerald-400 text-xl">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition duration-300"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-emerald-400 transition">Günlük Namaz Edâ & Takvim</h3>
+                    <p class="text-xs text-slate-400 mt-1">Bugün eda ettiğiniz namazları girin, geçmiş günleri takvimli liste üzerinden 3 aşamalı (Eda / Mukim Kaza / Seferî Kaza) olarak işaretleyin.</p>
+                </div>
+                <div class="pt-2 border-t border-slate-800 text-xs font-semibold text-emerald-400 flex items-center gap-2">
+                    Giriş Yap <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </div>
+            </a>
+
+            <!-- KAZA GİRİŞ KARTI -->
+            <a href="kaza.html" class="group bg-slate-900 hover:bg-slate-900/80 border border-slate-800 hover:border-amber-500/50 p-6 rounded-2xl transition duration-300 shadow-xl flex flex-col justify-between space-y-4">
+                <div class="flex justify-between items-start">
+                    <div class="w-12 h-12 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center text-amber-400 text-xl">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-amber-400 group-hover:translate-x-1 transition duration-300"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-amber-400 transition">Mukim & Seferî Kaza Yönetimi</h3>
+                    <p class="text-xs text-slate-400 mt-1">Mukim (20 Rekat/Gün) ve Seferî (14 Rekat/Gün) kaza namazlarınızı manuel rekat bazında girin veya hızlı +1/+7 gün butonları ile kaydedin.</p>
+                </div>
+                <div class="pt-2 border-t border-slate-800 text-xs font-semibold text-amber-400 flex items-center gap-2">
+                    Kaza Hesaplayıcıya Git <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1hbPbA81qldXCsQxSM4Ozxr9L8sdRTMk",
+            authDomain: "karaaslanhomebutcetakip.firebaseapp.com",
+            databaseURL: "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "karaaslanhomebutcetakip"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const PRAYERS = ['sabah', 'ogle', 'ikindi', 'aksam', 'yatsi', 'vitir'];
+        const REKAT_WEIGHTS = { sabah: 2, ogle: 4, ikindi: 4, aksam: 3, yatsi: 4, vitir: 3 };
+
+        let settings = { birthDate: '1979-05-10', baligAge: 12, regularDate: '2025-06-30', dailyPace: 1 };
+        let completedKaza = { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 };
+        let completedSeferiKaza = { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 };
+        let dailyPrayersLog = {};
+
+        function getTodayStr() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function formatDateLong(dateObjOrStr) {
+            if (!dateObjOrStr) return '-';
+            let d;
+            if (dateObjOrStr instanceof Date) {
+                d = dateObjOrStr;
+            } else if (typeof dateObjOrStr === 'string') {
+                const parts = dateObjOrStr.split('-');
+                if (parts.length === 3) {
+                    d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                } else {
+                    d = new Date(dateObjOrStr);
+                }
+            }
+            if (!d || isNaN(d.getTime())) return '-';
+
+            return d.toLocaleDateString('tr-TR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                weekday: 'long'
+            });
+        }
+
+        db.ref('.info/connected').on('value', snap => {
+            const dbStatusEl = document.getElementById('dbStatus');
+            if (snap.val() === true) {
+                dbStatusEl.className = "px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold rounded-full uppercase inline-flex items-center gap-1";
+                dbStatusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Bulut Bağlandı`;
+            } else {
+                dbStatusEl.className = "px-2 py-0.5 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] font-bold rounded-full uppercase inline-flex items-center gap-1";
+                dbStatusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Bağlantı Yok`;
+            }
+        });
+
+        db.ref('kazaAyarlar').on('value', snap => {
+            if (snap.exists()) {
+                settings = Object.assign({}, settings, snap.val());
+                if (document.getElementById('inputBirthDate')) {
+                    document.getElementById('inputBirthDate').value = settings.birthDate || '1979-05-10';
+                    document.getElementById('inputBaligAge').value = settings.baligAge || 12;
+                    document.getElementById('inputRegularDate').value = settings.regularDate || '2025-06-30';
+                    document.getElementById('inputDailyPace').value = settings.dailyPace || 1;
+                }
+            }
+            recalculate();
+        });
+
+        db.ref('kazaCompleted').on('value', snap => { if(snap.exists()) completedKaza = snap.val(); recalculate(); });
+        db.ref('kazaSeferiCompleted').on('value', snap => { if(snap.exists()) completedSeferiKaza = snap.val(); recalculate(); });
+        db.ref('dailyPrayersLog').on('value', snap => { if(snap.exists()) dailyPrayersLog = snap.val(); recalculate(); });
+
+        function saveSettings() {
+            const newSettings = {
+                birthDate: document.getElementById('inputBirthDate').value,
+                baligAge: parseInt(document.getElementById('inputBaligAge').value) || 12,
+                regularDate: document.getElementById('inputRegularDate').value,
+                dailyPace: parseFloat(document.getElementById('inputDailyPace').value) || 1
+            };
+            db.ref('kazaAyarlar').set(newSettings);
+        }
+
+        function recalculate() {
+            const birthParts = (settings.birthDate || '1979-05-10').split('-');
+            const birth = new Date(parseInt(birthParts[0]), parseInt(birthParts[1]) - 1, parseInt(birthParts[2]));
+            
+            const pubertyDate = new Date(birth.getFullYear() + parseInt(settings.baligAge || 12), birth.getMonth(), birth.getDate());
+
+            const regParts = (settings.regularDate || '2025-06-30').split('-');
+            const regular = new Date(parseInt(regParts[0]), parseInt(regParts[1]) - 1, parseInt(regParts[2]));
+
+            let totalKazaDays = 0;
+            if (regular > pubertyDate) {
+                totalKazaDays = Math.ceil(Math.abs(regular - pubertyDate) / (1000 * 60 * 60 * 24));
+            }
+            
+            document.getElementById('statTotalDays').innerText = `${totalKazaDays.toLocaleString('tr-TR')} Gün`;
+            
+            document.getElementById('statPubertyDate').innerText = formatDateLong(pubertyDate);
+            document.getElementById('statRegularDate').innerText = formatDateLong(regular);
+
+            let totalNeededRekat = 0;
+            let totalCompletedRekat = 0;
+
+            PRAYERS.forEach(p => {
+                totalNeededRekat += totalKazaDays * REKAT_WEIGHTS[p];
+                totalCompletedRekat += (parseInt(completedKaza[p]) || 0) + (parseInt(completedSeferiKaza[p]) || 0);
+            });
+
+            const remainingRekat = Math.max(0, totalNeededRekat - totalCompletedRekat);
+            const progressPercent = totalNeededRekat > 0 ? ((totalCompletedRekat / totalNeededRekat) * 100).toFixed(1) : 100;
+
+            document.getElementById('statRemainingRekat').innerText = remainingRekat.toLocaleString('tr-TR');
+            document.getElementById('statRekatPercent').innerText = `%${progressPercent}`;
+            document.getElementById('statDailyPaceText').innerText = `${settings.dailyPace || 1} Gün/Gün`;
+
+            if (remainingRekat <= 0) {
+                document.getElementById('statEstimatedFinish').innerText = '🎉 Borç Yok!';
+            } else {
+                const finishDate = new Date();
+                const daysNeeded = Math.ceil((remainingRekat / 20) / (settings.dailyPace || 1));
+                finishDate.setDate(finishDate.getDate() + daysNeeded);
+                document.getElementById('statEstimatedFinish').innerText = formatDateLong(finishDate);
+            }
+
+            const todayLog = dailyPrayersLog[getTodayStr()] || {};
+            let todayDoneCount = 0;
+            PRAYERS.forEach(p => { if (todayLog[p] === true) todayDoneCount++; });
+            document.getElementById('statTodayStatus').innerText = `${todayDoneCount} / 6 Vakit`;
+            document.getElementById('statTodayPercent').innerText = `%${((todayDoneCount / 6) * 100).toFixed(0)}`;
+        }
+    </script>
+</body>
+</html>

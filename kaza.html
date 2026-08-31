@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mukim & Seferî Kaza Hesaplama Portalı</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+</head>
+<body class="text-slate-100 font-sans selection:bg-emerald-500 selection:text-white min-h-full pb-16">
+
+    <!-- ÜST NAVİGASYON BARI -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 shadow-2xl">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-amber-400 font-bold text-lg">
+                    <i class="fa-solid fa-kaaba"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-lg font-black text-white tracking-tight">KAZA HESAPLAMA PORTALI</h1>
+                    <span id="dbStatus" class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold rounded-full uppercase flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span> Kontrol Ediliyor...
+                    </span>
+                </div>
+            </div>
+
+            <nav class="flex items-center gap-2">
+                                <a href="kaza_takip.html" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-house text-sky-400"></i> Ana Sayfa
+                </a>
+                <a href="gunluk.html" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-calendar-check text-emerald-400"></i> Günlük Takip
+                </a>
+                <a href="kaza.html" class="px-3.5 py-2 bg-amber-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-amber-900/40 flex items-center gap-1.5">
+                    <i class="fa-solid fa-calculator"></i> Kaza Girişi
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 space-y-6">
+
+        <!-- PARAMETRELER -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                <h2 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> Mükellef & Kaza Hesaplama Ayarları
+                </h2>
+                <span class="text-[11px] text-slate-500">1 Gün = 20 Rekat Mukim / 14 Rekat Seferî</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Doğum Tarihi</label>
+                    <input type="date" id="birthDate" onchange="saveSettingsToFirebase()" onclick="this.showPicker && this.showPicker()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-amber-500 [color-scheme:dark] cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Ergenlik Yaşı</label>
+                    <input type="number" id="baligAge" min="9" max="18" onchange="saveSettingsToFirebase()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Düzenli Namaza Başlama Tarihi</label>
+                    <input type="date" id="regularDate" onchange="saveSettingsToFirebase()" onclick="this.showPicker && this.showPicker()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-amber-500 [color-scheme:dark] cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Günlük Ek Kaza Hızı (Gün)</label>
+                    <input type="number" id="dailyPace" min="0.1" step="0.5" onchange="saveSettingsToFirebase()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- FİLTRELİ KAZA & EDA İSTATİSTİK ÖZET PANOLARI -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-emerald-400"></i> Kaza & Eda İstatistik Analizi
+                </h2>
+                <span id="filterStatusBadge" class="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-400 text-xs font-semibold rounded-lg">
+                    Filtre: Tüm Zamanlar
+                </span>
+            </div>
+
+            <!-- FİLTRELEME BARI -->
+            <div class="bg-slate-950 border border-slate-800/80 p-3 sm:p-4 rounded-xl space-y-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-bold text-slate-400 mr-1"><i class="fa-solid fa-bolt text-amber-400"></i> Hızlı Filtre:</span>
+                    <button onclick="setQuickFilter('1m')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 transition">Son 1 Ay</button>
+                    <button onclick="setQuickFilter('2m')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 transition">Son 2 Ay</button>
+                    <button onclick="setQuickFilter('3m')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 transition">Son 3 Ay</button>
+                    <button onclick="setQuickFilter('6m')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 transition">Son 6 Ay</button>
+                    <button onclick="setQuickFilter('thisYear')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 transition">Bu Yıl</button>
+                    <button onclick="setQuickFilter('all')" class="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold rounded-lg border border-amber-500/40 transition">Tüm Zamanlar</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-800/60">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Başlangıç Tarihi</label>
+                        <input type="date" id="filterStartDate" onchange="applyCustomFilter()" onclick="this.showPicker && this.showPicker()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 [color-scheme:dark] cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Bitiş Tarihi</label>
+                        <input type="date" id="filterEndDate" onchange="applyCustomFilter()" onclick="this.showPicker && this.showPicker()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 [color-scheme:dark] cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Yıla Göre Filtrele (Ergenlikten İtibaren)</label>
+                        <select id="filterYearSelect" onchange="applyYearFilter()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs font-bold text-amber-400 focus:outline-none focus:border-amber-500 cursor-pointer">
+                            <option value="all">Tüm Yıllar</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GENEL SAYI ÖZET KARTLARI -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <div class="text-[11px] font-semibold text-emerald-300">🕌 Mukim Eda (Kılınan)</div>
+                        <div id="totalMukimEdaCount" class="text-2xl font-black text-emerald-400 mt-0.5">0 Vakit</div>
+                    </div>
+                    <i class="fa-solid fa-mosque text-2xl text-emerald-500/40"></i>
+                </div>
+                <div class="bg-amber-950/40 border border-amber-500/30 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <div class="text-[11px] font-semibold text-amber-300">⚠️ Mukim Kaza Borcu</div>
+                        <div id="totalMukimKazaCount" class="text-2xl font-black text-amber-400 mt-0.5">0 Vakit</div>
+                    </div>
+                    <i class="fa-solid fa-triangle-exclamation text-2xl text-amber-500/40"></i>
+                </div>
+                <div class="bg-indigo-950/40 border border-indigo-500/30 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <div class="text-[11px] font-semibold text-indigo-300">✈️ Seferî Kaza Borcu</div>
+                        <div id="totalSeferiCount" class="text-2xl font-black text-indigo-400 mt-0.5">0 Vakit</div>
+                    </div>
+                    <i class="fa-solid fa-plane-departure text-2xl text-indigo-500/40"></i>
+                </div>
+                <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <div class="text-[11px] font-semibold text-slate-300">📅 İncelenen Toplam Gün</div>
+                        <div id="totalFilteredDays" class="text-2xl font-black text-slate-200 mt-0.5">0 Gün</div>
+                    </div>
+                    <i class="fa-solid fa-calendar-days text-2xl text-slate-500/40"></i>
+                </div>
+            </div>
+
+            <!-- VAKİT BAZLI SEFERİ & MUKİM SAYILARI -->
+            <div class="space-y-2 pt-2">
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-list-check text-amber-400"></i> Vakit Bazlı Kaza ve Eda Dağılımı
+                </h3>
+                <div id="prayerBreakdownGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+            </div>
+        </div>
+
+        <!-- ANALİTİK GRAFİKLER -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Kaza Tamamlanma Oranı</h3>
+                <div class="relative h-48"><canvas id="doughnutChart"></canvas></div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Mukim & Seferî Rekat Dağılımı</h3>
+                <div class="relative h-48"><canvas id="barChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- MANUEL KAZA TAKİP PANOLARI -->
+        <div id="kazaInputPanel" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4 shadow-2xl">
+            <div class="flex flex-wrap justify-between items-center gap-3 pb-3 border-b border-slate-800">
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-hand-holding-hand text-amber-400"></i> Mukim & Seferî Kaza Ekleme Paneli
+                </h2>
+                <div class="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                    <button id="tabMukimBtn" onclick="switchKazaTab('mukim')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white transition">Mukim Kazaları</button>
+                    <button id="tabSeferiBtn" onclick="switchKazaTab('seferi')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">✈️ Seferî Kazaları</button>
+                </div>
+            </div>
+
+            <!-- TAKVİM SEÇİCİ BARI VE DÜZEY ROZETİ -->
+            <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-3 rounded-xl border border-amber-500/30">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="openDatePicker()">
+                    <i class="fa-solid fa-calendar-days text-amber-400 text-base"></i>
+                    <label for="kazaEntryDate" class="text-xs font-bold text-slate-200 cursor-pointer">Kaza İşlenecek Tarih:</label>
+                    <input type="date" id="kazaEntryDate" onchange="renderDailyUI()" onclick="event.stopPropagation(); this.showPicker && this.showPicker()" class="bg-slate-900 border border-slate-700 text-xs font-bold text-amber-400 p-2 rounded-lg focus:outline-none focus:border-amber-500 [color-scheme:dark] cursor-pointer">
+                </div>
+                <div id="selectedDateStatusSummary" class="px-3 py-1 bg-slate-800 border border-slate-700 text-slate-400 text-xs font-bold rounded-lg flex items-center gap-1.5">
+                    <i class="fa-solid fa-info-circle"></i> Durum bekleniyor...
+                </div>
+            </div>
+
+            <!-- MUKİM PANELİ -->
+            <div id="mukimKazaContainer" class="space-y-4">
+                <div class="flex flex-wrap justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-800/80 gap-2">
+                    <span class="text-xs text-slate-300 font-semibold">Mukim Kaza Hızlı Gün Ekleme (1 Gün = 20 Rekat)</span>
+                    <div class="flex gap-2">
+                        <button onclick="addFastKazaDays(1, 'mukim')" class="px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-300 rounded-xl text-xs font-bold hover:bg-amber-500/20 transition">+1 Gün Mukim Kaza</button>
+                        <button onclick="addFastKazaDays(7, 'mukim')" class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition">+7 Gün Mukim Kaza</button>
+                    </div>
+                </div>
+                <div id="mukimPrayerCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+            </div>
+
+            <!-- SEFERİ PANELİ -->
+            <div id="seferiKazaContainer" class="space-y-4 hidden">
+                <div class="flex flex-wrap justify-between items-center bg-slate-950 p-3 rounded-xl border border-indigo-500/30 gap-2">
+                    <span class="text-xs text-indigo-300 font-semibold">✈️ Seferî Kaza Hızlı Gün Ekleme (1 Gün = 14 Rekat)</span>
+                    <div class="flex gap-2">
+                        <button onclick="addFastKazaDays(1, 'seferi')" class="px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 rounded-xl text-xs font-bold hover:bg-indigo-500/20 transition">+1 Gün Seferî Kaza</button>
+                        <button onclick="addFastKazaDays(7, 'seferi')" class="px-3 py-1.5 bg-teal-500/10 border border-teal-500/30 text-teal-300 rounded-xl text-xs font-bold hover:bg-teal-500/20 transition">+7 Gün Seferî Kaza</button>
+                    </div>
+                </div>
+                <div id="seferiPrayerCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+            </div>
+
+        </div>
+
+        <!-- KAZA GİRİŞ İŞLEM GEÇMİŞİ -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4 shadow-2xl">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> Kaza Giriş & Günlük Takip Geçmişi
+                </h2>
+                <div class="flex items-center gap-2">
+                    <button id="toggleShowCompletedBtn" onclick="toggleShowCompletedHistory()" class="px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-filter text-amber-400"></i> Sadece Eksik Kayıtlar
+                    </button>
+                    <span id="historyCountBadge" class="px-2.5 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold rounded-xl">
+                        0 Kayıt
+                    </span>
+                </div>
+            </div>
+
+            <!-- GEÇMİŞ İÇİN DİNAMİK FİLTRE BARI -->
+            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl space-y-2">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-bold text-slate-400 flex items-center gap-1">
+                            <i class="fa-solid fa-sliders text-amber-400"></i> Tarih Filtresi:
+                        </span>
+                        <input type="date" id="historyStartDate" onchange="applyHistoryFilter()" onclick="this.showPicker && this.showPicker()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 [color-scheme:dark] cursor-pointer">
+                        <span class="text-xs text-slate-500">-</span>
+                        <input type="date" id="historyEndDate" onchange="applyHistoryFilter()" onclick="this.showPicker && this.showPicker()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-500 [color-scheme:dark] cursor-pointer">
+                        <select id="historyYearSelect" onchange="applyHistoryYearFilter()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs font-bold text-amber-400 focus:outline-none focus:border-amber-500 cursor-pointer">
+                            <option value="all">Tüm Yıllar</option>
+                        </select>
+                        <button onclick="clearHistoryFilters()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-lg border border-slate-700 transition flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left text-[10px]"></i> Sıfırla
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="historyListContainer" class="space-y-3 min-h-[200px]">
+                <div class="text-center py-6 text-slate-500 text-xs font-medium">Kayıtlı işlem geçmişi yükleniyor...</div>
+            </div>
+
+            <div id="historyPaginationControls" class="flex items-center justify-between pt-3 border-t border-slate-800/80 text-xs text-slate-400">
+                <button id="btnPrevHistory" onclick="changeHistoryPage(-1)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i> Önceki
+                </button>
+                <span id="historyPageIndicator" class="font-semibold text-slate-300">Sayfa 1 / 1</span>
+                <button id="btnNextHistory" onclick="changeHistoryPage(1)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5">
+                    Sonraki <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1hbPbA81qldXCsQxSM4Ozxr9L8sdRTMk",
+            authDomain: "karaaslanhomebutcetakip.firebaseapp.com",
+            databaseURL: "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "karaaslanhomebutcetakip"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const PRAYERS = ['sabah', 'ogle', 'ikindi', 'aksam', 'yatsi', 'vitir'];
+        const PRAYER_LABELS = { sabah: 'Sabah', ogle: 'Öğle', ikindi: 'İkindi', aksam: 'Akşam', yatsi: 'Yatsı', vitir: 'Vitir' };
+        const REKAT_WEIGHTS = { sabah: 2, ogle: 4, ikindi: 4, aksam: 3, yatsi: 4, vitir: 3 };
+        const SEFERI_REKAT_WEIGHTS = { sabah: 2, ogle: 2, ikindi: 2, aksam: 3, yatsi: 2, vitir: 3 };
+
+        let settings = { birthDate: '1985-01-01', baligAge: 12, regularDate: '2015-01-01', dailyPace: 1 };
+        let allDailyPrayersLog = {};
+        let doughnutChartInst, barChartInst;
+
+        let historyPage = 1;
+        const HISTORY_PER_PAGE = 4;
+        let showFullyCompletedHistory = false;
+
+        function formatDateWithDay(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            const day = parseInt(parts[2], 10);
+            
+            const dateObj = new Date(year, month, day);
+            const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+            const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+            
+            const formattedDay = String(day).padStart(2, '0');
+            const monthName = months[dateObj.getMonth()];
+            const dayName = days[dateObj.getDay()];
+            
+            return `${formattedDay} ${monthName} ${year} ${dayName}`;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('kazaEntryDate');
+            if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+
+            generatePrayerCardsDOM();
+            initCharts();
+
+            db.ref('.info/connected').on('value', snap => {
+                const dbStatusEl = document.getElementById('dbStatus');
+                dbStatusEl.innerHTML = snap.val() ? `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Bulut Bağlandı` : `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Bağlantı Yok`;
+            });
+
+            db.ref('kazaAyarlar').on('value', snap => {
+                if (snap.exists()) settings = snap.val();
+                syncForm();
+                populateYearDropdown();
+                recalculate();
+            });
+
+            db.ref('dailyPrayersLog').on('value', snap => {
+                allDailyPrayersLog = snap.exists() ? snap.val() : {};
+                renderDailyUI();
+                populateYearDropdown();
+                updateStatsAndFilteredData();
+                renderHistoryList(allDailyPrayersLog);
+                recalculate();
+            });
+        });
+
+        function populateYearDropdown() {
+            const yearSelect = document.getElementById('filterYearSelect');
+            const historyYearSelect = document.getElementById('historyYearSelect');
+            
+            let birth = new Date(settings.birthDate || '1985-01-01');
+            let baligYear = birth.getFullYear() + parseInt(settings.baligAge || 12);
+            let currentYear = new Date().getFullYear();
+            
+            let minYear = baligYear;
+            Object.keys(allDailyPrayersLog).forEach(d => {
+                if (d && d.length >= 4) {
+                    const y = parseInt(d.substring(0, 4), 10);
+                    if (!isNaN(y) && y < minYear) minYear = y;
+                }
+            });
+
+            const sortedYears = [];
+            for (let y = currentYear; y >= minYear; y--) {
+                sortedYears.push(y.toString());
+            }
+
+            if (yearSelect) {
+                let currentVal = yearSelect.value || 'all';
+                yearSelect.innerHTML = `<option value="all">Tüm Yıllar</option>` + 
+                    sortedYears.map(y => `<option value="${y}">${y} Yılı</option>`).join('');
+                if (sortedYears.includes(currentVal) || currentVal === 'all') yearSelect.value = currentVal;
+            }
+
+            if (historyYearSelect) {
+                let currentHistVal = historyYearSelect.value || 'all';
+                historyYearSelect.innerHTML = `<option value="all">Tüm Yıllar</option>` + 
+                    sortedYears.map(y => `<option value="${y}">${y} Yılı</option>`).join('');
+                if (sortedYears.includes(currentHistVal) || currentHistVal === 'all') historyYearSelect.value = currentHistVal;
+            }
+        }
+
+        function setQuickFilter(type) {
+            const startDateInput = document.getElementById('filterStartDate');
+            const endDateInput = document.getElementById('filterEndDate');
+            const yearSelect = document.getElementById('filterYearSelect');
+
+            yearSelect.value = 'all';
+            const today = new Date();
+            const endDateStr = today.toISOString().split('T')[0];
+            let startDateStr = '';
+
+            if (type === '1m') {
+                let d = new Date(); d.setMonth(d.getMonth() - 1);
+                startDateStr = d.toISOString().split('T')[0];
+            } else if (type === '2m') {
+                let d = new Date(); d.setMonth(d.getMonth() - 2);
+                startDateStr = d.toISOString().split('T')[0];
+            } else if (type === '3m') {
+                let d = new Date(); d.setMonth(d.getMonth() - 3);
+                startDateStr = d.toISOString().split('T')[0];
+            } else if (type === '6m') {
+                let d = new Date(); d.setMonth(d.getMonth() - 6);
+                startDateStr = d.toISOString().split('T')[0];
+            } else if (type === 'thisYear') {
+                startDateStr = `${today.getFullYear()}-01-01`;
+            } else if (type === 'all') {
+                startDateStr = '';
+                endDateInput.value = '';
+            }
+
+            startDateInput.value = startDateStr;
+            if (type !== 'all') endDateInput.value = endDateStr;
+
+            updateStatsAndFilteredData();
+        }
+
+        function applyCustomFilter() {
+            document.getElementById('filterYearSelect').value = 'all';
+            updateStatsAndFilteredData();
+        }
+
+        function applyYearFilter() {
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            updateStatsAndFilteredData();
+        }
+
+        function getFilteredDateKeys() {
+            const startVal = document.getElementById('filterStartDate').value;
+            const endVal = document.getElementById('filterEndDate').value;
+            const yearVal = document.getElementById('filterYearSelect').value;
+
+            let keys = Object.keys(allDailyPrayersLog);
+
+            if (yearVal && yearVal !== 'all') keys = keys.filter(d => d.startsWith(yearVal));
+            if (startVal) keys = keys.filter(d => d >= startVal);
+            if (endVal) keys = keys.filter(d => d <= endVal);
+
+            return keys;
+        }
+
+        function updateStatsAndFilteredData() {
+            const dateKeys = getFilteredDateKeys();
+            const startVal = document.getElementById('filterStartDate').value;
+            const endVal = document.getElementById('filterEndDate').value;
+            const yearVal = document.getElementById('filterYearSelect').value;
+
+            const badge = document.getElementById('filterStatusBadge');
+            if (badge) {
+                if (yearVal !== 'all') badge.innerText = `Filtre: ${yearVal} Yılı`;
+                else if (startVal && endVal) badge.innerText = `Filtre: ${startVal} / ${endVal}`;
+                else if (startVal) badge.innerText = `Filtre: ${startVal} Sonrası`;
+                else badge.innerText = `Filtre: Tüm Zamanlar`;
+            }
+
+            let totals = { seferi: 0, mukimEda: 0, mukimKaza: 0 };
+            let breakdown = {
+                sabah: { seferi: 0, mukimEda: 0, mukimKaza: 0 },
+                ogle: { seferi: 0, mukimEda: 0, mukimKaza: 0 },
+                ikindi: { seferi: 0, mukimEda: 0, mukimKaza: 0 },
+                aksam: { seferi: 0, mukimEda: 0, mukimKaza: 0 },
+                yatsi: { seferi: 0, mukimEda: 0, mukimKaza: 0 },
+                vitir: { seferi: 0, mukimEda: 0, mukimKaza: 0 }
+            };
+
+            dateKeys.forEach(dateStr => {
+                const dayLog = allDailyPrayersLog[dateStr] || {};
+                PRAYERS.forEach(p => {
+                    const val = dayLog[p];
+                    if (val === 'seferi') {
+                        breakdown[p].seferi++;
+                        totals.seferi++;
+                    } else if (val === true) {
+                        breakdown[p].mukimEda++;
+                        totals.mukimEda++;
+                    } else if (val === false) {
+                        breakdown[p].mukimKaza++;
+                        totals.mukimKaza++;
+                    }
+                });
+            });
+
+            document.getElementById('totalSeferiCount').innerText = `${totals.seferi} Vakit`;
+            document.getElementById('totalMukimEdaCount').innerText = `${totals.mukimEda} Vakit`;
+            document.getElementById('totalMukimKazaCount').innerText = `${totals.mukimKaza} Vakit`;
+            document.getElementById('totalFilteredDays').innerText = `${dateKeys.length} Gün`;
+
+            const breakdownGrid = document.getElementById('prayerBreakdownGrid');
+            let gridHtml = '';
+
+            PRAYERS.forEach(p => {
+                const sCount = breakdown[p].seferi;
+                const eCount = breakdown[p].mukimEda;
+                const kCount = breakdown[p].mukimKaza;
+
+                gridHtml += `
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-slate-200">${PRAYER_LABELS[p]} Namazı</span>
+                            <div class="flex flex-wrap gap-1 mt-1 font-bold text-[10px]">
+                                <span class="text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">🕌 ${eCount} Eda</span>
+                                <span class="text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">⚠️ ${kCount} Kaza</span>
+                                <span class="text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">✈️ ${sCount} Seferî</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-black text-slate-400">${sCount + eCount + kCount} Kayıt</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            breakdownGrid.innerHTML = gridHtml;
+        }
+
+        function generatePrayerCardsDOM() {
+            const mukimContainer = document.getElementById('mukimPrayerCardsContainer');
+            const seferiContainer = document.getElementById('seferiPrayerCardsContainer');
+
+            let mukimHtml = '', seferiHtml = '';
+
+            PRAYERS.forEach(p => {
+                mukimHtml += `
+                    <div id="card_mukim_${p}" class="bg-slate-950 border border-slate-800 p-3 rounded-xl transition-all">
+                        <div class="flex justify-between items-center text-xs font-bold text-slate-200 capitalize mb-1">
+                            <span>${PRAYER_LABELS[p]} Mukim Namazı</span>
+                            <span id="badge_mukim_${p}" class="text-[10px] font-bold hidden"></span>
+                        </div>
+                        <input type="number" id="kaza_${p}" min="0" max="1" onchange="updateKazaFromInput('${p}', 'mukim')" class="w-full bg-slate-900 border border-slate-700 text-lg font-black text-emerald-400 rounded-lg p-1 text-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        <div class="flex gap-1 mt-2">
+                            <button id="btn_plus_mukim_${p}" onclick="stepKaza('${p}', 1, 'mukim')" class="flex-1 py-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 rounded text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed">+1 Eda Kılınan</button>
+                            <button id="btn_minus_mukim_${p}" onclick="stepKaza('${p}', -1, 'mukim')" class="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed">Kaza (Kılınmadı)</button>
+                        </div>
+                    </div>
+                `;
+
+                seferiHtml += `
+                    <div id="card_seferi_${p}" class="bg-slate-950 border border-indigo-900/40 p-3 rounded-xl transition-all">
+                        <div class="flex justify-between items-center text-xs font-bold text-indigo-200 capitalize mb-1">
+                            <span>✈️ ${PRAYER_LABELS[p]} Seferî Kaza</span>
+                            <span id="badge_seferi_${p}" class="text-[10px] font-bold hidden"></span>
+                        </div>
+                        <input type="number" id="kaza_seferi_${p}" min="0" max="1" onchange="updateKazaFromInput('${p}', 'seferi')" class="w-full bg-slate-900 border border-indigo-800 text-lg font-black text-indigo-400 rounded-lg p-1 text-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        <div class="flex gap-1 mt-2">
+                            <button id="btn_plus_seferi_${p}" onclick="stepKaza('${p}', 1, 'seferi')" class="flex-1 py-1 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 rounded text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed">+1 Seferî Kaza</button>
+                            <button id="btn_minus_seferi_${p}" onclick="stepKaza('${p}', -1, 'seferi')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed">Sil</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            mukimContainer.innerHTML = mukimHtml;
+            seferiContainer.innerHTML = seferiHtml;
+        }
+
+        function openDatePicker() {
+            const input = document.getElementById('kazaEntryDate');
+            if (input && input.showPicker) input.showPicker();
+            else if (input) input.focus();
+        }
+
+        function renderDailyUI() {
+            const selectedDate = document.getElementById('kazaEntryDate').value;
+            if (!selectedDate) return;
+
+            const currentDateLog = allDailyPrayersLog[selectedDate] || {};
+            let edaCount = 0;
+            let mukimKazaCount = 0;
+            let seferiCount = 0;
+
+            PRAYERS.forEach(p => {
+                const val = currentDateLog[p];
+
+                const mukimInput = document.getElementById(`kaza_${p}`);
+                const mukimBadge = document.getElementById(`badge_mukim_${p}`);
+
+                const seferiInput = document.getElementById(`kaza_seferi_${p}`);
+                const seferiBadge = document.getElementById(`badge_seferi_${p}`);
+
+                if (!mukimInput || !seferiInput) return;
+
+                if (val === true) {
+                    edaCount++;
+                    mukimInput.value = 1;
+                    mukimBadge.className = "text-[10px] font-bold text-emerald-400 flex items-center gap-1";
+                    mukimBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Eda Edildi`;
+
+                    seferiInput.value = 0;
+                    seferiBadge.className = "hidden";
+                } else if (val === false) {
+                    mukimKazaCount++;
+                    mukimInput.value = 0;
+                    mukimBadge.className = "text-[10px] font-bold text-amber-400 flex items-center gap-1";
+                    mukimBadge.innerHTML = `<i class="fa-solid fa-clock font-bold"></i> Mukim Kaza Borcu`;
+
+                    seferiInput.value = 0;
+                    seferiBadge.className = "hidden";
+                } else if (val === 'seferi') {
+                    seferiCount++;
+                    seferiInput.value = 1;
+                    seferiBadge.className = "text-[10px] font-bold text-indigo-400 flex items-center gap-1";
+                    seferiBadge.innerHTML = `<i class="fa-solid fa-plane-circle-check"></i> Seferî Kaza Borcu`;
+
+                    mukimInput.value = 0;
+                    mukimBadge.className = "hidden";
+                } else {
+                    mukimInput.value = 0;
+                    seferiInput.value = 0;
+                    mukimBadge.className = "hidden";
+                    seferiBadge.className = "hidden";
+                }
+            });
+
+            const statusSummary = document.getElementById('selectedDateStatusSummary');
+            if (statusSummary) {
+                if (seferiCount > 0) {
+                    statusSummary.className = "px-3 py-1 bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs font-bold rounded-lg flex items-center gap-1.5";
+                    statusSummary.innerHTML = `<i class="fa-solid fa-plane text-indigo-400"></i> Bu tarihte ${seferiCount} vakit Seferî Kaza var`;
+                } else if (edaCount > 0 || mukimKazaCount > 0) {
+                    statusSummary.className = "px-3 py-1 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold rounded-lg flex items-center gap-1.5";
+                    statusSummary.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> Bu tarihte ${edaCount} Eda, ${mukimKazaCount} Mukim Kaza var`;
+                } else {
+                    statusSummary.className = "px-3 py-1 bg-slate-800 border border-slate-700 text-slate-400 text-xs font-bold rounded-lg flex items-center gap-1.5";
+                    statusSummary.innerHTML = `<i class="fa-solid fa-info-circle"></i> Bu tarihte henüz kayıt yok`;
+                }
+            }
+        }
+
+        function stepKaza(prayer, daysDelta, mode = 'mukim') {
+            const selectedDate = document.getElementById('kazaEntryDate').value;
+            if (!selectedDate) return;
+
+            if (mode === 'mukim') {
+                if (daysDelta > 0) {
+                    db.ref(`dailyPrayersLog/${selectedDate}/${prayer}`).set(true);
+                } else {
+                    db.ref(`dailyPrayersLog/${selectedDate}/${prayer}`).set(false);
+                }
+            } else if (mode === 'seferi') {
+                if (daysDelta > 0) {
+                    db.ref(`dailyPrayersLog/${selectedDate}/${prayer}`).set('seferi');
+                } else {
+                    db.ref(`dailyPrayersLog/${selectedDate}/${prayer}`).remove();
+                }
+            }
+        }
+
+        function updateKazaFromInput(prayer, mode = 'mukim') {
+            const inputEl = document.getElementById(mode === 'mukim' ? `kaza_${prayer}` : `kaza_seferi_${prayer}`);
+            const val = parseInt(inputEl.value) || 0;
+            stepKaza(prayer, val >= 1 ? 1 : -1, mode);
+        }
+
+        function addFastKazaDays(days, mode = 'mukim') {
+            const selectedDateStr = document.getElementById('kazaEntryDate').value;
+            if (!selectedDateStr) return;
+
+            const formattedDate = formatDateWithDay(selectedDateStr);
+            const modeTitle = mode === 'seferi' ? 'Seferî Kaza' : 'Mukim Kaza';
+            if (!confirm(`${formattedDate} tarihinden itibaren ${days} günlük toplu ${modeTitle} eklemek istediğinize emin misiniz?`)) return;
+
+            let currDate = new Date(selectedDateStr);
+            const updates = {};
+            const stateVal = (mode === 'seferi') ? 'seferi' : false;
+
+            for (let i = 0; i < days; i++) {
+                const dateKey = currDate.toISOString().split('T')[0];
+                PRAYERS.forEach(p => {
+                    updates[`dailyPrayersLog/${dateKey}/${p}`] = stateVal;
+                });
+                currDate.setDate(currDate.getDate() + 1);
+            }
+
+            db.ref().update(updates);
+        }
+
+        function toggleShowCompletedHistory() {
+            showFullyCompletedHistory = !showFullyCompletedHistory;
+            const btn = document.getElementById('toggleShowCompletedBtn');
+            if (btn) {
+                if (showFullyCompletedHistory) {
+                    btn.innerHTML = `<i class="fa-solid fa-eye text-emerald-400"></i> Tüm Kayıtlar Gösteriliyor`;
+                    btn.className = "px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm";
+                } else {
+                    btn.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> Sadece Eksik Kayıtlar`;
+                    btn.className = "px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm";
+                }
+            }
+            historyPage = 1;
+            renderHistoryList(allDailyPrayersLog);
+        }
+
+        function changeHistoryPage(delta) {
+            historyPage += delta;
+            renderHistoryList(allDailyPrayersLog);
+        }
+
+        function applyHistoryFilter() {
+            const yearSel = document.getElementById('historyYearSelect');
+            if (yearSel) yearSel.value = 'all';
+            historyPage = 1;
+            renderHistoryList(allDailyPrayersLog);
+        }
+
+        function applyHistoryYearFilter() {
+            const startIn = document.getElementById('historyStartDate');
+            const endIn = document.getElementById('historyEndDate');
+            if (startIn) startIn.value = '';
+            if (endIn) endIn.value = '';
+            historyPage = 1;
+            renderHistoryList(allDailyPrayersLog);
+        }
+
+        function clearHistoryFilters() {
+            const startIn = document.getElementById('historyStartDate');
+            const endIn = document.getElementById('historyEndDate');
+            const yearSel = document.getElementById('historyYearSelect');
+            if (startIn) startIn.value = '';
+            if (endIn) endIn.value = '';
+            if (yearSel) yearSel.value = 'all';
+            historyPage = 1;
+            renderHistoryList(allDailyPrayersLog);
+        }
+
+        function renderHistoryList(allLogs) {
+            const container = document.getElementById('historyListContainer');
+            const countBadge = document.getElementById('historyCountBadge');
+            const prevBtn = document.getElementById('btnPrevHistory');
+            const nextBtn = document.getElementById('btnNextHistory');
+            const pageIndicator = document.getElementById('historyPageIndicator');
+
+            const hStart = document.getElementById('historyStartDate')?.value;
+            const hEnd = document.getElementById('historyEndDate')?.value;
+            const hYear = document.getElementById('historyYearSelect')?.value;
+
+            const allDateKeys = Object.keys(allLogs).sort().reverse();
+            const validDates = allDateKeys.filter(dateStr => {
+                if (hYear && hYear !== 'all' && !dateStr.startsWith(hYear)) return false;
+                if (hStart && dateStr < hStart) return false;
+                if (hEnd && dateStr > hEnd) return false;
+
+                const dayLog = allLogs[dateStr] || {};
+                let edaCount = 0;
+                let hasAnyData = false;
+
+                PRAYERS.forEach(p => {
+                    if (dayLog[p] !== undefined && dayLog[p] !== null) {
+                        hasAnyData = true;
+                        if (dayLog[p] === true) edaCount++;
+                    }
+                });
+
+                if (!hasAnyData) return false;
+                const isFullyCompleted = (edaCount === 6);
+                if (!showFullyCompletedHistory && isFullyCompleted) return false;
+
+                return true;
+            });
+
+            countBadge.innerText = `${validDates.length} Kayıt`;
+
+            if (validDates.length === 0) {
+                const msg = showFullyCompletedHistory 
+                    ? "Kayıtlı kaza / günlük takip geçmişi bulunamadı." 
+                    : "Gizlenmemiş kaza kaydı bulunamadı (Tüm vakitleri eksiksiz kılınan günler gizlendi veya filtreye uygun veri yok).";
+                container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs font-medium">${msg}</div>`;
+                if (pageIndicator) pageIndicator.innerText = `Sayfa 1 / 1`;
+                if (prevBtn) prevBtn.disabled = true;
+                if (nextBtn) nextBtn.disabled = true;
+                return;
+            }
+
+            const totalPages = Math.ceil(validDates.length / HISTORY_PER_PAGE);
+            if (historyPage > totalPages) historyPage = totalPages;
+            if (historyPage < 1) historyPage = 1;
+
+            const startIndex = (historyPage - 1) * HISTORY_PER_PAGE;
+            const pageDates = validDates.slice(startIndex, startIndex + HISTORY_PER_PAGE);
+
+            let html = '';
+            pageDates.forEach(dateStr => {
+                const dayLog = allLogs[dateStr] || {};
+                let edaCount = 0;
+                let seferiCount = 0;
+                let mukimKazaCount = 0;
+                let prayerBadges = [];
+
+                PRAYERS.forEach(p => {
+                    if (dayLog[p] === true) {
+                        edaCount++;
+                        prayerBadges.push(`<span class="px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] rounded font-semibold capitalize">${PRAYER_LABELS[p]} (Eda)</span>`);
+                    } else if (dayLog[p] === 'seferi') {
+                        seferiCount++;
+                        prayerBadges.push(`<span class="px-1.5 py-0.5 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-[10px] rounded font-semibold capitalize">✈️ ${PRAYER_LABELS[p]} (Seferî Kaza)</span>`);
+                    } else if (dayLog[p] === false) {
+                        mukimKazaCount++;
+                        prayerBadges.push(`<span class="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] rounded capitalize">${PRAYER_LABELS[p]} (Mukim Kaza)</span>`);
+                    }
+                });
+
+                const isFullyDone = edaCount === 6;
+                let statusBadgeHtml = '';
+                if (isFullyDone) {
+                    statusBadgeHtml = `<span class="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold rounded-lg flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Tam Kılındı (6 Vakit Eda)</span>`;
+                } else {
+                    let details = [];
+                    if (edaCount > 0) details.push(`${edaCount} Eda`);
+                    if (mukimKazaCount > 0) details.push(`${mukimKazaCount} Mukim Kaza`);
+                    if (seferiCount > 0) details.push(`${seferiCount} Seferî Kaza`);
+                    statusBadgeHtml = `<span class="px-2.5 py-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold rounded-lg flex items-center gap-1"><i class="fa-solid fa-clock"></i> ${details.join(', ')}</span>`;
+                }
+
+                html += `
+                    <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl flex flex-wrap items-center justify-between gap-3 hover:border-slate-700 transition">
+                        <div class="space-y-1.5">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="text-sm font-bold text-slate-200">${formatDateWithDay(dateStr)}</span>
+                                ${statusBadgeHtml}
+                            </div>
+                            <div class="flex flex-wrap gap-1 pt-0.5">${prayerBadges.join('')}</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="editHistoryDate('${dateStr}')" class="px-3 py-1.5 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-pen-to-square"></i> Düzenle
+                            </button>
+                            <button onclick="deleteHistoryDate('${dateStr}')" class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash-can"></i> Sil
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            if (pageIndicator) pageIndicator.innerText = `Sayfa ${historyPage} / ${totalPages}`;
+            if (prevBtn) prevBtn.disabled = (historyPage <= 1);
+            if (nextBtn) nextBtn.disabled = (historyPage >= totalPages);
+        }
+
+        function editHistoryDate(dateStr) {
+            const input = document.getElementById('kazaEntryDate');
+            if (input) {
+                input.value = dateStr;
+                renderDailyUI();
+                
+                const dayLog = allDailyPrayersLog[dateStr] || {};
+                const hasSeferi = PRAYERS.some(p => dayLog[p] === 'seferi');
+                if (hasSeferi) {
+                    switchKazaTab('seferi');
+                } else {
+                    switchKazaTab('mukim');
+                }
+
+                document.getElementById('kazaInputPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function deleteHistoryDate(dateStr) {
+            const formattedDate = formatDateWithDay(dateStr);
+            if (confirm(`${formattedDate} tarihine ait tüm kaza kayıtlarını silmek istediğinize emin misiniz?`)) {
+                db.ref(`dailyPrayersLog/${dateStr}`).remove();
+            }
+        }
+
+        function switchKazaTab(type) {
+            document.getElementById('mukimKazaContainer').classList.toggle('hidden', type !== 'mukim');
+            document.getElementById('seferiKazaContainer').classList.toggle('hidden', type !== 'seferi');
+            document.getElementById('tabMukimBtn').className = type === 'mukim' ? "px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white transition" : "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+            document.getElementById('tabSeferiBtn').className = type === 'seferi' ? "px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white transition" : "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+        }
+
+        function syncForm() {
+            document.getElementById('birthDate').value = settings.birthDate || '1985-01-01';
+            document.getElementById('baligAge').value = settings.baligAge || 12;
+            document.getElementById('regularDate').value = settings.regularDate || '2015-01-01';
+            document.getElementById('dailyPace').value = settings.dailyPace || 1;
+        }
+
+        function saveSettingsToFirebase() {
+            settings.birthDate = document.getElementById('birthDate').value;
+            settings.baligAge = parseInt(document.getElementById('baligAge').value) || 12;
+            settings.regularDate = document.getElementById('regularDate').value;
+            settings.dailyPace = parseFloat(document.getElementById('dailyPace').value) || 1;
+            db.ref('kazaAyarlar').set(settings);
+            populateYearDropdown();
+        }
+
+        function recalculate() {
+            let mukimCompleted = { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 };
+            let seferiCompleted = { sabah: 0, ogle: 0, ikindi: 0, aksam: 0, yatsi: 0, vitir: 0 };
+
+            Object.values(allDailyPrayersLog).forEach(dayLog => {
+                PRAYERS.forEach(p => {
+                    if (dayLog[p] === true) mukimCompleted[p] += REKAT_WEIGHTS[p];
+                    else if (dayLog[p] === 'seferi') seferiCompleted[p] += SEFERI_REKAT_WEIGHTS[p];
+                });
+            });
+
+            let totalDoneRekat = 0;
+            PRAYERS.forEach(p => { totalDoneRekat += mukimCompleted[p] + seferiCompleted[p]; });
+
+            let birth = new Date(settings.birthDate);
+            let baligYear = birth.getFullYear() + parseInt(settings.baligAge || 12);
+            let baligDate = new Date(baligYear, birth.getMonth(), birth.getDate());
+            let regDate = new Date(settings.regularDate);
+
+            let diffTime = Math.max(0, regDate.getTime() - baligDate.getTime());
+            let totalMissedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            let totalNeededRekat = totalMissedDays * 20;
+            let remainingRekat = Math.max(0, totalNeededRekat - totalDoneRekat);
+
+            if (doughnutChartInst) {
+                doughnutChartInst.data.datasets[0].data = [totalDoneRekat, remainingRekat];
+                doughnutChartInst.update();
+            }
+
+            if (barChartInst) {
+                barChartInst.data.datasets[0].data = PRAYERS.map(p => mukimCompleted[p]);
+                barChartInst.data.datasets[1].data = PRAYERS.map(p => seferiCompleted[p]);
+                barChartInst.update();
+            }
+        }
+
+        function initCharts() {
+            const ctxDoughnut = document.getElementById('doughnutChart');
+            if (ctxDoughnut) {
+                doughnutChartInst = new Chart(ctxDoughnut, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Tamamlanan Rekat', 'Kalan Kaza Rekatı'],
+                        datasets: [{
+                            data: [0, 0],
+                            backgroundColor: ['#10b981', '#f59e0b'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }
+                    }
+                });
+            }
+
+            const ctxBar = document.getElementById('barChart');
+            if (ctxBar) {
+                barChartInst = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Sabah', 'Öğle', 'İkindi', 'Akşam', 'Yatsı', 'Vitir'],
+                        datasets: [
+                            { label: 'Mukim (Rekat)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#10b981' },
+                            { label: 'Seferî (Rekat)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#6366f1' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
+                            y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+                        },
+                        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Günlük Namaz Eda & Takvim Portalı</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <style>
+        .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #0f172a; }
+    </style>
+</head>
+<body class="text-slate-100 font-sans selection:bg-emerald-500 selection:text-white min-h-full pb-16">
+
+    <!-- ÜST NAVİGASYON BARI -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 shadow-2xl">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-lg">
+                    <i class="fa-solid fa-kaaba"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-lg font-black text-white tracking-tight">GÜNLÜK EDA TAKİBİ</h1>
+                    <span id="dbStatus" class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold rounded-full uppercase flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span> Kontrol Ediliyor...
+                    </span>
+                </div>
+            </div>
+
+            <nav class="flex items-center gap-2">
+                <a href="kaza_takip.html" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-house text-sky-400"></i> Ana Sayfa
+                </a>
+
+                <a href="gunluk.html" class="px-3.5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-900/40 flex items-center gap-1.5">
+                    <i class="fa-solid fa-calendar-check"></i> Günlük Takip
+                </a>
+                <a href="kaza.html" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-calculator text-amber-400"></i> Kaza Girişi
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 space-y-5">
+
+        <!-- MÜKELLEF & KAZA HESAPLAMA AYARLARI PANENİ -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                <h2 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> Mükellef & Kaza Hesaplama Ayarları
+                </h2>
+                <span class="text-[11px] text-slate-500">1 Gün = 20 Rekat Mukim / 14 Rekat Seferî</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Doğum Tarihi</label>
+                    <input type="date" id="birthDate" onchange="saveSettingsToFirebase()" onclick="this.showPicker && this.showPicker()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-amber-500 [color-scheme:dark] cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Ergenlik Yaşı</label>
+                    <input type="number" id="baligAge" min="9" max="18" onchange="saveSettingsToFirebase()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Düzenli Namaza Başlama Tarihi</label>
+                    <input type="date" id="regularDate" onchange="saveSettingsToFirebase()" onclick="this.showPicker && this.showPicker()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-amber-500 [color-scheme:dark] cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Günlük Ek Kaza Hızı (Gün)</label>
+                    <input type="number" id="dailyPace" min="0.1" step="0.5" onchange="saveSettingsToFirebase()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. GÜNLÜK NAMAZ EDÂ & CHECKBOX GİRİŞ PANELİ -->
+        <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-4 sm:p-6 shadow-2xl">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-800">
+                <div>
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-check text-emerald-400"></i> Günlük Namaz Giriş Paneli
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Eda ettiğiniz günlük namazları seçin veya toplu tarih aralığına uygulayın.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+                    <i class="fa-solid fa-calendar-day text-emerald-400 text-xs pl-2"></i>
+                    <input type="date" id="dailyEntryDate" class="bg-transparent text-xs font-bold text-white focus:outline-none pr-2 [color-scheme:dark] cursor-pointer" onclick="this.showPicker && this.showPicker()">
+                    <span class="text-slate-700">|</span>
+                    <label class="flex items-center gap-1.5 text-[11px] text-slate-300 cursor-pointer select-none">
+                        <input type="checkbox" id="isRangeEntry" onchange="toggleRangeEntry()" class="rounded border-slate-800 bg-slate-900 text-emerald-500 w-4 h-4">
+                        Aralıklı Toplu Giriş
+                    </label>
+                    <span class="text-slate-700">|</span>
+                    <label class="flex items-center gap-1.5 text-[11px] text-indigo-300 font-bold cursor-pointer select-none">
+                        <input type="checkbox" id="isSeferiEntry" class="rounded border-slate-800 bg-slate-900 text-indigo-500 w-4 h-4">
+                        <i class="fa-solid fa-plane text-xs"></i> Seferî İşaretle
+                    </label>
+                </div>
+            </div>
+
+            <div id="rangeEntryBox" class="hidden mb-4 p-3 bg-slate-950/80 border border-indigo-500/30 rounded-xl flex flex-wrap items-center gap-3">
+                <span class="text-xs text-indigo-400 font-semibold">Bitiş Tarihi:</span>
+                <input type="date" id="dailyEntryEndDate" class="bg-slate-900 border border-slate-800 text-xs text-white p-2 rounded-lg focus:outline-none [color-scheme:dark] cursor-pointer" onclick="this.showPicker && this.showPicker()">
+                <span class="text-[11px] text-slate-400">(Seçilen vakitler aralıktaki tüm günlere işlenir)</span>
+            </div>
+
+            <!-- CHECKBOX LİSTESİ -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-4">
+                <label class="flex flex-col justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-300">Sabah</span><input type="checkbox" id="chk_sabah" class="w-4 h-4 text-emerald-500 bg-slate-900 border-slate-700 rounded"></div>
+                    <span class="text-[10px] text-slate-500">2 Rekat Farz</span>
+                </label>
+                <label class="flex flex-col justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-300">Öğle</span><input type="checkbox" id="chk_ogle" class="w-4 h-4 text-emerald-500 bg-slate-900 border-slate-700 rounded"></div>
+                    <span class="text-[10px] text-slate-500">4 Rekat Farz</span>
+                </label>
+                <label class="flex flex-col justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-300">İkindi</span><input type="checkbox" id="chk_ikindi" class="w-4 h-4 text-emerald-500 bg-slate-900 border-slate-700 rounded"></div>
+                    <span class="text-[10px] text-slate-500">4 Rekat Farz</span>
+                </label>
+                <label class="flex flex-col justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-300">Akşam</span><input type="checkbox" id="chk_aksam" class="w-4 h-4 text-emerald-500 bg-slate-900 border-slate-700 rounded"></div>
+                    <span class="text-[10px] text-slate-500">3 Rekat Farz</span>
+                </label>
+                <label class="flex flex-col justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-300">Yatsı</span><input type="checkbox" id="chk_yatsi" class="w-4 h-4 text-emerald-500 bg-slate-900 border-slate-700 rounded"></div>
+                    <span class="text-[10px] text-slate-500">4 Rekat Farz</span>
+                </label>
+                <label class="flex flex-col justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-300">Vitir</span><input type="checkbox" id="chk_vitir" class="w-4 h-4 text-emerald-500 bg-slate-900 border-slate-700 rounded"></div>
+                    <span class="text-[10px] text-slate-500">3 Rekat Vacib</span>
+                </label>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <div class="flex items-center gap-2">
+                    <button onclick="selectAllDailyCheckboxes(true)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded-lg transition">Tümünü Seç</button>
+                    <button onclick="selectAllDailyCheckboxes(false)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded-lg transition">Temizle</button>
+                </div>
+                <button onclick="saveDailyPrayerEntry()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Seçilen Tarihe Kaydet
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. GÜNLÜK NAMAZ LİSTE VE RAPOR MODÜLÜ -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4 shadow-xl">
+            <div class="flex flex-wrap justify-between items-center gap-3 pb-3 border-b border-slate-800">
+                <div>
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-ol text-emerald-400"></i> Günlük Namaz Rapor & Takvim Listesi
+                    </h2>
+                    <p class="text-xs text-slate-400">Tıklama Sırası: <span class="text-emerald-400 font-bold">✓ Mukim Eda</span> ➔ <span class="text-amber-400 font-bold">- Mukim Kaza</span> ➔ <span class="text-indigo-400 font-bold">✈️ Seferî Kaza</span></p>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="exportToCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-excel text-emerald-400"></i> CSV İndir
+                    </button>
+                    <button onclick="generateCustomPDFReport()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-pdf"></i> PDF Rapor Al
+                    </button>
+
+                    <select id="reportPeriod" onchange="onPeriodChange()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-bold text-emerald-400 focus:outline-none cursor-pointer">
+                        <option value="current_month" selected>Güncel Ay</option>
+                        <option value="last_1_month">Son 1 Ay</option>
+                        <option value="last_3_months">Son 3 Ay</option>
+                        <option value="last_1_year">Son 1 Yıl</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PERİYOT ÖZET BARI -->
+            <div id="periodSummaryBar" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 flex flex-wrap justify-between items-center gap-2 text-xs">
+                <span class="text-slate-400">Seçili Periyot: <strong id="lblPeriodRange" class="text-white">-</strong></span>
+                <span class="text-slate-400">Toplam Vakit: <strong id="lblPeriodTotalVakit" class="text-slate-200">0</strong></span>
+                <span class="text-slate-400">Mukim Eda: <strong id="lblPeriodCompletedVakit" class="text-emerald-400">0 Vakit</strong></span>
+                <span class="text-slate-400">Mukim Kaza: <strong id="lblPeriodMukimKazaCount" class="text-amber-400">0 Vakit</strong></span>
+                <span class="text-slate-400">Seferî Kaza: <strong id="lblPeriodSeferiCount" class="text-indigo-400">0 Vakit</strong></span>
+                <span class="text-slate-400">Eda Başarısı: <strong id="lblPeriodSuccessRate" class="text-emerald-400">%0</strong></span>
+            </div>
+
+            <!-- TABLO -->
+            <div class="overflow-x-auto custom-scroll max-h-[500px] rounded-xl border border-slate-800">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] sticky top-0 border-b border-slate-800 z-10">
+                        <tr>
+                            <th class="p-3">Tarih / Gün</th>
+                            <th class="p-3 text-center">Sabah</th>
+                            <th class="p-3 text-center">Öğle</th>
+                            <th class="p-3 text-center">İkindi</th>
+                            <th class="p-3 text-center">Akşam</th>
+                            <th class="p-3 text-center">Yatsı</th>
+                            <th class="p-3 text-center">Vitir</th>
+                            <th class="p-3 text-right">Skor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dailyLogTableBody" class="divide-y divide-slate-800/50 bg-slate-900/60 font-medium"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1hbPbA81qldXCsQxSM4Ozxr9L8sdRTMk",
+            authDomain: "karaaslanhomebutcetakip.firebaseapp.com",
+            databaseURL: "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "karaaslanhomebutcetakip"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const PRAYERS = ['sabah', 'ogle', 'ikindi', 'aksam', 'yatsi', 'vitir'];
+        const PRAYER_LABELS = { sabah: 'Sabah', ogle: 'Öğle', ikindi: 'İkindi', aksam: 'Akşam', yatsi: 'Yatsı', vitir: 'Vitir' };
+        
+        let settings = { birthDate: '1985-01-01', baligAge: 12, regularDate: '2015-01-01', dailyPace: 1 };
+        let dailyPrayersLog = {};
+
+        function getTodayStr() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function formatDisplayDate(dateStr) {
+            if (!dateStr) return '';
+            const [y, m, d] = dateStr.split('-');
+            const dateObj = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10));
+            const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+            return `${d}.${m}.${y} ${days[dateObj.getDay()]}`;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('dailyEntryDate').value = getTodayStr();
+            document.getElementById('dailyEntryEndDate').value = getTodayStr();
+            
+            db.ref('.info/connected').on('value', snap => {
+                const dbStatusEl = document.getElementById('dbStatus');
+                dbStatusEl.innerHTML = snap.val() ? `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Bulut Bağlandı` : `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Bağlantı Yok`;
+            });
+
+            db.ref('kazaAyarlar').on('value', snap => {
+                if (snap.exists()) settings = snap.val();
+                syncForm();
+                populateYearOptions();
+                renderDailyLogTable();
+            });
+
+            db.ref('dailyPrayersLog').on('value', snapshot => {
+                dailyPrayersLog = snapshot.exists() ? snapshot.val() : {};
+                syncDailyCheckboxesForSelectedDate();
+                renderDailyLogTable();
+            });
+        });
+
+        function syncForm() {
+            if (document.getElementById('birthDate')) document.getElementById('birthDate').value = settings.birthDate || '1985-01-01';
+            if (document.getElementById('baligAge')) document.getElementById('baligAge').value = settings.baligAge || 12;
+            if (document.getElementById('regularDate')) document.getElementById('regularDate').value = settings.regularDate || '2015-01-01';
+            if (document.getElementById('dailyPace')) document.getElementById('dailyPace').value = settings.dailyPace || 1;
+        }
+
+        function saveSettingsToFirebase() {
+            settings.birthDate = document.getElementById('birthDate').value;
+            settings.baligAge = parseInt(document.getElementById('baligAge').value) || 12;
+            settings.regularDate = document.getElementById('regularDate').value;
+            settings.dailyPace = parseFloat(document.getElementById('dailyPace').value) || 1;
+            db.ref('kazaAyarlar').set(settings);
+            populateYearOptions();
+            renderDailyLogTable();
+        }
+
+        function populateYearOptions() {
+            const selectEl = document.getElementById('reportPeriod');
+            if (!selectEl) return;
+
+            const selectedVal = selectEl.value;
+
+            const birthYear = settings.birthDate ? parseInt(settings.birthDate.split('-')[0]) : 1985;
+            const baligAge = parseInt(settings.baligAge || 12);
+            const startYear = birthYear + baligAge;
+            const currentYear = new Date().getFullYear();
+
+            let yearOptionsHtml = '';
+            for (let y = currentYear; y >= startYear; y--) {
+                yearOptionsHtml += `<option value="year_${y}">${y} Yılı</option>`;
+            }
+
+            selectEl.innerHTML = `
+                <option value="current_month">Güncel Ay</option>
+                <option value="last_1_month">Son 1 Ay</option>
+                <option value="last_3_months">Son 3 Ay</option>
+                <option value="last_1_year">Son 1 Yıl</option>
+                <optgroup label="Ergenlikten İtibaren Yıllar (${startYear} - ${currentYear})">
+                    ${yearOptionsHtml}
+                </optgroup>
+            `;
+
+            if (selectedVal && selectEl.querySelector(`option[value="${selectedVal}"]`)) {
+                selectEl.value = selectedVal;
+            } else {
+                selectEl.value = "current_month";
+            }
+        }
+
+        function toggleRangeEntry() {
+            const isRange = document.getElementById('isRangeEntry').checked;
+            document.getElementById('rangeEntryBox').classList.toggle('hidden', !isRange);
+        }
+
+        function selectAllDailyCheckboxes(status) {
+            PRAYERS.forEach(p => document.getElementById(`chk_${p}`).checked = status);
+        }
+
+        function syncDailyCheckboxesForSelectedDate() {
+            const selectedDate = document.getElementById('dailyEntryDate').value;
+            const logEntry = dailyPrayersLog[selectedDate] || {};
+            PRAYERS.forEach(p => {
+                const val = logEntry[p];
+                document.getElementById(`chk_${p}`).checked = (val === true || val === 'seferi');
+            });
+            document.getElementById('isSeferiEntry').checked = PRAYERS.some(p => logEntry[p] === 'seferi');
+        }
+
+        document.getElementById('dailyEntryDate').addEventListener('change', syncDailyCheckboxesForSelectedDate);
+
+        function saveDailyPrayerEntry() {
+            const startDate = document.getElementById('dailyEntryDate').value;
+            const isRange = document.getElementById('isRangeEntry').checked;
+            const endDate = document.getElementById('dailyEntryEndDate').value;
+            const isSeferi = document.getElementById('isSeferiEntry').checked;
+
+            if (!startDate) return alert('Lütfen tarih seçin.');
+
+            const currentCheckState = {};
+            PRAYERS.forEach(p => {
+                currentCheckState[p] = document.getElementById(`chk_${p}`).checked ? (isSeferi ? 'seferi' : true) : false;
+            });
+
+            const updates = {};
+            if (isRange && endDate && endDate >= startDate) {
+                let curr = new Date(startDate);
+                const end = new Date(endDate);
+                while (curr <= end) {
+                    const dateStr = curr.toISOString().split('T')[0];
+                    updates[`dailyPrayersLog/${dateStr}`] = currentCheckState;
+                    curr.setDate(curr.getDate() + 1);
+                }
+            } else {
+                updates[`dailyPrayersLog/${startDate}`] = currentCheckState;
+            }
+
+            db.ref().update(updates).then(() => alert('Namaz verisi kaydedildi!'));
+        }
+
+        function toggleSinglePrayerLog(dateStr, prayer) {
+            const currentVal = (dailyPrayersLog[dateStr] || {})[prayer];
+            let nextState = (currentVal === true) ? false : ((currentVal === false) ? 'seferi' : true);
+            db.ref(`dailyPrayersLog/${dateStr}/${prayer}`).set(nextState);
+        }
+
+        function onPeriodChange() { renderDailyLogTable(); }
+
+        function renderDailyLogTable() {
+            const tbody = document.getElementById('dailyLogTableBody');
+            if (!tbody) return;
+
+            const periodVal = document.getElementById('reportPeriod').value;
+            let startDate = new Date();
+            let endDate = new Date();
+
+            if (periodVal === 'current_month') {
+                startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+            } else if (periodVal === 'last_1_month') {
+                startDate.setMonth(startDate.getMonth() - 1);
+            } else if (periodVal === 'last_3_months') {
+                startDate.setMonth(startDate.getMonth() - 3);
+            } else if (periodVal === 'last_1_year') {
+                startDate.setFullYear(startDate.getFullYear() - 1);
+            } else if (periodVal.startsWith('year_')) {
+                const targetYear = parseInt(periodVal.replace('year_', ''), 10);
+                startDate = new Date(targetYear, 0, 1);
+                const isCurrentYear = (targetYear === new Date().getFullYear());
+                if (isCurrentYear) {
+                    endDate = new Date();
+                } else {
+                    endDate = new Date(targetYear, 11, 31);
+                }
+            }
+
+            document.getElementById('lblPeriodRange').innerText = `${formatDisplayDate(startDate.toISOString().split('T')[0])} - ${formatDisplayDate(endDate.toISOString().split('T')[0])}`;
+
+            let totalVakit = 0, completedVakit = 0, mukimKazaVakit = 0, seferiVakit = 0;
+            let currTime = endDate.getTime();
+            const startTime = startDate.getTime();
+            let htmlBuffer = '';
+
+            while (currTime >= startTime) {
+                const dateStr = new Date(currTime).toISOString().split('T')[0];
+                const dayLog = dailyPrayersLog[dateStr] || {};
+                let dayDone = 0, dayMukimKaza = 0, daySeferi = 0;
+
+                PRAYERS.forEach(p => {
+                    if (dayLog[p] === true) dayDone++;
+                    else if (dayLog[p] === false) dayMukimKaza++;
+                    else if (dayLog[p] === 'seferi') daySeferi++;
+                });
+
+                totalVakit += 6; 
+                completedVakit += dayDone; 
+                mukimKazaVakit += dayMukimKaza;
+                seferiVakit += daySeferi;
+
+                const scoreColor = (dayDone) === 6 ? 'text-emerald-400' : (dayDone >= 3 ? 'text-amber-400' : 'text-slate-500');
+
+                htmlBuffer += `<tr class="hover:bg-slate-800/40 border-b border-slate-800/40">
+                    <td class="p-3 font-semibold text-white">${formatDisplayDate(dateStr)} ${daySeferi > 0 ? '✈️' : ''}</td>`;
+
+                PRAYERS.forEach(p => {
+                    const val = dayLog[p];
+                    let btn = val === true ? `<button onclick="toggleSinglePrayerLog('${dateStr}', '${p}')" title="Mukim Eda (Kılındı)" class="w-7 h-7 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-lg"><i class="fa-solid fa-check text-xs"></i></button>`
+                            : (val === false ? `<button onclick="toggleSinglePrayerLog('${dateStr}', '${p}')" title="Mukim Kaza (Kılınmadı)" class="w-7 h-7 bg-amber-500/20 text-amber-400 border border-amber-500/40 rounded-lg"><i class="fa-solid fa-minus text-[10px]"></i></button>`
+                            : (val === 'seferi' ? `<button onclick="toggleSinglePrayerLog('${dateStr}', '${p}')" title="Seferî Kaza Borcu" class="w-7 h-7 bg-indigo-500/30 text-indigo-300 border border-indigo-500/60 rounded-lg"><i class="fa-solid fa-plane text-xs"></i></button>`
+                            : `<button onclick="toggleSinglePrayerLog('${dateStr}', '${p}')" title="Kayıt Yok" class="w-7 h-7 bg-slate-950 text-slate-600 border border-slate-800 rounded-lg"><i class="fa-solid fa-minus text-[10px]"></i></button>`));
+                    htmlBuffer += `<td class="p-3 text-center">${btn}</td>`;
+                });
+
+                htmlBuffer += `<td class="p-3 text-right font-black ${scoreColor}">${dayDone}/6</td></tr>`;
+                currTime -= 86400000;
+            }
+
+            tbody.innerHTML = htmlBuffer;
+            document.getElementById('lblPeriodTotalVakit').innerText = totalVakit;
+            document.getElementById('lblPeriodCompletedVakit').innerText = `${completedVakit} Vakit`;
+            document.getElementById('lblPeriodMukimKazaCount').innerText = `${mukimKazaVakit} Vakit`;
+            document.getElementById('lblPeriodSeferiCount').innerText = `${seferiVakit} Vakit`;
+            document.getElementById('lblPeriodSuccessRate').innerText = `%${totalVakit > 0 ? ((completedVakit / totalVakit) * 100).toFixed(0) : 0}`;
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Tarih,Sabah,Ogle,Ikindi,Aksam,Yatsi,Vitir\n";
+            Object.keys(dailyPrayersLog).sort().reverse().forEach(dateStr => {
+                const entry = dailyPrayersLog[dateStr] || {};
+                csvContent += [dateStr, entry.sabah, entry.ogle, entry.ikindi, entry.aksam, entry.yatsi, entry.vitir].join(",") + "\n";
+            });
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", `namaz_raporu_${getTodayStr()}.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function generateCustomPDFReport() {
+            alert("PDF hazırlanıyor...");
+        }
+    </script>
+</body>
+</html>
