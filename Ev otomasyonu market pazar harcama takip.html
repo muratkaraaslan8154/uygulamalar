@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karaaslan Home - Admin Kasa Yönetimi</title>
-    <!-- Firebase SDK -->
+    <!-- Firebase Compat SDK (RTDB) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --primary: #2c3e50; --secondary: #27ae60; --danger: #e74c3c;
             --warning: #f39c12; --bg: #f4f6f9; --card-bg: #ffffff;
+            --text-main: #2d3748; --text-muted: #718096;
+            --expense-color: #e53e3e; --pay-color: #805ad5;
         }
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg); margin: 0; padding: 10px; color: #333; }
@@ -45,7 +47,7 @@
         .col-section { display: flex; flex-direction: column; height: 100%; }
 
         .card { background-color: var(--card-bg); padding: 8px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 8px; }
-        .card h2 { margin-top: 0; color: var(--primary); font-size: 0.85rem; border-bottom: 2px solid var(--bg); padding-bottom: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .card h2, .card h3 { margin-top: 0; color: var(--primary); font-size: 0.85rem; border-bottom: 2px solid var(--bg); padding-bottom: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         
         .compact-kasa-card { padding: 10px; margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between; flex: 1; }
         .denom-row { display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 2px 6px; border-radius: 4px; border: 1px solid #edf2f7; margin-bottom: 2px;}
@@ -87,11 +89,34 @@
         .modal-content { background: white; padding: 15px; border-radius: 6px; max-width: 400px; width: 90%; }
         #gorsel-onizleme { max-width: 100%; max-height: 90px; margin-top: 3px; border-radius: 3px; border: 1px solid #ddd; display: none; }
         
-        .fixed-table-container { min-height: 145px; overflow-y: auto; }
+        .fixed-table-container { min-height: 95px; max-height: 120px; overflow-y: auto; }
         .pagination-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; padding-top: 4px; border-top: 1px solid #eee; }
         .btn-page { background-color: var(--primary); color: white; border: none; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-size: 0.68rem; font-weight: bold; }
         .btn-page:disabled { background-color: #cbd5e1; cursor: not-allowed; opacity: 0.6; }
         .page-info { font-weight: bold; font-size: 0.68rem; color: #475569; }
+
+        /* Entegre Edilen Borç Takip Modülü Stilleri */
+        .item-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; max-height: 280px; overflow-y: auto; }
+        .list-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.6rem; border-radius: 0.5rem; display: flex; flex-direction: column; gap: 0.3rem; }
+        .list-item.unpaid-item { background: #fffaf0; border-color: #fbd38d; }
+        .list-item.expense { border-left: 4px solid var(--expense-color); }
+        .list-item.settlement { border-left: 4px solid var(--pay-color); }
+        .list-item.other { border-left: 4px solid var(--text-muted); }
+        .item-header { display: flex; justify-content: space-between; align-items: center; }
+        .item-title { font-weight: bold; font-size: 0.8rem; }
+        .item-amount { font-weight: bold; font-size: 0.85rem; }
+        .item-sub { font-size: 0.68rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.15rem; }
+        .item-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 0.2rem; border-top: 1px dashed #e2e8f0; padding-top: 0.25rem; flex-wrap: wrap; gap: 0.3rem; }
+        .badge-status { padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-weight: bold; font-size: 0.65rem; }
+        .status-paid { background: #c6f6d5; color: #22543d; }
+        .status-unpaid { background: #feebc8; color: #744210; }
+        .btn-pay-now, .btn-view-photo, .btn-add-photo, .btn-del, .btn-whatsapp, .btn-edit { border: none; padding: 0.25rem 0.5rem; border-radius: 0.3rem; cursor: pointer; font-size: 0.68rem; font-weight: bold; }
+        .btn-pay-now { background: #38a169; color: white; }
+        .btn-whatsapp { background: #25d366; color: white; }
+        .btn-view-photo { background: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; }
+        .btn-add-photo { background: #feebc8; color: #744210; border: 1px solid #fbd38d; }
+        .btn-del { background: #fed7d7; color: #9b2c2c; }
+        .btn-edit { background: #edf2f7; color: #4a5568; border: 1px solid #e2e8f0; }
     </style>
 </head>
 <body>
@@ -226,7 +251,7 @@
             </div>
         </div>
 
-        <!-- SÜTUN 4: İŞLEM VE DEVİR TABLOLARI -->
+        <!-- SÜTUN 4: İŞLEM VE DEVİR TABLOLARI VE ÖDENMEYEN BORÇLAR MODÜLÜ -->
         <div class="col-section">
             <div class="top-banner harcama-gecmisi-banner">
                 <h2>🧾 İŞLEM GEÇMİŞİ</h2>
@@ -243,7 +268,7 @@
                 </div>
             </div>
 
-            <!-- Normal Harcamalar -->
+            <!-- Normal Harcamalar (Satır sayısı 3'e düşürüldü) -->
             <div class="card" style="flex:1; display:flex; flex-direction:column;">
                 <h2>🛍️ Normal Harcamalar</h2>
                 <div class="fixed-table-container">
@@ -255,7 +280,7 @@
                 <div class="pagination-bar" id="harcama-pagination"></div>
             </div>
 
-            <!-- KK Ödemeleri -->
+            <!-- KK Ödemeleri (Satır sayısı 3'e düşürüldü) -->
             <div class="card" style="flex:1; display:flex; flex-direction:column; background-color: #fdf2e9; border: 1px solid #f5cba7;">
                 <h2 style="color: #d35400;">💳 Kasadan Çıkan / KK Ödemeleri</h2>
                 <div class="fixed-table-container">
@@ -267,8 +292,8 @@
                 <div class="pagination-bar" id="kk-pagination"></div>
             </div>
             
-            <!-- Devir Geçmişi -->
-            <div class="card" style="flex:0.8; display:flex; flex-direction:column; margin-bottom:0; background-color: #e8f8f5; border: 1px solid #a3e4d7;">
+            <!-- Devir Geçmişi (Satır sayısı 3'e düşürüldü) -->
+            <div class="card" style="flex:0.8; display:flex; flex-direction:column; margin-bottom:8px; background-color: #e8f8f5; border: 1px solid #a3e4d7;">
                 <h2 style="color: #16a085; display: flex; justify-content: space-between; align-items: center;">
                     <span>📦 Arşivlenmiş Dönemler & Devirler</span>
                     <button id="btn-toplu-devir-sil" class="btn-sil" style="font-size:0.68rem; padding:3px 8px;" disabled onclick="secilenDevirleriSil()">🗑️ Seçilenleri Sil</button>
@@ -290,6 +315,20 @@
                     </table>
                 </div>
                 <div class="pagination-bar" id="devir-pagination"></div>
+            </div>
+
+            <!-- ENTEGRE EDİLEN KOD BLOĞU: ÖDENMEYEN BORÇLAR VE HARCAMA GEÇMİŞİ MODÜLÜ -->
+            <div class="card" style="margin-bottom:0; background-color: #fffaf0; border: 1px solid #fbd38d;">
+                <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:6px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 id="history-title" style="margin:0; color:#744210; border:none; padding:0;">⏳ Bekleyen Ödenmeyen Borçlar</h3>
+                    </div>
+                    <!-- TÜM GEÇMİŞİ GÖSTER / SADECE ÖDENMEYENLERİ GÖSTER BUTONU -->
+                    <button id="btn-toggle-history-mode" class="btn-action" style="background:#805ad5; font-size:0.75rem; padding:5px 8px;" onclick="window.toggleHistoryDisplayMode()">
+                        👁️ Tüm Geçmişi Göster
+                    </button>
+                </div>
+                <ul class="item-list" id="tx-list"></ul>
             </div>
         </div>
     </div>
@@ -386,6 +425,13 @@
         </div>
     </div>
 
+    <!-- Entegre Borç Takip Fotoğraf Yükleme ve Önizleme Modalı -->
+    <input type="file" id="late-photo-upload" accept="image/*" style="display: none;">
+    <div class="modal" id="photo-modal" onclick="this.style.display='none'">
+        <img id="modal-img" src="" alt="Fiş Fatura">
+    </div>
+
+    <!-- ANA RTDB SCRIPT (Ana Kasa Yönetimi) -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyD1hbPbA81qldXCsQxSM4Ozxr9L8sdRTMk",
@@ -405,7 +451,8 @@
         let sabitAyarlar = { market200: 17, pazar200: 15 };
         let aktifButce = { Market: 3400, Pazar: 3000 };
 
-        const LIMIT_PER_PAGE = 5;
+        // TABLOLAR 3 SATIRA KISALTILDI (Eskiden 5 idi)
+        const LIMIT_PER_PAGE = 3;
         let pageHarcama = 1; let pageKK = 1; let pageDevir = 1;
 
         function modalKapat(id) { document.getElementById(id).style.display = 'none'; }
@@ -439,7 +486,6 @@
             return h.tarih >= aktifDonemBaslangic;
         }
 
-        // Filtreye göre harcama bu döneme ait mi?
         function isHarcamaSeciliDonemde(h, filtroVal) {
             if (!h) return false;
             if (!filtroVal || filtroVal === "bu-hafta") {
@@ -466,7 +512,6 @@
             return (kategori === 'Market' ? (sabitAyarlar.market200 || 17) : (sabitAyarlar.pazar200 || 15)) * 200;
         }
 
-        // Filtreye göre ilgili dönemin başlangıç bütçesini al
         function getSeciliDonemButcesi(kategori, filtroVal) {
             if (!filtroVal || filtroVal === "bu-hafta") {
                 return getAktifButce(kategori);
@@ -988,7 +1033,6 @@
             const ib = document.getElementById('ozet-icmal-body'); 
             if (ib) ib.innerHTML = '';
 
-            // Dönem etiket metinleri
             let donemEtiketi = "AKTİF HARCANABİLİR NAKİT";
             let butceEtiketi = "Aktif Bütçe";
             let icmalBaslik = "📊 Aktif Dönem İcmali";
@@ -1009,7 +1053,6 @@
             ['Market', 'Pazar'].forEach(kat => {
                 let n = 0, kkHarcama = 0, kkOdeme = 0;
                 Object.values(harcamalarObje).forEach(h => {
-                    // Seçili döneme göre süzme yapılır
                     if (isHarcamaSeciliDonemde(h, f)) {
                         if (!isKKRecord(h)) {
                             if (h.kategori === kat) n += Number(h.nakit) || 0;
@@ -1270,6 +1313,280 @@
             if (confirm(`${kat} sayımını sıfırlamak istediğinize emin misiniz?`)) {
                 db.ref('kasaSayimi/' + kat).remove();
             }
+        }
+    </script>
+
+    <!-- ENTEGRE EDİLEN MODÜL KODLARI (Firebase Firestore Borç Takip & Tüm Geçmiş) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { 
+            getFirestore, collection, updateDoc, deleteDoc, doc, onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB6GxxqjYwezj-yLDEoe544Xdy0K-sBGlA",
+            authDomain: "karaaslanhomeharcamatakip.firebaseapp.com",
+            projectId: "karaaslanhomeharcamatakip",
+            storageBucket: "karaaslanhomeharcamatakip.firebasestorage.app",
+            messagingSenderId: "822028092832",
+            appId: "1:822028092832:web:88a6d9f6bad90dbbc110c5",
+            databaseURL: "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const txCollection = collection(db, "transactions");
+
+        const activeUser = (localStorage.getItem('currentUser') || '').toLowerCase();
+        const PHONE_NUMBERS = { "Murat": "", "Muradiye": "", "Melek": "", "Emre": "" };
+
+        let allTransactions = [];
+        let selectedTxForPhoto = null;
+        let showOnlyUnpaid = true; // Varsayılan: Ödenmeyen Borçları Göster
+
+        function checkAdminAuth() {
+            if (activeUser === 'murat' || activeUser === 'admin') return true;
+            alert("❌ Bu işlemi sadece yöneticiler (Murat veya Admin) gerçekleştirebilir!");
+            return false;
+        }
+
+        function canModify(tx) {
+            if (activeUser === 'murat' || activeUser === 'admin') return true;
+            if (tx.person && activeUser === tx.person.toLowerCase()) return true;
+            return false;
+        }
+
+        function formatDateTimeStr(dateObj) {
+            const d = dateObj || new Date();
+            return `${d.toLocaleDateString('tr-TR')} - ${d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}`;
+        }
+
+        // Tüm Geçmiş / Sadece Ödenmeyenler Buton Mantığı
+        window.toggleHistoryDisplayMode = () => {
+            showOnlyUnpaid = !showOnlyUnpaid;
+            const btn = document.getElementById('btn-toggle-history-mode');
+            const title = document.getElementById('history-title');
+            
+            if (showOnlyUnpaid) {
+                if (btn) btn.innerText = "👁️ Tüm Geçmişi Göster";
+                if (title) title.innerText = "⏳ Bekleyen Ödenmeyen Borçlar";
+            } else {
+                if (btn) btn.innerText = "⏳ Sadece Ödenmeyen Borçları Göster";
+                if (title) title.innerText = "📋 Tüm Harcama Geçmişi & Borçlar";
+            }
+            renderList();
+        };
+
+        // Firestore Canlı Veri Dinleme
+        onSnapshot(txCollection, (snapshot) => {
+            allTransactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            allTransactions.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            renderList();
+        });
+
+        // Görsel Sıkıştırma
+        function compressImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader(); reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image(); img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width, h = img.height, max = 800;
+                        if (w > max || h > max) {
+                            if (w > h) { h = Math.round(h * max / w); w = max; }
+                            else { w = Math.round(w * max / h); h = max; }
+                        }
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', 0.6));
+                    };
+                };
+            });
+        }
+
+        window.triggerPhotoUpload = (id) => {
+            selectedTxForPhoto = id;
+            const input = document.getElementById('late-photo-upload');
+            input.value = "";
+            input.click();
+        };
+
+        document.getElementById('late-photo-upload').addEventListener('change', async (e) => {
+            if (!e.target.files || !e.target.files[0] || !selectedTxForPhoto) return;
+            try {
+                const photoData = await compressImage(e.target.files[0]);
+                await updateDoc(doc(db, "transactions", selectedTxForPhoto), { photo: photoData });
+                alert("📷 Fiş fotoğrafı başarıyla eklendi!");
+            } catch (err) {
+                alert("Fotoğraf eklenirken hata oluştu!");
+            } finally {
+                selectedTxForPhoto = null;
+            }
+        });
+
+        window.sendNotification = (id) => {
+            const tx = allTransactions.find(t => t.id === id);
+            if (!tx) return;
+
+            const phone = PHONE_NUMBERS[tx.person] ? PHONE_NUMBERS[tx.person].replace(/\D/g, '') : "";
+            const textMsg = `Merhaba ${tx.person}, ${tx.amount.toLocaleString('tr-TR')} ₺ tutarındaki "${tx.title}" harcama ödemeniz (${tx.paidMethod || 'Nakit'}) yapılmıştır. ✅`;
+            
+            const waUrl = phone 
+                ? `https://wa.me/${phone}?text=${encodeURIComponent(textMsg)}`
+                : `https://wa.me/?text=${encodeURIComponent(textMsg)}`;
+
+            window.open(waUrl, '_blank');
+        };
+
+        // Ödeme Yapma
+        window.markAsPaid = async (id) => {
+            if (!checkAdminAuth()) return;
+
+            const tx = allTransactions.find(t => t.id === id);
+            const choice = prompt("Ödeme hangi yöntemle yapıldı?\n\n1 - Nakit\n2 - EFT / Havale", "1");
+            if (choice === null) return;
+
+            let chosenMethod = "Nakit";
+            if (choice.trim() === "2" || choice.toLowerCase().includes("eft") || choice.toLowerCase().includes("havale")) {
+                chosenMethod = "EFT / Havale";
+            }
+
+            const nowStr = formatDateTimeStr(new Date());
+            await updateDoc(doc(db, "transactions", id), { 
+                status: 'paid', 
+                paidAt: nowStr,
+                paidMethod: chosenMethod
+            });
+
+            if (tx && confirm(`✅ Ödeme kaydedildi!\n\n${tx.person} kişisine WhatsApp üzerinden bilgilendirme mesajı göndermek ister misiniz?`)) {
+                sendNotification(id);
+            }
+        };
+
+        // Kayıt Düzenleme
+        window.editTx = async (id) => {
+            const tx = allTransactions.find(t => t.id === id);
+            if (!tx) return;
+
+            if (!canModify(tx)) {
+                alert("❌ Bu kaydı düzenleme yetkiniz yok!");
+                return;
+            }
+
+            const newTitle = prompt("Yeni açıklama:", tx.title);
+            if (newTitle === null) return;
+
+            const newAmountStr = prompt("Yeni tutar (₺):", tx.amount);
+            if (newAmountStr === null) return;
+
+            const newAmount = parseFloat(newAmountStr);
+            if (isNaN(newAmount) || newAmount <= 0 || newTitle.trim().length < 3) {
+                alert("⚠️ Geçersiz açıklama veya tutar!");
+                return;
+            }
+
+            await updateDoc(doc(db, "transactions", id), { 
+                title: newTitle.trim(),
+                amount: newAmount
+            });
+            alert("✅ Güncellendi!");
+        };
+
+        // Kayıt Silme
+        window.deleteTx = async (id) => {
+            const tx = allTransactions.find(t => t.id === id);
+            if (!tx) return;
+            
+            if (!canModify(tx)) {
+                alert("❌ Bu kaydı silme yetkiniz yok!");
+                return;
+            }
+
+            if (confirm("Bu kaydı silmek istediğinizden emin misiniz?")) {
+                await deleteDoc(doc(db, "transactions", id));
+            }
+        };
+
+        // Liste Oluşturma (Ödenmeyenler / Tüm Geçmiş Filtreli)
+        function renderList() {
+            const txList = document.getElementById('tx-list');
+            if (!txList) return;
+            txList.innerHTML = "";
+
+            let displayList = allTransactions;
+            if (showOnlyUnpaid) {
+                displayList = allTransactions.filter(tx => tx.status !== 'paid');
+            }
+
+            if (displayList.length === 0) {
+                txList.innerHTML = `<li style="text-align:center; padding:10px; font-size:0.75rem; color:#718096;">${showOnlyUnpaid ? '🎉 Bekleyen ödenmeyen borç bulunmamaktadır!' : 'Kayıtlı işlem bulunamadı.'}</li>`;
+                return;
+            }
+
+            displayList.forEach(tx => {
+                const isExpenseLike = (tx.type === 'expense' || tx.type === 'personal_self' || tx.type === 'personal_expense');
+                
+                let subText = "";
+                if (tx.type === 'expense' || !tx.type) {
+                    subText = `👤 ${tx.person} | 🛒 Ev Harcaması | 🏷️ ${tx.category || 'Genel'} | ${tx.payMethod === 'Kredi Kartı' ? '💳 KK' : '💵 Nakit'}`;
+                } else if (tx.type === 'personal_expense') {
+                    subText = `👤 ${tx.person} | 🛍️ Şahsi Harcama | 🏷️ ${tx.category || 'Genel'}`;
+                } else if (tx.type === 'settlement') {
+                    subText = `👤 ${tx.person} ➡️ ${tx.targetPerson} | 🔄 Doğrudan Ödeme`;
+                } else {
+                    subText = `👤 ${tx.person} | ${tx.type}`;
+                }
+
+                const isPaid = tx.status === 'paid';
+                const statusBadge = isPaid ? `<span class="badge-status status-paid">✅ Ödendi</span>` : `<span class="badge-status status-unpaid">⏳ Ödenmedi</span>`;
+                
+                const createdAtText = tx.createdAt ? `📅 Eklenme: ${tx.createdAt}` : '';
+                const paidAtText = (isPaid && tx.paidAt) 
+                    ? `<span style="color: #2b6cb0; font-weight: bold;">💳 Ödenme: ${tx.paidAt} (${tx.paidMethod || 'Nakit'})</span>` 
+                    : '';
+
+                const whoToPayNotice = (!isPaid && isExpenseLike) 
+                    ? `<div style="margin-top: 3px; font-weight: bold; color: var(--expense-color); font-size:0.7rem;">💰 ${tx.person}'a Ödenecek</div>` 
+                    : ``;
+
+                const photoButtonHTML = tx.photo 
+                    ? `<button class="btn-view-photo" onclick="document.getElementById('photo-modal').style.display='flex'; document.getElementById('modal-img').src='${tx.photo}';">📷 Fiş</button>`
+                    : `<button class="btn-add-photo" onclick="triggerPhotoUpload('${tx.id}')">📷 Fiş Ekle</button>`;
+
+                const whatsappBtnHTML = isPaid 
+                    ? `<button class="btn-whatsapp" onclick="sendNotification('${tx.id}')">💬 WhatsApp</button>` 
+                    : ``;
+
+                const hasModAccess = canModify(tx);
+
+                const li = document.createElement('li');
+                li.className = `list-item ${!isPaid ? 'unpaid-item' : ''} ${isExpenseLike ? 'expense' : (tx.type === 'settlement' ? 'settlement' : 'other')}`;
+                li.innerHTML = `
+                    <div class="item-header">
+                        <span class="item-title">${tx.title}</span>
+                        <span class="item-amount" style="color: ${isExpenseLike ? 'var(--expense-color)' : 'var(--pay-color)'};">
+                            - ${tx.amount ? tx.amount.toLocaleString('tr-TR') : 0} ₺
+                        </span>
+                    </div>
+                    <div class="item-sub">
+                        <span>${subText}</span>
+                        <span>${statusBadge} | ${createdAtText}</span>
+                        ${paidAtText ? `<span>${paidAtText}</span>` : ''}
+                        ${whoToPayNotice}
+                    </div>
+                    <div class="item-actions">
+                        ${!isPaid ? `<button class="btn-pay-now" onclick="markAsPaid('${tx.id}')">✅ Şimdi Öde</button>` : '<span></span>'}
+                        <div style="display:flex; gap:0.3rem; flex-wrap:wrap;">
+                            ${whatsappBtnHTML}
+                            ${photoButtonHTML}
+                            ${hasModAccess ? `<button class="btn-edit" onclick="editTx('${tx.id}')">✏️</button>` : ''}
+                            ${hasModAccess ? `<button class="btn-del" onclick="deleteTx('${tx.id}')">🗑️</button>` : ''}
+                        </div>
+                    </div>
+                `;
+                txList.appendChild(li);
+            });
         }
     </script>
 </body>
