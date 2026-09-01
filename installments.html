@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tüm Taksit Kayıtları</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 12px; line-height: 1.5; }
+    .container { max-width: 1400px; margin: 0 auto; }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px; }
+    nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    nav a { color: var(--text-muted); text-decoration: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; background: var(--card-bg); border: 1px solid var(--border-color); font-size: 0.85rem; }
+    nav a.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .status-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-muted); }
+
+    .btn { background-color: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+    .btn-danger { background-color: var(--danger); }
+    .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+
+    .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
+    .card-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 6px; }
+
+    .table-wrapper { overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+    th { color: var(--text-muted); font-weight: 600; }
+
+    .badge { padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: inline-block; }
+    .badge-person { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .badge-market { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge-pazar { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .badge-general { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>📝 Tüm Taksit Kayıtları</h1>
+    <nav>
+      <a href="index.html">📊 Dashboard</a>
+      <a href="cards.html">💳 Kartlar & Kesimler</a>
+      <a href="installments.html" class="active">📝 Taksit Kayıtları</a>
+    </nav>
+    <span id="sync-status" class="status-badge">🔄 Yükleniyor...</span>
+  </header>
+
+  <div class="card">
+    <div class="card-title">📋 Sistemdeki Tüm Taksitli Harcamalar</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Başlangıç Ayı</th>
+            <th>Kategori / Kişi</th>
+            <th>Açıklama</th>
+            <th>Kart</th>
+            <th>Toplam Tutar</th>
+            <th>Taksit Sayısı</th>
+            <th>Aylık Tutar</th>
+            <th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody id="all-installments-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const DB_URL = "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app/taksitTakip.json";
+
+  let cards = [];
+  let persons = [];
+  let installments = [];
+
+  async function initApp() {
+    await fetchFromFirebase();
+  }
+
+  function setStatus(text, color) {
+    const statusEl = document.getElementById('sync-status');
+    if (statusEl) {
+      statusEl.innerText = text;
+      statusEl.style.color = color || 'var(--text-muted)';
+    }
+  }
+
+  async function fetchFromFirebase() {
+    setStatus('🔄 Senkronize ediliyor...', 'var(--warning)');
+    try {
+      const response = await fetch(DB_URL);
+      if (response.ok) {
+        const data = await response.json();
+        if (data) {
+          cards = data.cards || [];
+          persons = data.persons || [];
+          installments = data.installments || [];
+        }
+        setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+      } else {
+        setStatus('🔴 Sunucu Hatası', 'var(--danger)');
+      }
+    } catch (err) {
+      setStatus('🔴 Bağlantı Kesildi', 'var(--danger)');
+    }
+    renderInstallmentsPage();
+  }
+
+  async function saveToFirebase() {
+    setStatus('⏳ Kaydediliyor...', 'var(--warning)');
+    try {
+      const payload = { cards, persons, installments };
+      const res = await fetch(DB_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+    } catch (err) {
+      setStatus('🔴 Kayıt Hatası', 'var(--danger)');
+    }
+  }
+
+  function formatCurrency(val) {
+    return (val || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺';
+  }
+
+  window.onload = () => initApp();
+
+  function renderInstallmentsPage() {
+    const tbody = document.getElementById('all-installments-tbody');
+    tbody.innerHTML = '';
+
+    installments.forEach(item => {
+      const cardObj = cards.find(c => c.id == item.cardId);
+      const personObj = persons.find(p => p.id == item.personId);
+      
+      let categoryBadge = `<span class="badge badge-general">${item.category}</span>`;
+      if (item.category === 'Kişisel' && personObj) {
+        categoryBadge = `<span class="badge badge-person">👤 ${personObj.name}</span>`;
+      } else if (item.category === 'Market') {
+        categoryBadge = `<span class="badge badge-market">🛒 Market</span>`;
+      } else if (item.category === 'Pazar') {
+        categoryBadge = `<span class="badge badge-pazar">🧺 Pazar</span>`;
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${item.startMonth}</td>
+        <td>${categoryBadge}</td>
+        <td><b>${item.title}</b></td>
+        <td>${cardObj ? cardObj.name : '-'}</td>
+        <td>${formatCurrency(item.totalAmount)}</td>
+        <td>${item.totalInstallments} Ay</td>
+        <td><b>${formatCurrency(item.monthlyAmount)}</b></td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteInstallment(${item.id})">🗑️ Sil</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function deleteInstallment(id) {
+    if(confirm('Bu taksit kaydını silmek istediğinize emin misiniz?')) {
+      installments = installments.filter(i => i.id !== id);
+      await saveToFirebase();
+      renderInstallmentsPage();
+    }
+  }
+</script>
+</body>
+</html>

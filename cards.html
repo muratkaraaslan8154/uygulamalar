@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kredi Kartları & Kesim Günleri</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 12px; line-height: 1.5; }
+    .container { max-width: 1400px; margin: 0 auto; }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px; }
+    nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    nav a { color: var(--text-muted); text-decoration: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; background: var(--card-bg); border: 1px solid var(--border-color); font-size: 0.85rem; }
+    nav a.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .status-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-muted); }
+
+    .btn { background-color: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+    .btn:hover { background-color: var(--primary-hover); }
+    .btn-danger { background-color: var(--danger); }
+    .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
+    .card-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 6px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 0.8rem; color: var(--text-muted); }
+    .form-group input { background: #0f172a; border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 8px; }
+
+    .table-wrapper { overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+    th { color: var(--text-muted); font-weight: 600; }
+
+    .badge { padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: inline-block; }
+    .badge-pazar { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>💳 Kredi Kartı Yönetimi</h1>
+    <nav>
+      <a href="index.html">📊 Dashboard</a>
+      <a href="cards.html" class="active">💳 Kartlar & Kesimler</a>
+      <a href="installments.html">📝 Taksit Kayıtları</a>
+    </nav>
+    <span id="sync-status" class="status-badge">🔄 Yükleniyor...</span>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">➕ Yeni Kredi Kartı Ekle</div>
+      <form onsubmit="handleAddCard(event)">
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>Kart Adı</label>
+          <input type="text" id="card-name" placeholder="Örn: Bonus Garanti" required>
+        </div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>Hesap Kesim Günü (1 - 31)</label>
+          <input type="number" id="card-cutoff" min="1" max="31" placeholder="15" required>
+        </div>
+        <button type="submit" class="btn btn-sm">Kaydet</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👤 Kişi Tanımla</div>
+      <form onsubmit="handleAddPerson(event)">
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>Kişi Adı</label>
+          <input type="text" id="person-name" placeholder="Örn: Ahmet" required>
+        </div>
+        <button type="submit" class="btn btn-sm">Kişi Ekle</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💳 Tanımlı Kredi Kartları ve Hesap Kesim Durumları</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Kart Adı</th>
+            <th>Hesap Kesim Günü</th>
+            <th>Sonraki Kesime Kalan Süre</th>
+            <th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody id="cards-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const DB_URL = "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app/taksitTakip.json";
+
+  let cards = [];
+  let persons = [];
+  let installments = [];
+
+  async function initApp() {
+    await fetchFromFirebase();
+  }
+
+  function setStatus(text, color) {
+    const statusEl = document.getElementById('sync-status');
+    if (statusEl) {
+      statusEl.innerText = text;
+      statusEl.style.color = color || 'var(--text-muted)';
+    }
+  }
+
+  async function fetchFromFirebase() {
+    setStatus('🔄 Senkronize ediliyor...', 'var(--warning)');
+    try {
+      const response = await fetch(DB_URL);
+      if (response.ok) {
+        const data = await response.json();
+        if (data) {
+          cards = data.cards || [];
+          persons = data.persons || [];
+          installments = data.installments || [];
+        }
+        setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+      } else {
+        setStatus('🔴 Sunucu Hatası', 'var(--danger)');
+      }
+    } catch (err) {
+      setStatus('🔴 Bağlantı Kesildi', 'var(--danger)');
+    }
+    renderCardsPage();
+  }
+
+  async function saveToFirebase() {
+    setStatus('⏳ Kaydedidediliyor...', 'var(--warning)');
+    try {
+      const payload = { cards, persons, installments };
+      const res = await fetch(DB_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+    } catch (err) {
+      setStatus('🔴 Kayıt Hatası', 'var(--danger)');
+    }
+  }
+
+  function getDaysUntilCutoff(cutoffDay) {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    let targetDate = new Date(currentYear, currentMonth, cutoffDay);
+    if (today.getDate() > cutoffDay) {
+      targetDate = new Date(currentYear, currentMonth + 1, cutoffDay);
+    }
+    const diffTime = targetDate - new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  window.onload = () => initApp();
+
+  function renderCardsPage() {
+    const tbody = document.getElementById('cards-table-body');
+    tbody.innerHTML = '';
+
+    cards.forEach(card => {
+      const remainingDays = getDaysUntilCutoff(card.cutoffDay);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><b>${card.name}</b></td>
+        <td>Her ayın ${card.cutoffDay}'i</td>
+        <td><span class="badge badge-pazar">⏳ ${remainingDays} Gün Kaldı</span></td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteCard(${card.id})">Sil</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function handleAddCard(e) {
+    e.preventDefault();
+    cards.push({
+      id: Date.now(),
+      name: document.getElementById('card-name').value,
+      cutoffDay: parseInt(document.getElementById('card-cutoff').value)
+    });
+    await saveToFirebase();
+    renderCardsPage();
+  }
+
+  async function handleAddPerson(e) {
+    e.preventDefault();
+    persons.push({
+      id: Date.now(),
+      name: document.getElementById('person-name').value
+    });
+    await saveToFirebase();
+    alert('Kişi Eklendi!');
+  }
+
+  async function deleteCard(id) {
+    if(confirm('Bu kartı silmek istediğinize emin misiniz?')) {
+      cards = cards.filter(c => c.id !== id);
+      await saveToFirebase();
+      renderCardsPage();
+    }
+  }
+</script>
+</body>
+</html>

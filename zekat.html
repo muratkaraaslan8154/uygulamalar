@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tarih Takipli Zekat & Portföy Portalı</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #151d30;
+      --card-inner: #0f172a;
+      --border-color: #24324d;
+      --border-hover: #3b82f6;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --gold: #fbbf24;
+    }
+
+    table th, table td {
+      padding: 5px 8px !important;
+      font-size: 13px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    
+    html, body {
+      height: 100vh;
+      max-height: 100vh;
+      overflow-y: auto;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-size: 0.88rem;
+      padding: 10px;
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg-color); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    .container {
+      max-width: 1720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 8px 8px 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    header h1 { 
+      font-size: 1.25rem; 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      font-weight: 800; 
+      letter-spacing: -0.3px;
+      background: linear-gradient(90deg, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-badge { 
+      font-size: 0.75rem; 
+      padding: 4px 10px; 
+      border-radius: 20px; 
+      background: rgba(255, 255, 255, 0.03); 
+      border: 1px solid var(--border-color); 
+      color: var(--text-muted); 
+      font-weight: 600; 
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .market-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 8px;
+      background: var(--card-bg);
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .market-item { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 3px; 
+      background: var(--card-inner);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(251, 191, 36, 0.2);
+    }
+    .market-item label { font-size: 0.7rem; color: var(--gold); font-weight: 700; }
+    .market-item input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.92rem;
+      height: 24px;
+      outline: none;
+    }
+    .market-item input:focus { border-bottom: 2px solid var(--gold); }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 8px;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: var(--border-color);
+    }
+    .kpi-card.highlight::before { background: var(--gold); }
+    .kpi-card.warning::before { background: var(--warning); }
+    .kpi-card.danger::before { background: var(--danger); }
+    .kpi-card.success::before { background: var(--success); }
+
+    .kpi-title { font-size: 0.68rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
+    .kpi-val-main { font-size: 1.15rem; font-weight: 800; color: var(--text-main); }
+    .kpi-val-sub { font-size: 0.75rem; color: var(--gold); font-weight: 600; line-height: 1.3; }
+
+    .breakdown-box {
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .breakdown-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+    .breakdown-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+    .breakdown-item .title { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
+    .breakdown-item .due-val { font-size: 0.82rem; font-weight: 800; color: var(--gold); }
+    .breakdown-item .due-val-est { font-size: 0.82rem; font-weight: 800; color: var(--warning); }
+    .breakdown-item .rem-val { font-size: 0.82rem; font-weight: 800; color: var(--danger); }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .left-form-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .form-section { display: flex; flex-direction: column; gap: 6px; }
+    .form-group { display: flex; flex-direction: column; gap: 3px; }
+    .form-group label { font-size: 0.73rem; color: var(--text-muted); font-weight: 600; }
+    
+    input[type="number"], input[type="text"], input[type="date"], select {
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      height: 32px;
+      width: 100%;
+      transition: all 0.2s ease;
+    }
+    input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+
+    .btn-group-preset { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+    .btn-preset {
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btn-preset:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+    }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-success { background-color: var(--success); }
+    .btn-warning { background-color: var(--warning); color: #000; }
+    .btn-danger { background-color: var(--danger); padding: 3px 6px; font-size: 0.75rem; }
+
+    .table-wrapper { 
+      flex: 1; 
+      overflow-y: auto; 
+      overflow-x: auto; 
+      min-height: 250px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; table-layout: fixed; }
+    th, td { 
+      text-align: left; 
+      padding: 4px 10px; 
+      border-bottom: 1px solid var(--border-color); 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+    }
+    th { 
+      color: var(--text-muted); 
+      font-weight: 700; 
+      position: sticky; 
+      top: 0; 
+      background: var(--card-inner); 
+      z-index: 2; 
+      font-size: 0.74rem; 
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+
+    .badge { padding: 3px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .pagination-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    /* ÖDEMELER DÜZENLEMESİ (OTOMATİK YÜKSEKLİK & DARALAN ÇERÇEVE) */
+    .history-card { 
+      height: auto !important; 
+      min-height: 0 !important; 
+    }
+    .history-card .table-wrapper { 
+      min-height: 0 !important; 
+      flex: none !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>🕌 Tarih Takipli Zekat Portalı</h1>
+    <div class="header-controls">
+      <button class="btn btn-preset" onclick="fetchFromYtHtml(false)" title="yt.html ve Veritabanından verileri çek">🌐 yt.html Verisi Çek</button>
+      <input type="file" id="json-file-input" accept=".json" style="display:none;" onchange="importJSON(event)">
+      <button class="btn btn-preset" onclick="document.getElementById('json-file-input').click()" title="JSON Yükle">📥 JSON Yükle</button>
+      <button class="btn btn-preset" onclick="exportJSON()" title="JSON İndir">📤 JSON İndir</button>
+      <span id="sync-status" class="status-badge">🔄 Yükleniyor...</span>
+    </div>
+  </header>
+
+  <!-- PİYASA PANELİ -->
+  <div class="market-bar">
+    <div class="market-item">
+      <label>👑 24K Gram Altın (TL)</label>
+      <input type="number" id="price-gold-24k" value="3150" step="0.1" oninput="handle24kChange()">
+    </div>
+    <div class="market-item">
+      <label>💍 22 Ayar Gram Altın (TL)</label>
+      <input type="number" id="price-gold-22k" value="2887.5" step="0.1" oninput="handleMarketChange()">
+    </div>
+    <div class="market-item">
+      <label>⚪ Gümüş (TL/gr)</label>
+      <input type="number" id="price-silver" value="38" step="0.1" oninput="handleMarketChange()">
+    </div>
+    <div class="market-item">
+      <label>💵 Dolar (USD/TL)</label>
+      <input type="number" id="price-usd" value="34.80" step="0.01" oninput="handleMarketChange()">
+    </div>
+    <div class="market-item">
+      <label>💶 Euro (EUR/TL)</label>
+      <input type="number" id="price-eur" value="36.50" step="0.01" oninput="handleMarketChange()">
+    </div>
+  </div>
+
+  <!-- KPI KARTLARI -->
+  <div class="kpi-grid">
+    <div class="kpi-card highlight">
+      <div class="kpi-title">GENEL TOPLAM VARLIK</div>
+      <div class="kpi-val-main" id="kpi-total-try">₺0,00</div>
+      <div class="kpi-val-sub" id="kpi-nisab-status">Nisap Eşiği: 80.18 gr Saf Altın</div>
+    </div>
+    <div class="kpi-card warning">
+      <div class="kpi-title">TAHAKKUK EDEN VARLIK (SÜRESİ DOLAN)</div>
+      <div class="kpi-val-main" id="kpi-matured-try" style="color:var(--warning)">₺0,00</div>
+      <div class="kpi-val-sub">1 Yılı (354 Gün) Dolduran Varlıklar</div>
+    </div>
+    <div class="kpi-card highlight">
+      <div class="kpi-title">TAHAKKUK EDEN TOPLAM ZEKAT</div>
+      <div class="kpi-val-main" id="kpi-zakat-due-try" style="color:var(--gold)">₺0,00</div>
+      <div class="kpi-val-sub">Tüm Varlıklar (1/40 - %2.5)</div>
+    </div>
+    <div class="kpi-card success">
+      <div class="kpi-title">ÖDENEN TOPLAM ZEKAT</div>
+      <div class="kpi-val-main" id="kpi-paid-try" style="color:var(--success)">₺0,00</div>
+      <div class="kpi-val-sub">Ödeme Kayıtları Toplamı</div>
+    </div>
+    <div class="kpi-card danger">
+      <div class="kpi-title">KALAN ZEKAT BORCU (GÜNCEL)</div>
+      <div class="kpi-val-main" id="kpi-remaining-try" style="color:var(--danger)">₺0,00</div>
+      <div class="kpi-val-sub" style="color:var(--danger)">Öncelik: Altın➜Gümüş➜USD➜EUR➜TL</div>
+    </div>
+  </div>
+
+  <!-- ZEKAT DETAY BARI -->
+  <div class="breakdown-box">
+    <div class="card-title" style="color:var(--gold)">📊 Kategori Bazlı Zekat Tahakkuk ve Düşüm Durumu</div>
+    <div class="breakdown-grid" id="breakdown-grid"></div>
+  </div>
+
+  <!-- ANA İÇERİK DÜZENİ -->
+  <div class="main-grid">
+
+    <!-- SOL PANEL: FORM KARTI -->
+    <div class="card left-form-card">
+      <div class="form-section">
+        <div class="card-title" id="asset-form-title">➕ Yeni Tarihli Varlık Ekle</div>
+        <form onsubmit="handleAddAsset(event)">
+          <div class="form-group">
+            <label>Varlık Türü</label>
+            <select id="asset-type" onchange="handleTypeChange()">
+              <option value="24K">🥇 24 Ayar Saf Altın (Gram)</option>
+              <option value="22K_BURMA">💍 22 Ayar Burma Bilezik (Gram)</option>
+              <option value="22K_AJDA">✨ 22 Ayar Ajda Bilezik (Gram)</option>
+              <option value="22K_OTHER">🔸 Diğer 22 Ayar Altın / Takı (Gram)</option>
+              <option value="CEYREK">🟡 Çeyrek Altın (Adet)</option>
+              <option value="YARIM">🟡 Yarım Altın (Adet)</option>
+              <option value="TAM">🟡 Tam Ziynet Altın (Adet)</option>
+              <option value="SILVER">⚪ Gümüş (Gram)</option>
+              <option value="TRY">₺ Türk Lirası Nakit</option>
+              <option value="USD">💵 Dolar (USD)</option>
+              <option value="EUR">💶 Euro (EUR)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label id="lbl-amount">Gram Miktarı</label>
+            <input type="number" id="asset-amount" step="0.01" placeholder="Örn: 10" required>
+            <div class="btn-group-preset" id="preset-buttons">
+              <button type="button" class="btn-preset" onclick="setPreset(0.25)">+0.25</button>
+              <button type="button" class="btn-preset" onclick="setPreset(0.5)">+0.5</button>
+              <button type="button" class="btn-preset" onclick="setPreset(1)">+1</button>
+              <button type="button" class="btn-preset" onclick="setPreset(5)">+5</button>
+              <button type="button" class="btn-preset" onclick="setPreset(10)">+10</button>
+              <button type="button" class="btn-preset" onclick="setPreset(20)">+20</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Alış / Edinme Tarihi</label>
+            <input type="date" id="asset-date" required>
+          </div>
+
+          <div class="form-group">
+            <label>Açıklama / Etiket</label>
+            <input type="text" id="asset-note" placeholder="Örn: 2024 Düğün Takıları">
+          </div>
+
+          <div style="display:flex; gap:6px; margin-top:4px;">
+            <button type="submit" id="btn-submit-asset" class="btn btn-success" style="flex:1;">💾 Varlığı Kaydet</button>
+            <button type="button" id="btn-cancel-asset" class="btn btn-danger" onclick="cancelAssetEdit()" style="display:none;">❌ İptal</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ZEKAT ÖDEME FORMU -->
+      <div class="form-section" style="border-top:1px solid var(--border-color); padding-top:8px;">
+        <div class="card-title" id="payment-form-title" style="color:var(--success); margin-bottom:4px;">💳 Zekat Ödemesi Yap / Düş</div>
+        <form onsubmit="handlePaymentSubmit(event)">
+          <div class="form-group">
+            <label>Ödenen Tutar (₺)</label>
+            <input type="number" id="pay-amount-try" placeholder="Örn: 5000" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label>Açıklama / Makbuz</label>
+            <input type="text" id="pay-note" placeholder="Örn: Öğrenci Bursu / Yoksul Yardımı">
+          </div>
+          <div style="display:flex; gap:6px; margin-top:4px;">
+            <button type="submit" id="btn-submit-pay" class="btn" style="flex:1; background:var(--gold); color:#000;">💸 Zekat Ödemesini Düş</button>
+            <button type="button" id="btn-cancel-pay" class="btn btn-danger" onclick="cancelPaymentEdit()" style="display:none;">❌ İptal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- SAĞ PANEL: VARLIK TABLOSU -->
+    <div class="card">
+      <div class="card-title">📋 Kayıtlı Varlıklar & Zekat Tahakkuk Durumu (1/40)</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:22%">Varlık / Açıklama</th>
+              <th style="width:12%">Miktar</th>
+              <th style="width:12%">Alış Tarihi</th>
+              <th style="width:12%">Geçen Süre</th>
+              <th style="width:14%">Tahakkuk Zekat (1/40)</th>
+              <th style="width:14%">Güncel TL</th>
+              <th style="width:14%">Zekat Durumu</th>
+              <th style="width:10%">İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="assets-tbody"></tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <button class="btn btn-preset" onclick="changeAssetPage(-1)">◀ Önceki</button>
+        <span id="asset-page-info">Sayfa 1 / 1</span>
+        <button class="btn btn-preset" onclick="changeAssetPage(1)">Sonraki ▶</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ÖDEME GEÇMİŞİ TABLOSU (DÜZENLENDİ) -->
+  <div class="card history-card">
+    <div class="card-title">📜 Yapılan Zekat Ödemeleri Geçmişi</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Ödeme Tarihi</th>
+            <th>Açıklama</th>
+            <th>Ödenen Tutar (TL)</th>
+            <th>İşlem Anı 24K Altın Fiyatı</th>
+            <th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody id="payment-history-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination-bar">
+      <button class="btn btn-preset" onclick="changePaymentPage(-1)">◀ Önceki</button>
+      <span id="payment-page-info">Sayfa 1 / 1</span>
+      <button class="btn btn-preset" onclick="changePaymentPage(1)">Sonraki ▶</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const DB_URL = "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app/zekatTakip.json";
+  const YT_DB_URL = "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app/yatirimPortfoy.json";
+
+  const PURITY_22K = 22 / 24;
+  const CEYREK_PURE = 1.75 * PURITY_22K;
+  const YARIM_PURE = 3.50 * PURITY_22K;
+  const TAM_PURE = 7.00 * PURITY_22K;
+  const HAWL_DAYS = 354; 
+  const NISAB_GOLD_GRAMS = 80.18; // Dinen nisap eşiği (80.18 gram saf altın)
+
+  let assets = [];
+  let payments = [];
+  let prices = { gold24k: 3150, gold22k: 2887.5, silver: 38, usd: 34.80, eur: 36.50 };
+  
+  let editingAssetId = null;
+  let editingPaymentId = null;
+  let saveDebounceTimer = null;
+
+  let currentAssetPage = 1;
+  const assetPageSize = 8; 
+
+  let currentPaymentPage = 1;
+  const paymentPageSize = 4;
+
+  window.onload = async () => {
+    document.getElementById('asset-date').value = new Date().toISOString().slice(0, 10);
+    await fetchFromFirebase();
+    await fetchFromYtHtml(true);
+  };
+
+  function parseDate(dateStr) {
+    if (!dateStr) return new Date();
+    if (typeof dateStr === 'string') {
+      if (dateStr.includes('.')) {
+        const parts = dateStr.split('.');
+        if (parts.length === 3) {
+          return new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}T00:00:00`);
+        }
+      }
+      if (dateStr.includes('/')) {
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+          return new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}T00:00:00`);
+        }
+      }
+      if (dateStr.length === 10) return new Date(dateStr + 'T00:00:00');
+    }
+    return new Date(dateStr);
+  }
+
+  function normalizeDateStr(dateStr) {
+    const d = parseDate(dateStr);
+    if (isNaN(d.getTime())) return new Date().toISOString().slice(0, 10);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function setStatus(text, color) {
+    const statusEl = document.getElementById('sync-status');
+    if (statusEl) {
+      statusEl.innerText = text;
+      statusEl.style.color = color || 'var(--text-muted)';
+      statusEl.style.borderColor = color || 'var(--border-color)';
+    }
+  }
+
+  async function fetchFromFirebase() {
+    setStatus('🔄 Yükleniyor...', 'var(--warning)');
+    try {
+      const response = await fetch(DB_URL);
+      if (response.ok) {
+        const data = await response.json();
+        if (data) {
+          assets = data.assets || [];
+          payments = data.payments || [];
+          if (data.prices) {
+            prices = data.prices;
+            if (prices.gold24k) document.getElementById('price-gold-24k').value = prices.gold24k;
+            if (prices.gold22k) {
+              document.getElementById('price-gold-22k').value = prices.gold22k;
+            } else if (prices.gold24k) {
+              document.getElementById('price-gold-22k').value = (prices.gold24k * PURITY_22K).toFixed(2);
+            }
+            if (prices.silver) document.getElementById('price-silver').value = prices.silver;
+            if (prices.usd) document.getElementById('price-usd').value = prices.usd;
+            if (prices.eur) document.getElementById('price-eur').value = prices.eur;
+          }
+        }
+        setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+      } else {
+        setStatus('🔴 Sunucu Hatası', 'var(--danger)');
+      }
+    } catch (err) {
+      setStatus('🔴 Bağlantı Kesildi', 'var(--danger)');
+    }
+    calculateAll(false);
+  }
+
+  async function saveToFirebase() {
+    setStatus('⏳ Kaydediliyor...', 'var(--warning)');
+    
+    prices = {
+      gold24k: parseFloat(document.getElementById('price-gold-24k').value) || 0,
+      gold22k: parseFloat(document.getElementById('price-gold-22k').value) || 0,
+      silver: parseFloat(document.getElementById('price-silver').value) || 0,
+      usd: parseFloat(document.getElementById('price-usd').value) || 0,
+      eur: parseFloat(document.getElementById('price-eur').value) || 0
+    };
+
+    try {
+      const payload = { assets, payments, prices };
+      const res = await fetch(DB_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+      } else {
+        setStatus('🔴 Kayıt Hatası', 'var(--danger)');
+      }
+    } catch (err) {
+      setStatus('🔴 Kayıt Hatası', 'var(--danger)');
+    }
+  }
+
+  async function fetchFromYtHtml(isSilent = false) {
+    if (!isSilent) setStatus('🔄 DB çekiliyor...', 'var(--warning)');
+    let ratesUpdated = false;
+    let importedTradesCount = 0;
+
+    try {
+      const dbRes = await fetch(YT_DB_URL + '?nocache=' + Date.now());
+      if (!dbRes.ok) throw new Error(`HTTP Hata: ${dbRes.status}`);
+
+      const ytData = await dbRes.json();
+
+      if (ytData) {
+        const goldPrice = ytData.rates?.altin || ytData.altin || ytData.gold || ytData.price24k;
+        const silverPrice = ytData.rates?.gumus || ytData.gumus || ytData.silver;
+        const usdPrice = ytData.rates?.dolar || ytData.dolar || ytData.usd;
+        const eurPrice = ytData.rates?.euro || ytData.euro || ytData.eur;
+
+        if (goldPrice) {
+          document.getElementById('price-gold-24k').value = goldPrice;
+          document.getElementById('price-gold-22k').value = (goldPrice * PURITY_22K).toFixed(2);
+          ratesUpdated = true;
+        }
+        if (silverPrice) {
+          document.getElementById('price-silver').value = silverPrice;
+          ratesUpdated = true;
+        }
+        if (usdPrice) {
+          document.getElementById('price-usd').value = usdPrice;
+          ratesUpdated = true;
+        }
+        if (eurPrice) {
+          document.getElementById('price-eur').value = eurPrice;
+          ratesUpdated = true;
+        }
+
+        const rawTrades = ytData.trades || ytData.islemler || (Array.isArray(ytData) ? ytData : []);
+
+        if (Array.isArray(rawTrades)) {
+          const currentRemoteYtIds = [];
+
+          rawTrades.forEach((t, index) => {
+            const ytUniqueId = "YT_" + (t.id || index);
+            currentRemoteYtIds.push(ytUniqueId);
+
+            let typeMapped = '24K';
+            const assetName = (t.asset || t.tur || t.cinsi || t.name || '').toLowerCase();
+
+            if (assetName.includes('gumus') || assetName.includes('gümüş')) {
+              typeMapped = 'SILVER';
+            } else if (assetName.includes('dolar') || assetName.includes('usd')) {
+              typeMapped = 'USD';
+            } else if (assetName.includes('euro') || assetName.includes('eur')) {
+              typeMapped = 'EUR';
+            } else if (assetName.includes('tl') || assetName.includes('try') || assetName.includes('nakit') || assetName.includes('lira')) {
+              typeMapped = 'TRY';
+            } else if (assetName.includes('22') || assetName.includes('bilezik')) {
+              typeMapped = '22K_OTHER';
+            } else if (assetName.includes('çeyrek') || assetName.includes('ceyrek')) {
+              typeMapped = 'CEYREK';
+            } else if (assetName.includes('yarım') || assetName.includes('yarim')) {
+              typeMapped = 'YARIM';
+            } else if (assetName.includes('tam')) {
+              typeMapped = 'TAM';
+            }
+
+            const existingIndex = assets.findIndex(a => a.yt_id === ytUniqueId);
+            const assetAmount = parseFloat(t.amount || t.miktar || t.gram || t.adet || 0);
+            const rawDate = t.date || t.tarih || new Date().toISOString().slice(0, 10);
+            const assetDate = normalizeDateStr(rawDate);
+            const assetNote = t.note || t.aciklama || `yt.html Kaydı (${assetName || typeMapped})`;
+
+            if (existingIndex !== -1) {
+              assets[existingIndex].type = typeMapped;
+              assets[existingIndex].amount = assetAmount;
+              assets[existingIndex].date = assetDate;
+              assets[existingIndex].note = assetNote;
+            } else {
+              assets.push({
+                id: ytUniqueId,
+                yt_id: ytUniqueId,
+                type: typeMapped,
+                amount: assetAmount,
+                date: assetDate,
+                note: assetNote
+              });
+              importedTradesCount++;
+            }
+          });
+
+          assets = assets.filter(a => !a.yt_id || currentRemoteYtIds.includes(a.yt_id));
+        }
+      }
+    } catch (err) {
+      console.error("DB Çekme Hatası:", err);
+      if (!isSilent) alert(`DB Bağlantı Hatası: ${err.message}`);
+    }
+
+    calculateAll(true);
+
+    if (ratesUpdated || importedTradesCount > 0) {
+      setStatus('🟢 DB Güncellendi', 'var(--success)');
+      if (!isSilent) alert(`Firebase DB'den aktarıldı!\n• Güncellenen/Eklenen Varlık: ${importedTradesCount} adet`);
+    } else {
+      setStatus('🔴 Veri Çekilemedi', 'var(--danger)');
+    }
+  }
+
+  function exportJSON() {
+    const dataObj = {
+      assets,
+      payments,
+      prices: {
+        gold24k: parseFloat(document.getElementById('price-gold-24k').value) || 0,
+        gold22k: parseFloat(document.getElementById('price-gold-22k').value) || 0,
+        silver: parseFloat(document.getElementById('price-silver').value) || 0,
+        usd: parseFloat(document.getElementById('price-usd').value) || 0,
+        eur: parseFloat(document.getElementById('price-eur').value) || 0
+      },
+      exportDate: new Date().toISOString()
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataObj, null, 2));
+    const dlAnchor = document.createElement('a');
+    dlAnchor.setAttribute("href", dataStr);
+    dlAnchor.setAttribute("download", `zekat_portfoy_yedek_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(dlAnchor);
+    dlAnchor.click();
+    dlAnchor.remove();
+  }
+
+  function importJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        const importedData = JSON.parse(e.target.result);
+        if (importedData.assets) assets = importedData.assets;
+        if (importedData.payments) payments = importedData.payments;
+        if (importedData.prices) {
+          prices = importedData.prices;
+          if (prices.gold24k) document.getElementById('price-gold-24k').value = prices.gold24k;
+          if (prices.gold22k) document.getElementById('price-gold-22k').value = prices.gold22k;
+          if (prices.silver) document.getElementById('price-silver').value = prices.silver;
+          if (prices.usd) document.getElementById('price-usd').value = prices.usd;
+          if (prices.eur) document.getElementById('price-eur').value = prices.eur;
+        }
+        calculateAll(true);
+        alert('JSON verisi başarıyla yüklendi!');
+      } catch (err) {
+        alert('Geçersiz JSON dosyası!');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  function handle24kChange() {
+    const p24 = parseFloat(document.getElementById('price-gold-24k').value) || 0;
+    document.getElementById('price-gold-22k').value = (p24 * PURITY_22K).toFixed(2);
+    handleMarketChange();
+  }
+
+  function handleMarketChange() {
+    calculateAll(false);
+    clearTimeout(saveDebounceTimer);
+    saveDebounceTimer = setTimeout(() => {
+      saveToFirebase();
+    }, 800);
+  }
+
+  function setPreset(val) {
+    const input = document.getElementById('asset-amount');
+    const curr = parseFloat(input.value) || 0;
+    input.value = (curr + val).toFixed(2);
+  }
+
+  function handleTypeChange() {
+    const type = document.getElementById('asset-type').value;
+    const lbl = document.getElementById('lbl-amount');
+    if (['CEYREK', 'YARIM', 'TAM'].includes(type)) {
+      lbl.innerText = "Adet";
+    } else if (['TRY', 'USD', 'EUR'].includes(type)) {
+      lbl.innerText = "Tutar / Miktar";
+    } else {
+      lbl.innerText = "Gram Miktarı";
+    }
+  }
+
+  function changeAssetPage(delta) {
+    const maxPages = Math.ceil(assets.length / assetPageSize) || 1;
+    currentAssetPage += delta;
+    if (currentAssetPage < 1) currentAssetPage = 1;
+    if (currentAssetPage > maxPages) currentAssetPage = maxPages;
+    calculateAll(false);
+  }
+
+  function changePaymentPage(delta) {
+    const maxPages = Math.ceil(payments.length / paymentPageSize) || 1;
+    currentPaymentPage += delta;
+    if (currentPaymentPage < 1) currentPaymentPage = 1;
+    if (currentPaymentPage > maxPages) currentPaymentPage = maxPages;
+    renderPaymentHistory();
+  }
+
+  async function handleAddAsset(e) {
+    e.preventDefault();
+    const type = document.getElementById('asset-type').value;
+    const amount = parseFloat(document.getElementById('asset-amount').value) || 0;
+    const date = document.getElementById('asset-date').value;
+    const note = document.getElementById('asset-note').value || '';
+
+    if (amount <= 0 || !date) {
+      alert('Lütfen geçerli miktar ve tarih giriniz.');
+      return;
+    }
+
+    if (editingAssetId !== null) {
+      const idx = assets.findIndex(a => String(a.id) === String(editingAssetId));
+      if (idx !== -1) {
+        assets[idx] = { ...assets[idx], type, amount, date: normalizeDateStr(date), note };
+      }
+      cancelAssetEdit();
+    } else {
+      const newAsset = { id: Date.now(), type, amount, date: normalizeDateStr(date), note };
+      assets.push(newAsset);
+      document.getElementById('asset-amount').value = '';
+      document.getElementById('asset-note').value = '';
+    }
+
+    calculateAll(false);
+    await saveToFirebase();
+  }
+
+  function editAsset(id) {
+    const asset = assets.find(a => String(a.id) === String(id));
+    if (!asset) return;
+
+    editingAssetId = asset.id;
+    document.getElementById('asset-type').value = asset.type;
+    handleTypeChange();
+    document.getElementById('asset-amount').value = asset.amount;
+    document.getElementById('asset-date').value = asset.date;
+    document.getElementById('asset-note').value = asset.note || '';
+
+    document.getElementById('asset-form-title').innerText = "✏️ Varlığı Düzenle";
+    const submitBtn = document.getElementById('btn-submit-asset');
+    submitBtn.innerText = "✏️ Güncelle";
+    submitBtn.className = "btn btn-warning";
+
+    document.getElementById('btn-cancel-asset').style.display = "inline-flex";
+    document.getElementById('asset-amount').focus();
+  }
+
+  function cancelAssetEdit() {
+    editingAssetId = null;
+    document.getElementById('asset-amount').value = '';
+    document.getElementById('asset-note').value = '';
+    document.getElementById('asset-form-title').innerText = "➕ Yeni Tarihli Varlık Ekle";
+    const submitBtn = document.getElementById('btn-submit-asset');
+    submitBtn.innerText = "💾 Varlığı Kaydet";
+    submitBtn.className = "btn btn-success";
+    document.getElementById('btn-cancel-asset').style.display = "none";
+  }
+
+  async function deleteAsset(id) {
+    if (confirm('Bu varlık kaydını silmek istediğinize emin misiniz?')) {
+      if (String(editingAssetId) === String(id)) cancelAssetEdit();
+      assets = assets.filter(a => String(a.id) !== String(id));
+      calculateAll(false);
+      await saveToFirebase();
+    }
+  }
+
+  function editPayment(id) {
+    const p = payments.find(pay => String(pay.id) === String(id));
+    if (!p) return;
+
+    editingPaymentId = p.id;
+    document.getElementById('pay-amount-try').value = p.amountTry;
+    document.getElementById('pay-note').value = p.note || '';
+
+    document.getElementById('payment-form-title').innerText = "✏️ Ödeme Düzenle";
+    const submitBtn = document.getElementById('btn-submit-pay');
+    submitBtn.innerText = "✏️ Güncelle";
+    submitBtn.style.background = "var(--warning)";
+
+    document.getElementById('btn-cancel-pay').style.display = "inline-flex";
+    document.getElementById('pay-amount-try').focus();
+  }
+
+  function cancelPaymentEdit() {
+    editingPaymentId = null;
+    document.getElementById('pay-amount-try').value = '';
+    document.getElementById('pay-note').value = '';
+    document.getElementById('payment-form-title').innerText = "💳 Zekat Ödemesi Yap / Düş";
+    
+    const submitBtn = document.getElementById('btn-submit-pay');
+    submitBtn.innerText = "💸 Zekat Ödemesini Düş";
+    submitBtn.style.background = "var(--gold)";
+
+    document.getElementById('btn-cancel-pay').style.display = "none";
+  }
+
+  async function handlePaymentSubmit(e) {
+    e.preventDefault();
+    const amountTry = parseFloat(document.getElementById('pay-amount-try').value) || 0;
+    const note = document.getElementById('pay-note').value || 'Zekat Ödemesi';
+    const price24k = parseFloat(document.getElementById('price-gold-24k').value) || 0;
+
+    if (amountTry <= 0) {
+      alert('Lütfen geçerli bir ödeme tutarı giriniz.');
+      return;
+    }
+
+    if (editingPaymentId !== null) {
+      const idx = payments.findIndex(p => String(p.id) === String(editingPaymentId));
+      if (idx !== -1) {
+        payments[idx] = { ...payments[idx], amountTry, price24kAtPayment: price24k, note };
+      }
+      cancelPaymentEdit();
+    } else {
+      const newPayment = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString('tr-TR'),
+        amountTry: amountTry,
+        price24kAtPayment: price24k,
+        note: note
+      };
+      payments.push(newPayment);
+      document.getElementById('pay-amount-try').value = '';
+      document.getElementById('pay-note').value = '';
+    }
+
+    calculateAll(false);
+    await saveToFirebase();
+  }
+
+  async function deletePayment(id) {
+    if (confirm('Bu ödeme kaydını silmek istediğinize emin misiniz?')) {
+      if (String(editingPaymentId) === String(id)) cancelPaymentEdit();
+      payments = payments.filter(p => String(p.id) !== String(id));
+      calculateAll(false);
+      await saveToFirebase();
+    }
+  }
+
+  /* GÜNCELLENMİŞ HESAPLAMA MOTORU (TAHMİNİ TAHAKKUK EKLENDİ) */
+  function calculateAll(triggerSave = false) {
+    const price24k = parseFloat(document.getElementById('price-gold-24k').value) || 0;
+    const price22k = parseFloat(document.getElementById('price-gold-22k').value) || (price24k * PURITY_22K);
+    const priceSilver = parseFloat(document.getElementById('price-silver').value) || 0;
+    const priceUsd = parseFloat(document.getElementById('price-usd').value) || 0;
+    const priceEur = parseFloat(document.getElementById('price-eur').value) || 0;
+
+    let totalTryVal = 0;
+    let maturedTryVal = 0;
+
+    // Kesinleşmiş (1 Yılı Dolmuş) Tahakkuklar
+    let zakatDueGold24kGrams = 0;
+    let zakatDueSilverGrams = 0;
+    let zakatDueUsd = 0;
+    let zakatDueEur = 0;
+    let zakatDueTry = 0;
+
+    // Tahmini Tahakkuklar
+    let estZakatGold24kGrams = 0;
+    let estZakatSilverGrams = 0;
+    let estZakatUsd = 0;
+    let estZakatEur = 0;
+    let estZakatTry = 0;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // 1. Varlık Bazlı Tutarları ve Süreleri Hesapla
+    assets.forEach(asset => {
+      let pure24k = 0;
+      let tryVal = 0;
+
+      switch (asset.type) {
+        case '24K': 
+          pure24k = asset.amount; 
+          tryVal = pure24k * price24k;
+          break;
+        case '22K_BURMA': 
+        case '22K_AJDA': 
+        case '22K_OTHER': 
+          pure24k = asset.amount * PURITY_22K; 
+          tryVal = asset.amount * price22k;
+          break;
+        case 'CEYREK': 
+          pure24k = asset.amount * CEYREK_PURE; 
+          tryVal = pure24k * price24k;
+          break;
+        case 'YARIM': 
+          pure24k = asset.amount * YARIM_PURE; 
+          tryVal = pure24k * price24k;
+          break;
+        case 'TAM': 
+          pure24k = asset.amount * TAM_PURE; 
+          tryVal = pure24k * price24k;
+          break;
+        case 'SILVER': 
+          tryVal = asset.amount * priceSilver;
+          break;
+        case 'TRY':
+          tryVal = asset.amount;
+          break;
+        case 'USD':
+          tryVal = asset.amount * priceUsd;
+          break;
+        case 'EUR':
+          tryVal = asset.amount * priceEur;
+          break;
+      }
+
+      totalTryVal += tryVal;
+
+      if (['24K', '22K_BURMA', '22K_AJDA', '22K_OTHER', 'CEYREK', 'YARIM', 'TAM'].includes(asset.type)) {
+        estZakatGold24kGrams += pure24k * 0.025;
+      } else if (asset.type === 'SILVER') {
+        estZakatSilverGrams += asset.amount * 0.025;
+      } else if (asset.type === 'USD') {
+        estZakatUsd += asset.amount * 0.025;
+      } else if (asset.type === 'EUR') {
+        estZakatEur += asset.amount * 0.025;
+      } else if (asset.type === 'TRY') {
+        estZakatTry += asset.amount * 0.025;
+      }
+
+      const assetDate = parseDate(asset.date);
+      let diffDays = 0;
+      if (today >= assetDate) {
+        const diffTime = today - assetDate;
+        diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      }
+      
+      const yearsPassed = Math.floor(diffDays / HAWL_DAYS);
+
+      if (yearsPassed >= 1) {
+        maturedTryVal += tryVal;
+        const rate = 0.025 * yearsPassed;
+
+        if (['24K', '22K_BURMA', '22K_AJDA', '22K_OTHER', 'CEYREK', 'YARIM', 'TAM'].includes(asset.type)) {
+          zakatDueGold24kGrams += pure24k * rate;
+        } else if (asset.type === 'SILVER') {
+          zakatDueSilverGrams += asset.amount * rate;
+        } else if (asset.type === 'USD') {
+          zakatDueUsd += asset.amount * rate;
+        } else if (asset.type === 'EUR') {
+          zakatDueEur += asset.amount * rate;
+        } else if (asset.type === 'TRY') {
+          zakatDueTry += asset.amount * rate;
+        }
+      }
+    });
+
+    const totalGoldEquivalentGrams = price24k > 0 ? (totalTryVal / price24k) : 0;
+    const isNisabReached = totalGoldEquivalentGrams >= NISAB_GOLD_GRAMS;
+
+    const nisabStatusEl = document.getElementById('kpi-nisab-status');
+    if (nisabStatusEl) {
+      if (isNisabReached) {
+        nisabStatusEl.innerText = `🟢 Nisap Aşıldı (${totalGoldEquivalentGrams.toFixed(1)} gr / Min ${NISAB_GOLD_GRAMS} gr)`;
+        nisabStatusEl.style.color = "var(--success)";
+      } else {
+        nisabStatusEl.innerText = `🟡 Nisap Altında (${totalGoldEquivalentGrams.toFixed(1)} gr / Min ${NISAB_GOLD_GRAMS} gr)`;
+        nisabStatusEl.style.color = "var(--warning)";
+      }
+    }
+
+    if (!isNisabReached) {
+      zakatDueGold24kGrams = 0;
+      zakatDueSilverGrams = 0;
+      zakatDueUsd = 0;
+      zakatDueEur = 0;
+      zakatDueTry = 0;
+
+      estZakatGold24kGrams = 0;
+      estZakatSilverGrams = 0;
+      estZakatUsd = 0;
+      estZakatEur = 0;
+      estZakatTry = 0;
+    }
+
+    const zakatDueGoldTL = zakatDueGold24kGrams * price24k;
+    const zakatDueSilverTL = zakatDueSilverGrams * priceSilver;
+    const zakatDueUsdTL = zakatDueUsd * priceUsd;
+    const zakatDueEurTL = zakatDueEur * priceEur;
+    const zakatDueTryTL = zakatDueTry;
+
+    const estZakatGoldTL = estZakatGold24kGrams * price24k;
+    const estZakatSilverTL = estZakatSilverGrams * priceSilver;
+    const estZakatUsdTL = estZakatUsd * priceUsd;
+    const estZakatEurTL = estZakatEur * priceEur;
+    const estZakatTryTL = estZakatTry;
+
+    const totalZakatDueTL = zakatDueGoldTL + zakatDueSilverTL + zakatDueUsdTL + zakatDueEurTL + zakatDueTryTL;
+    const totalPaidTL = payments.reduce((acc, curr) => acc + (curr.amountTry || 0), 0);
+
+    let remPaid = totalPaidTL;
+
+    const paidGoldTL = Math.min(zakatDueGoldTL, Math.max(0, remPaid));
+    const remGoldTL = zakatDueGoldTL - paidGoldTL;
+    const remGoldGrams = price24k > 0 ? remGoldTL / price24k : 0;
+    remPaid -= paidGoldTL;
+
+    const paidSilverTL = Math.min(zakatDueSilverTL, Math.max(0, remPaid));
+    const remSilverTL = zakatDueSilverTL - paidSilverTL;
+    const remSilverGrams = priceSilver > 0 ? remSilverTL / priceSilver : 0;
+    remPaid -= paidSilverTL;
+
+    const paidUsdTL = Math.min(zakatDueUsdTL, Math.max(0, remPaid));
+    const remUsdTL = zakatDueUsdTL - paidUsdTL;
+    const remUsdVal = priceUsd > 0 ? remUsdTL / priceUsd : 0;
+    remPaid -= paidUsdTL;
+
+    const paidEurTL = Math.min(zakatDueEurTL, Math.max(0, remPaid));
+    const remEurTL = zakatDueEurTL - paidEurTL;
+    const remEurVal = priceEur > 0 ? remEurTL / priceEur : 0;
+    remPaid -= paidEurTL;
+
+    const paidTryTL = Math.min(zakatDueTryTL, Math.max(0, remPaid));
+    const remTryTL = zakatDueTryTL - paidTryTL;
+    remPaid -= paidTryTL;
+
+    const remainingZakatTotalTL = Math.max(0, remGoldTL + remSilverTL + remUsdTL + remEurTL + remTryTL);
+
+    const maxAssetPages = Math.ceil(assets.length / assetPageSize) || 1;
+    if (currentAssetPage > maxAssetPages) currentAssetPage = maxAssetPages;
+
+    const startIdx = (currentAssetPage - 1) * assetPageSize;
+    const pagedAssets = assets.slice(startIdx, startIdx + assetPageSize);
+
+    document.getElementById('asset-page-info').innerText = `Sayfa ${currentAssetPage} / ${maxAssetPages} (${assets.length} Kayıt)`;
+
+    const tbody = document.getElementById('assets-tbody');
+    tbody.innerHTML = '';
+
+    if (pagedAssets.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:16px;">Henüz kayıtlı varlık bulunmamaktadır.</td></tr>`;
+    }
+
+    pagedAssets.forEach(asset => {
+      let tryVal = 0;
+      let rawText = "";
+      let zakatText = "-";
+
+      const assetDate = parseDate(asset.date);
+      let diffDays = 0;
+      if (today >= assetDate) {
+        const diffTime = today - assetDate;
+        diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      }
+
+      const yearsPassed = Math.floor(diffDays / HAWL_DAYS);
+      const rate = 0.025 * yearsPassed;
+
+      switch (asset.type) {
+        case '24K': 
+          tryVal = asset.amount * price24k; 
+          rawText = `${asset.amount} gr`;
+          if (yearsPassed >= 1 && isNisabReached) zakatText = `${(asset.amount * rate).toFixed(2)} gr Saf`;
+          break;
+        case '22K_BURMA': case '22K_AJDA': case '22K_OTHER': 
+          tryVal = asset.amount * price22k; 
+          rawText = `${asset.amount} gr`;
+          if (yearsPassed >= 1 && isNisabReached) zakatText = `${(asset.amount * PURITY_22K * rate).toFixed(2)} gr Saf`;
+          break;
+        case 'CEYREK': 
+          tryVal = asset.amount * CEYREK_PURE * price24k; 
+          rawText = `${asset.amount} Adet`; 
+          if (yearsPassed >= 1 && isNisabReached) zakatText = `${(asset.amount * CEYREK_PURE * rate).toFixed(2)} gr Saf`;
+          break;
+        case 'YARIM': 
+          tryVal = asset.amount * YARIM_PURE * price24k; 
+          rawText = `${asset.amount} Adet`; 
+          if (yearsPassed >= 1 && isNisabReached) zakatText = `${(asset.amount * YARIM_PURE * rate).toFixed(2)} gr Saf`;
+          break;
+        case 'TAM': 
+          tryVal = asset.amount * TAM_PURE * price24k; 
+          rawText = `${asset.amount} Adet`; 
+          if (yearsPassed >= 1 && isNisabReached) zakatText = `${(asset.amount * TAM_PURE * rate).toFixed(2)} gr Saf`;
+          break;
+        case 'SILVER': 
+          tryVal = asset.amount * priceSilver; 
+          rawText = `${asset.amount} gr`; 
+          if (yearsPassed >= 1 && isNisabReached) zakatText = `${(asset.amount * rate).toFixed(2)} gr Gümüş`;
+          break;
+        case 'TRY': 
+          tryVal = asset.amount; 
+          rawText = `₺${asset.amount.toLocaleString()}`; 
+          if (yearsPassed >= 1 && isNisabReached) zakatText = `₺${(asset.amount * rate).toFixed(2)}`;
+          break;
+        case 'USD': 
+          tryVal = asset.amount * priceUsd; 
+          rawText = `$${asset.amount.toLocaleString()}`; 
+          if (yearsPassed >= 1 && isNisabReached) zakatText = `$${(asset.amount * rate).toFixed(2)}`;
+          break;
+        case 'EUR': 
+          tryVal = asset.amount * priceEur; 
+          rawText = `€${asset.amount.toLocaleString()}`; 
+          if (yearsPassed >= 1 && isNisabReached) zakatText = `€${(asset.amount * rate).toFixed(2)}`;
+          break;
+      }
+
+      let statusBadge = '';
+      if (yearsPassed >= 1) {
+        statusBadge = `<span class="badge badge-success">🟢 ${yearsPassed} Yıllık (%${(yearsPassed * 2.5).toFixed(1)})</span>`;
+      } else {
+        const remainingDays = HAWL_DAYS - diffDays;
+        statusBadge = `<span class="badge badge-warning">⏳ ${remainingDays} Gün Kaldı</span>`;
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td title="${asset.note}"><b>${getTypeName(asset.type)}</b><br><small style="color:var(--text-muted)">${asset.note}</small></td>
+        <td><b>${rawText}</b></td>
+        <td>${formatDate(asset.date)}</td>
+        <td><b>${diffDays} Gün</b> (${yearsPassed} Yıl)</td>
+        <td style="color:var(--gold)"><b>${zakatText}</b></td>
+        <td><b>${formatCurrency(tryVal)}</b></td>
+        <td>${statusBadge}</td>
+        <td>
+          <button class="btn btn-warning" style="padding: 2px 6px;" onclick="editAsset('${asset.id}')" title="Düzenle">✏️</button>
+          <button class="btn btn-danger" onclick="deleteAsset('${asset.id}')" title="Sil">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('kpi-total-try').innerText = formatCurrency(totalTryVal);
+    document.getElementById('kpi-matured-try').innerText = formatCurrency(maturedTryVal);
+    document.getElementById('kpi-zakat-due-try').innerText = formatCurrency(totalZakatDueTL);
+    document.getElementById('kpi-paid-try').innerText = formatCurrency(totalPaidTL);
+    document.getElementById('kpi-remaining-try').innerText = formatCurrency(remainingZakatTotalTL);
+
+    const renderTahakkukLabel = (dueVal, dueTL, estVal, estTL, unitPrefix = '', unitSuffix = '') => {
+      if (dueTL > 0) {
+        return `<div class="due-val">Tahakkuk: ${unitPrefix}${dueVal.toFixed(2)}${unitSuffix} (${formatCurrency(dueTL)})</div>`;
+      } else if (estTL > 0) {
+        return `<div class="due-val-est" title="Varlıkların 1 yılı dolmadığı için tahmini tutardır">Tahmini Tahakkuk (Dolunca): ${unitPrefix}${estVal.toFixed(2)}${unitSuffix} (${formatCurrency(estTL)})</div>`;
+      } else {
+        return `<div class="due-val">Tahakkuk: ${unitPrefix}0.00${unitSuffix} (${formatCurrency(0)})</div>`;
+      }
+    };
+
+    const breakdownGrid = document.getElementById('breakdown-grid');
+    breakdownGrid.innerHTML = `
+      <div class="breakdown-item">
+        <div class="title">🥇 24K ALTIN ZEKATI (1.)</div>
+        ${renderTahakkukLabel(zakatDueGold24kGrams, zakatDueGoldTL, estZakatGold24kGrams, estZakatGoldTL, '', ' gr')}
+        <div class="rem-val">Kalan: ${remGoldGrams.toFixed(2)} gr (${formatCurrency(remGoldTL)})</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="title">⚪ GÜMÜŞ ZEKATI (2.)</div>
+        ${renderTahakkukLabel(zakatDueSilverGrams, zakatDueSilverTL, estZakatSilverGrams, estZakatSilverTL, '', ' gr')}
+        <div class="rem-val">Kalan: ${remSilverGrams.toFixed(2)} gr (${formatCurrency(remSilverTL)})</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="title">💵 DOLAR (USD) ZEKATI (3.)</div>
+        ${renderTahakkukLabel(zakatDueUsd, zakatDueUsdTL, estZakatUsd, estZakatUsdTL, '$', '')}
+        <div class="rem-val">Kalan: $${remUsdVal.toFixed(2)} (${formatCurrency(remUsdTL)})</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="title">💶 EURO (EUR) ZEKATI (4.)</div>
+        ${renderTahakkukLabel(zakatDueEur, zakatDueEurTL, estZakatEur, estZakatEurTL, '€', '')}
+        <div class="rem-val">Kalan: €${remEurVal.toFixed(2)} (${formatCurrency(remEurTL)})</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="title">₺ NAKİT TL ZEKATI (5.)</div>
+        ${renderTahakkukLabel(zakatDueTry, zakatDueTryTL, estZakatTry, estZakatTryTL, '', '')}
+        <div class="rem-val">Kalan: ${formatCurrency(remTryTL)}</div>
+      </div>
+    `;
+
+    renderPaymentHistory();
+
+    if (triggerSave) saveToFirebase();
+  }
+
+  function renderPaymentHistory() {
+    const maxPaymentPages = Math.ceil(payments.length / paymentPageSize) || 1;
+    if (currentPaymentPage > maxPaymentPages) currentPaymentPage = maxPaymentPages;
+
+    const startIdx = (currentPaymentPage - 1) * paymentPageSize;
+    const pagedPayments = payments.slice(startIdx, startIdx + paymentPageSize);
+
+    document.getElementById('payment-page-info').innerText = `Sayfa ${currentPaymentPage} / ${maxPaymentPages} (${payments.length} Ödeme)`;
+
+    const tbody = document.getElementById('payment-history-tbody');
+    tbody.innerHTML = '';
+    
+    if (pagedPayments.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:10px;">Henüz kayıtlı ödeme bulunmuyor.</td></tr>`;
+      return;
+    }
+
+    pagedPayments.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.date}</td>
+        <td><b>${p.note}</b></td>
+        <td style="color:var(--success)"><b>${formatCurrency(p.amountTry)}</b></td>
+        <td>${formatCurrency(p.price24kAtPayment || 0)} /gr</td>
+        <td>
+          <button class="btn btn-warning" style="padding: 2px 6px;" onclick="editPayment('${p.id}')" title="Düzenle">✏️</button>
+          <button class="btn btn-danger" onclick="deletePayment('${p.id}')" title="Sil">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function getTypeName(type) {
+    const names = {
+      '24K': '24 Ayar Saf Altın',
+      '22K_BURMA': '22 Ayar Burma Bilezik',
+      '22K_AJDA': '22 Ayar Ajda Bilezik',
+      '22K_OTHER': 'Diğer 22 Ayar Altın',
+      'CEYREK': 'Çeyrek Altın',
+      'YARIM': 'Yarım Altın',
+      'TAM': 'Tam Ziynet Altın',
+      'SILVER': 'Gümüş Varlığı',
+      'TRY': 'TL Nakit',
+      'USD': 'Dolar (USD)',
+      'EUR': 'Euro (EUR)'
+    };
+    return names[type] || type;
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    return dateStr;
+  }
+
+  function formatCurrency(val) {
+    return (val || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺';
+  }
+</script>
+</body>
+</html>

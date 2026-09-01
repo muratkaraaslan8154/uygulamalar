@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Çoklu Hatim Grubu & Günlük Takip Portalı</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #151d30;
+      --card-inner: #0f172a;
+      --border-color: #24324d;
+      --border-hover: #3b82f6;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --gold: #fbbf24;
+      --emerald: #34d399;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+    html, body {
+      height: 100vh;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-size: 0.88rem;
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-color); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+    .container {
+      max-width: 1720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    header h1 {
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      background: linear-gradient(90deg, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .countdowns-wrapper {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .countdown-badge {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--gold);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .countdown-badge.active-group-badge {
+      border-color: var(--primary);
+      background: rgba(59, 130, 246, 0.15);
+    }
+
+    .header-controls { display: flex; align-items: center; gap: 8px; }
+
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: var(--border-color);
+    }
+    .kpi-card.highlight::before { background: var(--gold); }
+    .kpi-card.success::before { background: var(--success); }
+    .kpi-card.warning::before { background: var(--warning); }
+    .kpi-card.primary::before { background: var(--primary); }
+
+    .kpi-title { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
+    .kpi-val-main { font-size: 1.2rem; font-weight: 800; color: var(--text-main); }
+    .kpi-val-sub { font-size: 0.75rem; color: var(--gold); font-weight: 600; }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .form-section { display: flex; flex-direction: column; gap: 8px; }
+    .form-group-row { display: flex; gap: 8px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .form-group label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+
+    input, select {
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      height: 34px;
+      width: 100%;
+    }
+    input:focus, select:focus { border-color: var(--primary); outline: none; }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+    }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-preset {
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-preset:hover:not(:disabled) { background: var(--primary); color: white; border-color: var(--primary); }
+    .btn-preset:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .btn-success { background-color: var(--success); }
+    .btn-warning { background-color: var(--warning); color: #000; }
+    .btn-danger { background-color: var(--danger); }
+    .btn-gold { background-color: var(--gold); color: #000; }
+
+    .table-wrapper {
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+      background: var(--card-inner);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; text-align: left; }
+    th, td { padding: 7px 9px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+    th {
+      color: var(--text-muted);
+      font-weight: 700;
+      background: var(--card-inner);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+    tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 4px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .pagination-info { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+
+    .progress-minibar {
+      background: var(--card-inner);
+      border-radius: 4px;
+      height: 10px;
+      width: 80px;
+      overflow: hidden;
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+      border: 1px solid var(--border-color);
+    }
+    .progress-minibar-fill {
+      height: 100%;
+      background: var(--emerald);
+      width: 0%;
+    }
+
+    .badge {
+      padding: 2px 6px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-primary { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+    .quran-link {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .quran-link:hover { text-decoration: underline; }
+
+    .lookup-box {
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      color: var(--gold);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="header-left">
+      <h1>📖 Hatim Yönetim Portalı</h1>
+      <div id="countdowns-container" class="countdowns-wrapper"></div>
+    </div>
+    
+    <div class="header-controls">
+      <span id="sync-status" class="status-badge">🔄 Yükleniyor...</span>
+    </div>
+  </header>
+
+  <!-- KPI ÖZET KARTLARI -->
+  <div class="kpi-grid">
+    <div class="kpi-card highlight">
+      <div class="kpi-title">BUGÜN ALMANIZ GEREKEN CÜZ</div>
+      <div class="kpi-val-main" id="kpi-today-juz">-</div>
+      <div class="kpi-val-sub" id="kpi-today-date-range">Alma / Teslim Tarihi</div>
+    </div>
+    <div class="kpi-card primary">
+      <div class="kpi-title">BUGÜN OKUNAN SAYFA</div>
+      <div class="kpi-val-main" id="kpi-today-pages">0 Sayfa</div>
+      <div class="kpi-val-sub" id="kpi-today-log-count">0 Kayıt Girildi</div>
+    </div>
+    <div class="kpi-card warning">
+      <div class="kpi-title">MEVCUT GRUP HATİM DURUMU</div>
+      <div class="kpi-val-main" id="kpi-completed-juz-count">0 / 30 Cüz</div>
+      <div class="kpi-val-sub">Okunan Toplam Cüz</div>
+    </div>
+    <div class="kpi-card success">
+      <div class="kpi-title">TOPLAM TAMAMLANAN HATİM</div>
+      <div class="kpi-val-main" id="kpi-total-hatim" style="color:var(--emerald)">0 Hatim</div>
+      <div class="kpi-val-sub">Kayıtlı Hatim Geçmişi</div>
+    </div>
+  </div>
+
+  <!-- ANA DÜZEN -->
+  <div class="main-grid">
+
+    <!-- SOL SÜTUN -->
+    <div class="left-column">
+
+      <!-- MODÜL 1: HATİM GRUBU SEÇİMİ VE PROGRAM AYARLARI -->
+      <div class="card">
+        <div class="card-title" style="color:var(--gold)">👥 Hatim Grubu Seçimi & Programı</div>
+        <div class="form-section">
+          
+          <div class="form-group-row" style="background: var(--card-inner); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div class="form-group" style="flex: 2;">
+              <label style="color:var(--gold); font-weight:700;">📂 Çalışılacak Hatim Grubunu Seçin</label>
+              <select id="active-group-select" onchange="switchGroup(this.value)"></select>
+            </div>
+            <div class="form-group" style="flex: 1; display:flex; flex-direction:row; gap:4px; align-items:flex-end;">
+              <button class="btn btn-success" onclick="createNewGroup()" style="width:100%; height:34px;" title="Yeni Grup Ekle">+ Yeni</button>
+              <button class="btn btn-danger" onclick="deleteCurrentGroup()" style="height:34px;" title="Grubu Sil">🗑️</button>
+            </div>
+          </div>
+
+          <div class="form-group-row">
+            <div class="form-group">
+              <label>Hatim / Grup Adı</label>
+              <input type="text" id="group-name" onchange="updateGroupSettings()">
+            </div>
+            <div class="form-group">
+              <label style="color:var(--emerald); font-weight:700;">🎯 Gruptan Verilen Aktif Cüzünüz</label>
+              <select id="current-active-juz-select" onchange="changeCurrentActiveJuz(this.value)"></select>
+            </div>
+          </div>
+          
+          <div class="form-group-row">
+            <div class="form-group">
+              <label>Cüz Başlangıç / Alma Tarihi</label>
+              <input type="date" id="start-date" onchange="updateGroupSettings()">
+            </div>
+            <div class="form-group">
+              <label>Döngü Süresi (Gün)</label>
+              <input type="number" id="cycle-days" value="7" min="1" max="30" onchange="updateGroupSettings()">
+            </div>
+          </div>
+
+          <!-- HAFTALIK OKUMAYA BAŞLA BUTONU (SEÇİLİ CÜZÜ VE TARİHİ TABLOYA & SAYACA BAĞLAR) -->
+          <button class="btn btn-warning" onclick="startWeeklyReading()" style="width:100%; padding: 10px; font-weight:800; font-size:0.85rem; background: linear-gradient(135deg, #f59e0b, #d97706); color:#000; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);">
+            🚀 HAFTALIK OKUMAYA BAŞLA (GERİ SAYIMI BAŞLAT)
+          </button>
+
+          <!-- TARİH SORGULAMA ARACI -->
+          <div class="form-group" style="margin-top:6px;">
+            <label>🔍 Tarih Sorgula: Hangi Tarihte Hangi Cüzü Alacağım?</label>
+            <input type="date" id="lookup-date" onchange="lookupJuzForDate(this.value)">
+          </div>
+          <div id="lookup-result" class="lookup-box">
+            Tarih seçildiğinde almanız gereken cüz burada görünecektir.
+          </div>
+        </div>
+      </div>
+
+      <!-- MODÜL 2: GÜNLÜK SAYFA GİRİŞ FORMU -->
+      <div class="card">
+        <div class="card-title" style="color:var(--emerald)">📝 Günlük Okuma Kaydı Ekle</div>
+        <div class="form-section">
+          <div class="form-group-row">
+            <div class="form-group">
+              <label>Okuma Tarihi</label>
+              <input type="date" id="log-date">
+            </div>
+            <div class="form-group">
+              <label>Hangi Cüzü Okudunuz?</label>
+              <select id="log-juz"></select>
+            </div>
+          </div>
+
+          <div class="form-group-row">
+            <div class="form-group">
+              <label>Başlangıç Sayfası (1-20)</label>
+              <input type="number" id="log-start-page" value="1" min="1" max="20">
+            </div>
+            <div class="form-group">
+              <label>Bitiş Sayfası (1-20)</label>
+              <input type="number" id="log-end-page" value="20" min="1" max="20">
+            </div>
+          </div>
+
+          <button class="btn btn-success" onclick="addDailyLog()">
+            💾 Günlük Okumayı Kaydet
+          </button>
+          <button class="btn btn-gold" onclick="finishHatimManual()">
+            🏆 30 Cüzü Bitir & Hatim Günlüğüne Kaydet
+          </button>
+        </div>
+      </div>
+
+      <!-- MODÜL 3: GÜNLÜK OKUMA KAYITLARI -->
+      <div class="card">
+        <div class="card-title" style="color:var(--emerald)">📖 Günlük Okuma Kayıtları (Seçili Grup)</div>
+        <div class="table-wrapper" style="max-height: 150px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Tarih</th>
+                <th>Cüz</th>
+                <th>Okunan Sayfalar</th>
+                <th>Sayfa Sayısı</th>
+                <th>Sil</th>
+              </tr>
+            </thead>
+            <tbody id="daily-log-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SAĞ SÜTUN -->
+    <div class="right-column">
+      
+      <!-- 1. KART: 30 CÜZ TABLOSU -->
+      <div class="card">
+        <div class="card-title">
+          <span>📜 30 Cüz Alma Tarihleri & İlerleme Durumu (<span id="active-group-title-label">...</span>)</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Cüz</th>
+                <th>Cüz Alma Tarihi</th>
+                <th>Son Teslim Tarihi</th>
+                <th>Sayfa İlerlemesi</th>
+                <th>Durum</th>
+                <th>Kur'an Oku</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="juz-table-body"></tbody>
+          </table>
+        </div>
+        <div class="pagination-controls">
+          <span class="pagination-info" id="juz-page-info">Sayfa 1 / 5</span>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-preset" id="juz-prev-btn" onclick="changeJuzPage(-1)">◀ Önceki Sayfa</button>
+            <button class="btn-preset" id="juz-next-btn" onclick="changeJuzPage(1)">Sonraki Sayfa ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. KART: TAMAMLANAN HATİM GEÇMİŞİ -->
+      <div class="card" style="margin-top:auto;">
+        <div class="card-title" style="color:var(--gold)">🏆 Tamamlanan Hatim Geçmişi (Tüm Gruplar)</div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Hatim Adı</th>
+                <th>Başlangıç Tarihi</th>
+                <th>Bitiş Tarihi</th>
+                <th>Süre (Gün / Hafta)</th>
+                <th>Durum</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body"></tbody>
+          </table>
+        </div>
+        <div class="pagination-controls">
+          <span class="pagination-info" id="history-page-info">Sayfa 1 / 1</span>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-preset" id="hist-prev-btn" onclick="changeHistoryPage(-1)">◀ Önceki Sayfa</button>
+            <button class="btn-preset" id="hist-next-btn" onclick="changeHistoryPage(1)">Sonraki Sayfa ▶</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const DB_URL = "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app/hatimTakipMulti.json";
+
+  let saveDebounceTimer = null;
+  
+  let juzCurrentPage = 1;
+  const juzPageSize = 6;
+
+  let historyCurrentPage = 1;
+  const historyPageSize = 3;
+
+  let state = {
+    activeGroupId: "group_default",
+    groups: [
+      {
+        id: "group_default",
+        groupName: "1. Hatim Grubu",
+        startDate: new Date().toISOString().slice(0, 10),
+        cycleDays: 7,
+        manualActiveJuz: 1,
+        completedJuzs: [],
+        dailyLogs: []
+      }
+    ],
+    hatimHistory: []
+  };
+
+  window.onload = async () => {
+    initSelectOptions();
+    document.getElementById('log-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('lookup-date').value = new Date().toISOString().slice(0, 10);
+    
+    loadFromLocalStorage();
+    await fetchFromFirebase();
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  };
+
+  function getActiveGroup() {
+    let group = state.groups.find(g => g.id === state.activeGroupId);
+    if (!group) {
+      if (state.groups.length > 0) {
+        state.activeGroupId = state.groups[0].id;
+        group = state.groups[0];
+      } else {
+        group = createDefaultGroup();
+      }
+    }
+    return group;
+  }
+
+  function createDefaultGroup() {
+    const newG = {
+      id: "group_" + Date.now(),
+      groupName: "1. Hatim Grubu",
+      startDate: new Date().toISOString().slice(0, 10),
+      cycleDays: 7,
+      manualActiveJuz: 1,
+      completedJuzs: [],
+      dailyLogs: []
+    };
+    state.groups.push(newG);
+    state.activeGroupId = newG.id;
+    return newG;
+  }
+
+  function setStatus(text, color) {
+    const statusEl = document.getElementById('sync-status');
+    if (statusEl) {
+      statusEl.innerText = text;
+      statusEl.style.color = color || 'var(--text-muted)';
+      statusEl.style.borderColor = color || 'var(--border-color)';
+    }
+  }
+
+  async function fetchFromFirebase() {
+    setStatus('🔄 Yükleniyor...', 'var(--warning)');
+    try {
+      const response = await fetch(DB_URL);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.groups && data.groups.length > 0) {
+          state = { ...state, ...data };
+          saveToLocalStorage();
+        }
+        setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+      } else {
+        setStatus('🔴 Sunucu Hatası', 'var(--danger)');
+      }
+    } catch (err) {
+      setStatus('🔴 Yerel Mod', 'var(--warning)');
+    }
+    renderGroupDropdown();
+    syncFormInputs();
+    renderAll();
+  }
+
+  async function saveToFirebase() {
+    setStatus('⏳ Kaydediliyor...', 'var(--warning)');
+    saveToLocalStorage();
+    try {
+      const res = await fetch(DB_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(state)
+      });
+      if (res.ok) {
+        setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+      } else {
+        setStatus('🔴 Kayıt Hatası', 'var(--danger)');
+      }
+    } catch (err) {
+      setStatus('🔴 Kayıt Hatası (Ağ Yok)', 'var(--danger)');
+    }
+  }
+
+  function triggerAutoSave() {
+    clearTimeout(saveDebounceTimer);
+    saveDebounceTimer = setTimeout(() => {
+      saveToFirebase();
+    }, 800);
+  }
+
+  function initSelectOptions() {
+    const logSelect = document.getElementById('log-juz');
+    const activeJuzSelect = document.getElementById('current-active-juz-select');
+
+    logSelect.innerHTML = '';
+    activeJuzSelect.innerHTML = '';
+
+    for (let i = 1; i <= 30; i++) {
+      const opt2 = document.createElement('option');
+      opt2.value = i;
+      opt2.innerText = `${i}. Cüz`;
+      logSelect.appendChild(opt2);
+
+      const opt3 = document.createElement('option');
+      opt3.value = i;
+      opt3.innerText = `${i}. Cüz (Bu Hafta)`;
+      activeJuzSelect.appendChild(opt3);
+    }
+  }
+
+  function loadFromLocalStorage() {
+    const saved = localStorage.getItem('hatim_tracker_multi_state');
+    if (saved) {
+      try {
+        state = { ...state, ...JSON.parse(saved) };
+      } catch (e) {
+        console.error("Local storage hatası", e);
+      }
+    }
+    renderGroupDropdown();
+    syncFormInputs();
+  }
+
+  function saveToLocalStorage() {
+    localStorage.setItem('hatim_tracker_multi_state', JSON.stringify(state));
+  }
+
+  function renderGroupDropdown() {
+    const select = document.getElementById('active-group-select');
+    select.innerHTML = '';
+    state.groups.forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g.id;
+      opt.innerText = g.groupName;
+      if (g.id === state.activeGroupId) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  function switchGroup(groupId) {
+    state.activeGroupId = groupId;
+    juzCurrentPage = 1;
+    syncFormInputs();
+    renderAll();
+    triggerAutoSave();
+  }
+
+  function createNewGroup() {
+    const name = prompt("Yeni Hatim Grubu Adı:", `${state.groups.length + 1}. Hatim Grubu`);
+    if (!name) return;
+
+    const newGroup = {
+      id: "group_" + Date.now(),
+      groupName: name,
+      startDate: new Date().toISOString().slice(0, 10),
+      cycleDays: 7,
+      manualActiveJuz: 1,
+      completedJuzs: [],
+      dailyLogs: []
+    };
+
+    state.groups.push(newGroup);
+    state.activeGroupId = newGroup.id;
+    juzCurrentPage = 1;
+    renderGroupDropdown();
+    syncFormInputs();
+    renderAll();
+    triggerAutoSave();
+  }
+
+  function deleteCurrentGroup() {
+    if (state.groups.length <= 1) {
+      alert("En az 1 adet Hatim Grubu bulunmalıdır!");
+      return;
+    }
+    const current = getActiveGroup();
+    if (confirm(`"${current.groupName}" grubunu silmek istediğinize emin misiniz?`)) {
+      state.groups = state.groups.filter(g => g.id !== current.id);
+      state.activeGroupId = state.groups[0].id;
+      juzCurrentPage = 1;
+      renderGroupDropdown();
+      syncFormInputs();
+      renderAll();
+      triggerAutoSave();
+    }
+  }
+
+  function syncFormInputs() {
+    const group = getActiveGroup();
+    document.getElementById('group-name').value = group.groupName;
+    document.getElementById('start-date').value = group.startDate;
+    document.getElementById('cycle-days').value = group.cycleDays;
+    
+    const currJuz = parseInt(group.manualActiveJuz) || 1;
+    document.getElementById('current-active-juz-select').value = currJuz;
+
+    document.getElementById('active-group-title-label').innerText = group.groupName;
+    lookupJuzForDate(document.getElementById('lookup-date').value);
+  }
+
+  // HAFTALIK OKUMAYI BAŞLATAN VE ÜST SAYICILARI DOĞRUDAN GÜNCELLEYEN FONKSİYON
+  function startWeeklyReading() {
+    const group = getActiveGroup();
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const selectedActiveJuz = parseInt(document.getElementById('current-active-juz-select').value) || 1;
+
+    group.startDate = todayStr;
+    group.manualActiveJuz = selectedActiveJuz;
+    document.getElementById('start-date').value = todayStr;
+
+    // Aktif Cüzü Sayfaya Getir
+    juzCurrentPage = Math.ceil(selectedActiveJuz / juzPageSize);
+
+    renderAll();
+    updateCountdown();
+    triggerAutoSave();
+
+    alert(`🚀 "${group.groupName}" için ${selectedActiveJuz}. Cüz geri sayımı başlatıldı!\nTarihler ve tablo doğrudan seçtiğiniz cüze göre bağlandı.`);
+  }
+
+  function changeCurrentActiveJuz(juzNum) {
+    const group = getActiveGroup();
+    group.manualActiveJuz = parseInt(juzNum);
+    juzCurrentPage = Math.ceil(parseInt(juzNum) / juzPageSize);
+
+    renderAll();
+    triggerAutoSave();
+  }
+
+  function getJuzScheduleForGroup(group, juzNum) {
+    const startDate = new Date(group.startDate);
+    startDate.setHours(0,0,0,0);
+    const cycle = parseInt(group.cycleDays) || 7;
+    const activeJuz = parseInt(group.manualActiveJuz) || 1;
+
+    // Karışık cüz dağıtımında aktif cüze göre sıralama hesabı
+    const stepOffset = (juzNum - activeJuz + 30) % 30;
+
+    const takeDate = new Date(startDate);
+    takeDate.setDate(takeDate.getDate() + (stepOffset * cycle));
+
+    const dueDate = new Date(takeDate);
+    dueDate.setDate(dueDate.getDate() + cycle - 1);
+
+    return { takeDate, dueDate, stepOffset };
+  }
+
+  function updateCountdown() {
+    const container = document.getElementById('countdowns-container');
+    if (!container) return;
+
+    const now = new Date();
+    let html = '';
+
+    state.groups.forEach(group => {
+      const activeJuz = parseInt(group.manualActiveJuz) || 1;
+      const sched = getJuzScheduleForGroup(group, activeJuz);
+      const targetDate = new Date(sched.dueDate);
+      targetDate.setHours(23, 59, 59, 999);
+
+      const totalSec = Math.floor((targetDate - now) / 1000);
+      let timeText = "";
+
+      if (totalSec <= 0) {
+        timeText = "Süre Doldu";
+      } else {
+        const days = Math.floor(totalSec / (3600 * 24));
+        const hours = Math.floor((totalSec % (3600 * 24)) / 3600);
+        const minutes = Math.floor((totalSec % 3600) / 60);
+        const seconds = totalSec % 60;
+
+        const hStr = String(hours).padStart(2, '0');
+        const mStr = String(minutes).padStart(2, '0');
+        const sStr = String(seconds).padStart(2, '0');
+
+        timeText = `${days}g ${hStr}:${mStr}:${sStr}`;
+      }
+
+      const isCurrentActive = group.id === state.activeGroupId;
+      html += `
+        <div class="countdown-badge ${isCurrentActive ? 'active-group-badge' : ''}">
+          <span>⏳ <b>${group.groupName}:</b></span>
+          <span>(${activeJuz}. Cüz)</span>
+          <span style="color:#fff; font-weight:700; margin-left:4px;">${timeText}</span>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  function lookupJuzForDate(dateStr) {
+    if (!dateStr) return;
+    const group = getActiveGroup();
+    const targetDate = new Date(dateStr);
+    targetDate.setHours(0,0,0,0);
+
+    const startDate = new Date(group.startDate);
+    startDate.setHours(0,0,0,0);
+
+    const cycle = parseInt(group.cycleDays) || 7;
+    const activeJuz = parseInt(group.manualActiveJuz) || 1;
+
+    const diffDays = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+      document.getElementById('lookup-result').innerHTML = `⚠️ Seçilen tarih hatim başlangıç tarihinden önce.`;
+      return;
+    }
+
+    const weekIndex = Math.floor(diffDays / cycle);
+    const assignedJuz = ((activeJuz - 1 + weekIndex) % 30) + 1;
+    const sched = getJuzScheduleForGroup(group, assignedJuz);
+
+    document.getElementById('lookup-result').innerHTML = `
+      📅 <b>${formatDate(dateStr)}</b> tarihinde almanız gereken: <b>${assignedJuz}. Cüz</b><br>
+      <small style="color:var(--text-muted)">Alma Tarihi: ${formatDateObj(sched.takeDate)} | Son Teslim: ${formatDateObj(sched.dueDate)}</small>
+    `;
+
+    document.getElementById('log-juz').value = assignedJuz;
+  }
+
+  function updateGroupSettings() {
+    const group = getActiveGroup();
+    group.groupName = document.getElementById('group-name').value || "Hatim Grubu";
+    group.startDate = document.getElementById('start-date').value || new Date().toISOString().slice(0, 10);
+    group.cycleDays = parseInt(document.getElementById('cycle-days').value) || 7;
+    group.manualActiveJuz = parseInt(document.getElementById('current-active-juz-select').value) || 1;
+    
+    renderGroupDropdown();
+    syncFormInputs();
+    renderAll();
+    triggerAutoSave();
+  }
+
+  function addDailyLog() {
+    const group = getActiveGroup();
+    const date = document.getElementById('log-date').value;
+    const juzNum = parseInt(document.getElementById('log-juz').value);
+    const startPage = parseInt(document.getElementById('log-start-page').value);
+    const endPage = parseInt(document.getElementById('log-end-page').value);
+
+    if (!date) { alert("Lütfen tarih seçiniz."); return; }
+    if (startPage > endPage) { alert("Başlangıç sayfası bitiş sayfasından büyük olamaz."); return; }
+
+    const count = (endPage - startPage) + 1;
+
+    const newLog = {
+      id: Date.now(),
+      date: date,
+      juzNum: juzNum,
+      startPage: startPage,
+      endPage: endPage,
+      count: count
+    };
+
+    if (!group.dailyLogs) group.dailyLogs = [];
+    group.dailyLogs.unshift(newLog);
+
+    checkAutoJuzCompletion(group, juzNum);
+
+    renderAll();
+    triggerAutoSave();
+  }
+
+  function deleteDailyLog(id) {
+    if (confirm("Bu okuma kaydını silmek istediğinize emin misiniz?")) {
+      const group = getActiveGroup();
+      const log = group.dailyLogs.find(l => l.id === id);
+      group.dailyLogs = group.dailyLogs.filter(l => l.id !== id);
+      if (log) checkAutoJuzCompletion(group, log.juzNum);
+      renderAll();
+      triggerAutoSave();
+    }
+  }
+
+  function getJuzTotalPages(group, juzNum) {
+    if (!group.dailyLogs) return 0;
+    const logs = group.dailyLogs.filter(l => l.juzNum === juzNum);
+    const total = logs.reduce((sum, l) => sum + l.count, 0);
+    return Math.min(20, total);
+  }
+
+  function checkAutoJuzCompletion(group, juzNum) {
+    const pages = getJuzTotalPages(group, juzNum);
+    if (!group.completedJuzs) group.completedJuzs = [];
+    const isCompleted = group.completedJuzs.includes(juzNum);
+
+    if (pages >= 20 && !isCompleted) {
+      group.completedJuzs.push(juzNum);
+    } else if (pages < 20 && isCompleted) {
+      group.completedJuzs = group.completedJuzs.filter(j => j !== juzNum);
+    }
+  }
+
+  function toggleJuzStatus(juzNum) {
+    const group = getActiveGroup();
+    if (!group.completedJuzs) group.completedJuzs = [];
+    const idx = group.completedJuzs.indexOf(juzNum);
+    if (idx !== -1) {
+      group.completedJuzs.splice(idx, 1);
+    } else {
+      group.completedJuzs.push(juzNum);
+    }
+    renderAll();
+    triggerAutoSave();
+  }
+
+  async function finishHatimManual() {
+    const group = getActiveGroup();
+    const completedCount = group.completedJuzs ? group.completedJuzs.length : 0;
+    if (completedCount < 30) {
+      if (!confirm(`Henüz ${completedCount}/30 Cüz tamamlandı. Yine de Hatim olarak kaydetmek istiyor musunuz?`)) {
+        return;
+      }
+    }
+
+    const endDate = new Date().toISOString().slice(0, 10);
+    const start = new Date(group.startDate);
+    const end = new Date(endDate);
+    const diffDays = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)));
+    const diffWeeks = Math.ceil(diffDays / 7);
+
+    const record = {
+      id: Date.now(),
+      name: group.groupName,
+      startDate: group.startDate,
+      endDate: endDate,
+      durationDays: diffDays,
+      durationWeeks: diffWeeks,
+      completedCount: completedCount
+    };
+
+    if (!state.hatimHistory) state.hatimHistory = [];
+    state.hatimHistory.push(record);
+
+    group.completedJuzs = [];
+    group.dailyLogs = [];
+
+    renderAll();
+    await saveToFirebase();
+    alert("✨ Hatim başarıyla tamamlandı ve geçmiş günlüğüne eklendi!");
+  }
+
+  function renderKPIs() {
+    const group = getActiveGroup();
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const activeJuz = parseInt(group.manualActiveJuz) || 1;
+    const sched = getJuzScheduleForGroup(group, activeJuz);
+
+    document.getElementById('kpi-today-juz').innerText = `${activeJuz}. Cüz`;
+    document.getElementById('kpi-today-date-range').innerText = `${formatDateObj(sched.takeDate)} - ${formatDateObj(sched.dueDate)}`;
+
+    const todayLogs = (group.dailyLogs || []).filter(l => l.date === todayStr);
+    const todayPageCount = todayLogs.reduce((sum, l) => sum + l.count, 0);
+
+    document.getElementById('kpi-today-pages').innerText = `${todayPageCount} Sayfa`;
+    document.getElementById('kpi-today-log-count').innerText = `${todayLogs.length} Kayıt Girildi`;
+
+    const compCount = group.completedJuzs ? group.completedJuzs.length : 0;
+    document.getElementById('kpi-completed-juz-count').innerText = `${compCount} / 30 Cüz`;
+    document.getElementById('kpi-total-hatim').innerText = `${(state.hatimHistory || []).length} Hatim`;
+  }
+
+  function renderJuzTable() {
+    const group = getActiveGroup();
+    const tbody = document.getElementById('juz-table-body');
+    tbody.innerHTML = '';
+
+    const currentActiveJuz = parseInt(group.manualActiveJuz) || 1;
+    const totalPages = Math.ceil(30 / juzPageSize);
+
+    if (juzCurrentPage < 1) juzCurrentPage = 1;
+    if (juzCurrentPage > totalPages) juzCurrentPage = totalPages;
+
+    const startIdx = (juzCurrentPage - 1) * juzPageSize + 1;
+    const endIdx = Math.min(30, startIdx + juzPageSize - 1);
+
+    for (let i = startIdx; i <= endIdx; i++) {
+      const sched = getJuzScheduleForGroup(group, i);
+      const isCompleted = group.completedJuzs && group.completedJuzs.includes(i);
+      const readPages = getJuzTotalPages(group, i);
+      const percent = Math.round((readPages / 20) * 100);
+
+      const isActive = (i === currentActiveJuz);
+
+      let statusBadge = `<span class="badge badge-warning">⏳ Bekliyor</span>`;
+      if (isCompleted || readPages >= 20) {
+        statusBadge = `<span class="badge badge-success">✅ Okundu</span>`;
+      } else if (isActive) {
+        statusBadge = `<span class="badge badge-primary">📖 Bu Haftanın Cüzü</span>`;
+      }
+
+      const tr = document.createElement('tr');
+      if (isActive) {
+        tr.style.background = "rgba(59, 130, 246, 0.12)";
+      }
+
+      tr.innerHTML = `
+        <td><b>${i}. Cüz</b></td>
+        <td>📅 ${formatDateObj(sched.takeDate)}</td>
+        <td>⏳ ${formatDateObj(sched.dueDate)}</td>
+        <td>
+          <div class="progress-minibar">
+            <div class="progress-minibar-fill" style="width: ${percent}%;"></div>
+          </div>
+          <span style="font-size:0.75rem; font-weight:700; margin-left:4px;">${readPages}/20 (%${percent})</span>
+        </td>
+        <td>${statusBadge}</td>
+        <td>
+          <a class="quran-link" href="https://quran.com/juz/${i}" target="_blank">📖 Cüz ${i} ↗</a>
+        </td>
+        <td>
+          <div style="display:flex; gap:4px;">
+            <button class="btn ${isCompleted ? 'btn-danger' : 'btn-success'}" style="padding: 2px 6px; font-size:0.72rem;" onclick="toggleJuzStatus(${i})">
+              ${isCompleted ? '❌ İptal' : '✓ Tamamla'}
+            </button>
+            ${!isActive ? `<button class="btn btn-preset" style="padding:2px 6px; font-size:0.7rem; color:var(--gold);" onclick="changeCurrentActiveJuz(${i})" title="Bu cüzü bu haftalık aktif yap">🎯 Aktif Yap</button>` : ''}
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    document.getElementById('juz-page-info').innerText = `Sayfa ${juzCurrentPage} / ${totalPages} (Cüz ${startIdx}-${endIdx})`;
+    document.getElementById('juz-prev-btn').disabled = (juzCurrentPage === 1);
+    document.getElementById('juz-next-btn').disabled = (juzCurrentPage === totalPages);
+  }
+
+  function changeJuzPage(dir) {
+    juzCurrentPage += dir;
+    renderJuzTable();
+  }
+
+  function renderDailyLogsTable() {
+    const group = getActiveGroup();
+    const tbody = document.getElementById('daily-log-table-body');
+    tbody.innerHTML = '';
+
+    const logs = group.dailyLogs || [];
+    if (logs.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:10px;">Henüz okuma kaydı eklenmedi.</td></tr>`;
+      return;
+    }
+
+    logs.forEach(l => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${formatDate(l.date)}</td>
+        <td><b>${l.juzNum}. Cüz</b></td>
+        <td>Sayfa ${l.startPage} - ${l.endPage}</td>
+        <td><span class="badge badge-primary">${l.count} Sayfa</span></td>
+        <td>
+          <button class="btn btn-danger" style="padding:2px 6px; font-size:0.72rem;" onclick="deleteDailyLog(${l.id})">Sil</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderHistoryTable() {
+    const tbody = document.getElementById('history-table-body');
+    tbody.innerHTML = '';
+
+    const history = state.hatimHistory || [];
+    if (history.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:10px;">Henüz tamamlanmış hatim kaydı bulunmuyor.</td></tr>`;
+      document.getElementById('history-page-info').innerText = `Sayfa 1 / 1`;
+      document.getElementById('hist-prev-btn').disabled = true;
+      document.getElementById('hist-next-btn').disabled = true;
+      return;
+    }
+
+    const totalPages = Math.ceil(history.length / historyPageSize);
+    if (historyCurrentPage < 1) historyCurrentPage = 1;
+    if (historyCurrentPage > totalPages) historyCurrentPage = totalPages;
+
+    const startIdx = (historyCurrentPage - 1) * historyPageSize;
+    const pageItems = history.slice(startIdx, startIdx + historyPageSize);
+
+    pageItems.forEach(h => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><b>${h.name}</b></td>
+        <td>${formatDate(h.startDate)}</td>
+        <td>${formatDate(h.endDate)}</td>
+        <td>${h.durationDays} Gün (${h.durationWeeks} Hafta)</td>
+        <td><span class="badge badge-success">🏆 Tamamlandı (${h.completedCount}/30 Cüz)</span></td>
+        <td>
+          <button class="btn btn-danger" style="padding:2px 6px; font-size:0.72rem;" onclick="deleteHistory(${h.id})">Sil</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('history-page-info').innerText = `Sayfa ${historyCurrentPage} / ${totalPages}`;
+    document.getElementById('hist-prev-btn').disabled = (historyCurrentPage === 1);
+    document.getElementById('hist-next-btn').disabled = (historyCurrentPage === totalPages);
+  }
+
+  function changeHistoryPage(dir) {
+    historyCurrentPage += dir;
+    renderHistoryTable();
+  }
+
+  function deleteHistory(id) {
+    if (confirm("Bu hatim kaydını silmek istediğinize emin misiniz?")) {
+      state.hatimHistory = state.hatimHistory.filter(h => h.id !== id);
+      renderAll();
+      triggerAutoSave();
+    }
+  }
+
+  function renderAll() {
+    renderKPIs();
+    renderJuzTable();
+    renderDailyLogsTable();
+    renderHistoryTable();
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    return dateStr;
+  }
+
+  function formatDateObj(dateObj) {
+    if (!dateObj) return '-';
+    const d = String(dateObj.getDate()).padStart(2, '0');
+    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const y = dateObj.getFullYear();
+    return `${d}.${m}.${y}`;
+  }
+</script>
+
+</body>
+</html>

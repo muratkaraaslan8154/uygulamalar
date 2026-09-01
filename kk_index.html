@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taksit & KK Takip - Dashboard</title>
+  <!-- Chart.js Kütüphanesi -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-y: auto;
+      font-size: 0.85rem;
+      padding: 12px;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    header h1 { font-size: 1.2rem; }
+
+    nav { display: flex; gap: 8px; }
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      font-size: 0.8rem;
+    }
+    nav a.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .status-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-muted); }
+
+    /* GENEL KART YAPISI */
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ÜST KISIM DÜZENİ: SOL FORM - ORTA GRAFİK - SAĞ TABLOLAR (SOL VE SAĞ GENİŞLETİLDİ) */
+    .top-section {
+      display: grid;
+      grid-template-columns: 430px 1fr 430px; /* Grafiğin küçülme oranına istinaden sol ve sağ paneller 380px'den 430px'e genişletildi */
+      gap: 14px;
+    }
+
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Sol paneldeki kartın tüm yüksekliği kaplamasını sağlar */
+    .left-panel > .card {
+      flex: 1;
+    }
+
+    /* ORTA PANEL: Genişlik 1/6 oranında daraltılmış (%83.33) ve ortalanmış */
+    .middle-panel {
+      display: flex;
+      flex-direction: column;
+      width: 83.33%;
+      justify-self: center;
+    }
+
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* KPI KARTLARI */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .kpi-card {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .kpi-title { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; }
+    .kpi-val { 
+      font-size: 0.85rem; 
+      font-weight: 700; 
+      margin-top: 3px; 
+      white-space: normal; 
+      word-wrap: break-word;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      -webkit-hyphens: auto;
+    }
+
+    /* FORM STİLLERİ */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 3px; }
+    .form-group label { font-size: 0.72rem; color: var(--text-muted); }
+    .form-group input, .form-group select {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      width: 100%;
+    }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 7px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 0.8rem;
+    }
+    .btn:hover { background-color: var(--primary-hover); }
+    .btn-danger { background-color: var(--danger); }
+    .btn-warning { background-color: var(--warning); color: #0f172a; }
+    .btn-secondary { background-color: var(--border-color); color: var(--text-main); }
+    .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* TABLO STİLLERİ & METİN TAŞMA KORUMASI */
+    .table-wrapper {
+      overflow-x: auto;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      font-size: 0.8rem; 
+      table-layout: fixed;
+    }
+    th, td { 
+      text-align: left; 
+      padding: 8px 10px; 
+      border-bottom: 1px solid var(--border-color); 
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    th { color: var(--text-muted); font-weight: 600; position: sticky; top: 0; background: var(--card-bg); z-index: 2; }
+
+    .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+    .badge-person { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .badge-general { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+    
+    .actions-cell { display: flex; gap: 4px; }
+
+    /* TAKVİM DÖNEM SEÇİCİ */
+    .period-picker-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      user-select: none;
+    }
+
+    .period-btn {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+    .period-btn:hover { background: var(--primary); border-color: var(--primary); color: white; }
+
+    .period-display {
+      background: #0f172a;
+      border: 1px solid var(--primary);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: 700;
+      color: #38bdf8;
+      cursor: pointer;
+      min-width: 140px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .month-picker-popup {
+      position: absolute;
+      top: 115%;
+      left: 0;
+      z-index: 1000;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+      width: 250px;
+      display: none;
+    }
+    .month-picker-popup.active { display: block; }
+    .month-picker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .month-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .month-item {
+      padding: 6px;
+      text-align: center;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+    }
+    .month-item:hover, .month-item.active { background: var(--primary); color: white; }
+
+    /* SAYFALAMA (PAGINATION) */
+    .pagination-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-color);
+    }
+    .pagination-info { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* RESPONSIVE DÜZEN KORUMASI */
+    @media (max-width: 1300px) {
+      .top-section { grid-template-columns: 1fr; }
+      .middle-panel { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  
+  <!-- ÜST BANNER & NAVİGASYON -->
+  <header>
+    <h1>💳 Taksit & KK Takip</h1>
+    <nav>
+      <a href="#" class="active">📊 Dashboard</a>
+      <a href="#">💳 Kartlar</a>
+      <a href="#">📝 Taksitler</a>
+    </nav>
+    <span id="sync-status" class="status-badge">🔄 Yükleniyor...</span>
+  </header>
+
+  <!-- ÜST KISIM: SOLDA FORM - ORTADA GRAFİK - SAĞDA ALT ALTA TABLOLAR -->
+  <div class="top-section">
+    
+    <!-- 1. SOL PANEL: KPI'lar & FORM (GENİŞLETİLDİ) -->
+    <div class="left-panel">
+      
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Toplam Kart Borcu</div>
+          <div class="kpi-val" id="kpi-total-debt">₺0,00</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Seçili Ay Ödemesi</div>
+          <div class="kpi-val" id="kpi-this-month" style="color:var(--warning)">₺0,00</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">En Yakın Kesim</div>
+          <div class="kpi-val" id="kpi-next-cutoff" style="font-size:0.75rem; color:var(--warning)">-</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" id="form-card-title">➕ Yeni Taksit Ekle</div>
+        <form id="add-installment-form" onsubmit="handleAddInstallment(event)">
+          <input type="hidden" id="editing-id" value="">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Kredi Kartı</label>
+              <select id="form-card" required></select>
+            </div>
+            <div class="form-group">
+              <label>Kategori</label>
+              <select id="form-category" onchange="togglePersonField()" required>
+                <option value="Kişisel">👤 Kişiye Bağlı</option>
+                <option value="Market">🛒 Market</option>
+                <option value="Pazar">🧺 Pazar</option>
+                <option value="Genel Taksit">📦 Genel Taksit</option>
+              </select>
+            </div>
+            <div class="form-group" id="person-select-group">
+              <label>Kişi Seçin</label>
+              <select id="form-person"></select>
+            </div>
+            <div class="form-group">
+              <label>Açıklama</label>
+              <input type="text" id="form-title" placeholder="Örn: Harcama" required>
+            </div>
+            <div class="form-group">
+              <label>Toplam Tutar (₺)</label>
+              <input type="number" step="0.01" id="form-total-price" placeholder="0.00" oninput="calcMonthly()" required>
+            </div>
+            <div class="form-group">
+              <label>Taksit Sayısı</label>
+              <input type="number" id="form-count" value="1" min="1" oninput="calcMonthly()" required>
+            </div>
+            <div class="form-group">
+              <label>Aylık Taksit (₺)</label>
+              <input type="number" step="0.01" id="form-monthly-price" readonly style="background:#0f172a; font-weight:bold; color:var(--warning);">
+            </div>
+            <div class="form-group">
+              <label>Başlangıç Ayı</label>
+              <input type="month" id="form-start-month" required>
+            </div>
+          </div>
+          <div style="margin-top:10px; display:flex; gap:6px;">
+            <button type="submit" class="btn" id="submit-btn" style="flex:1;">💾 Kaydet</button>
+            <button type="button" class="btn btn-secondary" id="cancel-edit-btn" style="display:none;" onclick="cancelEdit()">❌ İptal</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- 2. ORTA PANEL: BORÇ DAĞILIM GRAFİĞİ (Genişlik %83.33, Yükseklik Orantılı Düşürüldü) -->
+    <div class="middle-panel">
+      <div class="card" style="height: 100%; justify-content: space-between;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="card-title">📊 Borç Dağılım Grafiği</div>
+          <div style="display: flex; gap: 4px;">
+            <button class="btn btn-sm" id="chart-btn-card" onclick="setChartMode('card')">💳 Kartlar</button>
+            <button class="btn btn-secondary btn-sm" id="chart-btn-person" onclick="setChartMode('person')">👤 Kişiler</button>
+          </div>
+        </div>
+        <!-- Grafik Yüksekliği 280px'den 200px'e düşürüldü -->
+        <div style="position: relative; flex: 1; min-height: 200px; width: 100%; display: flex; align-items: center; justify-content: center; margin-top: 5px;">
+          <canvas id="debtChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. SAĞ PANEL: EN SAĞDA ALT ALTA TABLOLAR (GENİŞLETİLDİ) -->
+    <div class="right-panel">
+      
+      <!-- KART DAĞILIMI TABLOSU -->
+      <div class="card">
+        <div class="card-title">💳 Kart Dağılımı</div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 44%;">Kart</th>
+                <th style="width: 28%;">Ay Ödemesi</th>
+                <th style="width: 28%;">Kalan Borç</th>
+              </tr>
+            </thead>
+            <tbody id="card-debts-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination-wrapper">
+          <div class="pagination-info" id="card-pagination-info">Gösterilen: 0-0 / Toplam 0</div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="btn btn-secondary btn-sm" id="btn-prev-card" onclick="changeCardPage(-1)">◀ Önceki</button>
+            <span style="font-weight: bold; padding: 0 4px; font-size: 0.75rem;" id="card-page-display">Sayfa 1 / 1</span>
+            <button class="btn btn-secondary btn-sm" id="btn-next-card" onclick="changeCardPage(1)">Sonraki ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KİŞİ DAĞILIMI TABLOSU (2 SATIRA DÜŞÜRÜLDÜ & SIRALAMA SEÇENEĞİ EKLENDİ) -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="card-title">👤 Kişi Dağılımı</div>
+          <!-- Sıralama Seçici -->
+          <select id="person-sort-select" onchange="renderDashboard()" style="background: #0f172a; color: var(--text-muted); border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 0.72rem; outline: none; cursor: pointer;">
+            <option value="name-asc">🔤 İsim (A-Z)</option>
+            <option value="month-desc">📉 Ay Ödemesi (Yüksek-Düşük)</option>
+            <option value="month-asc">📈 Ay Ödemesi (Düşük-Yüksek)</option>
+            <option value="remaining-desc">💰 Kalan Borç (Yüksek-Düşük)</option>
+            <option value="remaining-asc">💰 Kalan Borç (Düşük-Yüksek)</option>
+          </select>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 44%;">Kişi</th>
+                <th style="width: 28%;">Ay Ödemesi</th>
+                <th style="width: 28%;">Kalan Borç</th>
+              </tr>
+            </thead>
+            <tbody id="person-debts-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination-wrapper">
+          <div class="pagination-info" id="person-pagination-info">Gösterilen: 0-0 / Toplam 0</div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="btn btn-secondary btn-sm" id="btn-prev-person" onclick="changePersonPage(-1)">◀ Önceki</button>
+            <span style="font-weight: bold; padding: 0 4px; font-size: 0.75rem;" id="person-page-display">Sayfa 1 / 1</span>
+            <button class="btn btn-secondary btn-sm" id="btn-next-person" onclick="changePersonPage(1)">Sonraki ▶</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ALT KISIM: SEÇİLİ AY TAKSİT DAĞILIMI (TAM GENİŞLİK) -->
+  <div class="card" style="width: 100%;">
+    <div class="card-title">📅 Seçili Ay Taksit Dağılımı</div>
+    
+    <!-- AY VE YIL SEÇİM TOOLBARI -->
+    <div style="margin: 4px 0 6px 0; display:flex; gap:8px; align-items:center;">
+      <input type="hidden" id="dashboard-month-filter">
+
+      <div class="period-picker-container" id="period-picker-container">
+        <button class="period-btn" onclick="stepMonth(-1)" title="Önceki Ay">◀</button>
+        <div class="period-display" onclick="toggleMonthPickerPopup()" id="period-display-text">📅 Ay Seçiniz</div>
+        <button class="period-btn" onclick="stepMonth(1)" title="Sonraki Ay">▶</button>
+        <button class="period-btn" onclick="goToCurrentMonth()" style="background: rgba(16, 185, 129, 0.15); color:#34d399; border-color:var(--success);">📍 Bu Ay</button>
+
+        <div class="month-picker-popup" id="month-picker-popup">
+          <div class="month-picker-header">
+            <button class="period-btn btn-sm" onclick="changePickerYear(-1)">◀</button>
+            <span id="picker-year-display" style="font-weight: bold; color: var(--text-main);">2026</span>
+            <button class="period-btn btn-sm" onclick="changePickerYear(1)">▶</button>
+          </div>
+          <div class="month-grid" id="month-grid-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANA TAKSİT TABLOSU -->
+    <div class="table-wrapper" style="max-height: none;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 14%;">Kategori / Kişi</th>
+            <th style="width: 28%;">Açıklama</th>
+            <th style="width: 28%;">Kart</th>
+            <th style="width: 10%;">Taksit Sırası</th>
+            <th style="width: 12%;">Aylık Tutar</th>
+            <th style="width: 8%;">İşlemler</th>
+          </tr>
+        </thead>
+        <tbody id="dashboard-table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- SAYFALAMA CONTROLS -->
+    <div class="pagination-wrapper">
+      <div class="pagination-info" id="pagination-info">Gösterilen: 0-0 / Toplam 0</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="btn btn-secondary btn-sm" id="btn-prev-page" onclick="changePage(-1)">◀ Önceki</button>
+        <span style="font-weight: bold; padding: 0 4px; font-size: 0.8rem;" id="page-display-text">Sayfa 1 / 1</span>
+        <button class="btn btn-secondary btn-sm" id="btn-next-page" onclick="changePage(1)">Sonraki ▶</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const DB_URL = "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app/taksitTakip.json";
+  const MONTH_NAMES = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+
+  let cards = [];
+  let persons = [];
+  let installments = [];
+
+  let currentDateState = new Date();
+  let pickerGridYear = currentDateState.getFullYear();
+
+  /* SAYFALAMA DEĞİŞKENLERİ */
+  let currentPage = 1;
+  const itemsPerPage = 5; // Ana tablo sayfa limiti
+
+  let cardCurrentPage = 1;
+  const cardItemsPerPage = 4; // Kart tablosu sayfa limiti
+
+  let personCurrentPage = 1;
+  const personItemsPerPage = 2; // Kişi tablosu sayfa limiti 2 satıra düşürüldü
+
+  /* GRAFİK DEĞİŞKENLERİ */
+  let currentChartMode = 'card'; // 'card' veya 'person'
+  let debtChart = null;
+
+  async function initApp() {
+    await fetchFromFirebase();
+  }
+
+  function setStatus(text, color) {
+    const statusEl = document.getElementById('sync-status');
+    if (statusEl) {
+      statusEl.innerText = text;
+      statusEl.style.color = color || 'var(--text-muted)';
+    }
+  }
+
+  async function fetchFromFirebase() {
+    setStatus('🔄 Yükleniyor...', 'var(--warning)');
+    try {
+      const response = await fetch(DB_URL);
+      if (response.ok) {
+        const data = await response.json();
+        if (data) {
+          cards = data.cards || [];
+          persons = data.persons || [];
+          installments = data.installments || [];
+        }
+        setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+      } else {
+        setStatus('🔴 Sunucu Hatası', 'var(--danger)');
+      }
+    } catch (err) {
+      setStatus('🔴 Bağlantı Kesildi', 'var(--danger)');
+    }
+    renderDashboard();
+  }
+
+  async function saveToFirebase() {
+    setStatus('⏳ Kaydedildiği...', 'var(--warning)');
+    try {
+      const payload = { cards, persons, installments };
+      const res = await fetch(DB_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) setStatus('🟢 Canlı Bağlantı', 'var(--success)');
+    } catch (err) {
+      setStatus('🔴 Kayıt Hatası', 'var(--danger)');
+    }
+  }
+
+  /* TAKVİM VE DÖNEM SEÇİMİ */
+  function updatePeriodState() {
+    const year = currentDateState.getFullYear();
+    const month = currentDateState.getMonth();
+    
+    const formattedMonth = String(month + 1).padStart(2, '0');
+    document.getElementById('dashboard-month-filter').value = `${year}-${formattedMonth}`;
+    document.getElementById('period-display-text').innerText = `📅 ${MONTH_NAMES[month]} ${year}`;
+    pickerGridYear = year;
+
+    currentPage = 1;
+    cardCurrentPage = 1;
+    personCurrentPage = 1;
+    renderDashboard();
+  }
+
+  function stepMonth(delta) {
+    currentDateState.setMonth(currentDateState.getMonth() + delta);
+    updatePeriodState();
+  }
+
+  function goToCurrentMonth() {
+    currentDateState = new Date();
+    updatePeriodState();
+  }
+
+  function toggleMonthPickerPopup() {
+    const popup = document.getElementById('month-picker-popup');
+    popup.classList.toggle('active');
+    if (popup.classList.contains('active')) {
+      pickerGridYear = currentDateState.getFullYear();
+      renderMonthGrid();
+    }
+  }
+
+  function changePickerYear(delta) {
+    pickerGridYear += delta;
+    renderMonthGrid();
+  }
+
+  function selectMonthFromGrid(monthIdx) {
+    currentDateState.setFullYear(pickerGridYear);
+    currentDateState.setMonth(monthIdx);
+    document.getElementById('month-picker-popup').classList.remove('active');
+    updatePeriodState();
+  }
+
+  function renderMonthGrid() {
+    document.getElementById('picker-year-display').innerText = pickerGridYear;
+    const gridContainer = document.getElementById('month-grid-container');
+    gridContainer.innerHTML = '';
+
+    const selectedYear = currentDateState.getFullYear();
+    const selectedMonth = currentDateState.getMonth();
+
+    MONTH_NAMES.forEach((mName, idx) => {
+      const isSelected = (selectedYear === pickerGridYear && selectedMonth === idx);
+      const btn = document.createElement('div');
+      btn.className = `month-item ${isSelected ? 'active' : ''}`;
+      btn.innerText = mName.substring(0, 3);
+      btn.onclick = () => selectMonthFromGrid(idx);
+      gridContainer.appendChild(btn);
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    const container = document.getElementById('period-picker-container');
+    if (container && !container.contains(e.target)) {
+      document.getElementById('month-picker-popup').classList.remove('active');
+    }
+  });
+
+  /* SAYFALAMA FONKSİYONLARI */
+  function changePage(delta) {
+    currentPage += delta;
+    renderDashboard();
+  }
+
+  function changeCardPage(delta) {
+    cardCurrentPage += delta;
+    renderDashboard();
+  }
+
+  function changePersonPage(delta) {
+    personCurrentPage += delta;
+    renderDashboard();
+  }
+
+  /* GRAFİK MOD SEÇİMİ */
+  function setChartMode(mode) {
+    currentChartMode = mode;
+    document.getElementById('chart-btn-card').className = (mode === 'card') ? 'btn btn-sm' : 'btn btn-secondary btn-sm';
+    document.getElementById('chart-btn-person').className = (mode === 'person') ? 'btn btn-sm' : 'btn btn-secondary btn-sm';
+    renderDebtChart();
+  }
+
+  /* GRAFİK RENDER */
+  function renderDebtChart() {
+    const selectedMonth = document.getElementById('dashboard-month-filter').value;
+    const ctx = document.getElementById('debtChart');
+    if (!ctx) return;
+
+    let labels = [];
+    let data = [];
+    const colors = [
+      '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', 
+      '#06b6d4', '#ec4899', '#6366f1', '#14b8a6', '#f97316'
+    ];
+
+    if (currentChartMode === 'card') {
+      labels = cards.map(c => c.name);
+      data = cards.map(card => {
+        const cardInstallments = installments.filter(i => i.cardId == card.id);
+        return cardInstallments
+          .filter(i => isInstallmentActiveInMonth(i, selectedMonth))
+          .reduce((acc, curr) => acc + parseFloat(curr.monthlyAmount), 0);
+      });
+    } else {
+      labels = persons.map(p => p.name);
+      data = persons.map(person => {
+        const personInstallments = installments.filter(i => i.category === 'Kişisel' && i.personId == person.id);
+        return personInstallments
+          .filter(i => isInstallmentActiveInMonth(i, selectedMonth))
+          .reduce((acc, curr) => acc + parseFloat(curr.monthlyAmount), 0);
+      });
+    }
+
+    if (debtChart) {
+      debtChart.destroy();
+    }
+
+    debtChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: colors.slice(0, labels.length),
+          borderColor: '#1e293b',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#f8fafc',
+              font: { size: 10 },
+              boxWidth: 10,
+              padding: 8
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const val = context.raw || 0;
+                return ` ${context.label}: ${formatCurrency(val)}`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /* HESAPLAMALAR VE YARDIMCI FONKSİYONLAR */
+  function getDaysUntilCutoff(cutoffDay) {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    let targetDate = new Date(currentYear, currentMonth, cutoffDay);
+    if (today.getDate() > cutoffDay) {
+      targetDate = new Date(currentYear, currentMonth + 1, cutoffDay);
+    }
+    const diffTime = targetDate - new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  function calculateMonthlyAmount(targetMonthStr) {
+    let total = 0;
+    installments.forEach(item => {
+      if (isInstallmentActiveInMonth(item, targetMonthStr)) {
+        total += parseFloat(item.monthlyAmount);
+      }
+    });
+    return total;
+  }
+
+  function isInstallmentActiveInMonth(item, targetMonthStr) {
+    if (!targetMonthStr) return false;
+    const start = new Date(item.startMonth + "-01");
+    const target = new Date(targetMonthStr + "-01");
+    const diffMonths = (target.getFullYear() - start.getFullYear()) * 12 + (target.getMonth() - start.getMonth());
+    return diffMonths >= 0 && diffMonths < item.totalInstallments;
+  }
+
+  function getRemainingDebt(item, targetMonthStr) {
+    if (!targetMonthStr) return 0;
+    const start = new Date(item.startMonth + "-01");
+    const target = new Date(targetMonthStr + "-01");
+    const diffMonths = (target.getFullYear() - start.getFullYear()) * 12 + (target.getMonth() - start.getMonth());
+    
+    if (diffMonths < 0) {
+      return parseFloat(item.totalAmount);
+    } else if (diffMonths < item.totalInstallments) {
+      const remainingCount = item.totalInstallments - diffMonths;
+      return remainingCount * parseFloat(item.monthlyAmount);
+    } else {
+      return 0;
+    }
+  }
+
+  function formatCurrency(val) {
+    return (val || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺';
+  }
+
+  window.onload = () => {
+    document.getElementById('form-start-month').value = new Date().toISOString().slice(0, 7);
+    updatePeriodState();
+    initApp();
+  };
+
+  function togglePersonField() {
+    const cat = document.getElementById('form-category').value;
+    document.getElementById('person-select-group').style.display = (cat === 'Kişisel') ? 'flex' : 'none';
+  }
+
+  function calcMonthly() {
+    const total = parseFloat(document.getElementById('form-total-price').value) || 0;
+    const count = parseInt(document.getElementById('form-count').value) || 1;
+    document.getElementById('form-monthly-price').value = (total / count).toFixed(2);
+  }
+
+  /* ANA EKRAN RENDER */
+  function renderDashboard() {
+    const selectedMonth = document.getElementById('dashboard-month-filter').value;
+
+    const cardSelect = document.getElementById('form-card');
+    if (cardSelect) cardSelect.innerHTML = cards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    
+    const personSelect = document.getElementById('form-person');
+    if (personSelect) personSelect.innerHTML = persons.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+    // KPI Kartları
+    let grandTotalDebt = installments.reduce((acc, curr) => acc + parseFloat(curr.totalAmount), 0);
+    document.getElementById('kpi-total-debt').innerText = formatCurrency(grandTotalDebt);
+
+    const thisMonthTotal = calculateMonthlyAmount(selectedMonth);
+    document.getElementById('kpi-this-month').innerText = formatCurrency(thisMonthTotal);
+
+    if (cards.length > 0) {
+      let minDays = Infinity;
+      let closestCard = null;
+      cards.forEach(c => {
+        const days = getDaysUntilCutoff(c.cutoffDay);
+        if (days < minDays) {
+          minDays = days;
+          closestCard = c;
+        }
+      });
+      document.getElementById('kpi-next-cutoff').innerText = `${closestCard.name} (${minDays} gün)`;
+      document.getElementById('kpi-next-cutoff').title = `${closestCard.name} (${minDays} gün)`;
+    }
+
+    // Grafik Güncelle
+    renderDebtChart();
+
+    // Kart Borçları Tablosu (Sayfalamalı)
+    const totalCards = cards.length;
+    const totalCardPages = Math.ceil(totalCards / cardItemsPerPage) || 1;
+    if (cardCurrentPage > totalCardPages) cardCurrentPage = totalCardPages;
+    if (cardCurrentPage < 1) cardCurrentPage = 1;
+
+    const startCardIdx = (cardCurrentPage - 1) * cardItemsPerPage;
+    const pageCards = cards.slice(startCardIdx, startCardIdx + cardItemsPerPage);
+
+    const cardDebtsTbody = document.getElementById('card-debts-tbody');
+    cardDebtsTbody.innerHTML = '';
+
+    if (pageCards.length === 0) {
+      cardDebtsTbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:10px;">Kart bulunmamaktadır.</td></tr>`;
+    } else {
+      pageCards.forEach(card => {
+        const cardInstallments = installments.filter(i => i.cardId == card.id);
+        const selectedMonthDebt = cardInstallments
+          .filter(i => isInstallmentActiveInMonth(i, selectedMonth))
+          .reduce((acc, curr) => acc + parseFloat(curr.monthlyAmount), 0);
+        const remainingTotalDebt = cardInstallments
+          .reduce((acc, curr) => acc + getRemainingDebt(curr, selectedMonth), 0);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td title="${card.name}"><b>${card.name}</b></td>
+          <td><b style="color:var(--warning)">${formatCurrency(selectedMonthDebt)}</b></td>
+          <td><b style="color:var(--text-muted)">${formatCurrency(remainingTotalDebt)}</b></td>
+        `;
+        cardDebtsTbody.appendChild(tr);
+      });
+    }
+
+    const endCardIdx = Math.min(startCardIdx + cardItemsPerPage, totalCards);
+    document.getElementById('card-pagination-info').innerText = totalCards > 0 
+      ? `Gösterilen: ${startCardIdx + 1}-${endCardIdx} / Toplam ${totalCards}` 
+      : `Gösterilen: 0-0 / Toplam 0`;
+    document.getElementById('card-page-display').innerText = `Sayfa ${cardCurrentPage} / ${totalCardPages}`;
+    document.getElementById('btn-prev-card').disabled = (cardCurrentPage <= 1);
+    document.getElementById('btn-next-card').disabled = (cardCurrentPage >= totalCardPages);
+
+    // KİŞİ VERİLERİNİ HESAPLAMA & SIRALAMA (Borç Durumuna veya İsteğe Göre)
+    let sortedPersons = persons.map(person => {
+      const personInstallments = installments.filter(i => i.category === 'Kişisel' && i.personId == person.id);
+      const selectedMonthDebt = personInstallments
+        .filter(i => isInstallmentActiveInMonth(i, selectedMonth))
+        .reduce((acc, curr) => acc + parseFloat(curr.monthlyAmount), 0);
+      const remainingTotalDebt = personInstallments
+        .reduce((acc, curr) => acc + getRemainingDebt(curr, selectedMonth), 0);
+
+      return {
+        ...person,
+        selectedMonthDebt,
+        remainingTotalDebt
+      };
+    });
+
+    const sortMode = document.getElementById('person-sort-select') ? document.getElementById('person-sort-select').value : 'name-asc';
+
+    if (sortMode === 'name-asc') {
+      sortedPersons.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+    } else if (sortMode === 'month-desc') {
+      sortedPersons.sort((a, b) => b.selectedMonthDebt - a.selectedMonthDebt);
+    } else if (sortMode === 'month-asc') {
+      sortedPersons.sort((a, b) => a.selectedMonthDebt - b.selectedMonthDebt);
+    } else if (sortMode === 'remaining-desc') {
+      sortedPersons.sort((a, b) => b.remainingTotalDebt - a.remainingTotalDebt);
+    } else if (sortMode === 'remaining-asc') {
+      sortedPersons.sort((a, b) => a.remainingTotalDebt - b.remainingTotalDebt);
+    }
+
+    // Kişi Borçları Tablosu (2 Satırlı Sayfalama)
+    const totalPersons = sortedPersons.length;
+    const totalPersonPages = Math.ceil(totalPersons / personItemsPerPage) || 1;
+    if (personCurrentPage > totalPersonPages) personCurrentPage = totalPersonPages;
+    if (personCurrentPage < 1) personCurrentPage = 1;
+
+    const startPersonIdx = (personCurrentPage - 1) * personItemsPerPage;
+    const pagePersons = sortedPersons.slice(startPersonIdx, startPersonIdx + personItemsPerPage);
+
+    const personDebtsTbody = document.getElementById('person-debts-tbody');
+    personDebtsTbody.innerHTML = '';
+
+    if (pagePersons.length === 0) {
+      personDebtsTbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:10px;">Kişi bulunmamaktadır.</td></tr>`;
+    } else {
+      pagePersons.forEach(person => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td title="${person.name}"><b>👤 ${person.name}</b></td>
+          <td><b style="color:var(--warning)">${formatCurrency(person.selectedMonthDebt)}</b></td>
+          <td><b style="color:var(--text-muted)">${formatCurrency(person.remainingTotalDebt)}</b></td>
+        `;
+        personDebtsTbody.appendChild(tr);
+      });
+    }
+
+    const endPersonIdx = Math.min(startPersonIdx + personItemsPerPage, totalPersons);
+    document.getElementById('person-pagination-info').innerText = totalPersons > 0 
+      ? `Gösterilen: ${startPersonIdx + 1}-${endPersonIdx} / Toplam ${totalPersons}` 
+      : `Gösterilen: 0-0 / Toplam 0`;
+    document.getElementById('person-page-display').innerText = `Sayfa ${personCurrentPage} / ${totalPersonPages}`;
+    document.getElementById('btn-prev-person').disabled = (personCurrentPage <= 1);
+    document.getElementById('btn-next-person').disabled = (personCurrentPage >= totalPersonPages);
+
+    // Ana Taksit Tablosu (Alt Panel)
+    const activeInstallments = installments.filter(item => isInstallmentActiveInMonth(item, selectedMonth));
+    const totalItems = activeInstallments.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    const pageItems = activeInstallments.slice(startIdx, startIdx + itemsPerPage);
+
+    const tbody = document.getElementById('dashboard-table-body');
+    tbody.innerHTML = '';
+
+    if (pageItems.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:16px;">Bu ay için taksit kaydı bulunmamaktadır.</td></tr>`;
+    } else {
+      pageItems.forEach(item => {
+        const start = new Date(item.startMonth + "-01");
+        const target = new Date(selectedMonth + "-01");
+        const diffMonths = (target.getFullYear() - start.getFullYear()) * 12 + (target.getMonth() - start.getMonth());
+        
+        const cardObj = cards.find(c => c.id == item.cardId);
+        const personObj = persons.find(p => p.id == item.personId);
+        
+        let label = item.category;
+        let badgeClass = "badge-general";
+        if(item.category === 'Kişisel' && personObj) {
+          label = `👤 ${personObj.name}`;
+          badgeClass = "badge-person";
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="badge ${badgeClass}" title="${label}">${label}</span></td>
+          <td title="${item.title}"><b>${item.title}</b></td>
+          <td title="${cardObj ? cardObj.name : '-'}">${cardObj ? cardObj.name : '-'}</td>
+          <td><b>${diffMonths + 1} / ${item.totalInstallments}</b></td>
+          <td><b style="color:var(--text-main);">${formatCurrency(item.monthlyAmount)}</b></td>
+          <td class="actions-cell">
+            <button class="btn btn-warning btn-sm" onclick="editInstallment(${item.id})">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteInstallment(${item.id})">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Pagination Bilgileri (Ana Tablo)
+    const endIdx = Math.min(startIdx + itemsPerPage, totalItems);
+    document.getElementById('pagination-info').innerText = totalItems > 0 
+      ? `Gösterilen: ${startIdx + 1}-${endIdx} / Toplam ${totalItems}` 
+      : `Gösterilen: 0-0 / Toplam 0`;
+
+    document.getElementById('page-display-text').innerText = `Sayfa ${currentPage} / ${totalPages}`;
+    document.getElementById('btn-prev-page').disabled = (currentPage <= 1);
+    document.getElementById('btn-next-page').disabled = (currentPage >= totalPages);
+  }
+
+  async function handleAddInstallment(e) {
+    e.preventDefault();
+    const editingId = document.getElementById('editing-id').value;
+
+    const payloadItem = {
+      id: editingId ? parseInt(editingId) : Date.now(),
+      cardId: document.getElementById('form-card').value,
+      category: document.getElementById('form-category').value,
+      personId: document.getElementById('form-category').value === 'Kişisel' ? document.getElementById('form-person').value : null,
+      title: document.getElementById('form-title').value,
+      totalAmount: parseFloat(document.getElementById('form-total-price').value),
+      totalInstallments: parseInt(document.getElementById('form-count').value),
+      monthlyAmount: parseFloat(document.getElementById('form-monthly-price').value),
+      startMonth: document.getElementById('form-start-month').value
+    };
+
+    if (editingId) {
+      const index = installments.findIndex(i => i.id == editingId);
+      if (index !== -1) installments[index] = payloadItem;
+    } else {
+      installments.push(payloadItem);
+    }
+
+    await saveToFirebase();
+    cancelEdit();
+    renderDashboard();
+  }
+
+  function editInstallment(id) {
+    const item = installments.find(i => i.id == id);
+    if (!item) return;
+
+    document.getElementById('editing-id').value = item.id;
+    document.getElementById('form-card').value = item.cardId;
+    document.getElementById('form-category').value = item.category;
+    togglePersonField();
+    if (item.category === 'Kişisel' && item.personId) {
+      document.getElementById('form-person').value = item.personId;
+    }
+    document.getElementById('form-title').value = item.title;
+    document.getElementById('form-total-price').value = item.totalAmount;
+    document.getElementById('form-count').value = item.totalInstallments;
+    document.getElementById('form-monthly-price').value = item.monthlyAmount;
+    document.getElementById('form-start-month').value = item.startMonth;
+
+    document.getElementById('form-card-title').innerText = "✏️ Düzenle";
+    document.getElementById('submit-btn').innerText = "✏️ Güncelle";
+    document.getElementById('cancel-edit-btn').style.display = "inline-flex";
+  }
+
+  function cancelEdit() {
+    document.getElementById('editing-id').value = "";
+    document.getElementById('add-installment-form').reset();
+    document.getElementById('form-start-month').value = new Date().toISOString().slice(0, 7);
+    togglePersonField();
+
+    document.getElementById('form-card-title').innerText = "➕ Yeni Taksit Ekle";
+    document.getElementById('submit-btn').innerText = "💾 Kaydet";
+    document.getElementById('cancel-edit-btn').style.display = "none";
+  }
+
+  async function deleteInstallment(id) {
+    if (confirm('Bu taksiti silmek istediğinize emin misiniz?')) {
+      installments = installments.filter(i => i.id !== id);
+      await saveToFirebase();
+      renderDashboard();
+    }
+  }
+</script>
+</body>
+</html>
