@@ -396,7 +396,7 @@
             </div>
           </div>
 
-          <!-- HAFTALIK OKUMAYA BAŞLA BUTONU (SEÇİLİ CÜZÜ VE TARİHİ TABLOYA & SAYACA BAĞLAR) -->
+          <!-- HAFTALIK OKUMAYA BAŞLA BUTONU -->
           <button class="btn btn-warning" onclick="startWeeklyReading()" style="width:100%; padding: 10px; font-weight:800; font-size:0.85rem; background: linear-gradient(135deg, #f59e0b, #d97706); color:#000; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);">
             🚀 HAFTALIK OKUMAYA BAŞLA (GERİ SAYIMI BAŞLAT)
           </button>
@@ -422,8 +422,13 @@
               <input type="date" id="log-date">
             </div>
             <div class="form-group">
-              <label>Hangi Cüzü Okudunuz?</label>
+              <label>Hangi Cüz?</label>
               <select id="log-juz"></select>
+            </div>
+            <div class="form-group">
+              <label>Sayfayı Okuyan Kişi</label>
+              <input type="text" id="log-reader" list="reader-datalist" placeholder="İsim yazın veya seçin..." autocomplete="off">
+              <datalist id="reader-datalist"></datalist>
             </div>
           </div>
 
@@ -438,7 +443,7 @@
             </div>
           </div>
 
-          <button class="btn btn-success" onclick="addDailyLog()">
+          <button class="btn btn-success" id="btn-save-log" onclick="addDailyLog()">
             💾 Günlük Okumayı Kaydet
           </button>
           <button class="btn btn-gold" onclick="finishHatimManual()">
@@ -447,22 +452,30 @@
         </div>
       </div>
 
-      <!-- MODÜL 3: GÜNLÜK OKUMA KAYITLARI -->
+      <!-- YERİ DEĞİŞEN 1: TAMAMLANAN HATİM GEÇMİŞİ (SOL ALTA GELDİ) -->
       <div class="card">
-        <div class="card-title" style="color:var(--emerald)">📖 Günlük Okuma Kayıtları (Seçili Grup)</div>
-        <div class="table-wrapper" style="max-height: 150px;">
+        <div class="card-title" style="color:var(--gold)">🏆 Tamamlanan Hatim Geçmişi (Tüm Gruplar)</div>
+        <div class="table-wrapper">
           <table>
             <thead>
               <tr>
-                <th>Tarih</th>
-                <th>Cüz</th>
-                <th>Okunan Sayfalar</th>
-                <th>Sayfa Sayısı</th>
-                <th>Sil</th>
+                <th>Hatim Adı</th>
+                <th>Başlangıç</th>
+                <th>Bitiş</th>
+                <th>Süre</th>
+                <th>Durum</th>
+                <th>İşlem</th>
               </tr>
             </thead>
-            <tbody id="daily-log-table-body"></tbody>
+            <tbody id="history-table-body"></tbody>
           </table>
+        </div>
+        <div class="pagination-controls">
+          <span class="pagination-info" id="history-page-info">Sayfa 1 / 1</span>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-preset" id="hist-prev-btn" onclick="changeHistoryPage(-1)">◀ Önceki</button>
+            <button class="btn-preset" id="hist-next-btn" onclick="changeHistoryPage(1)">Sonraki ▶</button>
+          </div>
         </div>
       </div>
 
@@ -501,29 +514,29 @@
         </div>
       </div>
 
-      <!-- 2. KART: TAMAMLANAN HATİM GEÇMİŞİ -->
+      <!-- YERİ DEĞİŞEN 2: GÜNLÜK OKUMA KAYITLARI (SAĞ ALTA GELDİ) -->
       <div class="card" style="margin-top:auto;">
-        <div class="card-title" style="color:var(--gold)">🏆 Tamamlanan Hatim Geçmişi (Tüm Gruplar)</div>
+        <div class="card-title" style="color:var(--emerald)">📖 Günlük Okuma Kayıtları (Seçili Grup)</div>
         <div class="table-wrapper">
           <table>
             <thead>
               <tr>
-                <th>Hatim Adı</th>
-                <th>Başlangıç Tarihi</th>
-                <th>Bitiş Tarihi</th>
-                <th>Süre (Gün / Hafta)</th>
-                <th>Durum</th>
+                <th>Tarih</th>
+                <th>Cüz</th>
+                <th>Okuyan Kişi</th>
+                <th>Okunan Sayfalar</th>
+                <th>Sayfa Sayısı</th>
                 <th>İşlem</th>
               </tr>
             </thead>
-            <tbody id="history-table-body"></tbody>
+            <tbody id="daily-log-table-body"></tbody>
           </table>
         </div>
         <div class="pagination-controls">
-          <span class="pagination-info" id="history-page-info">Sayfa 1 / 1</span>
+          <span class="pagination-info" id="daily-log-page-info">Sayfa 1 / 1</span>
           <div style="display:flex; gap:6px;">
-            <button class="btn-preset" id="hist-prev-btn" onclick="changeHistoryPage(-1)">◀ Önceki Sayfa</button>
-            <button class="btn-preset" id="hist-next-btn" onclick="changeHistoryPage(1)">Sonraki Sayfa ▶</button>
+            <button class="btn-preset" id="daily-prev-btn" onclick="changeDailyLogPage(-1)">◀ Önceki Sayfa</button>
+            <button class="btn-preset" id="daily-next-btn" onclick="changeDailyLogPage(1)">Sonraki Sayfa ▶</button>
           </div>
         </div>
       </div>
@@ -538,15 +551,20 @@
   const DB_URL = "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app/hatimTakipMulti.json";
 
   let saveDebounceTimer = null;
+  let editingLogId = null; // Düzenlenen günlük kayıt ID'si
   
   let juzCurrentPage = 1;
-  const juzPageSize = 6;
+  const juzPageSize = 14;
 
   let historyCurrentPage = 1;
-  const historyPageSize = 3;
+  const historyPageSize = 4; // 4 satır kuralı
+
+  let dailyLogCurrentPage = 1;
+  const dailyLogPageSize = 4; // 4 satır kuralı
 
   let state = {
     activeGroupId: "group_default",
+    readers: [], // Kişi dropdown listesi
     groups: [
       {
         id: "group_default",
@@ -633,7 +651,7 @@
   }
 
   async function saveToFirebase() {
-    setStatus('⏳ Kaydediliyor...', 'var(--warning)');
+    setStatus('⏳ Kaydedildiği...', 'var(--warning)');
     saveToLocalStorage();
     try {
       const res = await fetch(DB_URL, {
@@ -710,6 +728,7 @@
   function switchGroup(groupId) {
     state.activeGroupId = groupId;
     juzCurrentPage = 1;
+    dailyLogCurrentPage = 1;
     syncFormInputs();
     renderAll();
     triggerAutoSave();
@@ -732,6 +751,7 @@
     state.groups.push(newGroup);
     state.activeGroupId = newGroup.id;
     juzCurrentPage = 1;
+    dailyLogCurrentPage = 1;
     renderGroupDropdown();
     syncFormInputs();
     renderAll();
@@ -748,6 +768,7 @@
       state.groups = state.groups.filter(g => g.id !== current.id);
       state.activeGroupId = state.groups[0].id;
       juzCurrentPage = 1;
+      dailyLogCurrentPage = 1;
       renderGroupDropdown();
       syncFormInputs();
       renderAll();
@@ -768,24 +789,22 @@
     lookupJuzForDate(document.getElementById('lookup-date').value);
   }
 
-  // HAFTALIK OKUMAYI BAŞLATAN VE ÜST SAYICILARI DOĞRUDAN GÜNCELLEYEN FONKSİYON
   function startWeeklyReading() {
     const group = getActiveGroup();
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const inputStartDate = document.getElementById('start-date').value;
     const selectedActiveJuz = parseInt(document.getElementById('current-active-juz-select').value) || 1;
 
-    group.startDate = todayStr;
+    group.startDate = inputStartDate || new Date().toISOString().slice(0, 10);
     group.manualActiveJuz = selectedActiveJuz;
-    document.getElementById('start-date').value = todayStr;
+    document.getElementById('start-date').value = group.startDate;
 
-    // Aktif Cüzü Sayfaya Getir
     juzCurrentPage = Math.ceil(selectedActiveJuz / juzPageSize);
 
     renderAll();
     updateCountdown();
     triggerAutoSave();
 
-    alert(`🚀 "${group.groupName}" için ${selectedActiveJuz}. Cüz geri sayımı başlatıldı!\nTarihler ve tablo doğrudan seçtiğiniz cüze göre bağlandı.`);
+    alert(`🚀 "${group.groupName}" için ${selectedActiveJuz}. Cüz geri sayımı başlatıldı!\nTarihler ve tablo belirlediğiniz başlama tarihine göre bağlandı.`);
   }
 
   function changeCurrentActiveJuz(juzNum) {
@@ -798,12 +817,18 @@
   }
 
   function getJuzScheduleForGroup(group, juzNum) {
-    const startDate = new Date(group.startDate);
+    let startDate;
+    if (group.startDate && group.startDate.includes('-')) {
+      const parts = group.startDate.split('-').map(Number);
+      startDate = new Date(parts[0], parts[1] - 1, parts[2]);
+    } else {
+      startDate = new Date();
+    }
     startDate.setHours(0,0,0,0);
+    
     const cycle = parseInt(group.cycleDays) || 7;
     const activeJuz = parseInt(group.manualActiveJuz) || 1;
 
-    // Karışık cüz dağıtımında aktif cüze göre sıralama hesabı
     const stepOffset = (juzNum - activeJuz + 30) % 30;
 
     const takeDate = new Date(startDate);
@@ -862,10 +887,23 @@
   function lookupJuzForDate(dateStr) {
     if (!dateStr) return;
     const group = getActiveGroup();
-    const targetDate = new Date(dateStr);
+
+    let targetDate;
+    if (dateStr.includes('-')) {
+      const p = dateStr.split('-').map(Number);
+      targetDate = new Date(p[0], p[1] - 1, p[2]);
+    } else {
+      targetDate = new Date(dateStr);
+    }
     targetDate.setHours(0,0,0,0);
 
-    const startDate = new Date(group.startDate);
+    let startDate;
+    if (group.startDate && group.startDate.includes('-')) {
+      const p = group.startDate.split('-').map(Number);
+      startDate = new Date(p[0], p[1] - 1, p[2]);
+    } else {
+      startDate = new Date();
+    }
     startDate.setHours(0,0,0,0);
 
     const cycle = parseInt(group.cycleDays) || 7;
@@ -903,34 +941,104 @@
     triggerAutoSave();
   }
 
+  /* OTOMATİK KİŞİ BİLGİSİ DROPDOWN LİSTESİ */
+  function renderReaderDropdown() {
+    const datalist = document.getElementById('reader-datalist');
+    if (!datalist) return;
+    datalist.innerHTML = '';
+    
+    if (!state.readers) state.readers = [];
+
+    const allReaders = new Set(state.readers);
+    state.groups.forEach(g => {
+      (g.dailyLogs || []).forEach(l => {
+        if (l.reader) allReaders.add(l.reader);
+      });
+    });
+
+    allReaders.forEach(readerName => {
+      const opt = document.createElement('option');
+      opt.value = readerName;
+      datalist.appendChild(opt);
+    });
+  }
+
   function addDailyLog() {
     const group = getActiveGroup();
     const date = document.getElementById('log-date').value;
     const juzNum = parseInt(document.getElementById('log-juz').value);
     const startPage = parseInt(document.getElementById('log-start-page').value);
     const endPage = parseInt(document.getElementById('log-end-page').value);
+    const reader = document.getElementById('log-reader').value.trim() || 'İsimsiz';
 
     if (!date) { alert("Lütfen tarih seçiniz."); return; }
     if (startPage > endPage) { alert("Başlangıç sayfası bitiş sayfasından büyük olamaz."); return; }
 
     const count = (endPage - startPage) + 1;
 
-    const newLog = {
-      id: Date.now(),
-      date: date,
-      juzNum: juzNum,
-      startPage: startPage,
-      endPage: endPage,
-      count: count
-    };
+    // Yeni yazılan ismi kalıcı dropdown listesine ekle
+    if (!state.readers) state.readers = [];
+    if (reader !== 'İsimsiz' && !state.readers.includes(reader)) {
+      state.readers.push(reader);
+    }
 
-    if (!group.dailyLogs) group.dailyLogs = [];
-    group.dailyLogs.unshift(newLog);
+    if (editingLogId) {
+      // DÜZENLEME MODU
+      const index = (group.dailyLogs || []).findIndex(l => l.id === editingLogId);
+      if (index !== -1) {
+        group.dailyLogs[index] = {
+          ...group.dailyLogs[index],
+          date: date,
+          juzNum: juzNum,
+          startPage: startPage,
+          endPage: endPage,
+          count: count,
+          reader: reader
+        };
+      }
+      editingLogId = null;
+      const btn = document.getElementById('btn-save-log');
+      btn.innerHTML = '💾 Günlük Okumayı Kaydet';
+      btn.className = 'btn btn-success';
+      btn.style.color = '#fff';
+    } else {
+      // YENİ EKLEME MODU
+      const newLog = {
+        id: Date.now(),
+        date: date,
+        juzNum: juzNum,
+        startPage: startPage,
+        endPage: endPage,
+        count: count,
+        reader: reader
+      };
+      if (!group.dailyLogs) group.dailyLogs = [];
+      group.dailyLogs.unshift(newLog);
+    }
 
     checkAutoJuzCompletion(group, juzNum);
+    document.getElementById('log-reader').value = '';
 
     renderAll();
     triggerAutoSave();
+  }
+
+  function editDailyLog(id) {
+    const group = getActiveGroup();
+    const log = (group.dailyLogs || []).find(l => l.id === id);
+    if (!log) return;
+
+    editingLogId = id;
+    document.getElementById('log-date').value = log.date;
+    document.getElementById('log-juz').value = log.juzNum;
+    document.getElementById('log-start-page').value = log.startPage;
+    document.getElementById('log-end-page').value = log.endPage;
+    document.getElementById('log-reader').value = log.reader || '';
+
+    const btn = document.getElementById('btn-save-log');
+    btn.innerHTML = '✏️ Kaydı Güncelle';
+    btn.className = 'btn btn-warning';
+    btn.style.color = '#000';
   }
 
   function deleteDailyLog(id) {
@@ -938,6 +1046,15 @@
       const group = getActiveGroup();
       const log = group.dailyLogs.find(l => l.id === id);
       group.dailyLogs = group.dailyLogs.filter(l => l.id !== id);
+      
+      if (editingLogId === id) {
+        editingLogId = null;
+        const btn = document.getElementById('btn-save-log');
+        btn.innerHTML = '💾 Günlük Okumayı Kaydet';
+        btn.className = 'btn btn-success';
+        btn.style.color = '#fff';
+      }
+
       if (log) checkAutoJuzCompletion(group, log.juzNum);
       renderAll();
       triggerAutoSave();
@@ -1102,6 +1219,7 @@
     renderJuzTable();
   }
 
+  /* SAĞ ALTAKİ GÜNLÜK OKUMA KAYITLARI TABLOSU (4 SATIR SAYFALAMALI) */
   function renderDailyLogsTable() {
     const group = getActiveGroup();
     const tbody = document.getElementById('daily-log-table-body');
@@ -1109,25 +1227,49 @@
 
     const logs = group.dailyLogs || [];
     if (logs.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:10px;">Henüz okuma kaydı eklenmedi.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:10px;">Henüz okuma kaydı eklenmedi.</td></tr>`;
+      document.getElementById('daily-log-page-info').innerText = `Sayfa 1 / 1`;
+      document.getElementById('daily-prev-btn').disabled = true;
+      document.getElementById('daily-next-btn').disabled = true;
       return;
     }
 
-    logs.forEach(l => {
+    const totalPages = Math.ceil(logs.length / dailyLogPageSize) || 1;
+    if (dailyLogCurrentPage < 1) dailyLogCurrentPage = 1;
+    if (dailyLogCurrentPage > totalPages) dailyLogCurrentPage = totalPages;
+
+    const startIdx = (dailyLogCurrentPage - 1) * dailyLogPageSize;
+    const pageItems = logs.slice(startIdx, startIdx + dailyLogPageSize);
+
+    pageItems.forEach(l => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${formatDate(l.date)}</td>
         <td><b>${l.juzNum}. Cüz</b></td>
+        <td><span style="color:var(--gold); font-weight:600;">👤 ${l.reader || 'İsimsiz'}</span></td>
         <td>Sayfa ${l.startPage} - ${l.endPage}</td>
         <td><span class="badge badge-primary">${l.count} Sayfa</span></td>
         <td>
-          <button class="btn btn-danger" style="padding:2px 6px; font-size:0.72rem;" onclick="deleteDailyLog(${l.id})">Sil</button>
+          <div style="display:flex; gap:4px;">
+            <button class="btn btn-warning" style="padding:2px 6px; font-size:0.72rem; color:#000;" onclick="editDailyLog(${l.id})">✏️ Düzenle</button>
+            <button class="btn btn-danger" style="padding:2px 6px; font-size:0.72rem;" onclick="deleteDailyLog(${l.id})">Sil</button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
     });
+
+    document.getElementById('daily-log-page-info').innerText = `Sayfa ${dailyLogCurrentPage} / ${totalPages}`;
+    document.getElementById('daily-prev-btn').disabled = (dailyLogCurrentPage === 1);
+    document.getElementById('daily-next-btn').disabled = (dailyLogCurrentPage === totalPages);
   }
 
+  function changeDailyLogPage(dir) {
+    dailyLogCurrentPage += dir;
+    renderDailyLogsTable();
+  }
+
+  /* SOL ALTAKİ TAMAMLANAN HATİM GEÇMİŞİ TABLOSU (4 SATIR SAYFALAMALI) */
   function renderHistoryTable() {
     const tbody = document.getElementById('history-table-body');
     tbody.innerHTML = '';
@@ -1141,7 +1283,7 @@
       return;
     }
 
-    const totalPages = Math.ceil(history.length / historyPageSize);
+    const totalPages = Math.ceil(history.length / historyPageSize) || 1;
     if (historyCurrentPage < 1) historyCurrentPage = 1;
     if (historyCurrentPage > totalPages) historyCurrentPage = totalPages;
 
@@ -1186,6 +1328,7 @@
     renderJuzTable();
     renderDailyLogsTable();
     renderHistoryTable();
+    renderReaderDropdown();
   }
 
   function formatDate(dateStr) {
