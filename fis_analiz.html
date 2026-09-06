@@ -76,9 +76,12 @@
                     <h2 class="text-xs font-bold text-slate-200 uppercase tracking-wider">
                         <i class="fa-solid fa-database text-emerald-400"></i> 2. Firebase Kayıtlı Fiş & Harcama Listesi
                     </h2>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Veriler anlık olarak bulut veritabanınızda eşitlenir. Satırları güncelleyebilir veya manuel veri ekleyebilirsiniz.</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Fiş No yanındaki resim butonuna tıklayarak ilgili fiş görselini görüntüleyebilirsiniz.</p>
                 </div>
                 <div class="flex gap-2">
+                    <button onclick="clearFilters()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-filter-circle-xmark"></i> Filtreleri Temizle
+                    </button>
                     <button onclick="addNewRow()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-1.5">
                         <i class="fa-solid fa-plus"></i> Manuel Satır Ekle
                     </button>
@@ -88,22 +91,34 @@
                 </div>
             </div>
 
-            <!-- Tablo -->
+            <!-- TABLO BÖLÜMÜ -->
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300 border-collapse">
+                <table class="w-full text-left text-xs text-slate-300 border-collapse border border-slate-800">
                     <thead>
-                        <tr class="bg-slate-950 border-b border-slate-800 text-slate-400 uppercase font-bold text-[10px]">
-                            <th class="p-2.5">Tarih</th>
-                            <th class="p-2.5">Saat</th>
-                            <th class="p-2.5">Firma</th>
-                            <th class="p-2.5">Fiş No</th>
-                            <th class="p-2.5">Ürün Adı</th>
-                            <th class="p-2.5">Adet/Kg/Litre</th>
-                            <th class="p-2.5">İlk Fiyat (₺)</th>
-                            <th class="p-2.5">İndirim (%)</th>
-                            <th class="p-2.5">İndirim (₺)</th>
-                            <th class="p-2.5">Net (₺)</th>
-                            <th class="p-2.5 text-center" style="width: 130px;">İşlemler</th>
+                        <tr class="bg-slate-950 border-b border-slate-800 text-slate-400 uppercase font-bold text-[10px] divide-x divide-slate-800">
+                            <th class="p-2 w-24">
+                                <div>Tarih</div>
+                                <input type="text" id="filter_date" oninput="renderTable()" placeholder="Filtre..." class="w-full bg-slate-900 text-slate-200 border border-slate-700 text-[10px] rounded px-1 py-0.5 mt-1 font-normal lowercase focus:outline-none focus:border-sky-500">
+                            </th>
+                            <th class="p-2 w-16"><div>Saat</div></th>
+                            <th class="p-2 w-40">
+                                <div>Firma</div>
+                                <input type="text" id="filter_firma" oninput="renderTable()" placeholder="Filtre..." class="w-full bg-slate-900 text-slate-200 border border-slate-700 text-[10px] rounded px-1 py-0.5 mt-1 font-normal lowercase focus:outline-none focus:border-sky-500">
+                            </th>
+                            <th class="p-2 w-28">
+                                <div>Fiş No & Fiş</div>
+                                <input type="text" id="filter_fisNo" oninput="renderTable()" placeholder="Filtre..." class="w-full bg-slate-900 text-slate-200 border border-slate-700 text-[10px] rounded px-1 py-0.5 mt-1 font-normal lowercase focus:outline-none focus:border-sky-500">
+                            </th>
+                            <th class="p-2 w-52">
+                                <div>Ürün Adı</div>
+                                <input type="text" id="filter_name" oninput="renderTable()" placeholder="Filtre..." class="w-full bg-slate-900 text-slate-200 border border-slate-700 text-[10px] rounded px-1 py-0.5 mt-1 font-normal lowercase focus:outline-none focus:border-sky-500">
+                            </th>
+                            <th class="p-2 w-24">Adet/Kg</th>
+                            <th class="p-2 w-24">İlk Fiyat (₺)</th>
+                            <th class="p-2 w-20">İndirim (%)</th>
+                            <th class="p-2 w-24">İndirim (₺)</th>
+                            <th class="p-2 w-24">Net (₺)</th>
+                            <th class="p-2 text-center w-40">İşlemler</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-800/60">
@@ -117,7 +132,6 @@
 
         <!-- 3. GRAFİK VE ANALİZ PANOLARI -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <!-- Çizgi Grafik: Ürün Fiyat Değişimi -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl">
                 <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
                     <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
@@ -128,7 +142,6 @@
                 <div class="relative h-64"><canvas id="priceHistoryChart"></canvas></div>
             </div>
 
-            <!-- Bar Grafik: Dönemsel Harcama -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl">
                 <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
                     <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
@@ -146,8 +159,22 @@
 
     </main>
 
+    <!-- FİŞ GÖRSELİ ÖNİZLEME MODALI -->
+    <div id="receiptModal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4" onclick="closeReceiptModal()">
+        <div class="relative max-w-2xl w-full max-h-[90vh] bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center shadow-2xl" onclick="event.stopPropagation()">
+            <div class="w-full flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-emerald-400"></i> Kayıtlı Fiş Görseli
+                </h3>
+                <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2 py-1">&times;</button>
+            </div>
+            <div class="overflow-auto max-h-[75vh] w-full flex justify-center">
+                <img id="modalReceiptImg" src="" alt="Fiş Görseli" class="max-w-full rounded-lg border border-slate-800 object-contain shadow-lg">
+            </div>
+        </div>
+    </div>
+
     <script>
-        // FIREBASE YAPILANDIRMASI
         const firebaseConfig = {
             apiKey: "AIzaSyD1hbPbA81qldXCsQxSM4Ozxr9L8sdRTMk",
             authDomain: "karaaslanhomebutcetakip.firebaseapp.com",
@@ -180,16 +207,41 @@
                 parsedData = [];
 
                 Object.keys(rawFirebaseObject).forEach(key => {
-                    parsedData.push({
-                        id: key,
-                        ...rawFirebaseObject[key]
-                    });
+                    parsedData.push({ id: key, ...rawFirebaseObject[key] });
                 });
 
                 renderTable();
                 updateCharts();
             });
         });
+
+        // Görsel Sıkıştırma Fonksiyonu
+        function compressImage(file, maxWidth = 1000, quality = 0.75) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxWidth) {
+                            h = Math.round((h * maxWidth) / w);
+                            w = maxWidth;
+                        }
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
 
         async function processReceipt() {
             const fileInput = document.getElementById('receiptImage');
@@ -202,86 +254,146 @@
             }
 
             statusDiv.classList.remove('hidden');
-            statusText.innerText = "Görsel netleştiriliyor (Siyah/Beyaz Filtre)...";
+            statusText.innerText = "Görsel taranıyor ve boyutlandırılıyor...";
 
-            const img = new Image();
-            img.src = URL.createObjectURL(fileInput.files[0]);
-            
-            img.onload = async () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                
-                ctx.filter = 'grayscale(100%) contrast(300%) brightness(120%)';
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                const processedImage = canvas.toDataURL('image/jpeg');
+            try {
+                const compressedDataUrl = await compressImage(fileInput.files[0], 1000, 0.75);
 
-                try {
+                const img = new Image();
+                img.src = compressedDataUrl;
+
+                img.onload = async () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    ctx.filter = 'grayscale(100%) contrast(170%) brightness(105%)';
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    const processedImage = canvas.toDataURL('image/jpeg', 0.9);
+
                     statusText.innerText = "OCR Motoru Başlatılıyor (Tesseract)...";
                     const worker = await Tesseract.createWorker('tur');
-                    
+
                     statusText.innerText = "Netleştirilmiş görsel taranıyor...";
                     const ret = await worker.recognize(processedImage);
                     const text = ret.data.text;
-                    
+
                     await worker.terminate();
 
                     statusText.innerText = "Veriler ayrıştırılıyor ve Firebase'e aktarılıyor...";
-                    parseReceiptAndSaveToFirebase(text, statusDiv, fileInput);
-                    
-                } catch (err) {
-                    console.error(err);
-                    statusText.innerText = "OCR Tarama hatası oluştu!";
-                    alert("Görsel okunamadı. Lütfen görsel kalitesini kontrol edin.");
-                }
-            };
+                    parseReceiptAndSaveToFirebase(text, compressedDataUrl, statusDiv, fileInput);
+                };
+            } catch (err) {
+                console.error(err);
+                statusText.innerText = "OCR Tarama hatası oluştu!";
+                alert("Görsel okunamadı veya işlenirken hata oluştu.");
+                statusDiv.classList.add('hidden');
+            }
         }
 
-        function parseReceiptAndSaveToFirebase(text, statusDiv, fileInput) {
-            const lines = text.split('\n');
+        function normalizeText(str) {
+            if (!str) return '';
+            return str.toLowerCase()
+                .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+                .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+                .replace(/[^a-z0-9]/g, '');
+        }
 
-            // 1. Tarih ve Saat Çıkarımı
-            let dateMatch = text.match(/(\d{2})[\.\/](\d{2})[\.\/](\d{4})/) || text.match(/(\d{4})[\.\/](\d{2})[\.\/](\d{2})/);
+        // OCR karakter ve kelime toleranslı gelişmiş eşleştirme fonksiyonu
+        function getFuzzyScore(str1, str2) {
+            if (!str1 || !str2) return 0;
+            let n1 = normalizeText(str1);
+            let n2 = normalizeText(str2);
+            if (n1 === n2) return 1.0;
+            if (n1.includes(n2) || n2.includes(n1)) return 0.85;
+
+            // OCR karakter karıştırmaları düzeltmesi (6->g, 0->o, 1->i/l)
+            let c1 = n1.replace(/6/g, 'g').replace(/0/g, 'o').replace(/1/g, 'i');
+            let c2 = n2.replace(/6/g, 'g').replace(/0/g, 'o').replace(/1/g, 'i');
+            if (c1.includes(c2) || c2.includes(c1)) return 0.80;
+
+            let w1 = n1.match(/[a-z0-9]{2,}/g) || [];
+            let w2 = n2.match(/[a-z0-9]{2,}/g) || [];
+            if (w1.length === 0 || w2.length === 0) return 0;
+
+            let matches = 0;
+            w1.forEach(word1 => {
+                let alt1 = word1.replace(/6/g, 'g').replace(/0/g, 'o').replace(/1/g, 'i');
+                if (w2.some(word2 => {
+                    let alt2 = word2.replace(/6/g, 'g').replace(/0/g, 'o').replace(/1/g, 'i');
+                    return word2 === word1 || alt2 === alt1 || word1.includes(word2) || word2.includes(word1) || alt1.includes(alt2) || alt2.includes(alt1);
+                })) {
+                    matches++;
+                }
+            });
+            return matches / Math.max(w1.length, w2.length);
+        }
+
+        function parseReceiptAndSaveToFirebase(text, imageDataUrl, statusDiv, fileInput) {
+            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+            // Tarih Ayrıştırma
+            let dateMatch = text.match(/(?:TAR[İI]H[\s:]*)?(\d{2})[\.\/-](\d{2})[\.\/-](\d{4})/i) || 
+                             text.match(/(\d{4})[\.\/-](\d{2})[\.\/-](\d{2})/);
             let extractedDate = new Date().toISOString().split('T')[0];
-            
             if (dateMatch) {
-                if (dateMatch[1].length === 4) {
-                    extractedDate = `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`;
-                } else {
-                    extractedDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+                if (dateMatch[1].length === 4) extractedDate = `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`;
+                else extractedDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+            }
+
+            // Saat Ayrıştırma
+            let textWithoutDates = text.replace(/\b\d{2}[\.\/-]\d{2}[\.\/-]\d{2,4}\b/g, '');
+            let top15LinesWithoutDates = lines.slice(0, 15).join('\n').replace(/\b\d{2}[\.\/-]\d{2}[\.\/-]\d{2,4}\b/g, '');
+            
+            let extractedTime = "12:00";
+            let timeMatchHeader = top15LinesWithoutDates.match(/(?:S[AÂaâ][AÂaâT|T][T|t]|SAAT|S\.AT|SAT)[\s:]*([0-2]?\d)[:;]([0-5]\d)/i) || 
+                                 top15LinesWithoutDates.match(/\b([0-1]?\d|2[0-3])[:;]([0-5]\d)\b/);
+
+            if (timeMatchHeader) {
+                let hour = timeMatchHeader[1].padStart(2, '0');
+                let min = timeMatchHeader[2].padStart(2, '0');
+                extractedTime = `${hour}:${min}`;
+            } else {
+                let timeMatchGlobal = textWithoutDates.match(/(?:SAAT|S\.AT|SAT)[\s:]*([0-2]?\d)[:;]([0-5]\d)/i) || 
+                                      textWithoutDates.match(/\b([0-1]?\d|2[0-3])[:;]([0-5]\d)\b/);
+                if (timeMatchGlobal) {
+                    let hour = timeMatchGlobal[1].padStart(2, '0');
+                    let min = timeMatchGlobal[2].padStart(2, '0');
+                    extractedTime = `${hour}:${min}`;
                 }
             }
 
-            let timeMatch = text.match(/\b(\d{2}):(\d{2})\b/);
-            let extractedTime = timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : "12:00";
-
-            // 2. Fiş Numarası Çıkarımı
+            // Fiş No Ayrıştırma
             let extractedFisNo = "BİLİNMİYOR";
             let fisNoMatch = text.match(/(?:FİŞ|FIS|FIŞ|FİS|Z|FATURA)\s*NO[\s:\.\-]*([A-Za-z0-9]+)/i);
             if (!fisNoMatch) {
                 let fallbackMatch = text.match(/\bNO[\s:\.\-]*([0-9]{3,})/i);
                 if (fallbackMatch) extractedFisNo = fallbackMatch[1];
-            } else {
-                extractedFisNo = fisNoMatch[1];
-            }
+            } else extractedFisNo = fisNoMatch[1];
 
-            // 3. Firma Adı Çıkarımı
+            // Firma Ayrıştırma
             let extractedFirma = "BİLİNMEYEN FİRMA";
-            let validLines = lines.map(l => l.trim()).filter(l => l.length > 2 && !l.match(/^[0-9:\.\/]+$/));
+            let validLines = lines.filter(l => l.length > 2 && !l.match(/^[0-9:\.\/]+$/));
             if (validLines.length > 0) {
-                extractedFirma = validLines[0].toLocaleUpperCase('tr-TR');
+                let firstLine = validLines[0].toLocaleUpperCase('tr-TR');
+                if (firstLine.includes("A101") || firstLine.includes("BİM") || firstLine.includes("ŞOK") || firstLine.includes("MİGROS")) {
+                    extractedFirma = firstLine;
+                } else if (validLines.length > 1 && validLines[1].toLocaleUpperCase('tr-TR').includes("A101")) {
+                    extractedFirma = validLines[1].toLocaleUpperCase('tr-TR');
+                } else {
+                    extractedFirma = validLines[0].toLocaleUpperCase('tr-TR');
+                }
             }
 
-            // 4. MÜKERRER KAYIT (DUPLICATE) KONTROLÜ
+            // Çift Fiş Kontrolü
             if (extractedFisNo !== "BİLİNMİYOR") {
                 const isDuplicate = parsedData.some(item => 
                     item.date === extractedDate && 
                     item.firma === extractedFirma && 
                     item.fisNo === extractedFisNo
                 );
-
                 if (isDuplicate) {
                     alert(`UYARI: Aynı Fiş Bulundu!\n\nTarih: ${extractedDate}\nFirma: ${extractedFirma}\nFiş No: ${extractedFisNo}\n\nBu fiş daha önce sisteme kaydedilmiş. İşlem iptal edildi.`);
                     statusDiv.classList.add('hidden');
@@ -290,30 +402,58 @@
                 }
             }
 
-            // Taramama sorununu çözmek için kara listeyi "Tam Kelime" (Exact Match) ile kontrol edecek şekilde daralttık
             const blacklist = [
                 "TOPLAM", "TOPKDV", "KDV", "MATRAH", "KREDİ", "KARTI", "SATIŞ", "REF", 
                 "ONAY", "İŞYERİ", "TERMINAL", "BATCH", "BANKA", "EKO NO", "Z NO", "FİŞ NO", 
                 "TARİH", "SAAT", "KASA", "KASİYER", "FATURA", "MERSİS", "V.D", "CAD", 
                 "NO:", "MAH", "GELDİ", "PARA", "NAKİT", "ENT", "BILGI", "GİDER", "SERİ",
-                "TEŞEKKÜR", "BİLGİ", "IŞYERİ", "TERMINAL", "ZİRAAT", "HALKBANK", 
-                "GARANTİ", "AKBANK", "İŞ BANKASI", "VAKIFBANK", "YAPI KREDİ"
+                "TEŞEKKÜR", "BİLGİ", "ZİRAAT", "HALKBANK", "BELGE NO", "ETTN NO", "ARA TOP"
             ];
 
-            let newItemsCount = 0;
+            let itemsList = [];
+            let inDiscountSection = false;
+            let discountSectionLines = [];
+            let pendingMiktar = null;
+            let pendingUnitPrice = null;
 
-            lines.forEach(rawLine => {
-                let line = rawLine.trim();
-                if (!line) return;
+            // 1. PASS: Ürünleri ve İlk Fiyatları Topla
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (!line) continue;
 
-                const upperLine = line.toLocaleUpperCase('tr-TR');
-                
-                // Regex ile yalnızca kelimenin başında ve sonunda boşluk (veya satır başı/sonu) varsa eşleşmesini sağlıyoruz.
-                // Bu sayede "KART" kelimesi yasaklıyken, "KARTON BARDAK" engellenmemiş olur.
+                let upperLine = line.toLocaleUpperCase('tr-TR');
+
+                if (/I[ND]D[Iİ]R[Iİ]M|İNDİRİM|URUN\s*IND|ÜRÜN\s*İND|İSKONTO|ISKONTO/i.test(upperLine)) {
+                    inDiscountSection = true;
+                    continue;
+                }
+
+                if (inDiscountSection) {
+                    discountSectionLines.push(line);
+                    continue;
+                }
+
+                if (upperLine.includes("ARA TOP")) continue;
+
                 const isBlacklisted = blacklist.some(word => new RegExp('(^|\\s)' + word + '(\\s|$)', 'i').test(upperLine));
-                if (isBlacklisted) return;
+                if (isBlacklisted) continue;
 
-                let priceRegex = /(\d{1,3}(?:[\.\s]\d{3})*[\.,]\d{2})\s*(?:TL|₺|T|TI|TL\.)?\s*[\*A-Za-z%0-9\s]*$/i;
+                let qtyPriceRegex = /(?:^|\s)(\d+(?:[\.,]\d+)?)\s*(AD|ADET|KG|GR|GRAM|L|LT|LİTRE)\s*[xX*]\s*(\d+(?:[\.,]\d+)?)/i;
+                let qtyMatch = line.match(qtyPriceRegex);
+                
+                if (qtyMatch) {
+                    let qtyVal = qtyMatch[1].replace(',', '.');
+                    let unitStr = qtyMatch[2].toLocaleUpperCase('tr-TR');
+                    pendingMiktar = `${qtyVal} ${unitStr}`;
+
+                    let unitPriceStr = qtyMatch[3].replace(/\./g, '').replace(',', '.');
+                    pendingUnitPrice = parseFloat(unitPriceStr);
+
+                    line = line.replace(qtyMatch[0], '').trim();
+                    if (line.length < 3) continue;
+                }
+
+                let priceRegex = /[\*\s]*(\d{1,4}(?:[\.\s]\d{3})*[\.,]\d{2})\s*(?:TL|₺|T|TL\.)?\s*$/i;
                 let priceMatch = line.match(priceRegex);
 
                 if (priceMatch) {
@@ -321,92 +461,248 @@
                     let normalizedPriceStr = priceString.replace(/\./g, '').replace(',', '.');
                     let rawPrice = parseFloat(normalizedPriceStr);
 
-                    if (isNaN(rawPrice) || rawPrice <= 0) return;
+                    if (isNaN(rawPrice) || rawPrice <= 0) continue;
 
-                    let productName = line.replace(priceMatch[0], '')
-                                          .replace(/%\s*\d+/g, '')
-                                          .replace(/[*"'’`_]/g, ' ')
-                                          .trim();
+                    let productName = line.substring(0, priceMatch.index);
+                    
+                    productName = productName.replace(/%\s*\d{1,2}/g, ' ')
+                                             .replace(/\b(401|420|X01|01|20|402|403)\b/gi, ' ')
+                                             .replace(/[*"'’`_]/g, ' ')
+                                             .replace(/\s+[xX]$/, ' ')
+                                             .replace(/\s+/g, ' ')
+                                             .trim()
+                                             .toLocaleUpperCase('tr-TR');
 
-                    productName = productName.replace(/\s+/g, ' ').toLocaleUpperCase('tr-TR');
+                    if ((productName.includes("POŞET") || productName.includes("POSET")) && rawPrice > 10) {
+                        rawPrice = 1.00;
+                    }
 
-                    // ADET, KG, GR, LİTRE GİBİ MİKTARLARI AYRIŞTIRMA İŞLEMİ
-                    let miktar = "1 AD"; // Varsayılan değer
-                    let miktarRegex = /(?:^|\s)(\d+(?:[\.,]\d+)?)\s*(AD|ADET|KG|GR|GRAM|L|LİTRE|LT)(?:\s|$)/i;
-                    let miktarMatch = productName.match(miktarRegex);
-
-                    if (miktarMatch) {
-                        miktar = (miktarMatch[1] + " " + miktarMatch[2]).toLocaleUpperCase('tr-TR');
-                        // Miktarı ürün adından temizliyoruz
-                        productName = productName.replace(miktarMatch[0], ' ').trim();
+                    if (!pendingMiktar) {
+                        let inlineQtyRegex = /(?:^|\s)(\d+(?:[\.,]\d+)?)\s*(AD|ADET|KG|GR|GRAM|L|LİTRE|LT)(?:\s|$)/i;
+                        let inlineMatch = productName.match(inlineQtyRegex);
+                        if (inlineMatch) {
+                            pendingMiktar = (inlineMatch[1] + " " + inlineMatch[2]).toLocaleUpperCase('tr-TR');
+                            productName = productName.replace(inlineMatch[0], ' ').trim();
+                        }
                     }
 
                     if (productName.length >= 2 && !blacklist.some(b => new RegExp('(^|\\s)' + b + '(\\s|$)', 'i').test(productName))) {
-                        const newItem = {
-                            date: extractedDate,
-                            time: extractedTime,
-                            firma: extractedFirma,
-                            fisNo: extractedFisNo,
+                        let finalMiktar = pendingMiktar || "1 AD";
+                        let finalUnitPrice = pendingUnitPrice || rawPrice;
+
+                        pendingMiktar = null;
+                        pendingUnitPrice = null;
+
+                        itemsList.push({
                             name: productName,
-                            miktar: miktar, // Yeni Eklenen Sütun Değeri
-                            originalPrice: rawPrice,
+                            miktar: finalMiktar,
+                            originalPrice: finalUnitPrice,
                             discountRate: 0,
                             discountAmount: 0,
                             finalPrice: rawPrice,
-                            timestamp: Date.now()
-                        };
-
-                        db.ref('fisler').push(newItem);
-                        newItemsCount++;
+                            matchedDiscount: false
+                        });
                     }
                 }
+            }
+
+            // 2. PASS: İndirimleri Ürünlerle Esnek Eşleştir (Hem TL Hem % Destekli)
+            let lastDiscProductName = "";
+
+            for (let i = 0; i < discountSectionLines.length; i++) {
+                let dLine = discountSectionLines[i].trim();
+                let upperDLine = dLine.toLocaleUpperCase('tr-TR');
+
+                if (upperDLine.includes("TOPKDV") || upperDLine.includes("TOPLAM") || upperDLine.includes("KREDİ KARTI") || upperDLine.includes("KREDI KARTI")) break;
+                if (/^\(?\d+\)?\s*\d+$/.test(dLine)) continue;
+
+                // 1) Yüzde indirim kontrolü (%50, 50% vb.)
+                let percentRegex = /(?:%|YUZDE|YÜZDE)\s*(\d+(?:[\.,]\d+)?)|(\d+(?:[\.,]\d+)?)\s*%/i;
+                let percentMatch = dLine.match(percentRegex);
+
+                // 2) TL indirim kontrolü (130,00-D, 130.00 TL, 85,00 vb.)
+                let discPriceRegex = /[\*\s]*(\d{1,4}(?:[\.\s]\d{3})*[\.,]\d{2})\s*[-–—]?[D|d|TL|₺]?\s*$/i;
+                let discMatch = dLine.match(discPriceRegex);
+
+                let isPercent = false;
+                let discVal = 0;
+                let matchObj = null;
+
+                if (percentMatch) {
+                    let pStr = percentMatch[1] || percentMatch[2];
+                    discVal = parseFloat(pStr.replace(',', '.'));
+                    isPercent = true;
+                    matchObj = percentMatch;
+                } else if (discMatch) {
+                    let discValStr = discMatch[1].replace(/\./g, '').replace(',', '.');
+                    discVal = parseFloat(discValStr);
+                    isPercent = false;
+                    matchObj = discMatch;
+                }
+
+                if (matchObj && discVal > 0) {
+                    let inlineProdName = dLine.substring(0, matchObj.index)
+                                               .replace(/\(\d+\)\d+/g, '')
+                                               .replace(/[*"'’`_]/g, ' ')
+                                               .replace(/\s+/g, ' ')
+                                               .trim();
+
+                    let searchName = inlineProdName.length >= 2 ? inlineProdName : lastDiscProductName;
+
+                    if (searchName) {
+                        let bestMatch = null;
+                        let bestScore = 0;
+
+                        itemsList.forEach(item => {
+                            if (item.matchedDiscount) return;
+                            let score = getFuzzyScore(item.name, searchName);
+                            if (score > bestScore) {
+                                bestScore = score;
+                                bestMatch = item;
+                            }
+                        });
+
+                        if (bestMatch && bestScore >= 0.20) {
+                            if (isPercent) {
+                                bestMatch.discountRate = parseFloat(discVal.toFixed(1));
+                                bestMatch.discountAmount = parseFloat(((bestMatch.originalPrice * discVal) / 100).toFixed(2));
+                                bestMatch.finalPrice = Math.max(0, parseFloat((bestMatch.originalPrice - bestMatch.discountAmount).toFixed(2)));
+                            } else {
+                                bestMatch.discountAmount = discVal;
+                                bestMatch.finalPrice = Math.max(0, parseFloat((bestMatch.originalPrice - discVal).toFixed(2)));
+                                if (bestMatch.originalPrice > 0) {
+                                    bestMatch.discountRate = parseFloat(((discVal / bestMatch.originalPrice) * 100).toFixed(1));
+                                }
+                            }
+                            bestMatch.matchedDiscount = true;
+                        }
+                    }
+                    lastDiscProductName = "";
+                } else {
+                    let cleanedName = dLine.replace(/\(\d+\)\d+/g, '')
+                                           .replace(/[*"'’`_]/g, ' ')
+                                           .replace(/\s+/g, ' ')
+                                           .trim();
+                    if (cleanedName.length >= 2 && !/^\d+$/.test(cleanedName)) {
+                        lastDiscProductName = cleanedName;
+                    }
+                }
+            }
+
+            // Firebase'e Toplu Kaydet
+            let newItemsCount = 0;
+            itemsList.forEach(item => {
+                delete item.matchedDiscount;
+                const newItem = {
+                    date: extractedDate,
+                    time: extractedTime,
+                    firma: extractedFirma,
+                    fisNo: extractedFisNo,
+                    name: item.name,
+                    miktar: item.miktar,
+                    originalPrice: item.originalPrice,
+                    discountRate: item.discountRate,
+                    discountAmount: item.discountAmount,
+                    finalPrice: item.finalPrice,
+                    imageUrl: imageDataUrl || "",
+                    timestamp: Date.now()
+                };
+                db.ref('fisler').push(newItem);
+                newItemsCount++;
             });
 
             if (newItemsCount === 0) {
                 alert("Fişten ürün fiyatı ayrıştırılamadı. Görsel netliğini kontrol edin veya manuel satır ekleyin.");
             } else {
-                alert(`${newItemsCount} adet ürün/fiş kalemi başarıyla eklendi.\nFiş No: ${extractedFisNo}`);
+                alert(`${newItemsCount} adet ürün/fiş kalemi başarıyla eklendi.\nTarih: ${extractedDate}\nSaat: ${extractedTime}\nFiş No: ${extractedFisNo}`);
             }
 
             statusDiv.classList.add('hidden');
             fileInput.value = '';
         }
 
+        // TABLO RENDER ETME
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
-            if (parsedData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="text-center py-6 text-slate-500">Firebase veritabanında kayıtlı fiş bulunamadı.</td></tr>`;
+            const filterDate = (document.getElementById('filter_date')?.value || '').toLowerCase().trim();
+            const filterFirma = (document.getElementById('filter_firma')?.value || '').toLowerCase().trim();
+            const filterFisNo = (document.getElementById('filter_fisNo')?.value || '').toLowerCase().trim();
+            const filterName = (document.getElementById('filter_name')?.value || '').toLowerCase().trim();
+
+            const filteredData = parsedData.filter(item => {
+                const matchDate = !filterDate || (item.date || '').toLowerCase().includes(filterDate);
+                const matchFirma = !filterFirma || (item.firma || '').toLowerCase().includes(filterFirma);
+                const matchFisNo = !filterFisNo || (item.fisNo || '').toLowerCase().includes(filterFisNo);
+                const matchName = !filterName || (item.name || '').toLowerCase().includes(filterName);
+                return matchDate && matchFirma && matchFisNo && matchName;
+            });
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" class="text-center py-6 text-slate-500">Firebase'de kayıt yok veya filtreleme kriterine uyan veri bulunamadı.</td></tr>`;
                 return;
             }
 
-            parsedData.forEach((item) => {
+            filteredData.forEach((item) => {
                 const isEditing = (editingRowId === item.id);
                 let tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-900/50 transition";
+                tr.className = "hover:bg-slate-900/50 transition divide-x divide-slate-800/60";
                 
                 tr.innerHTML = `
                     <td class="p-2"><input type="date" id="date_${item.id}" value="${item.date || ''}" ${isEditing ? '' : 'disabled'} class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-white w-full text-xs disabled:bg-transparent disabled:border-transparent"></td>
                     <td class="p-2"><input type="time" id="time_${item.id}" value="${item.time || '12:00'}" ${isEditing ? '' : 'disabled'} class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-white w-full text-xs disabled:bg-transparent disabled:border-transparent"></td>
                     <td class="p-2"><input type="text" id="firma_${item.id}" value="${escapeHtml(item.firma || '')}" ${isEditing ? '' : 'disabled'} class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-slate-300 w-full text-xs disabled:bg-transparent disabled:border-transparent"></td>
-                    <td class="p-2"><input type="text" id="fisno_${item.id}" value="${escapeHtml(item.fisNo || '')}" ${isEditing ? '' : 'disabled'} class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-slate-300 w-full text-xs disabled:bg-transparent disabled:border-transparent"></td>
+                    <td class="p-2">
+                        <div class="flex items-center gap-1.5">
+                            <input type="text" id="fisno_${item.id}" value="${escapeHtml(item.fisNo || '')}" ${isEditing ? '' : 'disabled'} class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-slate-300 w-full text-xs disabled:bg-transparent disabled:border-transparent">
+                            ${item.imageUrl ? `
+                                <button type="button" onclick="openReceiptModal('${item.id}')" class="shrink-0 px-1.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-sky-400 hover:text-sky-300 transition" title="Fiş Görselini Görüntüle">
+                                    <i class="fa-solid fa-image text-xs"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
                     <td class="p-2"><input type="text" id="name_${item.id}" value="${escapeHtml(item.name || '')}" ${isEditing ? '' : 'disabled'} class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-white w-full text-xs font-semibold disabled:bg-transparent disabled:border-transparent"></td>
-                    <td class="p-2"><input type="text" id="miktar_${item.id}" value="${escapeHtml(item.miktar || '1 AD')}" ${isEditing ? '' : 'disabled'} class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-sky-400 w-full text-xs font-semibold disabled:bg-transparent disabled:border-transparent"></td>
+                    <td class="p-2"><input type="text" id="miktar_${item.id}" value="${escapeHtml(item.miktar || '1 AD')}" ${isEditing ? '' : 'disabled'} oninput="calculateRow('${item.id}')" class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-sky-400 w-full text-xs font-semibold disabled:bg-transparent disabled:border-transparent"></td>
                     <td class="p-2"><input type="number" step="0.01" id="orig_${item.id}" value="${item.originalPrice || 0}" ${isEditing ? '' : 'disabled'} oninput="calculateRow('${item.id}')" class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-white w-full text-xs disabled:bg-transparent disabled:border-transparent"></td>
                     <td class="p-2"><input type="number" step="0.1" id="rate_${item.id}" value="${item.discountRate || 0}" ${isEditing ? '' : 'disabled'} oninput="calculateRow('${item.id}')" class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-amber-400 w-full text-xs disabled:bg-transparent disabled:border-transparent"></td>
-                    <td class="p-2"><input type="number" step="0.01" id="disc_${item.id}" value="${item.discountAmount || 0}" ${isEditing ? '' : 'disabled'} class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-slate-400 w-full text-xs disabled:bg-transparent disabled:border-transparent"></td>
+                    <td class="p-2"><input type="number" step="0.01" id="disc_${item.id}" value="${item.discountAmount || 0}" ${isEditing ? '' : 'disabled'} oninput="calculateRowFromTL('${item.id}')" class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-slate-400 w-full text-xs disabled:bg-transparent disabled:border-transparent"></td>
                     <td class="p-2"><input type="number" step="0.01" id="final_${item.id}" value="${item.finalPrice || 0}" ${isEditing ? '' : 'disabled'} class="bg-slate-950 border border-slate-800 rounded px-1 py-1 text-emerald-400 font-bold w-full text-xs disabled:bg-transparent disabled:border-transparent"></td>
-                    <td class="p-2 text-center">
+                    <td class="p-2 text-center whitespace-nowrap">
                         ${isEditing 
-                            ? `<button onclick="saveRow('${item.id}')" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-bold mr-1">Kaydet</button>`
-                            : `<button onclick="editRow('${item.id}')" class="px-2 py-1 bg-amber-600/20 hover:bg-amber-600/40 text-amber-400 rounded text-[11px] font-bold mr-1">Düzenle</button>`
+                            ? `<button onclick="saveRow('${item.id}')" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-bold mr-1" title="Kaydet"><i class="fa-solid fa-check"></i> Kaydet</button>`
+                            : `<button onclick="editRow('${item.id}')" class="px-2 py-1 bg-amber-600/20 hover:bg-amber-600/40 text-amber-400 rounded text-[11px] font-bold mr-1" title="Düzenle"><i class="fa-solid fa-pen"></i></button>`
                         }
-                        <button onclick="deleteFromFirebase('${item.id}')" class="px-2 py-1 bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 rounded text-[11px] font-bold">Sil</button>
+                        <button onclick="deleteFromFirebase('${item.id}')" class="px-2 py-1 bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 rounded text-[11px] font-bold mr-1" title="Satırı Sil"><i class="fa-solid fa-trash"></i> Sil</button>
+                        <button onclick="deleteReceiptFromFirebase('${escapeHtml(item.fisNo)}', '${item.date}', '${escapeHtml(item.firma)}')" class="px-2 py-1 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 rounded text-[11px] font-bold" title="Tüm Fişi Sil"><i class="fa-solid fa-receipt"></i> Fişi Sil</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        // Modal Fonksiyonları
+        function openReceiptModal(id) {
+            const item = parsedData.find(x => x.id === id);
+            if (item && item.imageUrl) {
+                document.getElementById('modalReceiptImg').src = item.imageUrl;
+                document.getElementById('receiptModal').classList.remove('hidden');
+            } else {
+                alert("Bu satır için kayıtlı fiş görseli bulunamadı.");
+            }
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').classList.add('hidden');
+        }
+
+        function clearFilters() {
+            document.getElementById('filter_date').value = '';
+            document.getElementById('filter_firma').value = '';
+            document.getElementById('filter_fisNo').value = '';
+            document.getElementById('filter_name').value = '';
+            renderTable();
         }
 
         function editRow(id) {
@@ -414,13 +710,46 @@
             renderTable();
         }
 
+        // Yüzde (%) Değiştiğinde TL ve Net Fiyat Hesaplama
         function calculateRow(id) {
             const orig = parseFloat(document.getElementById(`orig_${id}`).value) || 0;
             const rate = parseFloat(document.getElementById(`rate_${id}`).value) || 0;
-            const disc = (orig * rate) / 100;
-            const finalP = orig - disc;
+            
+            const miktarStr = document.getElementById(`miktar_${id}`).value || "1";
+            const miktarMatch = miktarStr.match(/^(\d+(?:[\.,]\d+)?)/);
+            let qty = 1;
+            if (miktarMatch) {
+                qty = parseFloat(miktarMatch[1].replace(',', '.')) || 1;
+            }
+
+            const subtotal = orig * qty;
+            const disc = (subtotal * rate) / 100;
+            const finalP = Math.max(0, subtotal - disc);
 
             document.getElementById(`disc_${id}`).value = disc.toFixed(2);
+            document.getElementById(`final_${id}`).value = finalP.toFixed(2);
+        }
+
+        // İndirim Tutarı (TL) Değiştiğinde Yüzde (%) ve Net Fiyat Hesaplama
+        function calculateRowFromTL(id) {
+            const orig = parseFloat(document.getElementById(`orig_${id}`).value) || 0;
+            const disc = parseFloat(document.getElementById(`disc_${id}`).value) || 0;
+            
+            const miktarStr = document.getElementById(`miktar_${id}`).value || "1";
+            const miktarMatch = miktarStr.match(/^(\d+(?:[\.,]\d+)?)/);
+            let qty = 1;
+            if (miktarMatch) {
+                qty = parseFloat(miktarMatch[1].replace(',', '.')) || 1;
+            }
+
+            const subtotal = orig * qty;
+            let rate = 0;
+            if (subtotal > 0) {
+                rate = (disc / subtotal) * 100;
+            }
+            const finalP = Math.max(0, subtotal - disc);
+
+            document.getElementById(`rate_${id}`).value = rate.toFixed(1);
             document.getElementById(`final_${id}`).value = finalP.toFixed(2);
         }
 
@@ -431,7 +760,7 @@
                 firma: document.getElementById(`firma_${id}`).value.toUpperCase(),
                 fisNo: document.getElementById(`fisno_${id}`).value,
                 name: document.getElementById(`name_${id}`).value.toUpperCase(),
-                miktar: document.getElementById(`miktar_${id}`).value.toUpperCase(), // Sütun kaydediliyor
+                miktar: document.getElementById(`miktar_${id}`).value.toUpperCase(),
                 originalPrice: parseFloat(document.getElementById(`orig_${id}`).value) || 0,
                 discountRate: parseFloat(document.getElementById(`rate_${id}`).value) || 0,
                 discountAmount: parseFloat(document.getElementById(`disc_${id}`).value) || 0,
@@ -439,17 +768,35 @@
             };
 
             db.ref(`fisler/${id}`).update(updatedData, (err) => {
-                if (!err) {
-                    editingRowId = null;
-                } else {
-                    alert("Güncelleme sırasında hata oluştu!");
-                }
+                if (!err) editingRowId = null;
+                else alert("Güncelleme sırasında hata oluştu!");
             });
         }
 
         function deleteFromFirebase(id) {
-            if (confirm("Bu fiş kaydını bulut veritabanından silmek istediğinize emin misiniz?")) {
+            if (confirm("Bu satır kaydını bulut veritabanından silmek istediğinize emin misiniz?")) {
                 db.ref(`fisler/${id}`).remove();
+            }
+        }
+
+        function deleteReceiptFromFirebase(fisNo, date, firma) {
+            if (!fisNo || fisNo === "BİLİNMİYOR") {
+                alert("Geçerli bir Fiş No bulunamadı.");
+                return;
+            }
+
+            if (confirm(`"${firma || ''}" firmasından ${date || ''} tarihli ve ${fisNo} Nolu FİŞE AİT TÜM ÜRÜNLER silinecektir. Onaylıyor musunuz?`)) {
+                const itemsToDelete = parsedData.filter(item => item.fisNo === fisNo && (item.date === date || !date));
+                
+                let updates = {};
+                itemsToDelete.forEach(item => {
+                    updates[`fisler/${item.id}`] = null;
+                });
+
+                db.ref().update(updates, (err) => {
+                    if (err) alert("Fiş silinirken bir hata oluştu: " + err.message);
+                    else alert(`${itemsToDelete.length} adet ürün içeren Fiş No: ${fisNo} başarıyla silindi.`);
+                });
             }
         }
 
@@ -460,11 +807,12 @@
                 firma: "FİRMA ADI",
                 fisNo: "-",
                 name: "YENİ ÜRÜN",
-                miktar: "1 AD", // Varsayılan eklendi
+                miktar: "1 AD",
                 originalPrice: 0,
                 discountRate: 0,
                 discountAmount: 0,
                 finalPrice: 0,
+                imageUrl: "",
                 timestamp: Date.now()
             };
 
@@ -508,7 +856,7 @@
                 .sort((a, b) => new Date(a.date) - new Date(b.date));
 
             const labels = productData.map(item => item.date || '-');
-            const prices = productData.map(item => item.finalPrice || 0);
+            const prices = productData.map(item => item.originalPrice || 0);
 
             if (priceChartInstance) priceChartInstance.destroy();
 
@@ -517,7 +865,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: `${selectedProduct || 'Ürün'} Fiyatı (₺)`,
+                        label: `${selectedProduct || 'Ürün'} Birim Fiyatı (₺)`,
                         data: prices,
                         borderColor: '#38bdf8',
                         backgroundColor: 'rgba(56, 189, 248, 0.1)',
@@ -594,7 +942,7 @@
                 'Firma Adı': item.firma,
                 'Fiş No': item.fisNo,
                 'Ürün Adı': item.name,
-                'Adet/Kg/Litre': item.miktar || '1 AD', // Excel sütunu eklendi
+                'Adet/Kg/Litre': item.miktar || '1 AD',
                 'İlk Fiyat (₺)': item.originalPrice,
                 'İndirim Oranı (%)': item.discountRate,
                 'İndirim Tutarı (₺)': item.discountAmount,
