@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiş OCR & Harcama / Fiyat Takip Paneli</title>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tesseract.js (OCR Engine) -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- SheetJS (Excel Export) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            color: #0f172a;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+        }
+
+        .upload-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        input[type="file"], input[type="date"], input[type="time"], select, input[type="text"], input[type="number"] {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        button.btn-excel {
+            background-color: #16a34a;
+        }
+
+        button.btn-excel:hover {
+            background-color: #15803d;
+        }
+
+        .status {
+            font-weight: bold;
+            color: #d97706;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+        }
+
+        td input {
+            width: 90%;
+            border: none;
+            background: transparent;
+        }
+
+        td input:focus {
+            background: #fff;
+            outline: 1px solid var(--primary);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Fiş OCR Okuyucu ve Harcama Analizi</h1>
+
+    <!-- 1. Fiş Yükleme Bölümü -->
+    <div class="card">
+        <h2>1. Fiş Yükle & OCR İle Tarat</h2>
+        <div class="upload-section">
+            <input type="file" id="receiptImage" accept="image/*">
+            <button onclick="processReceipt()">Fişi Tara ve İşle</button>
+            <button class="btn-excel" onclick="exportToExcel()">Excel'e Aktar (.xlsx)</button>
+        </div>
+        <div id="status" class="status"></div>
+    </div>
+
+    <!-- 2. Veri Düzenleme Tablosu -->
+    <div class="card">
+        <h2>2. Ayrıştırılan Ürünler (Düzenlenebilir)</h2>
+        <p style="font-size: 13px; color: #64748b;">OCR hatalarını aşağıdaki tablodan elle düzeltebilir, yeni satır ekleyebilirsiniz. Grafikler bu verileri baz alır.</p>
+        
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Saat</th>
+                    <th>Ürün Adı</th>
+                    <th>İlk Fiyat (₺)</th>
+                    <th>İndirim Rate (%)</th>
+                    <th>İndirim (₺)</th>
+                    <th>Net Fiyat (₺)</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Dinamik Satırlar -->
+            </tbody>
+        </table>
+        <br>
+        <button onclick="addNewRow()">+ Elle Satır Ekle</button>
+        <button onclick="updateCharts()" style="background-color: #4f46e5;">Grafikleri Güncelle</button>
+    </div>
+
+    <!-- 3. Raporlama ve Grafikler -->
+    <div class="grid-2">
+        <!-- Grafik A: Ürün Fiyat Değişimi -->
+        <div class="card">
+            <h2>Ürün Fiyat Değişimi (Çizgi Grafik)</h2>
+            <div style="margin-bottom: 15px;">
+                <label for="productSelect">Ürün Seçin: </label>
+                <select id="productSelect" onchange="renderPriceHistoryChart()"></select>
+            </div>
+            <div class="chart-container">
+                <canvas id="priceHistoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Grafik B: Dönemsel Harcama -->
+        <div class="card">
+            <h2>Dönemsel Toplam Harcama</h2>
+            <div style="margin-bottom: 15px;">
+                <label for="periodSelect">Görünüm: </label>
+                <select id="periodSelect" onchange="renderSpendingChart()">
+                    <option value="daily">Günlük</option>
+                    <option value="monthly" selected>Aylık</option>
+                    <option value="yearly">Yıllık</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="spendingChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global Veri Deposu
+    let parsedData = [
+        // Örnek başlangıç verileri
+        { date: '2026-02-10', time: '14:30', name: 'SÜT 1L', originalPrice: 35.00, discountRate: 10, discountAmount: 3.50, finalPrice: 31.50 },
+        { date: '2026-02-25', time: '18:15', name: 'SÜT 1L', originalPrice: 38.00, discountRate: 0, discountAmount: 0.00, finalPrice: 38.00 },
+        { date: '2026-03-01', time: '10:00', name: 'PEYNİR 500G', originalPrice: 120.00, discountRate: 15, discountAmount: 18.00, finalPrice: 102.00 },
+        { date: '2026-03-05', time: '19:45', name: 'SÜT 1L', originalPrice: 40.00, discountRate: 5, discountAmount: 2.00, finalPrice: 38.00 }
+    ];
+
+    let priceChartInstance = null;
+    let spendingChartInstance = null;
+
+    window.onload = function() {
+        renderTable();
+        updateCharts();
+    };
+
+    // OCR Metin İşleme ve Fiş Analizi
+    async function processReceipt() {
+        const fileInput = document.getElementById('receiptImage');
+        const statusDiv = document.getElementById('status');
+
+        if (!fileInput.files[0]) {
+            alert("Lütfen bir fiş görseli seçin.");
+            return;
+        }
+
+        statusDiv.innerText = "OCR Başlatılıyor... (Lütfen bekleyin)";
+
+        try {
+            const worker = await Tesseract.createWorker('tur');
+            statusDiv.innerText = "Görsel taranıyor ve metinler ayrıştırılıyor...";
+            
+            const ret = await worker.recognize(fileInput.files[0]);
+            const text = ret.data.text;
+            await worker.terminate();
+
+            statusDiv.innerText = "Ayrıştırma tamamlandı!";
+            
+            parseReceiptText(text);
+        } catch (err) {
+            console.error(err);
+            statusDiv.innerText = "OCR sırasında hata oluştu!";
+        }
+    }
+
+    // Metinden Tarih, Saat, Ürün ve Fiyat Çıkarma (Regex)
+    function parseReceiptText(text) {
+        const lines = text.split('\n');
+        
+        // Tarih bulma (GG.AA.YYYY veya YYYY-AA-GG)
+        let dateMatch = text.match(/(\d{2})[\.\/](\d{2})[\.\/](\d{4})/) || text.match(/(\d{4})[\.\/](\d{2})[\.\/](\d{2})/);
+        let extractedDate = new Date().toISOString().split('T')[0]; // Varsayılan bugün
+        if (dateMatch) {
+            if (dateMatch[1].length === 4) {
+                extractedDate = `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`;
+            } else {
+                extractedDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+            }
+        }
+
+        // Saat bulma (SS:DD)
+        let timeMatch = text.match(/(\d{2}):(\d{2})/);
+        let extractedTime = timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : "12:00";
+
+        // Satır Satır Ürün ve Fiyat Analizi
+        lines.forEach(line => {
+            // Fiyat eşleşmesi (örn: 45,90 veya 45.90)
+            let priceMatch = line.match(/\b(\d+[\.,]\d{2})\b/);
+            
+            if (priceMatch && !line.includes("TOPLAM") && !line.includes("KDV")) {
+                let rawPrice = parseFloat(priceMatch[1].replace(',', '.'));
+                
+                // Ürün adı tahmini (Fiyat kısmını çıkarıp kalan yazıyı al)
+                let name = line.replace(priceMatch[0], '').replace(/[*%]/g, '').trim();
+                
+                if (name.length > 2) { // Çok kısa / anlamsız metinleri atla
+                    let discountAmount = 0;
+                    let discountRate = 0;
+
+                    // Satırda İndirim İfadesi var mı kontrolü
+                    if (line.includes("İND") || line.includes("%")) {
+                        let rateMatch = line.match(/%(\d+)/);
+                        if (rateMatch) {
+                            discountRate = parseFloat(rateMatch[1]);
+                            discountAmount = (rawPrice * discountRate) / 100;
+                        }
+                    }
+
+                    let finalPrice = rawPrice - discountAmount;
+
+                    parsedData.push({
+                        date: extractedDate,
+                        time: extractedTime,
+                        name: name.toUpperCase(),
+                        originalPrice: rawPrice,
+                        discountRate: discountRate,
+                        discountAmount: discountAmount,
+                        finalPrice: finalPrice
+                    });
+                }
+            }
+        });
+
+        renderTable();
+        updateCharts();
+    }
+
+    // Tabloyu Oluşturma
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        parsedData.forEach((item, index) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="date" value="${item.date}" onchange="updateData(${index}, 'date', this.value)"></td>
+                <td><input type="time" value="${item.time}" onchange="updateData(${index}, 'time', this.value)"></td>
+                <td><input type="text" value="${item.name}" onchange="updateData(${index}, 'name', this.value)"></td>
+                <td><input type="number" step="0.01" value="${item.originalPrice}" onchange="updateData(${index}, 'originalPrice', this.value)"></td>
+                <td><input type="number" step="0.1" value="${item.discountRate}" onchange="updateData(${index}, 'discountRate', this.value)"></td>
+                <td><input type="number" step="0.01" value="${item.discountAmount}" onchange="updateData(${index}, 'discountAmount', this.value)"></td>
+                <td><input type="number" step="0.01" value="${item.finalPrice}" onchange="updateData(${index}, 'finalPrice', this.value)"></td>
+                <td><button onclick="deleteRow(${index})" style="background:#ef4444; padding: 4px 8px;">Sil</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        populateProductDropdown();
+    }
+
+    // Hücre Verisi Değiştiğinde Hesaplamaları Güncelle
+    function updateData(index, key, value) {
+        if (key === 'name') parsedData[index][key] = value.toUpperCase();
+        else if (['originalPrice', 'discountRate', 'discountAmount', 'finalPrice'].includes(key)) {
+            parsedData[index][key] = parseFloat(value) || 0;
+            
+            // Otomatik Fiyat İndirim Hesaplaması
+            if (key === 'originalPrice' || key === 'discountRate') {
+                let orig = parsedData[index].originalPrice;
+                let rate = parsedData[index].discountRate;
+                parsedData[index].discountAmount = (orig * rate) / 100;
+                parsedData[index].finalPrice = orig - parsedData[index].discountAmount;
+            }
+        } else {
+            parsedData[index][key] = value;
+        }
+        renderTable();
+    }
+
+    function addNewRow() {
+        parsedData.push({
+            date: new Date().toISOString().split('T')[0],
+            time: "12:00",
+            name: "YENİ ÜRÜN",
+            originalPrice: 0,
+            discountRate: 0,
+            discountAmount: 0,
+            finalPrice: 0
+        });
+        renderTable();
+    }
+
+    function deleteRow(index) {
+        parsedData.splice(index, 1);
+        renderTable();
+        updateCharts();
+    }
+
+    function populateProductDropdown() {
+        const select = document.getElementById('productSelect');
+        const uniqueProducts = [...new Set(parsedData.map(item => item.name))];
+        
+        select.innerHTML = '';
+        uniqueProducts.forEach(prod => {
+            let option = document.createElement('option');
+            option.value = prod;
+            option.innerText = prod;
+            select.appendChild(option);
+        });
+    }
+
+    // Grafikleri Tetikle
+    function updateCharts() {
+        populateProductDropdown();
+        renderPriceHistoryChart();
+        renderSpendingChart();
+    }
+
+    // 1. Ürün Fiyat Değişim Çizgi Grafiği
+    function renderPriceHistoryChart() {
+        const selectedProduct = document.getElementById('productSelect').value;
+        const ctx = document.getElementById('priceHistoryChart').getContext('2d');
+
+        // İlgili ürünün verilerini tarihe göre sırala
+        const productData = parsedData
+            .filter(item => item.name === selectedProduct)
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        const labels = productData.map(item => `${item.date}`);
+        const prices = productData.map(item => item.finalPrice);
+
+        if (priceChartInstance) priceChartInstance.destroy();
+
+        priceChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: `${selectedProduct} Net Fiyat (₺)`,
+                    data: prices,
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    fill: true,
+                    tension: 0.2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: false, title: { display: true, text: 'Tutar (₺)' } }
+                }
+            }
+        });
+    }
+
+    // 2. Dönemsel Harcama Grafiği (Haftalık/Aylık/Yıllık)
+    function renderSpendingChart() {
+        const period = document.getElementById('periodSelect').value;
+        const ctx = document.getElementById('spendingChart').getContext('2d');
+
+        let groupedData = {};
+
+        parsedData.forEach(item => {
+            let key = item.date; // varsayılan günlük
+            if (period === 'monthly') key = item.date.substring(0, 7); // YYYY-AA
+            if (period === 'yearly') key = item.date.substring(0, 4); // YYYY
+
+            groupedData[key] = (groupedData[key] || 0) + item.finalPrice;
+        });
+
+        const sortedKeys = Object.keys(groupedData).sort();
+        const totals = sortedKeys.map(k => groupedData[k]);
+
+        if (spendingChartInstance) spendingChartInstance.destroy();
+
+        spendingChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sortedKeys,
+                datasets: [{
+                    label: 'Toplam Harcama (₺)',
+                    data: totals,
+                    backgroundColor: '#16a34a'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Toplam Tutar (₺)' } }
+                }
+            }
+        });
+    }
+
+    // Excel Export İşlemi
+    function exportToExcel() {
+        if (parsedData.length === 0) {
+            alert("Dışa aktarılacak veri bulunamadı.");
+            return;
+        }
+
+        // Türkçe başlıklarla yeniden map etme
+        const excelData = parsedData.map(item => ({
+            'Alışveriş Tarihi': item.date,
+            'Alışveriş Saati': item.time,
+            'Ürün Adı': item.name,
+            'İlk Fiyat (₺)': item.originalPrice,
+            'İndirim Oranı (%)': item.discountRate,
+            'İndirim Tutarı (₺)': item.discountAmount,
+            'İndirim Sonrası Fiyat (₺)': item.finalPrice
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Market Harcamaları");
+
+        // Excel dosyasını indir
+        XLSX.writeFile(workbook, `Market_Harcamalari_${new Date().toISOString().split('T')[0]}.xlsx`);
+    }
+</script>
+
+</body>
+</html>
