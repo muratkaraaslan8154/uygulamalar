@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Emre Karaaslan Kuranı Kerim Talim Takip Platformu</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            /* Patlıcan Moru Ana Tema Palette */
+            --bg-main: #1d0724;
+            --bg-gradient: radial-gradient(circle at 50% 0%, #3d1248 0%, #17041d 85%);
+            --panel-bg: rgba(46, 15, 56, 0.82);
+            --panel-border: rgba(186, 104, 200, 0.22);
+            --accent-green: #10b981;
+            --accent-green-glow: rgba(16, 185, 129, 0.4);
+            --accent-green-dark: #059669;
+            --gold-accent: #f59e0b;
+            --gold-glow: rgba(245, 158, 11, 0.3);
+            --purple-light: #e9d5ff;
+            --purple-mid: #c084fc;
+            --purple-dark: #3b0747;
+            --text-light: #faf5ff;
+            --text-muted: #a78bfa;
+            --input-bg: rgba(20, 5, 26, 0.7);
+            --danger-color: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            background-image: var(--bg-gradient);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0.75rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        /* HEADER & PROFILE */
+        header {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(14px);
+            padding: 1.2rem 1.5rem;
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .profile-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid var(--gold-accent);
+            box-shadow: 0 0 15px var(--gold-glow);
+            overflow: hidden;
+            background: var(--purple-dark);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+
+        .avatar-container:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-accent);
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #320a3a, #1a0420);
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            font-size: 0.65rem;
+            text-align: center;
+            padding: 2px 0;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .avatar-container:hover .avatar-overlay {
+            opacity: 1;
+        }
+
+        .header-title-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ffffff, var(--purple-light), var(--gold-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.3;
+        }
+
+        .header-subtitle {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--panel-border);
+            color: var(--text-light);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: var(--gold-accent);
+            color: var(--gold-accent);
+        }
+
+        /* CARD CONTAINERS */
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 1.3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* CALENDAR SECTION */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-month-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--gold-accent);
+        }
+
+        .calendar-nav-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--panel-border);
+            color: var(--text-light);
+            padding: 6px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .calendar-nav-btn:hover {
+            background: var(--gold-accent);
+            color: #000;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            text-align: center;
+        }
+
+        .calendar-day-head {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 4px 0;
+        }
+
+        .calendar-day-cell {
+            padding: 8px 4px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid transparent;
+            position: relative;
+            transition: all 0.2s;
+            min-height: 42px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-day-cell:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--purple-mid);
+        }
+
+        .calendar-day-cell.today {
+            border-color: var(--gold-accent);
+            color: var(--gold-accent);
+            font-weight: 800;
+        }
+
+        .calendar-day-cell.active-selected {
+            background: var(--purple-mid) !important;
+            color: #000 !important;
+            font-weight: 800;
+        }
+
+        .calendar-day-cell.has-data::after {
+            content: '';
+            width: 5px;
+            height: 5px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 4px;
+            box-shadow: 0 0 6px var(--accent-green);
+        }
+
+        /* INCREMENTER MAIN SECTION */
+        .talim-counter-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            background: linear-gradient(160deg, rgba(62, 19, 76, 0.9), rgba(28, 6, 35, 0.9));
+            border: 2px solid var(--panel-border);
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            max-width: 280px;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--gold-accent);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .page-textbox {
+            width: 100%;
+            background: var(--input-bg);
+            border: 2px solid var(--purple-mid);
+            border-radius: 18px;
+            padding: 12px 16px;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--text-light);
+            text-align: center;
+            outline: none;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 0 15px rgba(192, 132, 252, 0.15);
+            font-family: 'Plus Jakarta Sans', monospace;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .page-textbox:focus {
+            border-color: var(--gold-accent);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 0 20px var(--gold-glow);
+        }
+
+        /* GREEN ROUND INCREMENT BUTTON */
+        .btn-increment-round {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(145deg, #10b981, #047857);
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 
+                0 15px 30px rgba(0,0,0,0.6),
+                0 0 35px var(--accent-green-glow),
+                inset 0 4px 6px rgba(255,255,255,0.4),
+                inset 0 -6px 10px rgba(0,0,0,0.6);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin: 0.5rem 0 1.2rem 0;
+            user-select: none;
+        }
+
+        .btn-increment-round:active {
+            transform: scale(0.93);
+            background: linear-gradient(145deg, #047857, #10b981);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.8), 0 0 15px var(--accent-green-glow);
+        }
+
+        .btn-increment-round i {
+            font-size: 1.8rem;
+        }
+
+        .quick-stats-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            max-width: 450px;
+            margin-top: 0.5rem;
+        }
+
+        .quick-stat-box {
+            flex: 1;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .quick-stat-val {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--purple-light);
+        }
+
+        .quick-stat-lbl {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* TABLE SECTION */
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .btn-pdf:hover {
+            transform: translateY(-2px);
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--panel-border);
+            background: rgba(15, 3, 20, 0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: rgba(59, 7, 71, 0.85);
+            color: var(--gold-accent);
+            font-weight: 700;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--panel-border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .badge-page {
+            background: rgba(192, 132, 252, 0.15);
+            color: var(--purple-light);
+            border: 1px solid var(--purple-mid);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 800;
+        }
+
+        .badge-repeat {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 800;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-action {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--panel-border);
+            color: var(--text-light);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-action.edit:hover {
+            background: var(--gold-accent);
+            color: #000;
+        }
+
+        .btn-action.delete:hover {
+            background: var(--danger-color);
+            color: #fff;
+        }
+
+        /* PAGINATION */
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .page-nav-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--panel-border);
+            color: var(--text-light);
+            padding: 5px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .page-nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* CHART CONTAINER */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-body {
+            background: #23082b;
+            border: 2px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 1.8rem;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            color: var(--gold-accent);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .modal-btn.primary { background: var(--gold-accent); color: #000; }
+        .modal-btn.secondary { background: rgba(255,255,255,0.1); color: #fff; }
+        .modal-btn.danger { background: var(--danger-color); color: #fff; }
+
+        footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding: 1rem 0;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+            }
+            .profile-brand {
+                flex-direction: column;
+            }
+            .header-title-box {
+                align-items: center;
+            }
+            .btn-increment-round {
+                width: 130px;
+                height: 130px;
+                font-size: 1.3rem;
+            }
+            .page-textbox {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- HEADER WITH PHOTO & TITLE -->
+        <header>
+            <div class="profile-brand">
+                <div class="avatar-container" onclick="document.getElementById('photoInput').click()" title="Fotoğraf Yükle/Değiştir">
+                    <img id="avatarImg" class="avatar-img" src="" alt="Profile" style="display: none;">
+                    <div id="avatarPlaceholder" class="avatar-placeholder">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div class="avatar-overlay"><i class="fa-solid fa-camera"></i></div>
+                </div>
+                <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+
+                <div class="header-title-box">
+                    <div class="header-title">Emre Karaaslan Kuranı Kerim Talim Takip Platformu</div>
+                    <div class="header-subtitle">
+                        <i class="fa-solid fa-book-quran" style="color:var(--gold-accent);"></i>
+                        614 Sayfalı Kuran-ı Kerim Günlük Ezber ve Talim Takibi
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button class="btn-icon" onclick="exportBackup()" title="Yedek İndir"><i class="fa-solid fa-download"></i></button>
+                <button class="btn-icon" onclick="document.getElementById('importFile').click()" title="Yedek Yükle"><i class="fa-solid fa-upload"></i></button>
+                <input type="file" id="importFile" style="display:none;" onchange="importBackup(event)" accept=".json">
+            </div>
+        </header>
+
+        <!-- ADVANCED CALENDAR CARD -->
+        <div class="card">
+            <div class="calendar-header">
+                <button class="calendar-nav-btn" onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i> Önceki</button>
+                <div class="calendar-month-title" id="calendarMonthTitle">Ocak 2026</div>
+                <button class="calendar-nav-btn" onclick="changeMonth(1)">Sonraki <i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- Days header & cells rendered by JS -->
+            </div>
+        </div>
+
+        <!-- MAIN TALIM INCREMENTER CARD -->
+        <div class="talim-counter-card">
+            <div class="input-group">
+                <label class="input-label" for="pageNoInput">Sayfa No (1 - 614)</label>
+                <input type="text" id="pageNoInput" class="page-textbox" placeholder="1" inputmode="numeric" autocomplete="off">
+            </div>
+
+            <button class="btn-increment-round" id="incrementBtn" onclick="registerTalim()">
+                <i class="fa-solid fa-plus"></i>
+                ARTTIR
+            </button>
+
+            <div class="quick-stats-row">
+                <div class="quick-stat-box">
+                    <div class="quick-stat-val" id="todayCountVal">0</div>
+                    <div class="quick-stat-lbl">Bugün Yapılan Tekrar</div>
+                </div>
+                <div class="quick-stat-box">
+                    <div class="quick-stat-val" id="todayPagesVal">0</div>
+                    <div class="quick-stat-lbl">Bugün Çalışılan Sayfa</div>
+                </div>
+                <div class="quick-stat-box">
+                    <div class="quick-stat-val" id="totalAllTimeVal">0</div>
+                    <div class="quick-stat-lbl">Toplam Tüm Tekrarlar</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADVANCED TABLE WITH 10 ROWS LIMIT & PDF EXPORT -->
+        <div class="card">
+            <div class="card-title">
+                <span><i class="fa-solid fa-list-check" style="color:var(--purple-mid);"></i> Talim Kayıt Geçmişi</span>
+                <div class="table-controls">
+                    <button class="btn-pdf" onclick="exportToPDF()"><i class="fa-solid fa-file-pdf"></i> PDF'e Çevir</button>
+                </div>
+            </div>
+
+            <!-- PDF PRINT AREA CONTAINER -->
+            <div id="pdfExportArea">
+                <div style="display:none; text-align:center; padding:10px; margin-bottom:10px;" id="pdfHeaderTitle">
+                    <h2 style="color:#000;">Emre Karaaslan Kuranı Kerim Talim Takip Platformu</h2>
+                    <p style="color:#555; font-size:12px;" id="pdfDateSubtitle">Rapor Tarihi: -</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tarih ve Saat</th>
+                                <th>Sayfa No</th>
+                                <th>Tekrar Sayısı</th>
+                                <th class="no-pdf">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="talimTableBody">
+                            <!-- Table rows rendered dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PAGINATION CONTROLS (10 ROWS PER PAGE) -->
+            <div class="pagination-bar">
+                <div id="paginationInfo">Sayfa 1 / 1 (Toplam 0 kayıt)</div>
+                <div class="pagination-controls">
+                    <button class="page-nav-btn" id="btnPrevPage" onclick="changePage(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button class="page-nav-btn" id="btnNextPage" onclick="changePage(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADVANCED LINE CHART REPORT AT BOTTOM -->
+        <div class="card">
+            <div class="card-title">
+                <span><i class="fa-solid fa-chart-line" style="color:var(--accent-green);"></i> Günlük Sayfa & Tekrar Grafik Raporu</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="dailyChart"></canvas>
+            </div>
+        </div>
+
+        <footer>
+            Emre Karaaslan Kuranı Kerim Talim Takip Platformu © <span id="yearSpan">2026</span>
+        </footer>
+    </div>
+
+    <!-- EDIT / DELETE MODAL -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-body">
+            <div class="modal-title">Kaydı Düzenle</div>
+            <div class="form-group">
+                <label>Sayfa No (1-614)</label>
+                <input type="number" id="editPageInput" class="form-control" min="1" max="614">
+            </div>
+            <div class="form-group">
+                <label>Tekrar Sayısı</label>
+                <input type="number" id="editCountInput" class="form-control" min="1">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeEditModal()">İptal</button>
+                <button class="modal-btn primary" onclick="saveEditRecord()">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DB STATE OBJECT
+        let db = {
+            profilePhoto: '',
+            records: [], // { id, dateStr, timeStr, page, repeatCount, timestamp }
+        };
+
+        // UI & State Variables
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let selectedFilterDate = null; // 'YYYY-MM-DD'
+        let calendarDate = new Date();
+        let editingRecordId = null;
+        let chartInstance = null;
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDatabase();
+            setupPageInputFilter();
+            renderCalendar();
+            renderUI();
+            document.getElementById('yearSpan').textContent = new Date().getFullYear();
+        });
+
+        // LOCALSTORAGE MANAGERS
+        function loadDatabase() {
+            const saved = localStorage.getItem('emre_karaaslan_kuran_talim_db');
+            if (saved) {
+                try {
+                    db = JSON.parse(saved);
+                } catch(e) {
+                    console.error("DB Yükleme hatası:", e);
+                }
+            }
+            if (db.profilePhoto) {
+                const img = document.getElementById('avatarImg');
+                img.src = db.profilePhoto;
+                img.style.display = 'block';
+                document.getElementById('avatarPlaceholder').style.display = 'none';
+            }
+        }
+
+        function saveDatabase() {
+            localStorage.setItem('emre_karaaslan_kuran_talim_db', JSON.stringify(db));
+            renderUI();
+        }
+
+        // PHOTO UPLOAD HANDLER
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                db.profilePhoto = e.target.result;
+                const img = document.getElementById('avatarImg');
+                img.src = db.profilePhoto;
+                img.style.display = 'block';
+                document.getElementById('avatarPlaceholder').style.display = 'none';
+                saveDatabase();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // TEXTBOX STRICT FILTERING (1 to 614 digits only, NO ERRORS OR MESSAGES)
+        function setupPageInputFilter() {
+            const input = document.getElementById('pageNoInput');
+
+            input.addEventListener('keydown', function(e) {
+                // Allow standard control keys (backspace, delete, tab, arrows)
+                if ([46, 8, 9, 27, 13, 37, 38, 39, 40].indexOf(e.keyCode) !== -1 ||
+                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true))) {
+                    return;
+                }
+                // Block non-numeric keys cleanly without error alert
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+
+            input.addEventListener('input', function() {
+                let val = this.value.replace(/[^0-9]/g, '');
+                if (val !== '') {
+                    let num = parseInt(val, 10);
+                    if (num > 614) num = 614;
+                    if (num < 1 && val.length > 0) num = 1;
+                    this.value = num;
+                } else {
+                    this.value = '';
+                }
+            });
+        }
+
+        // REGISTER TALIM RECORD (ON "ARTTIR" CLICK)
+        function registerTalim() {
+            const input = document.getElementById('pageNoInput');
+            let pageNum = parseInt(input.value, 10);
+
+            if (!pageNum || pageNum < 1 || pageNum > 614) {
+                pageNum = 1; // Default to 1 if empty
+                input.value = "1";
+            }
+
+            const now = new Date();
+            const dateStr = formatDateKey(now);
+            const timeStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            // Check if there is already an entry for this exact page today
+            const existingIndex = db.records.findIndex(r => r.dateStr === dateStr && r.page === pageNum);
+
+            if (existingIndex !== -1) {
+                // Increment repetition count
+                db.records[existingIndex].repeatCount += 1;
+                db.records[existingIndex].timeStr = timeStr; // update latest time
+                db.records[existingIndex].timestamp = now.getTime();
+            } else {
+                // Add new entry
+                db.records.unshift({
+                    id: Date.now(),
+                    dateStr: dateStr,
+                    timeStr: timeStr,
+                    page: pageNum,
+                    repeatCount: 1,
+                    timestamp: now.getTime()
+                });
+            }
+
+            saveDatabase();
+        }
+
+        function formatDateKey(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // RENDER UI & STATISTICS
+        function renderUI() {
+            renderQuickStats();
+            renderTable();
+            renderCalendar();
+            renderChart();
+        }
+
+        function renderQuickStats() {
+            const todayStr = formatDateKey(new Date());
+            const todayRecords = db.records.filter(r => r.dateStr === todayStr);
+
+            const todayTotalRepeat = todayRecords.reduce((acc, curr) => acc + curr.repeatCount, 0);
+            const todayPagesCount = new Set(todayRecords.map(r => r.page)).size;
+            const totalAllTimeRepeat = db.records.reduce((acc, curr) => acc + curr.repeatCount, 0);
+
+            document.getElementById('todayCountVal').textContent = todayTotalRepeat;
+            document.getElementById('todayPagesVal').textContent = todayPagesCount;
+            document.getElementById('totalAllTimeVal').textContent = totalAllTimeRepeat;
+        }
+
+        // TABLE RENDER WITH PAGINATION (10 ROWS LIMIT)
+        function renderTable() {
+            let filtered = db.records;
+            if (selectedFilterDate) {
+                filtered = db.records.filter(r => r.dateStr === selectedFilterDate);
+            }
+
+            const totalRows = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const paginatedRows = filtered.slice(startIndex, startIndex + rowsPerPage);
+
+            const tbody = document.getElementById('talimTableBody');
+            tbody.innerHTML = '';
+
+            if (paginatedRows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:1.5rem;">Kayıt bulunmuyor. Sayfa girip "ARTTIR" butonuna basınız.</td></tr>`;
+            } else {
+                paginatedRows.forEach((row, idx) => {
+                    const rowNum = startIndex + idx + 1;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${rowNum}</td>
+                        <td>${row.dateStr} <span style="font-size:0.8rem; color:var(--text-muted); margin-left:4px;">${row.timeStr}</span></td>
+                        <td><span class="badge-page">Sayfa ${row.page}</span></td>
+                        <td><span class="badge-repeat">${row.repeatCount} Tekrar</span></td>
+                        <td class="no-pdf">
+                            <div class="table-actions">
+                                <button class="btn-action edit" onclick="openEditModal(${row.id})"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
+                                <button class="btn-action delete" onclick="deleteRecord(${row.id})"><i class="fa-solid fa-trash"></i> Sil</button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('paginationInfo').textContent = `Sayfa ${currentPage} / ${totalPages} (Toplam ${totalRows} kayıt)`;
+            document.getElementById('btnPrevPage').disabled = (currentPage <= 1);
+            document.getElementById('btnNextPage').disabled = (currentPage >= totalPages);
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderTable();
+        }
+
+        // EDIT & DELETE RECORD
+        function openEditModal(id) {
+            const record = db.records.find(r => r.id === id);
+            if (!record) return;
+
+            editingRecordId = id;
+            document.getElementById('editPageInput').value = record.page;
+            document.getElementById('editCountInput').value = record.repeatCount;
+            document.getElementById('editModal').classList.add('open');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('open');
+            editingRecordId = null;
+        }
+
+        function saveEditRecord() {
+            if (!editingRecordId) return;
+            const record = db.records.find(r => r.id === editingRecordId);
+            if (record) {
+                let pageVal = parseInt(document.getElementById('editPageInput').value, 10);
+                let countVal = parseInt(document.getElementById('editCountInput').value, 10);
+
+                if (pageVal >= 1 && pageVal <= 614) record.page = pageVal;
+                if (countVal >= 1) record.repeatCount = countVal;
+
+                saveDatabase();
+            }
+            closeEditModal();
+        }
+
+        function deleteRecord(id) {
+            if (confirm("Bu talim kaydını silmek istediğinize emin misiniz?")) {
+                db.records = db.records.filter(r => r.id !== id);
+                saveDatabase();
+            }
+        }
+
+        // ADVANCED CALENDAR
+        function renderCalendar() {
+            const monthTitle = document.getElementById('calendarMonthTitle');
+            const grid = document.getElementById('calendarGrid');
+
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
+
+            const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+            monthTitle.textContent = `${monthNames[month]} ${year}`;
+
+            grid.innerHTML = '';
+
+            // Day heads
+            const dayHeads = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+            dayHeads.forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'calendar-day-head';
+                el.textContent = d;
+                grid.appendChild(el);
+            });
+
+            // Days calculation
+            const firstDay = new Date(year, month, 1);
+            let startingDay = firstDay.getDay() - 1; 
+            if (startingDay === -1) startingDay = 6; // Sunday fix
+
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const todayKey = formatDateKey(new Date());
+
+            // Empty slots
+            for (let i = 0; i < startingDay; i++) {
+                const empty = document.createElement('div');
+                grid.appendChild(empty);
+            }
+
+            // Month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const cell = document.createElement('div');
+                cell.className = 'calendar-day-cell';
+                cell.textContent = day;
+
+                if (dayDateKey === todayKey) {
+                    cell.classList.add('today');
+                }
+
+                if (dayDateKey === selectedFilterDate) {
+                    cell.classList.add('active-selected');
+                }
+
+                // Check if has records
+                const hasData = db.records.some(r => r.dateStr === dayDateKey);
+                if (hasData) {
+                    cell.classList.add('has-data');
+                }
+
+                cell.onclick = () => {
+                    if (selectedFilterDate === dayDateKey) {
+                        selectedFilterDate = null; // toggle off filter
+                    } else {
+                        selectedFilterDate = dayDateKey;
+                    }
+                    currentPage = 1;
+                    renderCalendar();
+                    renderTable();
+                };
+
+                grid.appendChild(cell);
+            }
+        }
+
+        function changeMonth(direction) {
+            calendarDate.setMonth(calendarDate.getMonth() + direction);
+            renderCalendar();
+        }
+
+        // CHART REPORT
+        function renderChart() {
+            const ctx = document.getElementById('dailyChart').getContext('2d');
+
+            // Group data by date
+            const dateMap = {};
+            // Gather last 14 days or available dates sorted
+            db.records.forEach(r => {
+                if (!dateMap[r.dateStr]) {
+                    dateMap[r.dateStr] = { pages: new Set(), totalRepeats: 0 };
+                }
+                dateMap[r.dateStr].pages.add(r.page);
+                dateMap[r.dateStr].totalRepeats += r.repeatCount;
+            });
+
+            const sortedDates = Object.keys(dateMap).sort();
+            const labels = sortedDates.slice(-14); // Last 14 active days
+            const pagesData = labels.map(d => dateMap[d].pages.size);
+            const repeatsData = labels.map(d => dateMap[d].totalRepeats);
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.length ? labels : ['Henüz Veri Yok'],
+                    datasets: [
+                        {
+                            label: 'Çalışılan Toplam Sayfa',
+                            data: pagesData.length ? pagesData : [0],
+                            borderColor: '#c084fc',
+                            backgroundColor: 'rgba(192, 132, 252, 0.15)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#c084fc'
+                        },
+                        {
+                            label: 'Toplam Yapılan Tekrar',
+                            data: repeatsData.length ? repeatsData : [0],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#10b981'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#f3e8ff', font: { family: 'Plus Jakarta Sans', weight: '600' } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#a78bfa' },
+                            grid: { color: 'rgba(186, 104, 200, 0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#a78bfa', precision: 0 },
+                            grid: { color: 'rgba(186, 104, 200, 0.1)' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // PDF EXPORT
+        function exportToPDF() {
+            const element = document.getElementById('pdfExportArea');
+            const pdfHeader = document.getElementById('pdfHeaderTitle');
+            const pdfSubtitle = document.getElementById('pdfDateSubtitle');
+
+            pdfHeader.style.display = 'block';
+            pdfSubtitle.textContent = `Rapor Tarihi: ${new Date().toLocaleDateString('tr-TR')} ${new Date().toLocaleTimeString('tr-TR')}`;
+
+            // Add pdf-mode styling
+            document.querySelectorAll('.no-pdf').forEach(el => el.style.display = 'none');
+
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     'Emre_Karaaslan_Kuran_Talim_Raporu.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                pdfHeader.style.display = 'none';
+                document.querySelectorAll('.no-pdf').forEach(el => el.style.display = '');
+            });
+        }
+
+        // BACKUP EXPORT & IMPORT
+        function exportBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `Emre_Karaaslan_Kuran_Talim_Yedek_${formatDateKey(new Date())}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported && Array.isArray(imported.records)) {
+                        db = imported;
+                        saveDatabase();
+                        alert("Verileriniz başarıyla içe aktarıldı!");
+                    } else {
+                        alert("Geçersiz yedek dosyası!");
+                    }
+                } catch(err) {
+                    alert("Yedek dosyası okunurken hata oluştu!");
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
