@@ -19,20 +19,18 @@
     <!-- html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <!-- Firebase SDK (Bulut Veritabanı Entegrasyonu) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
         :root {
-            /* Patlıcan Moru Ana Tema Palette */
             --bg-main: #1d0724;
             --bg-gradient: radial-gradient(circle at 50% 0%, #3d1248 0%, #17041d 85%);
             --panel-bg: rgba(46, 15, 56, 0.82);
             --panel-border: rgba(186, 104, 200, 0.22);
             --accent-green: #10b981;
             --accent-green-glow: rgba(16, 185, 129, 0.4);
-            --accent-green-dark: #059669;
             --gold-accent: #f59e0b;
             --gold-glow: rgba(245, 158, 11, 0.3);
             --purple-light: #e9d5ff;
@@ -131,9 +129,7 @@
 
         .avatar-overlay {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0; left: 0; right: 0;
             background: rgba(0,0,0,0.6);
             color: #fff;
             font-size: 0.65rem;
@@ -222,7 +218,7 @@
             gap: 8px;
         }
 
-        /* COMPACT DROPDOWN CALENDAR STYLES */
+        /* DROPDOWN CALENDAR STYLES */
         .calendar-dropdown-container {
             position: relative;
             width: 100%;
@@ -390,22 +386,40 @@
             text-align: center;
         }
 
+        .inputs-row {
+            display: flex;
+            gap: 16px;
+            width: 100%;
+            max-width: 520px;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
         .input-group {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            width: 100%;
-            max-width: 280px;
-            margin-bottom: 1.5rem;
+        }
+
+        /* SAYFA NO KUTUSU GENİŞLİĞİ (2 Flex) */
+        .input-group.page-group {
+            flex: 2;
+        }
+
+        /* KALAN TEKRAR KUTUSU GENİŞLİĞİ 1/2 ORANINDA AZALTILDI (1 Flex) */
+        .input-group.repeat-group {
+            flex: 1;
         }
 
         .input-label {
-            font-size: 0.95rem;
+            font-size: 0.82rem;
             font-weight: 700;
             color: var(--gold-accent);
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .page-textbox {
@@ -413,8 +427,8 @@
             background: var(--input-bg);
             border: 2px solid var(--purple-mid);
             border-radius: 18px;
-            padding: 12px 16px;
-            font-size: 2.2rem;
+            padding: 12px 10px;
+            font-size: 2rem;
             font-weight: 900;
             color: var(--text-light);
             text-align: center;
@@ -470,7 +484,7 @@
             display: flex;
             gap: 12px;
             width: 100%;
-            max-width: 450px;
+            max-width: 600px;
             margin-top: 0.5rem;
         }
 
@@ -493,6 +507,7 @@
             font-size: 0.72rem;
             color: var(--text-muted);
             margin-top: 2px;
+            font-weight: 600;
         }
 
         /* TABLE SECTION */
@@ -578,6 +593,16 @@
             font-weight: 800;
         }
 
+        .badge-time {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--gold-accent);
+            border: 1px solid var(--gold-accent);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
+
         .table-actions {
             display: flex;
             gap: 6px;
@@ -640,7 +665,7 @@
         /* CHART CONTAINER */
         .chart-container {
             position: relative;
-            height: 300px;
+            height: 320px;
             width: 100%;
         }
 
@@ -743,13 +768,20 @@
             .header-title-box {
                 align-items: center;
             }
+            .inputs-row {
+                flex-direction: row;
+                gap: 8px;
+            }
             .btn-increment-round {
                 width: 130px;
                 height: 130px;
                 font-size: 1.3rem;
             }
             .page-textbox {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
+            }
+            .quick-stats-row {
+                flex-direction: column;
             }
         }
     </style>
@@ -816,9 +848,16 @@
 
         <!-- MAIN TALIM INCREMENTER CARD -->
         <div class="talim-counter-card">
-            <div class="input-group">
-                <label class="input-label" for="pageNoInput">Sayfa No (1 - 614)</label>
-                <input type="text" id="pageNoInput" class="page-textbox" placeholder="1" inputmode="numeric" autocomplete="off">
+            <!-- YAN YANA İKİ TEXTBOX (SAYFA NO 2/3, KALAN TEKRAR 1/3 GENİŞLİKTE) -->
+            <div class="inputs-row">
+                <div class="input-group page-group">
+                    <label class="input-label" for="pageNoInput">Sayfa No (1-614)</label>
+                    <input type="text" id="pageNoInput" class="page-textbox" placeholder="1" inputmode="numeric" autocomplete="off">
+                </div>
+                <div class="input-group repeat-group">
+                    <label class="input-label" for="targetRepeatInput">Kalan Tekrar</label>
+                    <input type="text" id="targetRepeatInput" class="page-textbox" value="1" inputmode="numeric" autocomplete="off">
+                </div>
             </div>
 
             <button class="btn-increment-round" id="incrementBtn" onclick="registerTalim()">
@@ -826,23 +865,24 @@
                 ARTTIR
             </button>
 
+            <!-- İSTATİSTİK KUTULARI -->
             <div class="quick-stats-row">
                 <div class="quick-stat-box">
                     <div class="quick-stat-val" id="todayCountVal">0</div>
-                    <div class="quick-stat-lbl">Bugün Yapılan Tekrar</div>
+                    <div class="quick-stat-lbl">bugün yapılan tekrar sayısı</div>
                 </div>
                 <div class="quick-stat-box">
                     <div class="quick-stat-val" id="todayPagesVal">0</div>
-                    <div class="quick-stat-lbl">Bugün Çalışılan Sayfa</div>
+                    <div class="quick-stat-lbl">bugün çalışılan sayfa</div>
                 </div>
                 <div class="quick-stat-box">
-                    <div class="quick-stat-val" id="totalAllTimeVal">0</div>
-                    <div class="quick-stat-lbl">Toplam Tüm Tekrarlar</div>
+                    <div class="quick-stat-val" id="currentPageRepeatsVal">0</div>
+                    <div class="quick-stat-lbl">Şuanki sayfa tekrarı</div>
                 </div>
             </div>
         </div>
 
-        <!-- ADVANCED TABLE WITH 10 ROWS LIMIT & PDF EXPORT -->
+        <!-- TABLE WITH PAGINATION & PDF EXPORT -->
         <div class="card">
             <div class="card-title">
                 <span><i class="fa-solid fa-list-check" style="color:var(--purple-mid);"></i> Talim Kayıt Geçmişi</span>
@@ -851,7 +891,7 @@
                 </div>
             </div>
 
-            <!-- PDF PRINT AREA CONTAINER -->
+            <!-- PDF PRINT AREA -->
             <div id="pdfExportArea">
                 <div style="display:none; text-align:center; padding:10px; margin-bottom:10px;" id="pdfHeaderTitle">
                     <h2 style="color:#000;">Emre Karaaslan Kuranı Kerim Talim Takip Platformu</h2>
@@ -865,7 +905,8 @@
                                 <th>#</th>
                                 <th>Tarih ve Saat</th>
                                 <th>Sayfa No</th>
-                                <th>Tekrar Sayısı</th>
+                                <th>Tekrar Sırası</th>
+                                <th>İki Tekrar Arası Süre</th>
                                 <th class="no-pdf">İşlemler</th>
                             </tr>
                         </thead>
@@ -876,7 +917,7 @@
                 </div>
             </div>
 
-            <!-- PAGINATION CONTROLS (10 ROWS PER PAGE) -->
+            <!-- PAGINATION CONTROLS -->
             <div class="pagination-bar">
                 <div id="paginationInfo">Sayfa 1 / 1 (Toplam 0 kayıt)</div>
                 <div class="pagination-controls">
@@ -886,10 +927,10 @@
             </div>
         </div>
 
-        <!-- ADVANCED LINE CHART REPORT AT BOTTOM -->
+        <!-- CHART REPORT AT BOTTOM -->
         <div class="card">
             <div class="card-title">
-                <span><i class="fa-solid fa-chart-line" style="color:var(--accent-green);"></i> Günlük Sayfa & Tekrar Grafik Raporu</span>
+                <span><i class="fa-solid fa-chart-line" style="color:var(--accent-green);"></i> Sayfa & Tekrar Grafik Raporu</span>
             </div>
             <div class="chart-container">
                 <canvas id="dailyChart"></canvas>
@@ -901,17 +942,13 @@
         </footer>
     </div>
 
-    <!-- EDIT / DELETE MODAL -->
+    <!-- EDIT MODAL -->
     <div class="modal-overlay" id="editModal">
         <div class="modal-body">
             <div class="modal-title">Kaydı Düzenle</div>
             <div class="form-group">
                 <label>Sayfa No (1-614)</label>
                 <input type="number" id="editPageInput" class="form-control" min="1" max="614">
-            </div>
-            <div class="form-group">
-                <label>Tekrar Sayısı</label>
-                <input type="number" id="editCountInput" class="form-control" min="1">
             </div>
             <div class="modal-actions">
                 <button class="modal-btn secondary" onclick="closeEditModal()">İptal</button>
@@ -921,8 +958,7 @@
     </div>
 
     <script>
-        // FIREBASE VERİTABANI YAPILANDIRMASI
-        // Firebase Console (console.firebase.google.com) üzerindeki kendi bilgilerinizi giriniz:
+        // FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -938,13 +974,13 @@
         // DB STATE OBJECT
         let db = {
             profilePhoto: '',
-            records: [], // { id, dateStr, timeStr, page, repeatCount, timestamp }
+            records: [],
         };
 
         // UI & State Variables
         let currentPage = 1;
         const rowsPerPage = 10;
-        let selectedFilterDate = null; // 'YYYY-MM-DD'
+        let selectedFilterDate = null;
         let calendarDate = new Date();
         let editingRecordId = null;
         let chartInstance = null;
@@ -953,6 +989,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             initFirebase();
             setupPageInputFilter();
+            setupTargetRepeatInputFilter();
             renderCalendar();
             renderUI();
             document.getElementById('yearSpan').textContent = new Date().getFullYear();
@@ -966,7 +1003,7 @@
                     useFirebase = true;
                     listenToCloudDB();
                 } catch(e) {
-                    console.error("Firebase başlatma hatası, yerel hafızaya dönülüyor:", e);
+                    console.error("Firebase başlatma hatası:", e);
                     loadLocalDatabase();
                 }
             } else {
@@ -975,9 +1012,7 @@
             }
         }
 
-        // FIREBASE REALTIME LISTENERS
         function listenToCloudDB() {
-            // Profile photo sync
             firestoreDB.collection("settings").doc("profile").onSnapshot(doc => {
                 if (doc.exists && doc.data().photo) {
                     db.profilePhoto = doc.data().photo;
@@ -985,7 +1020,6 @@
                 }
             });
 
-            // Records sync
             firestoreDB.collection("talim_records").orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 db.records = [];
                 snapshot.forEach(doc => {
@@ -1025,7 +1059,6 @@
             }
         }
 
-        // PHOTO UPLOAD HANDLER
         function handlePhotoUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1045,7 +1078,6 @@
             reader.readAsDataURL(file);
         }
 
-        // DROPDOWN CALENDAR TOGGLE LOGIC
         function toggleCalendarDropdown() {
             const dropdown = document.getElementById('calendarDropdown');
             const chevron = document.getElementById('calendarChevron');
@@ -1084,13 +1116,13 @@
             const lbl = document.getElementById('selectedDateText');
             if (selectedFilterDate) {
                 const parts = selectedFilterDate.split('-');
-                lbl.textContent = `Filtre: ${parts[2]}.${parts[1]}.${parts[0]}`;
+                lbl.textContent = `Filtre / Kayıt Tarihi: ${parts[2]}.${parts[1]}.${parts[0]}`;
             } else {
                 lbl.textContent = `Tarih Filtresi: Tüm Tarihler`;
             }
         }
 
-        // TEXTBOX STRICT FILTERING (1 to 614 digits only)
+        // SAYFA NO İÇİN SADECE RAKAM FİLTRESİ (1-614)
         function setupPageInputFilter() {
             const input = document.getElementById('pageNoInput');
 
@@ -1114,11 +1146,45 @@
                 } else {
                     this.value = '';
                 }
+                renderQuickStats();
             });
         }
 
-        // REGISTER TALIM RECORD
+        // TEKRAR SAYISI İÇİN SADECE RAKAM FİLTRESİ (1-21 Arası Rakam)
+        function setupTargetRepeatInputFilter() {
+            const input = document.getElementById('targetRepeatInput');
+
+            input.addEventListener('keydown', function(e) {
+                if ([46, 8, 9, 27, 13, 37, 38, 39, 40].indexOf(e.keyCode) !== -1 ||
+                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true))) {
+                    return;
+                }
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+
+            input.addEventListener('input', function() {
+                let val = this.value.replace(/[^0-9]/g, '');
+                if (val !== '') {
+                    let num = parseInt(val, 10);
+                    if (num > 21) num = 21;
+                    this.value = num;
+                }
+            });
+        }
+
+        // ARTTIR BUTONU FONKSİYONU
         function registerTalim() {
+            const targetInput = document.getElementById('targetRepeatInput');
+            let currentTarget = parseInt(targetInput.value, 10);
+
+            // Eğer hedef tekrar sayısı zaten 0 ise uyar
+            if (isNaN(currentTarget) || currentTarget <= 0) {
+                alert("Emre Sayfa Okuma Tekrarı Bitti.");
+                return;
+            }
+
             const input = document.getElementById('pageNoInput');
             let pageNum = parseInt(input.value, 10);
 
@@ -1128,44 +1194,34 @@
             }
 
             const now = new Date();
-            const dateStr = formatDateKey(now);
+            const dateStr = selectedFilterDate ? selectedFilterDate : formatDateKey(now);
             const timeStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-            const existingIndex = db.records.findIndex(r => r.dateStr === dateStr && r.page === pageNum);
+            const newRecord = {
+                dateStr: dateStr,
+                timeStr: timeStr,
+                page: pageNum,
+                repeatCount: 1,
+                timestamp: now.getTime()
+            };
 
             if (useFirebase) {
-                if (existingIndex !== -1) {
-                    const existing = db.records[existingIndex];
-                    firestoreDB.collection("talim_records").doc(existing.id).update({
-                        repeatCount: existing.repeatCount + 1,
-                        timeStr: timeStr,
-                        timestamp: now.getTime()
-                    });
-                } else {
-                    firestoreDB.collection("talim_records").add({
-                        dateStr: dateStr,
-                        timeStr: timeStr,
-                        page: pageNum,
-                        repeatCount: 1,
-                        timestamp: now.getTime()
-                    });
-                }
+                firestoreDB.collection("talim_records").add(newRecord);
             } else {
-                if (existingIndex !== -1) {
-                    db.records[existingIndex].repeatCount += 1;
-                    db.records[existingIndex].timeStr = timeStr;
-                    db.records[existingIndex].timestamp = now.getTime();
-                } else {
-                    db.records.unshift({
-                        id: Date.now(),
-                        dateStr: dateStr,
-                        timeStr: timeStr,
-                        page: pageNum,
-                        repeatCount: 1,
-                        timestamp: now.getTime()
-                    });
-                }
+                newRecord.id = Date.now();
+                db.records.unshift(newRecord);
                 saveDatabase();
+            }
+
+            // Kalan tekrar sayısını 1 eksilt
+            currentTarget -= 1;
+            targetInput.value = currentTarget;
+
+            // Tekrar sayısı 0'a düştüyse bitti uyarısı ver
+            if (currentTarget === 0) {
+                setTimeout(() => {
+                    alert("Emre Sayfa Okuma Tekrarı Bitti.");
+                }, 100);
             }
         }
 
@@ -1176,7 +1232,55 @@
             return `${year}-${month}-${day}`;
         }
 
-        // RENDER UI & STATISTICS
+        function computeRecordStats() {
+            const sorted = [...db.records].sort((a, b) => a.timestamp - b.timestamp);
+            const pageHistories = {};
+            const statsMap = new Map();
+
+            sorted.forEach(rec => {
+                const p = rec.page;
+                if (!pageHistories[p]) pageHistories[p] = [];
+
+                const history = pageHistories[p];
+                const repeatOrdinal = history.length + 1;
+                let timeDiffText = "-";
+
+                if (history.length > 0) {
+                    const prevTs = history[history.length - 1].timestamp;
+                    const diffMs = rec.timestamp - prevTs;
+                    timeDiffText = formatTimeDiff(diffMs);
+                }
+
+                history.push({ timestamp: rec.timestamp, id: rec.id });
+
+                const key = rec.id || rec.timestamp;
+                statsMap.set(key, {
+                    repeatOrdinal: repeatOrdinal,
+                    timeDiffText: timeDiffText
+                });
+            });
+
+            return statsMap;
+        }
+
+        function formatTimeDiff(ms) {
+            if (ms <= 0) return "-";
+            const totalSec = Math.floor(ms / 1000);
+            if (totalSec < 5) return "Az önce";
+            if (totalSec < 60) return `${totalSec} sn`;
+
+            const totalMin = Math.floor(totalSec / 60);
+            const remainingSec = totalSec % 60;
+
+            if (totalMin < 60) {
+                return remainingSec > 0 ? `${totalMin} dk ${remainingSec} sn` : `${totalMin} dk`;
+            }
+
+            const hours = Math.floor(totalMin / 60);
+            const remainingMin = totalMin % 60;
+            return remainingMin > 0 ? `${hours} sa ${remainingMin} dk` : `${hours} sa`;
+        }
+
         function renderUI() {
             renderQuickStats();
             renderTable();
@@ -1189,45 +1293,52 @@
             const todayStr = formatDateKey(new Date());
             const todayRecords = db.records.filter(r => r.dateStr === todayStr);
 
-            const todayTotalRepeat = todayRecords.reduce((acc, curr) => acc + curr.repeatCount, 0);
+            const todayTotalRepeat = todayRecords.length;
             const todayPagesCount = new Set(todayRecords.map(r => r.page)).size;
-            const totalAllTimeRepeat = db.records.reduce((acc, curr) => acc + curr.repeatCount, 0);
+
+            const inputVal = parseInt(document.getElementById('pageNoInput').value, 10) || 1;
+            const currentPageTotalRepeats = db.records.filter(r => r.page === inputVal).length;
 
             document.getElementById('todayCountVal').textContent = todayTotalRepeat;
             document.getElementById('todayPagesVal').textContent = todayPagesCount;
-            document.getElementById('totalAllTimeVal').textContent = totalAllTimeRepeat;
+            document.getElementById('currentPageRepeatsVal').textContent = currentPageTotalRepeats;
         }
 
-        // TABLE RENDER WITH PAGINATION (10 ROWS LIMIT)
         function renderTable() {
-            let filtered = db.records;
+            const statsMap = computeRecordStats();
+            let sortedRecords = [...db.records].sort((a, b) => b.timestamp - a.timestamp);
+
             if (selectedFilterDate) {
-                filtered = db.records.filter(r => r.dateStr === selectedFilterDate);
+                sortedRecords = sortedRecords.filter(r => r.dateStr === selectedFilterDate);
             }
 
-            const totalRows = filtered.length;
+            const totalRows = sortedRecords.length;
             const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
 
             if (currentPage > totalPages) currentPage = totalPages;
 
             const startIndex = (currentPage - 1) * rowsPerPage;
-            const paginatedRows = filtered.slice(startIndex, startIndex + rowsPerPage);
+            const paginatedRows = sortedRecords.slice(startIndex, startIndex + rowsPerPage);
 
             const tbody = document.getElementById('talimTableBody');
             tbody.innerHTML = '';
 
             if (paginatedRows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:1.5rem;">Kayıt bulunmuyor. Sayfa girip "ARTTIR" butonuna basınız.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:1.5rem;">Kayıt bulunmuyor. Sayfa girip "ARTTIR" butonuna basınız.</td></tr>`;
             } else {
                 paginatedRows.forEach((row, idx) => {
                     const rowNum = startIndex + idx + 1;
-                    const tr = document.createElement('tr');
+                    const key = row.id || row.timestamp;
+                    const stat = statsMap.get(key) || { repeatOrdinal: 1, timeDiffText: '-' };
                     const recordId = typeof row.id === 'string' ? `'${row.id}'` : row.id;
+
+                    const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${rowNum}</td>
                         <td>${row.dateStr} <span style="font-size:0.8rem; color:var(--text-muted); margin-left:4px;">${row.timeStr}</span></td>
                         <td><span class="badge-page">Sayfa ${row.page}</span></td>
-                        <td><span class="badge-repeat">${row.repeatCount} Tekrar</span></td>
+                        <td><span class="badge-repeat">${stat.repeatOrdinal}. Tekrar</span></td>
+                        <td><span class="badge-time">${stat.timeDiffText}</span></td>
                         <td class="no-pdf">
                             <div class="table-actions">
                                 <button class="btn-action edit" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
@@ -1249,14 +1360,12 @@
             renderTable();
         }
 
-        // EDIT & DELETE RECORD
         function openEditModal(id) {
             const record = db.records.find(r => r.id === id);
             if (!record) return;
 
             editingRecordId = id;
             document.getElementById('editPageInput').value = record.page;
-            document.getElementById('editCountInput').value = record.repeatCount;
             document.getElementById('editModal').classList.add('open');
         }
 
@@ -1268,19 +1377,16 @@
         function saveEditRecord() {
             if (!editingRecordId) return;
             let pageVal = parseInt(document.getElementById('editPageInput').value, 10);
-            let countVal = parseInt(document.getElementById('editCountInput').value, 10);
 
-            if (pageVal >= 1 && pageVal <= 614 && countVal >= 1) {
+            if (pageVal >= 1 && pageVal <= 614) {
                 if (useFirebase) {
                     firestoreDB.collection("talim_records").doc(editingRecordId).update({
-                        page: pageVal,
-                        repeatCount: countVal
+                        page: pageVal
                     });
                 } else {
                     const record = db.records.find(r => r.id === editingRecordId);
                     if (record) {
                         record.page = pageVal;
-                        record.repeatCount = countVal;
                         saveDatabase();
                     }
                 }
@@ -1299,7 +1405,6 @@
             }
         }
 
-        // ADVANCED COMPACT CALENDAR
         function renderCalendar() {
             const monthTitle = document.getElementById('calendarMonthTitle');
             const grid = document.getElementById('calendarGrid');
@@ -1307,7 +1412,7 @@
             const year = calendarDate.getFullYear();
             const month = calendarDate.getMonth();
 
-            const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+            const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylul", "Ekim", "Kasım", "Aralık"];
             monthTitle.textContent = `${monthNames[month]} ${year}`;
 
             grid.innerHTML = '';
@@ -1373,54 +1478,60 @@
             renderCalendar();
         }
 
-        // CHART REPORT
+        // ÇİZGİ GRAFİK (LINE CHART) RENDER FONKSİYONU
         function renderChart() {
             const ctx = document.getElementById('dailyChart').getContext('2d');
+            const groupMap = {};
 
-            const dateMap = {};
-            db.records.forEach(r => {
-                if (!dateMap[r.dateStr]) {
-                    dateMap[r.dateStr] = { pages: new Set(), totalRepeats: 0 };
+            const sorted = [...db.records].sort((a, b) => a.timestamp - b.timestamp);
+
+            sorted.forEach(r => {
+                const key = `${r.dateStr}|${r.page}`;
+                if (!groupMap[key]) {
+                    groupMap[key] = {
+                        dateStr: r.dateStr,
+                        page: r.page,
+                        count: 0
+                    };
                 }
-                dateMap[r.dateStr].pages.add(r.page);
-                dateMap[r.dateStr].totalRepeats += r.repeatCount;
+                groupMap[key].count += 1;
             });
 
-            const sortedDates = Object.keys(dateMap).sort();
-            const labels = sortedDates.slice(-14);
-            const pagesData = labels.map(d => dateMap[d].pages.size);
-            const repeatsData = labels.map(d => dateMap[d].totalRepeats);
+            const keys = Object.keys(groupMap);
+            const recentKeys = keys.slice(-15);
+
+            const labels = [];
+            const dataValues = [];
+
+            recentKeys.forEach(k => {
+                const item = groupMap[k];
+                const formattedDate = item.dateStr.split('-').reverse().join('.');
+                labels.push([formattedDate, `Sayfa ${item.page}`]);
+                dataValues.push(item.count);
+            });
 
             if (chartInstance) {
                 chartInstance.destroy();
             }
 
             chartInstance = new Chart(ctx, {
-                type: 'line',
+                type: 'line', // Çizgi grafiğine dönüştürüldü
                 data: {
-                    labels: labels.length ? labels : ['Henüz Veri Yok'],
+                    labels: labels.length ? labels : [['-'], ['Sayfa -']],
                     datasets: [
                         {
-                            label: 'Çalışılan Toplam Sayfa',
-                            data: pagesData.length ? pagesData : [0],
-                            borderColor: '#c084fc',
-                            backgroundColor: 'rgba(192, 132, 252, 0.15)',
-                            fill: true,
-                            tension: 0.35,
-                            borderWidth: 3,
-                            pointRadius: 5,
-                            pointBackgroundColor: '#c084fc'
-                        },
-                        {
-                            label: 'Toplam Yapılan Tekrar',
-                            data: repeatsData.length ? repeatsData : [0],
+                            label: 'Yapılan Tekrar Sayısı',
+                            data: dataValues.length ? dataValues : [0],
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)', // Çizgi altı yarı şeffaf dolgu
                             borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                            fill: true,
-                            tension: 0.35,
                             borderWidth: 3,
+                            fill: true,
+                            tension: 0.35, // Yumuşatılmış kavisli çizgi
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
                             pointRadius: 5,
-                            pointBackgroundColor: '#10b981'
+                            pointHoverRadius: 8
                         }
                     ]
                 },
@@ -1434,20 +1545,32 @@
                     },
                     scales: {
                         x: {
-                            ticks: { color: '#a78bfa' },
+                            ticks: { 
+                                color: '#a78bfa',
+                                font: { size: 11, weight: '600' }
+                            },
                             grid: { color: 'rgba(186, 104, 200, 0.1)' }
                         },
                         y: {
-                            ticks: { color: '#a78bfa', precision: 0 },
-                            grid: { color: 'rgba(186, 104, 200, 0.1)' },
-                            beginAtZero: true
+                            min: 0,
+                            max: 30,
+                            ticks: { 
+                                color: '#a78bfa',
+                                stepSize: 5
+                            },
+                            grid: { color: 'rgba(186, 104, 200, 0.15)' },
+                            title: {
+                                display: true,
+                                text: 'Tekrar Sayısı (Max 30)',
+                                color: '#f59e0b',
+                                font: { size: 12, weight: '700' }
+                            }
                         }
                     }
                 }
             });
         }
 
-        // PDF EXPORT
         function exportToPDF() {
             const element = document.getElementById('pdfExportArea');
             const pdfHeader = document.getElementById('pdfHeaderTitle');
@@ -1472,7 +1595,6 @@
             });
         }
 
-        // BACKUP EXPORT & IMPORT
         function exportBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
             const dlAnchor = document.createElement('a');
