@@ -510,6 +510,139 @@
             font-weight: 600;
         }
 
+        /* POST-IT (YAPIŞKAN NOTLAR) STİLLERİ */
+        .postit-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .postit-input-text {
+            flex: 1;
+            min-width: 240px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--panel-border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            color: var(--text-light);
+            font-size: 0.92rem;
+            outline: none;
+            resize: vertical;
+            min-height: 52px;
+            font-family: inherit;
+        }
+
+        .postit-input-text:focus {
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        .btn-add-postit {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000000;
+            font-weight: 800;
+            border: none;
+            padding: 0 20px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            height: 52px;
+        }
+
+        .btn-add-postit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .postit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .postit-card {
+            border-radius: 12px;
+            padding: 14px 16px;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 135px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            user-select: text;
+        }
+
+        .postit-card:nth-child(4n+1) { transform: rotate(-1.5deg); background: #fef08a; } /* Pastel Sarı */
+        .postit-card:nth-child(4n+2) { transform: rotate(1.5deg); background: #bbf7d0; }  /* Pastel Yeşil */
+        .postit-card:nth-child(4n+3) { transform: rotate(-1deg); background: #fbcfe8; }   /* Pastel Pembe */
+        .postit-card:nth-child(4n+0) { transform: rotate(2deg); background: #bae6fd; }    /* Pastel Mavi */
+
+        .postit-card:hover {
+            transform: scale(1.04) rotate(0deg) !important;
+            z-index: 10;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+
+        .postit-pin {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+            border: 2px solid #fff;
+        }
+
+        .postit-content {
+            font-size: 0.92rem;
+            font-weight: 600;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.45;
+            margin-top: 6px;
+        }
+
+        .postit-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #475569;
+            border-top: 1px dashed rgba(0,0,0,0.2);
+            padding-top: 6px;
+            user-select: none;
+        }
+
+        .postit-delete-btn {
+            background: rgba(239, 68, 68, 0.15);
+            border: none;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .postit-delete-btn:hover {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
         /* TABLE SECTION */
         .table-controls {
             display: flex;
@@ -783,6 +916,12 @@
             .quick-stats-row {
                 flex-direction: column;
             }
+            .postit-input-container {
+                flex-direction: column;
+            }
+            .btn-add-postit {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -882,6 +1021,24 @@
             </div>
         </div>
 
+        <!-- POST-IT (GÜNLÜK DERS VE ODEV NOTLARI) KARTI -->
+        <div class="card">
+            <div class="card-title">
+                <span><i class="fa-solid fa-note-sticky" style="color:var(--gold-accent);"></i> Emre'nin Günlük Ders Notları (Post-it)</span>
+            </div>
+            
+            <div class="postit-input-container">
+                <textarea id="postitTextInput" class="postit-input-text" placeholder="Bugün dinlenen ders, verilen ezber veya hatırlatma notu yazın..." rows="2"></textarea>
+                <button class="btn-add-postit" onclick="addPostitNote()">
+                    <i class="fa-solid fa-thumbtack"></i> Post-it Ekle
+                </button>
+            </div>
+
+            <div class="postit-grid" id="postitGrid">
+                <!-- Post-it Notları JavaScript Tarafından Eklenir -->
+            </div>
+        </div>
+
         <!-- TABLE WITH PAGINATION & PDF EXPORT -->
         <div class="card">
             <div class="card-title">
@@ -975,6 +1132,7 @@
         let db = {
             profilePhoto: '',
             records: [],
+            notes: [] // Post-it yapışkan notları dizisi
         };
 
         // UI & State Variables
@@ -1013,6 +1171,7 @@
         }
 
         function listenToCloudDB() {
+            // Profil Fotoğrafı Dinleyici
             firestoreDB.collection("settings").doc("profile").onSnapshot(doc => {
                 if (doc.exists && doc.data().photo) {
                     db.profilePhoto = doc.data().photo;
@@ -1020,12 +1179,22 @@
                 }
             });
 
+            // Talim Kayıtları Dinleyici
             firestoreDB.collection("talim_records").orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 db.records = [];
                 snapshot.forEach(doc => {
                     db.records.push({ id: doc.id, ...doc.data() });
                 });
                 renderUI();
+            });
+
+            // Post-it Notları Dinleyici
+            firestoreDB.collection("daily_notes").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+                db.notes = [];
+                snapshot.forEach(doc => {
+                    db.notes.push({ id: doc.id, ...doc.data() });
+                });
+                renderPostits();
             });
         }
 
@@ -1038,6 +1207,7 @@
                     console.error("DB Yükleme hatası:", e);
                 }
             }
+            if (!db.notes) db.notes = [];
             if (db.profilePhoto) {
                 updateAvatarUI(db.profilePhoto);
             }
@@ -1225,6 +1395,90 @@
             }
         }
 
+        /* --- POST-IT (GÜNLÜK DERS NOTLARI) FONKSİYONLARI --- */
+        function addPostitNote() {
+            const input = document.getElementById('postitTextInput');
+            const text = input.value.trim();
+
+            if (!text) {
+                alert("Lütfen ders notunuzu veya ödevinizi giriniz.");
+                return;
+            }
+
+            const now = new Date();
+            const dateDisplay = now.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const timeDisplay = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+            const newNote = {
+                text: text,
+                dateStr: `${dateDisplay} ${timeDisplay}`,
+                timestamp: now.getTime()
+            };
+
+            if (useFirebase) {
+                firestoreDB.collection("daily_notes").add(newNote);
+            } else {
+                newNote.id = Date.now();
+                if (!db.notes) db.notes = [];
+                db.notes.unshift(newNote);
+                saveDatabase();
+                renderPostits();
+            }
+
+            input.value = '';
+        }
+
+        function deletePostitNote(id) {
+            if (confirm("Bu ders notunu silmek istediğinize emin misiniz?")) {
+                if (useFirebase) {
+                    firestoreDB.collection("daily_notes").doc(id).delete();
+                } else {
+                    db.notes = db.notes.filter(n => n.id !== id);
+                    saveDatabase();
+                    renderPostits();
+                }
+            }
+        }
+
+        function renderPostits() {
+            const container = document.getElementById('postitGrid');
+            if (!container) return;
+
+            const notesList = db.notes || [];
+            container.innerHTML = '';
+
+            if (notesList.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); padding: 1.2rem; font-size: 0.9rem;">Henüz eklenmiş bir ders notu bulunmuyor. Yukarıdaki alandan ekleyebilirsiniz.</div>`;
+                return;
+            }
+
+            notesList.forEach(note => {
+                const noteId = typeof note.id === 'string' ? `'${note.id}'` : note.id;
+                const card = document.createElement('div');
+                card.className = 'postit-card';
+                card.innerHTML = `
+                    <div class="postit-pin"></div>
+                    <div class="postit-content">${escapeHtml(note.text)}</div>
+                    <div class="postit-footer">
+                        <span><i class="fa-regular fa-clock"></i> ${note.dateStr || ''}</span>
+                        <button class="postit-delete-btn" onclick="deletePostitNote(${noteId})" title="Notu Sil">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         function formatDateKey(dateObj) {
             const year = dateObj.getFullYear();
             const month = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -1285,6 +1539,7 @@
             renderQuickStats();
             renderTable();
             renderCalendar();
+            renderPostits();
             renderChart();
             updateSelectedDateLabel();
         }
@@ -1515,18 +1770,18 @@
             }
 
             chartInstance = new Chart(ctx, {
-                type: 'line', // Çizgi grafiğine dönüştürüldü
+                type: 'line',
                 data: {
                     labels: labels.length ? labels : [['-'], ['Sayfa -']],
                     datasets: [
                         {
                             label: 'Yapılan Tekrar Sayısı',
                             data: dataValues.length ? dataValues : [0],
-                            backgroundColor: 'rgba(16, 185, 129, 0.2)', // Çizgi altı yarı şeffaf dolgu
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
                             borderColor: '#10b981',
                             borderWidth: 3,
                             fill: true,
-                            tension: 0.35, // Yumuşatılmış kavisli çizgi
+                            tension: 0.35,
                             pointBackgroundColor: '#10b981',
                             pointBorderColor: '#ffffff',
                             pointBorderWidth: 2,
@@ -1613,16 +1868,20 @@
             reader.onload = function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    if (imported && Array.isArray(imported.records)) {
+                    if (imported && (Array.isArray(imported.records) || Array.isArray(imported.notes))) {
                         if (useFirebase) {
-                            imported.records.forEach(rec => {
-                                firestoreDB.collection("talim_records").add(rec);
-                            });
+                            if (imported.records) {
+                                imported.records.forEach(rec => firestoreDB.collection("talim_records").add(rec));
+                            }
+                            if (imported.notes) {
+                                imported.notes.forEach(note => firestoreDB.collection("daily_notes").add(note));
+                            }
                             if (imported.profilePhoto) {
                                 firestoreDB.collection("settings").doc("profile").set({ photo: imported.profilePhoto });
                             }
                         } else {
                             db = imported;
+                            if (!db.notes) db.notes = [];
                             saveDatabase();
                         }
                         alert("Verileriniz başarıyla içe aktarıldı!");
