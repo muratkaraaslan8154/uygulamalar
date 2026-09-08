@@ -533,7 +533,7 @@
             font-weight: 600;
         }
 
-        /* POST-IT (YAPIŞKAN NOTLAR) STİLLERİ */
+        /* POST-IT STYLES */
         .postit-input-container {
             display: flex;
             gap: 10px;
@@ -984,8 +984,8 @@
                 <div class="header-title-box">
                     <div class="header-title">Emre Karaaslan Kuranı Kerim Talim Takip Platformu</div>
                     <div class="header-subtitle">
-                        <i class="fa-solid fa-cloud" style="color:var(--accent-green);"></i>
-                        <span id="dbStatusText">Bulut Veritabanı Aktif (Her Cihazda Senkronize)</span>
+                        <i class="fa-solid fa-cloud" id="dbStatusIcon" style="color:var(--accent-green);"></i>
+                        <span id="dbStatusText">Veritabanı Durumu Yükleniyor...</span>
                     </div>
                 </div>
             </div>
@@ -1029,9 +1029,7 @@
                     <i class="fa-solid fa-box-archive"></i>
                     <span id="historyBannerTitle">Geçmiş Gün Özeti</span>
                 </div>
-                <div class="history-banner-stats" id="historyBannerStats">
-                    <!-- JS ile Doldurulur -->
-                </div>
+                <div class="history-banner-stats" id="historyBannerStats"></div>
             </div>
         </div>
 
@@ -1083,12 +1081,10 @@
                 </button>
             </div>
 
-            <div class="postit-grid" id="postitGrid">
-                <!-- Post-it Notları JavaScript Tarafından Eklenir -->
-            </div>
+            <div class="postit-grid" id="postitGrid"></div>
         </div>
 
-        <!-- ARŞİVLENMİŞ DERS NOTLARI TABLO KARTI (5 SATIR & SAYFALAMA) -->
+        <!-- ARŞİVLENMİŞ DERS NOTLARI TABLO KARTI -->
         <div class="card">
             <div class="card-title">
                 <span><i class="fa-solid fa-box-archive" style="color:var(--gold-accent);"></i> Arşivlenmiş Ders Notları</span>
@@ -1104,9 +1100,7 @@
                             <th>İşlemler</th>
                         </tr>
                     </thead>
-                    <tbody id="archiveTableBody">
-                        <!-- Arşiv kayıtları JavaScript ile eklenir -->
-                    </tbody>
+                    <tbody id="archiveTableBody"></tbody>
                 </table>
             </div>
 
@@ -1209,14 +1203,16 @@
     </div>
 
     <script>
-        // FIREBASE CONFIGURATION
+        // =========================================================================
+        // IMPORTANT: ILAC.HTML DOSYANIZDAKİ FIREBASE BİLGİLERİNİ BURAYA YAPIŞTIRIN
+        // =========================================================================
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyAhjq7KL_e80LiW8fC-wttmn8gba5UvhVE",             // ilac.html içindeki apiKey değeriniz
+            authDomain: "muratilactakip.firebaseapp.com",
+            projectId: "muratilactakip",       // ilac.html içindeki projectId değeriniz
+            storageBucket: "muratilactakip.appspot.com",
+            messagingSenderId: "1029760039126",
+            appId: "1:1029760039126:web:08dc48a945e8e7e19df177"
         };
 
         let useFirebase = false;
@@ -1251,31 +1247,43 @@
         });
 
         function initFirebase() {
-            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+            // apiKey "YOUR_API_KEY" olarak kalmamışsa Firebase aktifleşir
+            if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
                 try {
                     firebase.initializeApp(firebaseConfig);
                     firestoreDB = firebase.firestore();
                     useFirebase = true;
+                    document.getElementById('dbStatusText').textContent = "Bulut Veritabanı Aktif (Her Cihazda Senkronize)";
+                    document.getElementById('dbStatusIcon').style.color = "var(--accent-green)";
                     listenToCloudDB();
                 } catch(e) {
-                    console.error("Firebase başlatma hatası:", e);
-                    loadLocalDatabase();
+                    console.error("Firebase Başlatma Hatası:", e);
+                    setLocalDBFallback();
                 }
             } else {
-                document.getElementById('dbStatusText').textContent = "Yerel Depolama Aktif (Firebase Yapılandırılmadı)";
-                loadLocalDatabase();
+                setLocalDBFallback();
             }
         }
 
+        function setLocalDBFallback() {
+            useFirebase = false;
+            document.getElementById('dbStatusText').textContent = "Yerel Depolama Aktif (Lütfen Firebase Bilgilerinizi Yapıştırın)";
+            document.getElementById('dbStatusIcon').style.color = "var(--gold-accent)";
+            loadLocalDatabase();
+        }
+
+        // İLAÇ TAKİBİ İLE ÇAKIŞMAYAN İZOLE KOLEKSİYONLAR
         function listenToCloudDB() {
-            firestoreDB.collection("settings").doc("profile").onSnapshot(doc => {
+            // Profil Fotoğrafı Takibi
+            firestoreDB.collection("kuran_settings").doc("profile").onSnapshot(doc => {
                 if (doc.exists && doc.data().photo) {
                     db.profilePhoto = doc.data().photo;
                     updateAvatarUI(db.profilePhoto);
                 }
             });
 
-            firestoreDB.collection("talim_records").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+            // Talim Kayıtları Canlı Dinleyici
+            firestoreDB.collection("kuran_talim_records").orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 db.records = [];
                 snapshot.forEach(doc => {
                     db.records.push({ id: doc.id, ...doc.data() });
@@ -1283,7 +1291,8 @@
                 renderUI();
             });
 
-            firestoreDB.collection("daily_notes").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+            // Post-it Ders Notları Canlı Dinleyici
+            firestoreDB.collection("kuran_daily_notes").orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 db.notes = [];
                 snapshot.forEach(doc => {
                     db.notes.push({ id: doc.id, ...doc.data() });
@@ -1319,6 +1328,7 @@
             }
         }
 
+        // FOTOĞRAF YÜKLEME VE BULUTA/YEREL BELEĞE KAYDETME
         function handlePhotoUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1330,7 +1340,7 @@
                 updateAvatarUI(photoData);
 
                 if (useFirebase) {
-                    firestoreDB.collection("settings").doc("profile").set({ photo: photoData });
+                    firestoreDB.collection("kuran_settings").doc("profile").set({ photo: photoData });
                 } else {
                     saveDatabase();
                 }
@@ -1470,7 +1480,7 @@
             };
 
             if (useFirebase) {
-                firestoreDB.collection("talim_records").add(newRecord);
+                firestoreDB.collection("kuran_talim_records").add(newRecord);
             } else {
                 newRecord.id = Date.now();
                 db.records.unshift(newRecord);
@@ -1485,7 +1495,7 @@
             }
         }
 
-        /* --- POST-IT NOTLARI VE ARŞİVLEME --- */
+        /* POST-IT NOTLARI */
         function addPostitNote() {
             const input = document.getElementById('postitTextInput');
             const text = input.value.trim();
@@ -1509,7 +1519,7 @@
             };
 
             if (useFirebase) {
-                firestoreDB.collection("daily_notes").add(newNote);
+                firestoreDB.collection("kuran_daily_notes").add(newNote);
             } else {
                 newNote.id = Date.now();
                 if (!db.notes) db.notes = [];
@@ -1522,10 +1532,9 @@
             input.value = '';
         }
 
-        /* POST-IT ARŞİVLEME VE GERİ YÜKLEME */
         function archivePostitNote(id) {
             if (useFirebase) {
-                firestoreDB.collection("daily_notes").doc(id).update({ archived: true });
+                firestoreDB.collection("kuran_daily_notes").doc(id).update({ archived: true });
             } else {
                 const note = db.notes.find(n => n.id === id);
                 if (note) {
@@ -1539,7 +1548,7 @@
 
         function unarchivePostitNote(id) {
             if (useFirebase) {
-                firestoreDB.collection("daily_notes").doc(id).update({ archived: false });
+                firestoreDB.collection("kuran_daily_notes").doc(id).update({ archived: false });
             } else {
                 const note = db.notes.find(n => n.id === id);
                 if (note) {
@@ -1551,7 +1560,6 @@
             }
         }
 
-        /* POST-IT DÜZENLEME FONKSİYONLARI */
         function openPostitModal(id) {
             const note = db.notes.find(n => n.id === id);
             if (!note) return;
@@ -1577,7 +1585,7 @@
             }
 
             if (useFirebase) {
-                firestoreDB.collection("daily_notes").doc(editingPostitId).update({
+                firestoreDB.collection("kuran_daily_notes").doc(editingPostitId).update({
                     text: newText
                 });
             } else {
@@ -1596,7 +1604,7 @@
         function deletePostitNote(id) {
             if (confirm("Bu ders notunu kalıcı olarak silmek istediğinize emin misiniz?")) {
                 if (useFirebase) {
-                    firestoreDB.collection("daily_notes").doc(id).delete();
+                    firestoreDB.collection("kuran_daily_notes").doc(id).delete();
                 } else {
                     db.notes = db.notes.filter(n => n.id !== id);
                     saveDatabase();
@@ -1610,7 +1618,6 @@
             const container = document.getElementById('postitGrid');
             if (!container) return;
 
-            // Sadece arşivlenmemiş (aktif) notlar gösterilir
             let notesList = (db.notes || []).filter(n => !n.archived);
 
             if (selectedFilterDate) {
@@ -1652,7 +1659,6 @@
             });
         }
 
-        /* ARŞİV TABLOSU VE 5 SATIR PAGINATION */
         function renderArchiveTable() {
             const tbody = document.getElementById('archiveTableBody');
             if (!tbody) return;
@@ -1676,7 +1682,7 @@
             tbody.innerHTML = '';
 
             if (paginatedRows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:1.2rem;">Arşivlenmiş ders notu bulunmuyor. Notların altındaki "Arşivle" butonunu kullanabilirsiniz.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:1.2rem;">Arşivlenmiş ders notu bulunmuyor.</td></tr>`;
             } else {
                 paginatedRows.forEach((note, idx) => {
                     const rowNum = startIndex + idx + 1;
@@ -1874,7 +1880,7 @@
 
             if (pageVal >= 1 && pageVal <= 614) {
                 if (useFirebase) {
-                    firestoreDB.collection("talim_records").doc(editingRecordId).update({
+                    firestoreDB.collection("kuran_talim_records").doc(editingRecordId).update({
                         page: pageVal
                     });
                 } else {
@@ -1891,7 +1897,7 @@
         function deleteRecord(id) {
             if (confirm("Bu talim kaydını silmek istediğinize emin misiniz?")) {
                 if (useFirebase) {
-                    firestoreDB.collection("talim_records").doc(id).delete();
+                    firestoreDB.collection("kuran_talim_records").doc(id).delete();
                 } else {
                     db.records = db.records.filter(r => r.id !== id);
                     saveDatabase();
@@ -2093,13 +2099,13 @@
                     if (imported && (Array.isArray(imported.records) || Array.isArray(imported.notes))) {
                         if (useFirebase) {
                             if (imported.records) {
-                                imported.records.forEach(rec => firestoreDB.collection("talim_records").add(rec));
+                                imported.records.forEach(rec => firestoreDB.collection("kuran_talim_records").add(rec));
                             }
                             if (imported.notes) {
-                                imported.notes.forEach(note => firestoreDB.collection("daily_notes").add(note));
+                                imported.notes.forEach(note => firestoreDB.collection("kuran_daily_notes").add(note));
                             }
                             if (imported.profilePhoto) {
-                                firestoreDB.collection("settings").doc("profile").set({ photo: imported.profilePhoto });
+                                firestoreDB.collection("kuran_settings").doc("profile").set({ photo: imported.profilePhoto });
                             }
                         } else {
                             db = imported;
