@@ -63,6 +63,16 @@
             overflow-x: hidden;
         }
 
+        /* EKRAN VE SAYFA KİLİTLENDİĞİNDEDİR */
+        body.is-screen-locked {
+            overflow: hidden !important;
+            touch-action: none;
+        }
+
+        body.is-screen-locked .increment-action-row {
+            touch-action: auto;
+        }
+
         .container {
             width: 100%;
             max-width: 1100px;
@@ -466,15 +476,70 @@
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 0 20px var(--gold-glow);
         }
 
+        /* INCREMENT ROW & LOCK BUTTON STYLES */
+        .increment-action-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            width: 100%;
+            margin: 0.5rem 0 1.2rem 0;
+            position: relative;
+        }
+
+        .btn-lock-toggle {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            border: 2px solid var(--purple-mid);
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+            user-select: none;
+        }
+
+        .btn-lock-toggle i {
+            font-size: 1.25rem;
+        }
+
+        .btn-lock-toggle:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: var(--gold-accent);
+            color: var(--gold-accent);
+        }
+
+        .btn-lock-toggle.is-locked {
+            background: linear-gradient(145deg, #f59e0b, #d97706);
+            border-color: #f59e0b;
+            color: #000000;
+            box-shadow: 0 0 25px var(--gold-glow), 0 8px 20px rgba(0,0,0,0.6);
+            animation: pulseLock 2s infinite;
+        }
+
+        @keyframes pulseLock {
+            0% { box-shadow: 0 0 10px var(--gold-glow); }
+            50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); }
+            100% { box-shadow: 0 0 10px var(--gold-glow); }
+        }
+
         /* GREEN ROUND INCREMENT BUTTON */
         .btn-increment-round {
-            width: 150px;
-            height: 150px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             border: none;
             background: linear-gradient(145deg, #10b981, #047857);
             color: #ffffff;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 800;
             letter-spacing: 1.5px;
             cursor: pointer;
@@ -489,7 +554,6 @@
             align-items: center;
             justify-content: center;
             gap: 4px;
-            margin: 0.5rem 0 1.2rem 0;
             user-select: none;
         }
 
@@ -500,7 +564,7 @@
         }
 
         .btn-increment-round i {
-            font-size: 1.8rem;
+            font-size: 1.7rem;
         }
 
         .quick-stats-row {
@@ -958,7 +1022,8 @@
             .profile-brand { flex-direction: column; }
             .header-title-box { align-items: center; }
             .inputs-row { flex-direction: row; gap: 8px; }
-            .btn-increment-round { width: 130px; height: 130px; font-size: 1.3rem; }
+            .btn-increment-round { width: 125px; height: 125px; font-size: 1.2rem; }
+            .btn-lock-toggle { width: 58px; height: 58px; font-size: 0.65rem; }
             .page-textbox { font-size: 1.6rem; }
             .quick-stats-row { flex-direction: column; }
             .postit-input-container { flex-direction: column; }
@@ -1046,10 +1111,20 @@
                 </div>
             </div>
 
-            <button class="btn-increment-round" id="incrementBtn" onclick="registerTalim()">
-                <i class="fa-solid fa-plus"></i>
-                ARTTIR
-            </button>
+            <!-- INCREMENT BUTTON + LOCK BUTTON ROW -->
+            <div class="increment-action-row">
+                <!-- EKRAN & KONUM KİLİTLEME BUTONU -->
+                <button type="button" class="btn-lock-toggle" id="lockBtn" onclick="toggleScreenLock()" title="Ekranı Açık Tut ve Konumu Kilitle">
+                    <i class="fa-solid fa-lock-open" id="lockIcon"></i>
+                    <span id="lockText">Kilitle</span>
+                </button>
+
+                <!-- YEŞİL ARTTIR BUTONU -->
+                <button class="btn-increment-round" id="incrementBtn" onclick="registerTalim()">
+                    <i class="fa-solid fa-plus"></i>
+                    ARTTIR
+                </button>
+            </div>
 
             <!-- İSTATİSTİK KUTULARI -->
             <div class="quick-stats-row">
@@ -1204,12 +1279,12 @@
 
     <script>
         // =========================================================================
-        // IMPORTANT: ILAC.HTML DOSYANIZDAKİ FIREBASE BİLGİLERİNİ BURAYA YAPIŞTIRIN
+        // FIREBASE CONFIGURATION
         // =========================================================================
         const firebaseConfig = {
-            apiKey: "AIzaSyAhjq7KL_e80LiW8fC-wttmn8gba5UvhVE",             // ilac.html içindeki apiKey değeriniz
+            apiKey: "AIzaSyAhjq7KL_e80LiW8fC-wttmn8gba5UvhVE",
             authDomain: "muratilactakip.firebaseapp.com",
-            projectId: "muratilactakip",       // ilac.html içindeki projectId değeriniz
+            projectId: "muratilactakip",
             storageBucket: "muratilactakip.appspot.com",
             messagingSenderId: "1029760039126",
             appId: "1:1029760039126:web:08dc48a945e8e7e19df177"
@@ -1237,17 +1312,28 @@
         let editingPostitId = null;
         let chartInstance = null;
 
+        // EKRAN & SAYFA KİLİT DEĞİŞKENLERİ
+        let isLocked = false;
+        let wakeLockObj = null;
+        let lockedScrollY = 0;
+
         window.addEventListener('DOMContentLoaded', () => {
             initFirebase();
             setupPageInputFilter();
             setupTargetRepeatInputFilter();
+
+            // Klavyeden en son girilmiş olan varsayılan tekrar sayısını yükle
+            const savedRepeat = localStorage.getItem('lastEnteredRepeatCount');
+            if (savedRepeat) {
+                document.getElementById('targetRepeatInput').value = savedRepeat;
+            }
+
             renderCalendar();
             renderUI();
             document.getElementById('yearSpan').textContent = new Date().getFullYear();
         });
 
         function initFirebase() {
-            // apiKey "YOUR_API_KEY" olarak kalmamışsa Firebase aktifleşir
             if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
                 try {
                     firebase.initializeApp(firebaseConfig);
@@ -1274,7 +1360,6 @@
 
         // İLAÇ TAKİBİ İLE ÇAKIŞMAYAN İZOLE KOLEKSİYONLAR
         function listenToCloudDB() {
-            // Profil Fotoğrafı Takibi
             firestoreDB.collection("kuran_settings").doc("profile").onSnapshot(doc => {
                 if (doc.exists && doc.data().photo) {
                     db.profilePhoto = doc.data().photo;
@@ -1282,7 +1367,6 @@
                 }
             });
 
-            // Talim Kayıtları Canlı Dinleyici
             firestoreDB.collection("kuran_talim_records").orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 db.records = [];
                 snapshot.forEach(doc => {
@@ -1291,7 +1375,6 @@
                 renderUI();
             });
 
-            // Post-it Ders Notları Canlı Dinleyici
             firestoreDB.collection("kuran_daily_notes").orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 db.notes = [];
                 snapshot.forEach(doc => {
@@ -1328,7 +1411,6 @@
             }
         }
 
-        // FOTOĞRAF YÜKLEME VE BULUTA/YEREL BELEĞE KAYDETME
         function handlePhotoUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1347,6 +1429,103 @@
             };
             reader.readAsDataURL(file);
         }
+
+        // =========================================================================
+        // EKRAN VE KONUM KİLİTLEME MANTIĞI (WAKE LOCK + TOUCH/SCROLL LOCK)
+        // =========================================================================
+        async function toggleScreenLock() {
+            if (!isLocked) {
+                await enableScreenLock();
+            } else {
+                await disableScreenLock();
+            }
+        }
+
+        async function enableScreenLock() {
+            isLocked = true;
+            lockedScrollY = window.scrollY || window.pageYOffset;
+
+            // 1. Ekran kapanmasını engelle (Screen Wake Lock)
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLockObj = await navigator.wakeLock.request('screen');
+                } catch (err) {
+                    console.log('Wake Lock Etkinleştirilemedi:', err);
+                }
+            }
+
+            // 2. Sayfayı sabit konumda kilitle
+            document.body.classList.add('is-screen-locked');
+            window.addEventListener('touchmove', preventDefaultTouch, { passive: false });
+            window.addEventListener('scroll', keepScrollPosition);
+
+            // 3. Yanlışlıkla alanlara dokunup klavyenin açılmasını önle
+            document.getElementById('pageNoInput').readOnly = true;
+            document.getElementById('targetRepeatInput').readOnly = true;
+
+            // 4. Görsel güncelleme
+            const lockBtn = document.getElementById('lockBtn');
+            const lockIcon = document.getElementById('lockIcon');
+            const lockText = document.getElementById('lockText');
+
+            lockBtn.classList.add('is-locked');
+            lockIcon.className = 'fa-solid fa-lock';
+            lockText.textContent = 'Kilitli';
+        }
+
+        async function disableScreenLock() {
+            isLocked = false;
+
+            // 1. Screen Wake Lock serbest bırak
+            if (wakeLockObj !== null) {
+                try {
+                    await wakeLockObj.release();
+                } catch(e){}
+                wakeLockObj = null;
+            }
+
+            // 2. Sayfa kaydırmayı aç
+            document.body.classList.remove('is-screen-locked');
+            window.removeEventListener('touchmove', preventDefaultTouch);
+            window.removeEventListener('scroll', keepScrollPosition);
+
+            // 3. İnputları tekrar aktif et
+            document.getElementById('pageNoInput').readOnly = false;
+            document.getElementById('targetRepeatInput').readOnly = false;
+
+            // 4. Görsel güncelleme
+            const lockBtn = document.getElementById('lockBtn');
+            const lockIcon = document.getElementById('lockIcon');
+            const lockText = document.getElementById('lockText');
+
+            lockBtn.classList.remove('is-locked');
+            lockIcon.className = 'fa-solid fa-lock-open';
+            lockText.textContent = 'Kilitle';
+        }
+
+        function preventDefaultTouch(e) {
+            // Kilit sırasındayken butonlara dokunmaya izin ver, sayfa kaydırmayı engelle
+            const actionRow = document.querySelector('.increment-action-row');
+            if (actionRow && actionRow.contains(e.target)) {
+                return;
+            }
+            e.preventDefault();
+        }
+
+        function keepScrollPosition() {
+            if (isLocked) {
+                window.scrollTo(0, lockedScrollY);
+            }
+        }
+
+        // Uygulama arka plana atılıp geri dönüldüğünde kilidi ve ekran açık kalma durumunu yenile
+        document.addEventListener('visibilitychange', async () => {
+            if (isLocked && document.visibilityState === 'visible' && 'wakeLock' in navigator) {
+                try {
+                    wakeLockObj = await navigator.wakeLock.request('screen');
+                } catch (e) {}
+            }
+        });
 
         function toggleCalendarDropdown() {
             const dropdown = document.getElementById('calendarDropdown');
@@ -1445,6 +1624,9 @@
                     let num = parseInt(val, 10);
                     if (num > 21) num = 21;
                     this.value = num;
+                    if (num > 0) {
+                        localStorage.setItem('lastEnteredRepeatCount', num);
+                    }
                 }
             });
         }
@@ -1456,6 +1638,8 @@
 
             if (isNaN(currentTarget) || currentTarget <= 0) {
                 alert("Emre Sayfa Okuma Tekrarı Bitti.");
+                const savedRepeat = localStorage.getItem('lastEnteredRepeatCount') || "1";
+                targetInput.value = savedRepeat;
                 return;
             }
 
@@ -1491,7 +1675,11 @@
             targetInput.value = currentTarget;
 
             if (currentTarget === 0) {
-                setTimeout(() => { alert("Emre Sayfa Okuma Tekrarı Bitti."); }, 100);
+                setTimeout(() => {
+                    alert("Emre Sayfa Okuma Tekrarı Bitti.");
+                    const savedRepeat = localStorage.getItem('lastEnteredRepeatCount') || "1";
+                    targetInput.value = savedRepeat;
+                }, 100);
             }
         }
 
