@@ -218,6 +218,36 @@
             gap: 8px;
         }
 
+        /* HISTORICAL SUMMARY BANNER */
+        .history-banner {
+            display: none;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(192, 132, 252, 0.2));
+            border: 1px solid var(--gold-accent);
+            border-radius: 18px;
+            padding: 12px 18px;
+            margin-top: 10px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .history-banner-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--gold-accent);
+        }
+
+        .history-banner-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 0.82rem;
+            color: var(--purple-light);
+        }
+
         /* DROPDOWN CALENDAR STYLES */
         .calendar-dropdown-container {
             position: relative;
@@ -403,15 +433,8 @@
             gap: 8px;
         }
 
-        /* SAYFA NO KUTUSU GENİŞLİĞİ (2 Flex) */
-        .input-group.page-group {
-            flex: 2;
-        }
-
-        /* KALAN TEKRAR KUTUSU GENİŞLİĞİ 1/2 ORANINDA AZALTILDI (1 Flex) */
-        .input-group.repeat-group {
-            flex: 1;
-        }
+        .input-group.page-group { flex: 2; }
+        .input-group.repeat-group { flex: 1; }
 
         .input-label {
             font-size: 0.82rem;
@@ -581,10 +604,10 @@
             user-select: text;
         }
 
-        .postit-card:nth-child(4n+1) { transform: rotate(-1.5deg); background: #fef08a; } /* Pastel Sarı */
-        .postit-card:nth-child(4n+2) { transform: rotate(1.5deg); background: #bbf7d0; }  /* Pastel Yeşil */
-        .postit-card:nth-child(4n+3) { transform: rotate(-1deg); background: #fbcfe8; }   /* Pastel Pembe */
-        .postit-card:nth-child(4n+0) { transform: rotate(2deg); background: #bae6fd; }    /* Pastel Mavi */
+        .postit-card:nth-child(4n+1) { transform: rotate(-1.5deg); background: #fef08a; } 
+        .postit-card:nth-child(4n+2) { transform: rotate(1.5deg); background: #bbf7d0; }  
+        .postit-card:nth-child(4n+3) { transform: rotate(-1deg); background: #fbcfe8; }   
+        .postit-card:nth-child(4n+0) { transform: rotate(2deg); background: #bae6fd; }    
 
         .postit-card:hover {
             transform: scale(1.04) rotate(0deg) !important;
@@ -627,15 +650,46 @@
             user-select: none;
         }
 
-        .postit-delete-btn {
-            background: rgba(239, 68, 68, 0.15);
+        .postit-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .postit-edit-btn, .postit-archive-btn, .postit-delete-btn {
             border: none;
-            color: #dc2626;
             cursor: pointer;
-            font-size: 0.85rem;
-            padding: 4px 8px;
+            font-size: 0.75rem;
+            padding: 4px 6px;
             border-radius: 6px;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .postit-edit-btn {
+            background: rgba(15, 23, 42, 0.12);
+            color: #0f172a;
+        }
+
+        .postit-edit-btn:hover {
+            background: #0f172a;
+            color: #ffffff;
+        }
+
+        .postit-archive-btn {
+            background: rgba(217, 119, 6, 0.15);
+            color: #b45309;
+        }
+
+        .postit-archive-btn:hover {
+            background: #d97706;
+            color: #ffffff;
+        }
+
+        .postit-delete-btn {
+            background: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
         }
 
         .postit-delete-btn:hover {
@@ -669,9 +723,7 @@
             transition: transform 0.2s;
         }
 
-        .btn-pdf:hover {
-            transform: translateY(-2px);
-        }
+        .btn-pdf:hover { transform: translateY(-2px); }
 
         .table-responsive {
             width: 100%;
@@ -704,9 +756,7 @@
             white-space: nowrap;
         }
 
-        tr:hover td {
-            background: rgba(255,255,255,0.03);
-        }
+        tr:hover td { background: rgba(255,255,255,0.03); }
 
         .badge-page {
             background: rgba(192, 132, 252, 0.15);
@@ -756,15 +806,9 @@
             transition: all 0.2s;
         }
 
-        .btn-action.edit:hover {
-            background: var(--gold-accent);
-            color: #000;
-        }
-
-        .btn-action.delete:hover {
-            background: var(--danger-color);
-            color: #fff;
-        }
+        .btn-action.edit:hover { background: var(--gold-accent); color: #000; }
+        .btn-action.restore:hover { background: var(--accent-green); color: #000; }
+        .btn-action.delete:hover { background: var(--danger-color); color: #fff; }
 
         /* PAGINATION */
         .pagination-bar {
@@ -788,6 +832,17 @@
             padding: 5px 12px;
             border-radius: 8px;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .page-nav-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.15);
+            border-color: var(--gold-accent);
+            color: var(--gold-accent);
         }
 
         .page-nav-btn:disabled {
@@ -802,7 +857,7 @@
             width: 100%;
         }
 
-        /* MODAL */
+        /* MODALS */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -828,7 +883,7 @@
             border-radius: 24px;
             padding: 1.8rem;
             width: 90%;
-            max-width: 420px;
+            max-width: 440px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.9);
         }
 
@@ -861,6 +916,11 @@
             color: #fff;
             font-size: 0.95rem;
             outline: none;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            border-color: var(--gold-accent);
         }
 
         .modal-actions {
@@ -895,33 +955,14 @@
                 text-align: center;
                 gap: 12px;
             }
-            .profile-brand {
-                flex-direction: column;
-            }
-            .header-title-box {
-                align-items: center;
-            }
-            .inputs-row {
-                flex-direction: row;
-                gap: 8px;
-            }
-            .btn-increment-round {
-                width: 130px;
-                height: 130px;
-                font-size: 1.3rem;
-            }
-            .page-textbox {
-                font-size: 1.6rem;
-            }
-            .quick-stats-row {
-                flex-direction: column;
-            }
-            .postit-input-container {
-                flex-direction: column;
-            }
-            .btn-add-postit {
-                width: 100%;
-            }
+            .profile-brand { flex-direction: column; }
+            .header-title-box { align-items: center; }
+            .inputs-row { flex-direction: row; gap: 8px; }
+            .btn-increment-round { width: 130px; height: 130px; font-size: 1.3rem; }
+            .page-textbox { font-size: 1.6rem; }
+            .quick-stats-row { flex-direction: column; }
+            .postit-input-container { flex-direction: column; }
+            .btn-add-postit { width: 100%; }
         }
     </style>
 </head>
@@ -971,23 +1012,31 @@
                 <div class="calendar-dropdown-menu" id="calendarDropdown">
                     <div class="calendar-header">
                         <button class="calendar-nav-btn" onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i> Önceki</button>
-                        <div class="calendar-month-title" id="calendarMonthTitle">Ocak 2026</div>
+                        <div class="calendar-month-title" id="calendarMonthTitle">Eylül 2026</div>
                         <button class="calendar-nav-btn" onclick="changeMonth(1)">Sonraki <i class="fa-solid fa-chevron-right"></i></button>
                     </div>
-                    <div class="calendar-grid" id="calendarGrid">
-                        <!-- Days header & cells rendered by JS -->
-                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
                     <div class="calendar-footer">
                         <button class="calendar-nav-btn" style="font-size:0.75rem;" onclick="clearDateFilter()"><i class="fa-solid fa-xmark"></i> Filtreyi Temizle</button>
                         <button class="calendar-nav-btn" style="font-size:0.75rem;" onclick="toggleCalendarDropdown()">Kapat</button>
                     </div>
                 </div>
             </div>
+
+            <!-- GEÇMİŞ GÜN RAPOR BANNER'I -->
+            <div class="history-banner" id="historyBanner">
+                <div class="history-banner-info">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span id="historyBannerTitle">Geçmiş Gün Özeti</span>
+                </div>
+                <div class="history-banner-stats" id="historyBannerStats">
+                    <!-- JS ile Doldurulur -->
+                </div>
+            </div>
         </div>
 
         <!-- MAIN TALIM INCREMENTER CARD -->
         <div class="talim-counter-card">
-            <!-- YAN YANA İKİ TEXTBOX (SAYFA NO 2/3, KALAN TEKRAR 1/3 GENİŞLİKTE) -->
             <div class="inputs-row">
                 <div class="input-group page-group">
                     <label class="input-label" for="pageNoInput">Sayfa No (1-614)</label>
@@ -1024,7 +1073,7 @@
         <!-- POST-IT (GÜNLÜK DERS VE ODEV NOTLARI) KARTI -->
         <div class="card">
             <div class="card-title">
-                <span><i class="fa-solid fa-note-sticky" style="color:var(--gold-accent);"></i> Emre'nin Günlük Ders Notları (Post-it)</span>
+                <span><i class="fa-solid fa-note-sticky" style="color:var(--gold-accent);"></i> Emre'nin Ders Notları (Post-it)</span>
             </div>
             
             <div class="postit-input-container">
@@ -1036,6 +1085,38 @@
 
             <div class="postit-grid" id="postitGrid">
                 <!-- Post-it Notları JavaScript Tarafından Eklenir -->
+            </div>
+        </div>
+
+        <!-- ARŞİVLENMİŞ DERS NOTLARI TABLO KARTI (5 SATIR & SAYFALAMA) -->
+        <div class="card">
+            <div class="card-title">
+                <span><i class="fa-solid fa-box-archive" style="color:var(--gold-accent);"></i> Arşivlenmiş Ders Notları</span>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Tarih</th>
+                            <th>Not / Açıklama</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="archiveTableBody">
+                        <!-- Arşiv kayıtları JavaScript ile eklenir -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ARŞİV PAGINATION CONTROLS -->
+            <div class="pagination-bar">
+                <div id="archivePaginationInfo">Sayfa 1 / 1 (Toplam 0 arşiv)</div>
+                <div class="pagination-controls">
+                    <button class="page-nav-btn" id="btnPrevArchivePage" onclick="changeArchivePage(-1)"><i class="fa-solid fa-chevron-left"></i> Geri</button>
+                    <button class="page-nav-btn" id="btnNextArchivePage" onclick="changeArchivePage(1)">İleri <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
             </div>
         </div>
 
@@ -1067,9 +1148,7 @@
                                 <th class="no-pdf">İşlemler</th>
                             </tr>
                         </thead>
-                        <tbody id="talimTableBody">
-                            <!-- Table rows rendered dynamically -->
-                        </tbody>
+                        <tbody id="talimTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -1078,8 +1157,8 @@
             <div class="pagination-bar">
                 <div id="paginationInfo">Sayfa 1 / 1 (Toplam 0 kayıt)</div>
                 <div class="pagination-controls">
-                    <button class="page-nav-btn" id="btnPrevPage" onclick="changePage(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-                    <button class="page-nav-btn" id="btnNextPage" onclick="changePage(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="page-nav-btn" id="btnPrevPage" onclick="changePage(-1)"><i class="fa-solid fa-chevron-left"></i> Geri</button>
+                    <button class="page-nav-btn" id="btnNextPage" onclick="changePage(1)">İleri <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
         </div>
@@ -1099,7 +1178,7 @@
         </footer>
     </div>
 
-    <!-- EDIT MODAL -->
+    <!-- RECORD EDIT MODAL -->
     <div class="modal-overlay" id="editModal">
         <div class="modal-body">
             <div class="modal-title">Kaydı Düzenle</div>
@@ -1110,6 +1189,21 @@
             <div class="modal-actions">
                 <button class="modal-btn secondary" onclick="closeEditModal()">İptal</button>
                 <button class="modal-btn primary" onclick="saveEditRecord()">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POST-IT EDIT MODAL -->
+    <div class="modal-overlay" id="postitEditModal">
+        <div class="modal-body">
+            <div class="modal-title"><i class="fa-solid fa-pen-to-square"></i> Ders Notunu Düzenle</div>
+            <div class="form-group">
+                <label>Ders Notu / Hatırlatma</label>
+                <textarea id="editPostitTextInput" class="form-control" rows="4" style="resize:vertical; min-height:80px;"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closePostitModal()">İptal</button>
+                <button class="modal-btn primary" onclick="saveEditPostitNote()">Güncelle</button>
             </div>
         </div>
     </div>
@@ -1128,22 +1222,25 @@
         let useFirebase = false;
         let firestoreDB = null;
 
-        // DB STATE OBJECT
+        // VERİTABANI MODELİ
         let db = {
             profilePhoto: '',
-            records: [],
-            notes: [] // Post-it yapışkan notları dizisi
+            records: [], // Talim tekrarları
+            notes: []    // Post-it ders notları
         };
 
-        // UI & State Variables
         let currentPage = 1;
         const rowsPerPage = 10;
+
+        let archiveCurrentPage = 1;
+        const archiveRowsPerPage = 5;
+
         let selectedFilterDate = null;
         let calendarDate = new Date();
         let editingRecordId = null;
+        let editingPostitId = null;
         let chartInstance = null;
 
-        // INITIALIZATION
         window.addEventListener('DOMContentLoaded', () => {
             initFirebase();
             setupPageInputFilter();
@@ -1171,7 +1268,6 @@
         }
 
         function listenToCloudDB() {
-            // Profil Fotoğrafı Dinleyici
             firestoreDB.collection("settings").doc("profile").onSnapshot(doc => {
                 if (doc.exists && doc.data().photo) {
                     db.profilePhoto = doc.data().photo;
@@ -1179,7 +1275,6 @@
                 }
             });
 
-            // Talim Kayıtları Dinleyici
             firestoreDB.collection("talim_records").orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 db.records = [];
                 snapshot.forEach(doc => {
@@ -1188,29 +1283,24 @@
                 renderUI();
             });
 
-            // Post-it Notları Dinleyici
             firestoreDB.collection("daily_notes").orderBy("timestamp", "desc").onSnapshot(snapshot => {
                 db.notes = [];
                 snapshot.forEach(doc => {
                     db.notes.push({ id: doc.id, ...doc.data() });
                 });
                 renderPostits();
+                renderArchiveTable();
             });
         }
 
         function loadLocalDatabase() {
             const saved = localStorage.getItem('emre_karaaslan_kuran_talim_db');
             if (saved) {
-                try {
-                    db = JSON.parse(saved);
-                } catch(e) {
-                    console.error("DB Yükleme hatası:", e);
-                }
+                try { db = JSON.parse(saved); } catch(e) { console.error("DB Yükleme hatası:", e); }
             }
             if (!db.notes) db.notes = [];
-            if (db.profilePhoto) {
-                updateAvatarUI(db.profilePhoto);
-            }
+            if (!db.records) db.records = [];
+            if (db.profilePhoto) updateAvatarUI(db.profilePhoto);
         }
 
         function saveDatabase() {
@@ -1277,33 +1367,44 @@
         function clearDateFilter() {
             selectedFilterDate = null;
             currentPage = 1;
+            archiveCurrentPage = 1;
             updateSelectedDateLabel();
             renderCalendar();
-            renderTable();
+            renderUI();
         }
 
         function updateSelectedDateLabel() {
             const lbl = document.getElementById('selectedDateText');
+            const banner = document.getElementById('historyBanner');
+            
             if (selectedFilterDate) {
                 const parts = selectedFilterDate.split('-');
-                lbl.textContent = `Filtre / Kayıt Tarihi: ${parts[2]}.${parts[1]}.${parts[0]}`;
+                const formatted = `${parts[2]}.${parts[1]}.${parts[0]}`;
+                lbl.textContent = `Seçilen Geçmiş Tarih: ${formatted}`;
+
+                const dayRecs = db.records.filter(r => r.dateStr === selectedFilterDate);
+                const dayNotes = db.notes.filter(n => n.dateKey === selectedFilterDate);
+                const pageCount = new Set(dayRecs.map(r => r.page)).size;
+
+                document.getElementById('historyBannerTitle').textContent = `${formatted} Tarihli Geçmiş Kaydı`;
+                document.getElementById('historyBannerStats').innerHTML = `
+                    <span><b>${dayRecs.length}</b> Tekrar</span> | 
+                    <span><b>${pageCount}</b> Farklı Sayfa</span> | 
+                    <span><b>${dayNotes.length}</b> Ders Notu</span>
+                `;
+                banner.style.display = 'flex';
             } else {
                 lbl.textContent = `Tarih Filtresi: Tüm Tarihler`;
+                banner.style.display = 'none';
             }
         }
 
-        // SAYFA NO İÇİN SADECE RAKAM FİLTRESİ (1-614)
         function setupPageInputFilter() {
             const input = document.getElementById('pageNoInput');
-
             input.addEventListener('keydown', function(e) {
                 if ([46, 8, 9, 27, 13, 37, 38, 39, 40].indexOf(e.keyCode) !== -1 ||
-                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true))) {
-                    return;
-                }
-                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                    e.preventDefault();
-                }
+                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true))) return;
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) e.preventDefault();
             });
 
             input.addEventListener('input', function() {
@@ -1320,18 +1421,12 @@
             });
         }
 
-        // TEKRAR SAYISI İÇİN SADECE RAKAM FİLTRESİ (1-21 Arası Rakam)
         function setupTargetRepeatInputFilter() {
             const input = document.getElementById('targetRepeatInput');
-
             input.addEventListener('keydown', function(e) {
                 if ([46, 8, 9, 27, 13, 37, 38, 39, 40].indexOf(e.keyCode) !== -1 ||
-                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true))) {
-                    return;
-                }
-                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                    e.preventDefault();
-                }
+                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true))) return;
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) e.preventDefault();
             });
 
             input.addEventListener('input', function() {
@@ -1344,12 +1439,11 @@
             });
         }
 
-        // ARTTIR BUTONU FONKSİYONU
+        // TALİM KAYDI EKLEME
         function registerTalim() {
             const targetInput = document.getElementById('targetRepeatInput');
             let currentTarget = parseInt(targetInput.value, 10);
 
-            // Eğer hedef tekrar sayısı zaten 0 ise uyar
             if (isNaN(currentTarget) || currentTarget <= 0) {
                 alert("Emre Sayfa Okuma Tekrarı Bitti.");
                 return;
@@ -1383,19 +1477,15 @@
                 saveDatabase();
             }
 
-            // Kalan tekrar sayısını 1 eksilt
             currentTarget -= 1;
             targetInput.value = currentTarget;
 
-            // Tekrar sayısı 0'a düştüyse bitti uyarısı ver
             if (currentTarget === 0) {
-                setTimeout(() => {
-                    alert("Emre Sayfa Okuma Tekrarı Bitti.");
-                }, 100);
+                setTimeout(() => { alert("Emre Sayfa Okuma Tekrarı Bitti."); }, 100);
             }
         }
 
-        /* --- POST-IT (GÜNLÜK DERS NOTLARI) FONKSİYONLARI --- */
+        /* --- POST-IT NOTLARI VE ARŞİVLEME --- */
         function addPostitNote() {
             const input = document.getElementById('postitTextInput');
             const text = input.value.trim();
@@ -1406,13 +1496,16 @@
             }
 
             const now = new Date();
+            const dateKey = selectedFilterDate ? selectedFilterDate : formatDateKey(now);
             const dateDisplay = now.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
             const timeDisplay = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
             const newNote = {
                 text: text,
+                dateKey: dateKey,
                 dateStr: `${dateDisplay} ${timeDisplay}`,
-                timestamp: now.getTime()
+                timestamp: now.getTime(),
+                archived: false
             };
 
             if (useFirebase) {
@@ -1423,19 +1516,92 @@
                 db.notes.unshift(newNote);
                 saveDatabase();
                 renderPostits();
+                renderArchiveTable();
             }
 
             input.value = '';
         }
 
+        /* POST-IT ARŞİVLEME VE GERİ YÜKLEME */
+        function archivePostitNote(id) {
+            if (useFirebase) {
+                firestoreDB.collection("daily_notes").doc(id).update({ archived: true });
+            } else {
+                const note = db.notes.find(n => n.id === id);
+                if (note) {
+                    note.archived = true;
+                    saveDatabase();
+                    renderPostits();
+                    renderArchiveTable();
+                }
+            }
+        }
+
+        function unarchivePostitNote(id) {
+            if (useFirebase) {
+                firestoreDB.collection("daily_notes").doc(id).update({ archived: false });
+            } else {
+                const note = db.notes.find(n => n.id === id);
+                if (note) {
+                    note.archived = false;
+                    saveDatabase();
+                    renderPostits();
+                    renderArchiveTable();
+                }
+            }
+        }
+
+        /* POST-IT DÜZENLEME FONKSİYONLARI */
+        function openPostitModal(id) {
+            const note = db.notes.find(n => n.id === id);
+            if (!note) return;
+
+            editingPostitId = id;
+            document.getElementById('editPostitTextInput').value = note.text;
+            document.getElementById('postitEditModal').classList.add('open');
+        }
+
+        function closePostitModal() {
+            document.getElementById('postitEditModal').classList.remove('open');
+            editingPostitId = null;
+        }
+
+        function saveEditPostitNote() {
+            if (!editingPostitId) return;
+
+            const newText = document.getElementById('editPostitTextInput').value.trim();
+
+            if (!newText) {
+                alert("Ders notu boş bırakılamaz.");
+                return;
+            }
+
+            if (useFirebase) {
+                firestoreDB.collection("daily_notes").doc(editingPostitId).update({
+                    text: newText
+                });
+            } else {
+                const note = db.notes.find(n => n.id === editingPostitId);
+                if (note) {
+                    note.text = newText;
+                    saveDatabase();
+                    renderPostits();
+                    renderArchiveTable();
+                }
+            }
+
+            closePostitModal();
+        }
+
         function deletePostitNote(id) {
-            if (confirm("Bu ders notunu silmek istediğinize emin misiniz?")) {
+            if (confirm("Bu ders notunu kalıcı olarak silmek istediğinize emin misiniz?")) {
                 if (useFirebase) {
                     firestoreDB.collection("daily_notes").doc(id).delete();
                 } else {
                     db.notes = db.notes.filter(n => n.id !== id);
                     saveDatabase();
                     renderPostits();
+                    renderArchiveTable();
                 }
             }
         }
@@ -1444,11 +1610,19 @@
             const container = document.getElementById('postitGrid');
             if (!container) return;
 
-            const notesList = db.notes || [];
+            // Sadece arşivlenmemiş (aktif) notlar gösterilir
+            let notesList = (db.notes || []).filter(n => !n.archived);
+
+            if (selectedFilterDate) {
+                notesList = notesList.filter(n => n.dateKey === selectedFilterDate);
+            }
+
             container.innerHTML = '';
 
             if (notesList.length === 0) {
-                container.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); padding: 1.2rem; font-size: 0.9rem;">Henüz eklenmiş bir ders notu bulunmuyor. Yukarıdaki alandan ekleyebilirsiniz.</div>`;
+                container.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); padding: 1.2rem; font-size: 0.9rem;">
+                    ${selectedFilterDate ? 'Seçilen bu geçmiş tarihe ait aktif ders notu bulunmuyor.' : 'Henüz aktif bir ders notu bulunmuyor. Yukarıdaki alandan ekleyebilirsiniz.'}
+                </div>`;
                 return;
             }
 
@@ -1461,13 +1635,77 @@
                     <div class="postit-content">${escapeHtml(note.text)}</div>
                     <div class="postit-footer">
                         <span><i class="fa-regular fa-clock"></i> ${note.dateStr || ''}</span>
-                        <button class="postit-delete-btn" onclick="deletePostitNote(${noteId})" title="Notu Sil">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                        <div class="postit-actions">
+                            <button class="postit-edit-btn" onclick="openPostitModal(${noteId})" title="Düzenle">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button class="postit-archive-btn" onclick="archivePostitNote(${noteId})" title="Arşivle">
+                                <i class="fa-solid fa-box-archive"></i>
+                            </button>
+                            <button class="postit-delete-btn" onclick="deletePostitNote(${noteId})" title="Sil">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
                     </div>
                 `;
                 container.appendChild(card);
             });
+        }
+
+        /* ARŞİV TABLOSU VE 5 SATIR PAGINATION */
+        function renderArchiveTable() {
+            const tbody = document.getElementById('archiveTableBody');
+            if (!tbody) return;
+
+            let archivedNotes = (db.notes || []).filter(n => n.archived === true);
+
+            if (selectedFilterDate) {
+                archivedNotes = archivedNotes.filter(n => n.dateKey === selectedFilterDate);
+            }
+
+            archivedNotes.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            const totalRows = archivedNotes.length;
+            const totalPages = Math.max(1, Math.ceil(totalRows / archiveRowsPerPage));
+
+            if (archiveCurrentPage > totalPages) archiveCurrentPage = totalPages;
+
+            const startIndex = (archiveCurrentPage - 1) * archiveRowsPerPage;
+            const paginatedRows = archivedNotes.slice(startIndex, startIndex + archiveRowsPerPage);
+
+            tbody.innerHTML = '';
+
+            if (paginatedRows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:1.2rem;">Arşivlenmiş ders notu bulunmuyor. Notların altındaki "Arşivle" butonunu kullanabilirsiniz.</td></tr>`;
+            } else {
+                paginatedRows.forEach((note, idx) => {
+                    const rowNum = startIndex + idx + 1;
+                    const noteId = typeof note.id === 'string' ? `'${note.id}'` : note.id;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${rowNum}</td>
+                        <td style="font-size:0.82rem; color:var(--text-muted);">${note.dateStr || '-'}</td>
+                        <td style="max-width: 320px; white-space: normal; word-break: break-word;">${escapeHtml(note.text)}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn-action restore" onclick="unarchivePostitNote(${noteId})" title="Panoya Geri Yükle"><i class="fa-solid fa-rotate-left"></i> Geri Yükle</button>
+                                <button class="btn-action delete" onclick="deletePostitNote(${noteId})" title="Kalıcı Sil"><i class="fa-solid fa-trash"></i> Sil</button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('archivePaginationInfo').textContent = `Sayfa ${archiveCurrentPage} / ${totalPages} (Toplam ${totalRows} arşiv)`;
+            document.getElementById('btnPrevArchivePage').disabled = (archiveCurrentPage <= 1);
+            document.getElementById('btnNextArchivePage').disabled = (archiveCurrentPage >= totalPages);
+        }
+
+        function changeArchivePage(direction) {
+            archiveCurrentPage += direction;
+            renderArchiveTable();
         }
 
         function escapeHtml(str) {
@@ -1540,22 +1778,23 @@
             renderTable();
             renderCalendar();
             renderPostits();
+            renderArchiveTable();
             renderChart();
             updateSelectedDateLabel();
         }
 
         function renderQuickStats() {
-            const todayStr = formatDateKey(new Date());
-            const todayRecords = db.records.filter(r => r.dateStr === todayStr);
+            const targetDateStr = selectedFilterDate ? selectedFilterDate : formatDateKey(new Date());
+            const filteredRecords = db.records.filter(r => r.dateStr === targetDateStr);
 
-            const todayTotalRepeat = todayRecords.length;
-            const todayPagesCount = new Set(todayRecords.map(r => r.page)).size;
+            const totalRepeat = filteredRecords.length;
+            const pagesCount = new Set(filteredRecords.map(r => r.page)).size;
 
             const inputVal = parseInt(document.getElementById('pageNoInput').value, 10) || 1;
             const currentPageTotalRepeats = db.records.filter(r => r.page === inputVal).length;
 
-            document.getElementById('todayCountVal').textContent = todayTotalRepeat;
-            document.getElementById('todayPagesVal').textContent = todayPagesCount;
+            document.getElementById('todayCountVal').textContent = totalRepeat;
+            document.getElementById('todayPagesVal').textContent = pagesCount;
             document.getElementById('currentPageRepeatsVal').textContent = currentPageTotalRepeats;
         }
 
@@ -1667,7 +1906,7 @@
             const year = calendarDate.getFullYear();
             const month = calendarDate.getMonth();
 
-            const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylul", "Ekim", "Kasım", "Aralık"];
+            const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
             monthTitle.textContent = `${monthNames[month]} ${year}`;
 
             grid.innerHTML = '';
@@ -1698,18 +1937,11 @@
                 cell.className = 'calendar-day-cell';
                 cell.textContent = day;
 
-                if (dayDateKey === todayKey) {
-                    cell.classList.add('today');
-                }
-
-                if (dayDateKey === selectedFilterDate) {
-                    cell.classList.add('active-selected');
-                }
+                if (dayDateKey === todayKey) cell.classList.add('today');
+                if (dayDateKey === selectedFilterDate) cell.classList.add('active-selected');
 
                 const hasData = db.records.some(r => r.dateStr === dayDateKey);
-                if (hasData) {
-                    cell.classList.add('has-data');
-                }
+                if (hasData) cell.classList.add('has-data');
 
                 cell.onclick = (e) => {
                     e.stopPropagation();
@@ -1719,9 +1951,8 @@
                         selectedFilterDate = dayDateKey;
                     }
                     currentPage = 1;
-                    updateSelectedDateLabel();
-                    renderCalendar();
-                    renderTable();
+                    archiveCurrentPage = 1;
+                    renderUI();
                 };
 
                 grid.appendChild(cell);
@@ -1733,7 +1964,6 @@
             renderCalendar();
         }
 
-        // ÇİZGİ GRAFİK (LINE CHART) RENDER FONKSİYONU
         function renderChart() {
             const ctx = document.getElementById('dailyChart').getContext('2d');
             const groupMap = {};
@@ -1765,9 +1995,7 @@
                 dataValues.push(item.count);
             });
 
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
+            if (chartInstance) chartInstance.destroy();
 
             chartInstance = new Chart(ctx, {
                 type: 'line',
@@ -1800,19 +2028,13 @@
                     },
                     scales: {
                         x: {
-                            ticks: { 
-                                color: '#a78bfa',
-                                font: { size: 11, weight: '600' }
-                            },
+                            ticks: { color: '#a78bfa', font: { size: 11, weight: '600' } },
                             grid: { color: 'rgba(186, 104, 200, 0.1)' }
                         },
                         y: {
                             min: 0,
                             max: 30,
-                            ticks: { 
-                                color: '#a78bfa',
-                                stepSize: 5
-                            },
+                            ticks: { color: '#a78bfa', stepSize: 5 },
                             grid: { color: 'rgba(186, 104, 200, 0.15)' },
                             title: {
                                 display: true,
@@ -1838,7 +2060,7 @@
 
             const opt = {
                 margin:       [10, 10, 10, 10],
-                filename:     'Emre_Karaaslan_Kuran_Talim_Raporu.pdf',
+                filename:     'Emre_Karaaslan_Kuran_Talim_Gecmis_Raporu.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -1882,9 +2104,10 @@
                         } else {
                             db = imported;
                             if (!db.notes) db.notes = [];
+                            if (!db.records) db.records = [];
                             saveDatabase();
                         }
-                        alert("Verileriniz başarıyla içe aktarıldı!");
+                        alert("Geçmiş verileriniz başarıyla içe aktarıldı!");
                     } else {
                         alert("Geçersiz yedek dosyası!");
                     }
