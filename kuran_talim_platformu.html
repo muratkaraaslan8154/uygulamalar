@@ -19,6 +19,10 @@
     <!-- html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+    <!-- Firebase SDK (Bulut Veritabanı Entegrasyonu) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             /* Patlıcan Moru Ana Tema Palette */
@@ -218,28 +222,84 @@
             gap: 8px;
         }
 
-        /* CALENDAR SECTION */
+        /* COMPACT DROPDOWN CALENDAR STYLES */
+        .calendar-dropdown-container {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto;
+        }
+
+        .calendar-toggle-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--panel-border);
+            color: var(--text-light);
+            padding: 10px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--purple-mid);
+        }
+
+        .calendar-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            min-width: 300px;
+            max-width: 360px;
+            background: #23082b;
+            border: 1px solid var(--purple-mid);
+            backdrop-filter: blur(18px);
+            border-radius: 20px;
+            padding: 14px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.85);
+            z-index: 500;
+        }
+
+        .calendar-dropdown-menu.open {
+            display: block;
+            animation: fadeInDown 0.2s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translate(-50%, -10px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
         .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
 
         .calendar-month-title {
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: var(--gold-accent);
         }
 
         .calendar-nav-btn {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.06);
             border: 1px solid var(--panel-border);
             color: var(--text-light);
-            padding: 6px 12px;
-            border-radius: 10px;
+            padding: 5px 10px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             transition: all 0.2s;
         }
 
@@ -251,28 +311,28 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
+            gap: 4px;
             text-align: center;
         }
 
         .calendar-day-head {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 700;
             color: var(--text-muted);
-            padding: 4px 0;
+            padding: 2px 0;
         }
 
         .calendar-day-cell {
-            padding: 8px 4px;
-            border-radius: 10px;
-            font-size: 0.85rem;
+            padding: 6px 2px;
+            border-radius: 8px;
+            font-size: 0.82rem;
             font-weight: 600;
             cursor: pointer;
             background: rgba(255,255,255,0.02);
             border: 1px solid transparent;
             position: relative;
             transition: all 0.2s;
-            min-height: 42px;
+            min-height: 34px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -280,7 +340,7 @@
         }
 
         .calendar-day-cell:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.12);
             border-color: var(--purple-mid);
         }
 
@@ -298,13 +358,22 @@
 
         .calendar-day-cell.has-data::after {
             content: '';
-            width: 5px;
-            height: 5px;
+            width: 4px;
+            height: 4px;
             background-color: var(--accent-green);
             border-radius: 50%;
             position: absolute;
-            bottom: 4px;
-            box-shadow: 0 0 6px var(--accent-green);
+            bottom: 3px;
+            box-shadow: 0 0 5px var(--accent-green);
+        }
+
+        .calendar-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.08);
         }
 
         /* INCREMENTER MAIN SECTION */
@@ -653,7 +722,6 @@
 
         .modal-btn.primary { background: var(--gold-accent); color: #000; }
         .modal-btn.secondary { background: rgba(255,255,255,0.1); color: #fff; }
-        .modal-btn.danger { background: var(--danger-color); color: #fff; }
 
         footer {
             text-align: center;
@@ -704,8 +772,8 @@
                 <div class="header-title-box">
                     <div class="header-title">Emre Karaaslan Kuranı Kerim Talim Takip Platformu</div>
                     <div class="header-subtitle">
-                        <i class="fa-solid fa-book-quran" style="color:var(--gold-accent);"></i>
-                        614 Sayfalı Kuran-ı Kerim Günlük Ezber ve Talim Takibi
+                        <i class="fa-solid fa-cloud" style="color:var(--accent-green);"></i>
+                        <span id="dbStatusText">Bulut Veritabanı Aktif (Her Cihazda Senkronize)</span>
                     </div>
                 </div>
             </div>
@@ -717,15 +785,32 @@
             </div>
         </header>
 
-        <!-- ADVANCED CALENDAR CARD -->
-        <div class="card">
-            <div class="calendar-header">
-                <button class="calendar-nav-btn" onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i> Önceki</button>
-                <div class="calendar-month-title" id="calendarMonthTitle">Ocak 2026</div>
-                <button class="calendar-nav-btn" onclick="changeMonth(1)">Sonraki <i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-            <div class="calendar-grid" id="calendarGrid">
-                <!-- Days header & cells rendered by JS -->
+        <!-- COMPACT DROPDOWN CALENDAR CARD -->
+        <div class="card" style="padding: 0.8rem 1.2rem;">
+            <div class="calendar-dropdown-container">
+                <button type="button" class="calendar-toggle-btn" id="calendarToggleBtn" onclick="toggleCalendarDropdown()">
+                    <span style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-calendar-days" style="color:var(--gold-accent); font-size:1.1rem;"></i>
+                        <span id="selectedDateText">Tarih Filtresi: Tüm Tarihler</span>
+                    </span>
+                    <i class="fa-solid fa-chevron-down" id="calendarChevron"></i>
+                </button>
+
+                <!-- DROPDOWN CALENDAR MENU -->
+                <div class="calendar-dropdown-menu" id="calendarDropdown">
+                    <div class="calendar-header">
+                        <button class="calendar-nav-btn" onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i> Önceki</button>
+                        <div class="calendar-month-title" id="calendarMonthTitle">Ocak 2026</div>
+                        <button class="calendar-nav-btn" onclick="changeMonth(1)">Sonraki <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Days header & cells rendered by JS -->
+                    </div>
+                    <div class="calendar-footer">
+                        <button class="calendar-nav-btn" style="font-size:0.75rem;" onclick="clearDateFilter()"><i class="fa-solid fa-xmark"></i> Filtreyi Temizle</button>
+                        <button class="calendar-nav-btn" style="font-size:0.75rem;" onclick="toggleCalendarDropdown()">Kapat</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -836,6 +921,20 @@
     </div>
 
     <script>
+        // FIREBASE VERİTABANI YAPILANDIRMASI
+        // Firebase Console (console.firebase.google.com) üzerindeki kendi bilgilerinizi giriniz:
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        let useFirebase = false;
+        let firestoreDB = null;
+
         // DB STATE OBJECT
         let db = {
             profilePhoto: '',
@@ -852,15 +951,51 @@
 
         // INITIALIZATION
         window.addEventListener('DOMContentLoaded', () => {
-            loadDatabase();
+            initFirebase();
             setupPageInputFilter();
             renderCalendar();
             renderUI();
             document.getElementById('yearSpan').textContent = new Date().getFullYear();
         });
 
-        // LOCALSTORAGE MANAGERS
-        function loadDatabase() {
+        function initFirebase() {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                try {
+                    firebase.initializeApp(firebaseConfig);
+                    firestoreDB = firebase.firestore();
+                    useFirebase = true;
+                    listenToCloudDB();
+                } catch(e) {
+                    console.error("Firebase başlatma hatası, yerel hafızaya dönülüyor:", e);
+                    loadLocalDatabase();
+                }
+            } else {
+                document.getElementById('dbStatusText').textContent = "Yerel Depolama Aktif (Firebase Yapılandırılmadı)";
+                loadLocalDatabase();
+            }
+        }
+
+        // FIREBASE REALTIME LISTENERS
+        function listenToCloudDB() {
+            // Profile photo sync
+            firestoreDB.collection("settings").doc("profile").onSnapshot(doc => {
+                if (doc.exists && doc.data().photo) {
+                    db.profilePhoto = doc.data().photo;
+                    updateAvatarUI(db.profilePhoto);
+                }
+            });
+
+            // Records sync
+            firestoreDB.collection("talim_records").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+                db.records = [];
+                snapshot.forEach(doc => {
+                    db.records.push({ id: doc.id, ...doc.data() });
+                });
+                renderUI();
+            });
+        }
+
+        function loadLocalDatabase() {
             const saved = localStorage.getItem('emre_karaaslan_kuran_talim_db');
             if (saved) {
                 try {
@@ -870,16 +1005,24 @@
                 }
             }
             if (db.profilePhoto) {
-                const img = document.getElementById('avatarImg');
-                img.src = db.profilePhoto;
-                img.style.display = 'block';
-                document.getElementById('avatarPlaceholder').style.display = 'none';
+                updateAvatarUI(db.profilePhoto);
             }
         }
 
         function saveDatabase() {
-            localStorage.setItem('emre_karaaslan_kuran_talim_db', JSON.stringify(db));
-            renderUI();
+            if (!useFirebase) {
+                localStorage.setItem('emre_karaaslan_kuran_talim_db', JSON.stringify(db));
+                renderUI();
+            }
+        }
+
+        function updateAvatarUI(photoSrc) {
+            const img = document.getElementById('avatarImg');
+            if (photoSrc) {
+                img.src = photoSrc;
+                img.style.display = 'block';
+                document.getElementById('avatarPlaceholder').style.display = 'none';
+            }
         }
 
         // PHOTO UPLOAD HANDLER
@@ -889,27 +1032,73 @@
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                db.profilePhoto = e.target.result;
-                const img = document.getElementById('avatarImg');
-                img.src = db.profilePhoto;
-                img.style.display = 'block';
-                document.getElementById('avatarPlaceholder').style.display = 'none';
-                saveDatabase();
+                const photoData = e.target.result;
+                db.profilePhoto = photoData;
+                updateAvatarUI(photoData);
+
+                if (useFirebase) {
+                    firestoreDB.collection("settings").doc("profile").set({ photo: photoData });
+                } else {
+                    saveDatabase();
+                }
             };
             reader.readAsDataURL(file);
         }
 
-        // TEXTBOX STRICT FILTERING (1 to 614 digits only, NO ERRORS OR MESSAGES)
+        // DROPDOWN CALENDAR TOGGLE LOGIC
+        function toggleCalendarDropdown() {
+            const dropdown = document.getElementById('calendarDropdown');
+            const chevron = document.getElementById('calendarChevron');
+            const isOpen = dropdown.classList.contains('open');
+
+            if (isOpen) {
+                dropdown.classList.remove('open');
+                chevron.className = 'fa-solid fa-chevron-down';
+            } else {
+                dropdown.classList.add('open');
+                chevron.className = 'fa-solid fa-chevron-up';
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const container = document.querySelector('.calendar-dropdown-container');
+            if (container && !container.contains(event.target)) {
+                const dropdown = document.getElementById('calendarDropdown');
+                const chevron = document.getElementById('calendarChevron');
+                if (dropdown && dropdown.classList.contains('open')) {
+                    dropdown.classList.remove('open');
+                    chevron.className = 'fa-solid fa-chevron-down';
+                }
+            }
+        });
+
+        function clearDateFilter() {
+            selectedFilterDate = null;
+            currentPage = 1;
+            updateSelectedDateLabel();
+            renderCalendar();
+            renderTable();
+        }
+
+        function updateSelectedDateLabel() {
+            const lbl = document.getElementById('selectedDateText');
+            if (selectedFilterDate) {
+                const parts = selectedFilterDate.split('-');
+                lbl.textContent = `Filtre: ${parts[2]}.${parts[1]}.${parts[0]}`;
+            } else {
+                lbl.textContent = `Tarih Filtresi: Tüm Tarihler`;
+            }
+        }
+
+        // TEXTBOX STRICT FILTERING (1 to 614 digits only)
         function setupPageInputFilter() {
             const input = document.getElementById('pageNoInput');
 
             input.addEventListener('keydown', function(e) {
-                // Allow standard control keys (backspace, delete, tab, arrows)
                 if ([46, 8, 9, 27, 13, 37, 38, 39, 40].indexOf(e.keyCode) !== -1 ||
                     (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true))) {
                     return;
                 }
-                // Block non-numeric keys cleanly without error alert
                 if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
                     e.preventDefault();
                 }
@@ -928,13 +1117,13 @@
             });
         }
 
-        // REGISTER TALIM RECORD (ON "ARTTIR" CLICK)
+        // REGISTER TALIM RECORD
         function registerTalim() {
             const input = document.getElementById('pageNoInput');
             let pageNum = parseInt(input.value, 10);
 
             if (!pageNum || pageNum < 1 || pageNum > 614) {
-                pageNum = 1; // Default to 1 if empty
+                pageNum = 1;
                 input.value = "1";
             }
 
@@ -942,27 +1131,42 @@
             const dateStr = formatDateKey(now);
             const timeStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-            // Check if there is already an entry for this exact page today
             const existingIndex = db.records.findIndex(r => r.dateStr === dateStr && r.page === pageNum);
 
-            if (existingIndex !== -1) {
-                // Increment repetition count
-                db.records[existingIndex].repeatCount += 1;
-                db.records[existingIndex].timeStr = timeStr; // update latest time
-                db.records[existingIndex].timestamp = now.getTime();
+            if (useFirebase) {
+                if (existingIndex !== -1) {
+                    const existing = db.records[existingIndex];
+                    firestoreDB.collection("talim_records").doc(existing.id).update({
+                        repeatCount: existing.repeatCount + 1,
+                        timeStr: timeStr,
+                        timestamp: now.getTime()
+                    });
+                } else {
+                    firestoreDB.collection("talim_records").add({
+                        dateStr: dateStr,
+                        timeStr: timeStr,
+                        page: pageNum,
+                        repeatCount: 1,
+                        timestamp: now.getTime()
+                    });
+                }
             } else {
-                // Add new entry
-                db.records.unshift({
-                    id: Date.now(),
-                    dateStr: dateStr,
-                    timeStr: timeStr,
-                    page: pageNum,
-                    repeatCount: 1,
-                    timestamp: now.getTime()
-                });
+                if (existingIndex !== -1) {
+                    db.records[existingIndex].repeatCount += 1;
+                    db.records[existingIndex].timeStr = timeStr;
+                    db.records[existingIndex].timestamp = now.getTime();
+                } else {
+                    db.records.unshift({
+                        id: Date.now(),
+                        dateStr: dateStr,
+                        timeStr: timeStr,
+                        page: pageNum,
+                        repeatCount: 1,
+                        timestamp: now.getTime()
+                    });
+                }
+                saveDatabase();
             }
-
-            saveDatabase();
         }
 
         function formatDateKey(dateObj) {
@@ -978,6 +1182,7 @@
             renderTable();
             renderCalendar();
             renderChart();
+            updateSelectedDateLabel();
         }
 
         function renderQuickStats() {
@@ -1017,6 +1222,7 @@
                 paginatedRows.forEach((row, idx) => {
                     const rowNum = startIndex + idx + 1;
                     const tr = document.createElement('tr');
+                    const recordId = typeof row.id === 'string' ? `'${row.id}'` : row.id;
                     tr.innerHTML = `
                         <td>${rowNum}</td>
                         <td>${row.dateStr} <span style="font-size:0.8rem; color:var(--text-muted); margin-left:4px;">${row.timeStr}</span></td>
@@ -1024,8 +1230,8 @@
                         <td><span class="badge-repeat">${row.repeatCount} Tekrar</span></td>
                         <td class="no-pdf">
                             <div class="table-actions">
-                                <button class="btn-action edit" onclick="openEditModal(${row.id})"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
-                                <button class="btn-action delete" onclick="deleteRecord(${row.id})"><i class="fa-solid fa-trash"></i> Sil</button>
+                                <button class="btn-action edit" onclick="openEditModal(${recordId})"><i class="fa-solid fa-pen-to-square"></i> Düzenle</button>
+                                <button class="btn-action delete" onclick="deleteRecord(${recordId})"><i class="fa-solid fa-trash"></i> Sil</button>
                             </div>
                         </td>
                     `;
@@ -1061,27 +1267,39 @@
 
         function saveEditRecord() {
             if (!editingRecordId) return;
-            const record = db.records.find(r => r.id === editingRecordId);
-            if (record) {
-                let pageVal = parseInt(document.getElementById('editPageInput').value, 10);
-                let countVal = parseInt(document.getElementById('editCountInput').value, 10);
+            let pageVal = parseInt(document.getElementById('editPageInput').value, 10);
+            let countVal = parseInt(document.getElementById('editCountInput').value, 10);
 
-                if (pageVal >= 1 && pageVal <= 614) record.page = pageVal;
-                if (countVal >= 1) record.repeatCount = countVal;
-
-                saveDatabase();
+            if (pageVal >= 1 && pageVal <= 614 && countVal >= 1) {
+                if (useFirebase) {
+                    firestoreDB.collection("talim_records").doc(editingRecordId).update({
+                        page: pageVal,
+                        repeatCount: countVal
+                    });
+                } else {
+                    const record = db.records.find(r => r.id === editingRecordId);
+                    if (record) {
+                        record.page = pageVal;
+                        record.repeatCount = countVal;
+                        saveDatabase();
+                    }
+                }
             }
             closeEditModal();
         }
 
         function deleteRecord(id) {
             if (confirm("Bu talim kaydını silmek istediğinize emin misiniz?")) {
-                db.records = db.records.filter(r => r.id !== id);
-                saveDatabase();
+                if (useFirebase) {
+                    firestoreDB.collection("talim_records").doc(id).delete();
+                } else {
+                    db.records = db.records.filter(r => r.id !== id);
+                    saveDatabase();
+                }
             }
         }
 
-        // ADVANCED CALENDAR
+        // ADVANCED COMPACT CALENDAR
         function renderCalendar() {
             const monthTitle = document.getElementById('calendarMonthTitle');
             const grid = document.getElementById('calendarGrid');
@@ -1094,7 +1312,6 @@
 
             grid.innerHTML = '';
 
-            // Day heads
             const dayHeads = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
             dayHeads.forEach(d => {
                 const el = document.createElement('div');
@@ -1103,21 +1320,18 @@
                 grid.appendChild(el);
             });
 
-            // Days calculation
             const firstDay = new Date(year, month, 1);
             let startingDay = firstDay.getDay() - 1; 
-            if (startingDay === -1) startingDay = 6; // Sunday fix
+            if (startingDay === -1) startingDay = 6;
 
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const todayKey = formatDateKey(new Date());
 
-            // Empty slots
             for (let i = 0; i < startingDay; i++) {
                 const empty = document.createElement('div');
                 grid.appendChild(empty);
             }
 
-            // Month days
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayDateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const cell = document.createElement('div');
@@ -1132,19 +1346,20 @@
                     cell.classList.add('active-selected');
                 }
 
-                // Check if has records
                 const hasData = db.records.some(r => r.dateStr === dayDateKey);
                 if (hasData) {
                     cell.classList.add('has-data');
                 }
 
-                cell.onclick = () => {
+                cell.onclick = (e) => {
+                    e.stopPropagation();
                     if (selectedFilterDate === dayDateKey) {
-                        selectedFilterDate = null; // toggle off filter
+                        selectedFilterDate = null;
                     } else {
                         selectedFilterDate = dayDateKey;
                     }
                     currentPage = 1;
+                    updateSelectedDateLabel();
                     renderCalendar();
                     renderTable();
                 };
@@ -1162,9 +1377,7 @@
         function renderChart() {
             const ctx = document.getElementById('dailyChart').getContext('2d');
 
-            // Group data by date
             const dateMap = {};
-            // Gather last 14 days or available dates sorted
             db.records.forEach(r => {
                 if (!dateMap[r.dateStr]) {
                     dateMap[r.dateStr] = { pages: new Set(), totalRepeats: 0 };
@@ -1174,7 +1387,7 @@
             });
 
             const sortedDates = Object.keys(dateMap).sort();
-            const labels = sortedDates.slice(-14); // Last 14 active days
+            const labels = sortedDates.slice(-14);
             const pagesData = labels.map(d => dateMap[d].pages.size);
             const repeatsData = labels.map(d => dateMap[d].totalRepeats);
 
@@ -1243,7 +1456,6 @@
             pdfHeader.style.display = 'block';
             pdfSubtitle.textContent = `Rapor Tarihi: ${new Date().toLocaleDateString('tr-TR')} ${new Date().toLocaleTimeString('tr-TR')}`;
 
-            // Add pdf-mode styling
             document.querySelectorAll('.no-pdf').forEach(el => el.style.display = 'none');
 
             const opt = {
@@ -1280,8 +1492,17 @@
                 try {
                     const imported = JSON.parse(e.target.result);
                     if (imported && Array.isArray(imported.records)) {
-                        db = imported;
-                        saveDatabase();
+                        if (useFirebase) {
+                            imported.records.forEach(rec => {
+                                firestoreDB.collection("talim_records").add(rec);
+                            });
+                            if (imported.profilePhoto) {
+                                firestoreDB.collection("settings").doc("profile").set({ photo: imported.profilePhoto });
+                            }
+                        } else {
+                            db = imported;
+                            saveDatabase();
+                        }
                         alert("Verileriniz başarıyla içe aktarıldı!");
                     } else {
                         alert("Geçersiz yedek dosyası!");
