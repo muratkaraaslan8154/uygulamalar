@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hafızlık Takip ve Çalışma Programı</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.03); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .active-card-pulse {
+            animation: pulse-ring 2.5s infinite ease-in-out;
+        }
+        .pop-btn {
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        }
+        .pop-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; color: black; }
+            .print-card { border: 1px solid #ccc !important; shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="h-full font-sans text-slate-800 flex flex-col min-h-screen">
+
+    <header class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-900 text-white shadow-lg no-print sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-amber-400/20 border-2 border-amber-400/50 rounded-2xl flex items-center justify-center text-amber-300 text-xl sm:text-2xl shadow-inner">
+                    <i class="fa-solid font-bold fa-book-quran"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading font-extrabold text-lg sm:text-2xl tracking-tight text-white flex items-center gap-2">
+                        Hafızlık Çalışma Programı
+                        <span class="bg-amber-400 text-emerald-950 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider hidden sm:inline-block">Ödüllü Takip</span>
+                    </h1>
+                    <p class="text-xs sm:text-sm text-emerald-100/80 font-medium">Günlük Ezber, Tekrar ve Ödül Takip Asistanı</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <div class="bg-emerald-900/50 border border-emerald-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2 backdrop-blur-sm">
+                    <span class="text-lg">🔥</span>
+                    <div>
+                        <div class="text-[9px] uppercase font-bold text-emerald-300 tracking-wider">Günlük Seri</div>
+                        <div class="text-xs sm:text-sm font-bold text-amber-300"><span id="streakCount">1</span> Gün</div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-400/20 border border-amber-400/40 px-3.5 py-1.5 rounded-xl flex items-center gap-2 backdrop-blur-sm">
+                    <span class="text-lg animate-spin-slow">⭐</span>
+                    <div>
+                        <div class="text-[9px] uppercase font-bold text-amber-200 tracking-wider">Toplam Puan</div>
+                        <div id="userPoints" class="text-sm sm:text-lg font-black text-amber-300">0</div>
+                    </div>
+                </div>
+
+                <div class="hidden md:block text-right bg-emerald-900/40 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl backdrop-blur-sm">
+                    <div class="text-[9px] uppercase font-bold text-emerald-300 tracking-wider">Saat</div>
+                    <div id="liveClock" class="font-heading font-bold text-sm sm:text-base text-amber-300 tracking-wider">00:00:00</div>
+                </div>
+
+                <button onclick="toggleAudioPrompt()" id="soundToggleBtn" class="bg-emerald-700 hover:bg-emerald-600 text-emerald-100 p-2.5 rounded-xl transition border border-emerald-500/30 text-sm" title="Ses Uyarılarını Aç/Kapat">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-emerald-100/80 flex flex-col md:flex-row gap-6 items-center justify-between no-print">
+            <div class="w-full md:w-2/3 space-y-2">
+                <div class="flex justify-between items-center text-sm font-semibold">
+                    <span class="text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-emerald-600"></i>
+                        Günlük Program Tamamlanma Oranı
+                    </span>
+                    <span id="progressPercentText" class="text-emerald-700 font-bold text-lg">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                    <div id="progressBar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-500 pt-1 font-medium">
+                    <span id="completedTasksCount">0 / 0 Görev Tamamlandı</span>
+                    <span id="totalDurationText">Toplam Süre: 0 dk</span>
+                </div>
+            </div>
+
+            <div class="w-full md:w-1/3 bg-gradient-to-br from-emerald-50 to-teal-50/50 p-3.5 rounded-xl border border-emerald-200/60 flex items-start gap-3">
+                <div class="p-2 bg-emerald-600 text-white rounded-lg shrink-0 mt-0.5">
+                    <i class="fa-solid fa-quote-left text-xs"></i>
+                </div>
+                <div class="text-xs text-emerald-950 leading-relaxed font-medium">
+                    <span class="font-bold block text-emerald-800 mb-0.5">Günün Hadis-i Şerifi:</span>
+                    "Sizin en hayırlınız, Kur'an'ı öğrenen ve öğreteninizdir." 
+                    <span class="block text-[10px] text-emerald-600 mt-0.5 italic">(Buhârî, Fezâilü'l-Kur'ân 21)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <div class="lg:col-span-5 space-y-6 no-print">
+                
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h2 class="font-heading font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-emerald-600"></i>
+                            Program & Vakit Ayarları
+                        </h2>
+                        <button onclick="resetSettingsToDefault()" class="text-xs text-emerald-600 hover:text-emerald-800 font-semibold underline">
+                            Varsayılana Dön
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        <div class="col-span-1 sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                <i class="fa-regular fa-clock text-emerald-600 mr-1"></i> Program Başlangıç Saati
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="time" id="startTimeInput" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-semibold text-slate-800">
+                                <button onclick="setStartTimeToNow()" class="whitespace-nowrap px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300 transition">
+                                    Şu An Yap
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                <i class="fa-solid fa-mosque text-emerald-600 mr-1"></i> Akşam Namazı
+                            </label>
+                            <input type="time" id="aksamTimeInput" value="18:45" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                <i class="fa-solid fa-mosque text-emerald-600 mr-1"></i> Yatsı Namazı
+                            </label>
+                            <input type="time" id="yatsiTimeInput" value="20:05" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                <i class="fa-solid fa-utensils text-amber-600 mr-1"></i> Akşam Yemek Saati
+                            </label>
+                            <input type="time" id="yemekTimeInput" value="19:10" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                <i class="fa-solid fa-clock-rotate-left text-slate-500 mr-1"></i> Mola Süresi (dk)
+                            </label>
+                            <input type="number" id="defaultBreakDuration" value="15" min="5" max="60" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700">
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-600 flex items-center gap-1.5">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                            Vakit Çakışmasında Akıllı Mola Ekle
+                        </span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="autoMergeToggle" class="sr-only peer" checked onchange="renderSchedule()">
+                            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div>
+                            <h2 class="font-heading font-bold text-slate-800 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-emerald-600"></i>
+                                Görev Sıralaması ve Düzenleyici
+                            </h2>
+                            <p class="text-xs text-slate-500">Değişiklikler anında sağ çizelgeye yansır</p>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="clearAllTasks()" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2.5 py-1 rounded-lg font-semibold transition border border-red-200 flex items-center gap-1" title="Tüm Görevleri Temizle">
+                                <i class="fa-solid fa-trash-can"></i> Temizle
+                            </button>
+                            <button onclick="loadDefaultPreset()" class="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-2.5 py-1 rounded-lg font-semibold transition border border-emerald-200 flex items-center gap-1" title="Varsayılan Şablonu Yükle">
+                                <i class="fa-solid fa-rotate-left"></i> Hazır Şablon
+                            </button>
+                        </div>
+                    </div>
+
+                    <form id="addTaskForm" onsubmit="handleAddNewTask(event)" class="flex gap-2">
+                        <input type="text" id="newTaskTitle" placeholder="Yeni Görev Adı..." required class="flex-1 px-3 py-1.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500">
+                        <input type="number" id="newTaskDuration" placeholder="Süre (dk)" min="1" max="180" value="15" required class="w-16 px-2 py-1.5 border border-slate-300 rounded-xl text-xs text-center font-bold focus:ring-2 focus:ring-emerald-500">
+                        <input type="number" id="newTaskPoints" placeholder="Puan" min="0" value="20" required class="w-16 px-2 py-1.5 border border-slate-300 rounded-xl text-xs text-center font-bold focus:ring-2 focus:ring-emerald-500" title="Kazanılacak Puan (Sınırsız puan girebilirsiniz)">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm shrink-0">
+                            <i class="fa-solid fa-plus"></i> Ekle
+                        </button>
+                    </form>
+
+                    <div id="taskListContainer" class="space-y-2 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-amber-200/80 p-5 space-y-5">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                            <h3 class="font-heading font-bold text-amber-700 text-base flex items-center gap-2">
+                                🎁 Puan Mağazası
+                            </h3>
+                            <button onclick="openAddRewardModal()" class="text-xs bg-amber-100 text-amber-800 hover:bg-amber-200 font-bold px-2.5 py-1 rounded-lg transition border border-amber-200 flex items-center gap-1">
+                                <i class="fa-solid fa-plus"></i> Ödül Ekle
+                            </button>
+                        </div>
+                        <div id="rewardsList" class="space-y-2.5 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100">
+                        <h3 class="font-heading font-bold text-emerald-800 text-base flex items-center gap-2 mb-3">
+                            🏆 Başarı Rozetleri
+                        </h3>
+                        <div id="badgesGrid" class="grid grid-cols-3 gap-2.5 text-center">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-7 space-y-6">
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 no-print">
+                    <div class="flex items-center space-x-2">
+                        <button id="startBtn" onclick="startSchedule()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition flex items-center gap-2 text-sm">
+                            <i class="fa-solid fa-play"></i> Programı Başlat
+                        </button>
+                        <button id="pauseBtn" onclick="pauseSchedule()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl shadow-sm transition hidden items-center gap-2 text-sm">
+                            <i class="fa-solid fa-pause"></i> Duraklat
+                        </button>
+                        <button onclick="resetProgress()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl border border-slate-300 transition text-sm" title="İlerlemeyi Sıfırla">
+                            <i class="fa-solid fa-rotate-left"></i> Sıfırla
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="window.print()" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold px-3.5 py-2.5 rounded-xl border border-teal-200 transition text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-print"></i> Yazdır / PDF
+                        </button>
+                        <button onclick="exportScheduleTxt()" class="bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold px-3.5 py-2.5 rounded-xl border border-slate-200 transition text-xs flex items-center gap-1.5" title="Metin Dosyası Olarak İndir">
+                            <i class="fa-solid fa-file-arrow-down"></i> İndir
+                        </button>
+                    </div>
+                </div>
+
+                <div id="activeTaskBanner" class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-xl border border-emerald-500/30 relative overflow-hidden hidden no-print">
+                    <div class="absolute -right-8 -bottom-8 opacity-10 text-9xl text-emerald-300 pointer-events-none">
+                        <i class="fa-solid fa-book-quran"></i>
+                    </div>
+                    
+                    <div class="relative z-10 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-amber-400 text-slate-950 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+                                <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+                                Şu An Aktif Görev
+                            </span>
+                            <span id="activeTimeRange" class="text-xs font-mono bg-emerald-800/60 border border-emerald-500/40 px-3 py-1 rounded-lg text-emerald-200">
+                                00:00 - 00:00
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 id="activeTaskTitle" class="text-xl sm:text-2xl font-heading font-extrabold text-white tracking-wide">
+                                    Ezber Çalışması
+                                </h3>
+                                <p id="activeTaskSubtext" class="text-xs text-emerald-200/90 mt-1 flex items-center gap-2">
+                                    <span>Odaklanın ve yavaş tempoda okuyun.</span>
+                                    <span id="activeTaskPointsBadge" class="bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded font-bold border border-amber-400/30">⭐ +20 Puan</span>
+                                </p>
+                            </div>
+
+                            <div class="bg-black/30 border border-emerald-400/30 px-4 py-2 rounded-2xl backdrop-blur-md text-center shrink-0">
+                                <div class="text-[10px] text-emerald-300 uppercase tracking-widest font-bold">Kalan Süre</div>
+                                <div id="activeCountdown" class="text-2xl sm:text-3xl font-heading font-black text-amber-300 tracking-wider font-mono">
+                                    00:00
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 flex items-center justify-between border-t border-emerald-800/80 text-xs">
+                            <button onclick="completeCurrentTaskAndNext()" class="pop-btn bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-4 py-2 rounded-xl transition flex items-center gap-2 cursor-pointer shadow-md">
+                                <i class="fa-solid fa-circle-check text-base"></i> TAMAMLADIM VE PUAN KAP!
+                            </button>
+                            <span id="nextTaskPreview" class="text-emerald-300/80 truncate max-w-[200px] text-right">
+                                Sonraki: -
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="printArea" class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    
+                    <div class="hidden print-only p-6 border-b border-slate-200 text-center">
+                        <h1 class="text-2xl font-bold text-slate-900">Günlük Hafızlık Çalışma Programı</h1>
+                        <p id="printDate" class="text-sm text-slate-600 mt-1"></p>
+                    </div>
+
+                    <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between no-print">
+                        <div>
+                            <h2 class="font-heading font-bold text-slate-800 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-calendar-day text-emerald-600"></i>
+                                Günlük Zaman Çizelgesi
+                            </h2>
+                            <p class="text-xs text-slate-500">Otomatik ve anlık güncellenen başlama/bitiş vakitleri</p>
+                        </div>
+                        <span id="totalScheduleBadge" class="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1 rounded-full border border-slate-200">
+                            0 Görev
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200/80">
+                                    <th class="py-3 px-4 w-12 text-center">Durum</th>
+                                    <th class="py-3 px-4 w-28">Saat</th>
+                                    <th class="py-3 px-4">Görev / Faaliyet</th>
+                                    <th class="py-3 px-4 w-20 text-center">Süre</th>
+                                    <th class="py-3 px-4 w-20 text-center">Puan</th>
+                                    <th class="py-3 px-4 w-32 text-right no-print">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timelineTableBody" class="divide-y divide-slate-100 text-xs sm:text-sm">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Görev Düzenleme Modalı -->
+    <div id="taskEditModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 border border-emerald-200 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-heading font-extrabold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-600"></i> Görevi Düzenle
+                </h3>
+                <button onclick="closeTaskEditModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+            </div>
+
+            <form id="taskEditForm" onsubmit="saveTaskEditModal(event)" class="space-y-3">
+                <input type="hidden" id="editModalTaskIndex">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Görev Adı</label>
+                    <input type="text" id="editModalTaskTitle" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:border-emerald-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Süre (Dakika)</label>
+                        <input type="number" id="editModalTaskDuration" min="1" max="180" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Kazanılacak Puan</label>
+                        <input type="number" id="editModalTaskPoints" min="0" step="1" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:border-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Görev Tipi</label>
+                    <select id="editModalTaskType" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:border-emerald-500 focus:outline-none">
+                        <option value="study">📖 Ezber Çalışması</option>
+                        <option value="repeat">🔄 Tekrar / Pişirme</option>
+                        <option value="recitation">🗣️ Dinletme / Kontrol</option>
+                        <option value="listen">🎧 Dinleme / Ham</option>
+                        <option value="quran">📜 Kur'an Okuma</option>
+                        <option value="break">☕ Mola / Dinlenme</option>
+                        <option value="custom">✨ Diğer / Özel</option>
+                    </select>
+                </div>
+
+                <div class="pt-3 flex gap-2">
+                    <button type="button" onclick="closeTaskEditModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-xs text-slate-700">İptal</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 font-bold rounded-xl text-xs text-white pop-btn shadow-md">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ödül Ekle / Düzenle Modalı -->
+    <div id="rewardModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 border border-amber-200 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 id="rewardModalTitle" class="text-lg font-heading font-extrabold text-slate-800 flex items-center gap-2">
+                    <span>🎁</span> Yeni Ödül Ekle
+                </h3>
+                <button onclick="closeRewardModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+            </div>
+
+            <form id="rewardForm" onsubmit="saveReward(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Ödül Adı</label>
+                    <input type="text" id="rewardTitle" required placeholder="Örn: 20 dk Dondurma Keyfi" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:border-amber-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Gerekli Puan</label>
+                    <input type="number" id="rewardCost" min="1" step="1" value="30" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:border-amber-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Simgesi</label>
+                    <select id="rewardIcon" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:border-amber-500 focus:outline-none">
+                        <option value="🎮">🎮 Tablet / Oyun Süresi</option>
+                        <option value="🍦">🍦 Dondurma / Tatlı Ödülü</option>
+                        <option value="🎬">🎬 Film / Belgesel İzleme</option>
+                        <option value="🛝">🛝 Park / Dışarı Gezisi</option>
+                        <option value="🚴">🚴 Bisiklet Sürme</option>
+                        <option value="📚">📚 Kitap / Dergi Hediye</option>
+                        <option value="⭐">⭐ Özel Aile İzni</option>
+                        <option value="⚽">⚽ Halı Saha / Spor</option>
+                        <option value="🍕">🍕 Pizza / Lezzet Molası</option>
+                        <option value="🎁">🎁 Sürpriz Hediye</option>
+                    </select>
+                </div>
+
+                <div class="pt-3 flex gap-2">
+                    <button type="button" onclick="closeRewardModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl text-xs text-slate-700">İptal</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-600 font-bold rounded-xl text-xs text-white pop-btn shadow-md">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="mt-auto bg-white border-t border-slate-200/80 py-4 no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-1">
+            <p class="font-medium text-slate-600">Allah zihin açıklığı versin, ezberlerinizi daim eylesin.</p>
+            <p class="text-[11px] text-slate-400">Hafızlık Takip & Ödül Sistemi &bull; Arka Plan Koruma & Otomatik İlerleme</p>
+        </div>
+    </footer>
+
+    <script>
+        const DEFAULT_TASKS_PRESET = [
+            { id: '1', title: 'Ezber 1 (1. Bölüm Çalışması)', duration: 25, points: 25, type: 'study' },
+            { id: '2', title: 'Mola', duration: 10, points: 5, type: 'break' },
+            { id: '3', title: 'Ezber 2 (2. Bölüm Çalışması)', duration: 25, points: 25, type: 'study' },
+            { id: '4', title: 'Mola', duration: 10, points: 5, type: 'break' },
+            { id: '5', title: 'Ezber 3 (3. Bölüm Çalışması)', duration: 25, points: 25, type: 'study' },
+            { id: '6', title: 'Mola', duration: 10, points: 5, type: 'break' },
+            { id: '7', title: 'Ezber 4 (4. Bölüm Çalışması)', duration: 25, points: 25, type: 'study' },
+            { id: '8', title: 'Ezber Dinletme (Hocaya/Aileye)', duration: 15, points: 20, type: 'recitation' },
+            { id: '9', title: 'Yasin Okuma Zamanı', duration: 15, points: 15, type: 'quran' },
+            { id: '10', title: '20. Sayfa 10x Okuma', duration: 30, points: 30, type: 'repeat' },
+            { id: '11', title: 'Mola', duration: 10, points: 5, type: 'break' },
+            { id: '12', title: '20. Sayfa 10x Okuma (Tekrar)', duration: 30, points: 30, type: 'repeat' },
+            { id: '13', title: 'Beşer Kez Dinleme ve Ham Pişirme', duration: 25, points: 20, type: 'listen' },
+            { id: '14', title: 'Son Dinletme ve Kontrol', duration: 15, points: 20, type: 'recitation' },
+            { id: '15', title: 'Yatmaya Hazırlık ve Yatış', duration: 20, points: 15, type: 'custom' }
+        ];
+
+        let tasks = [];
+        let completedTaskIds = new Set();
+        let userPoints = 0;
+        let userStreak = 1;
+        let rewards = [];
+        let badges = [];
+        let editingRewardId = null;
+
+        // Yenilenmiş Timer & Durum Değişkenleri
+        let isProgramRunning = false;
+        let activeTaskIndex = -1;
+        let remainingSeconds = 0;
+        let targetEndTime = null;
+        let timerWorker = null; // Arka planda şaşmadan çalışan web worker
+        let audioEnabled = true;
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudioCtx() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume(); // Ses motorunu uyandır
+            }
+        }
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            initAudioCtx();
+
+            try {
+                if (type === 'success') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime + idx * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.08 + 0.25);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime + idx * 0.08);
+                        osc.stop(audioCtx.currentTime + idx * 0.08 + 0.25);
+                    });
+                } else if (type === 'redeem') {
+                    [440, 554.37, 659.25, 880].forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.12, audioCtx.currentTime + idx * 0.06);
+                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.06 + 0.3);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime + idx * 0.06);
+                        osc.stop(audioCtx.currentTime + idx * 0.06 + 0.3);
+                    });
+                } else if (type === 'pop') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.08);
+                }
+            } catch (e) {}
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 75, spread: 65, origin: { y: 0.6 } });
+            }
+        }
+
+        // --- WEB WORKER (Arka Plan Koruması) ---
+        function initWorker() {
+            if (!timerWorker) {
+                const workerCode = `
+                    let timer = null;
+                    self.onmessage = function(e) {
+                        if (e.data === 'start') {
+                            if (timer) clearInterval(timer);
+                            timer = setInterval(() => self.postMessage('tick'), 1000);
+                        } else if (e.data === 'stop') {
+                            if (timer) clearInterval(timer);
+                            timer = null;
+                        }
+                    };
+                `;
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                timerWorker = new Worker(URL.createObjectURL(blob));
+
+                timerWorker.onmessage = function(e) {
+                    if (e.data === 'tick') {
+                        handleTick();
+                    }
+                };
+            }
+        }
+
+        window.onload = function () {
+            loadSavedState();
+            
+            // Elemanların tam yüklenmesi ve saat hesapları için minik gecikme
+            setTimeout(() => {
+                loadTimerState();
+            }, 100);
+
+            setupLiveClock();
+            
+            const startTimeInput = document.getElementById('startTimeInput');
+            if (!startTimeInput.value) {
+                const now = new Date();
+                startTimeInput.value = formatTimeDigits(now.getHours(), now.getMinutes());
+            }
+
+            document.getElementById('printDate').innerText = new Date().toLocaleDateString('tr-TR', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            renderTaskBuilder();
+            renderRewards();
+            renderBadges();
+            renderSchedule();
+
+            ['startTimeInput', 'aksamTimeInput', 'yatsiTimeInput', 'yemekTimeInput', 'defaultBreakDuration'].forEach(id => {
+                document.getElementById(id).addEventListener('change', () => {
+                    saveState();
+                    renderSchedule();
+                });
+            });
+        };
+
+        function setupLiveClock() {
+            setInterval(() => {
+                const now = new Date();
+                const clockEl = document.getElementById('liveClock');
+                if (clockEl) clockEl.innerText = now.toLocaleTimeString('tr-TR');
+            }, 1000);
+        }
+
+        function setStartTimeToNow() {
+            const now = new Date();
+            document.getElementById('startTimeInput').value = formatTimeDigits(now.getHours(), now.getMinutes());
+            saveState();
+            renderSchedule();
+        }
+
+        function getDefaultRewards() {
+            return [
+                { id: 'r1', title: '30 dk Tablet / Serbest Zaman', cost: 40, icon: '🎮' },
+                { id: 'r2', title: 'Dondurma veya Tatlı Ödülü', cost: 50, icon: '🍦' },
+                { id: 'r3', title: 'Hafta Sonu Film Keyfi', cost: 60, icon: '🎬' },
+                { id: 'r4', title: 'Park / Bisiklet Gezisi', cost: 45, icon: '🚴' }
+            ];
+        }
+
+        function getDefaultBadges() {
+            return [
+                { id: 'b1', name: 'Ezber Ustası', icon: '📖', reqType: 'ezber', countNeeded: 3, progress: 0, unlocked: false },
+                { id: 'b2', name: 'Namaz Kahramanı', icon: '🕌', reqType: 'namaz', countNeeded: 2, progress: 0, unlocked: false },
+                { id: 'b3', name: 'Günün Yıldızı', icon: '⭐', reqType: 'streak', countNeeded: 1, progress: 1, unlocked: true },
+                { id: 'b4', name: 'Dinleme Şampiyonu', icon: '🎧', reqType: 'dinleme', countNeeded: 2, progress: 0, unlocked: false },
+                { id: 'b5', name: 'Azimli Hafız', icon: '🔥', reqType: 'points', countNeeded: 100, progress: 0, unlocked: false },
+                { id: 'b6', name: 'Program Disiplini', icon: '🏆', reqType: 'tasks', countNeeded: 10, progress: 0, unlocked: false }
+            ];
+        }
+
+        function saveState() {
+            const state = {
+                tasks: tasks,
+                completedTaskIds: Array.from(completedTaskIds),
+                userPoints: userPoints,
+                userStreak: userStreak,
+                rewards: rewards,
+                badges: badges,
+                startTime: document.getElementById('startTimeInput').value,
+                aksamTime: document.getElementById('aksamTimeInput').value,
+                yatsiTime: document.getElementById('yatsiTimeInput').value,
+                yemekTime: document.getElementById('yemekTimeInput').value,
+                defaultBreak: document.getElementById('defaultBreakDuration').value,
+                autoMerge: document.getElementById('autoMergeToggle').checked
+            };
+            localStorage.setItem('hafizlik_app_rewards_state', JSON.stringify(state));
+        }
+
+        function loadSavedState() {
+            const saved = localStorage.getItem('hafizlik_app_rewards_state');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    tasks = data.tasks && data.tasks.length > 0 ? data.tasks : JSON.parse(JSON.stringify(DEFAULT_TASKS_PRESET));
+                    completedTaskIds = new Set(data.completedTaskIds || []);
+                    userPoints = typeof data.userPoints === 'number' ? data.userPoints : 0;
+                    userStreak = typeof data.userStreak === 'number' ? data.userStreak : 1;
+                    rewards = data.rewards && data.rewards.length > 0 ? data.rewards : getDefaultRewards();
+                    badges = data.badges && data.badges.length > 0 ? data.badges : getDefaultBadges();
+
+                    if (data.startTime) document.getElementById('startTimeInput').value = data.startTime;
+                    if (data.aksamTime) document.getElementById('aksamTimeInput').value = data.aksamTime;
+                    if (data.yatsiTime) document.getElementById('yatsiTimeInput').value = data.yatsiTime;
+                    if (data.yemekTime) document.getElementById('yemekTimeInput').value = data.yemekTime;
+                    if (data.defaultBreak) document.getElementById('defaultBreakDuration').value = data.defaultBreak;
+                    if (data.autoMerge !== undefined) document.getElementById('autoMergeToggle').checked = data.autoMerge;
+                } catch (e) {
+                    tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS_PRESET));
+                    rewards = getDefaultRewards();
+                    badges = getDefaultBadges();
+                }
+            } else {
+                tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS_PRESET));
+                rewards = getDefaultRewards();
+                badges = getDefaultBadges();
+            }
+
+            updateHeaderStats();
+        }
+
+        // --- TİMER (ZAMANLAYICI) KAYDETME VE DOSYA KAPATILIRSA GERİ YÜKLEME ---
+        function saveTimerState() {
+            const state = {
+                isProgramRunning: isProgramRunning,
+                activeTaskIndex: activeTaskIndex,
+                targetEndTime: targetEndTime
+            };
+            localStorage.setItem('hafizlik_timer_state', JSON.stringify(state));
+        }
+
+        function loadTimerState() {
+            const saved = localStorage.getItem('hafizlik_timer_state');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    if (data.isProgramRunning && data.targetEndTime && data.activeTaskIndex !== undefined && data.activeTaskIndex !== -1) {
+                        const now = Date.now();
+                        const schedule = calculateSchedule(); 
+                        
+                        let currentIdx = data.activeTaskIndex;
+                        let endTime = data.targetEndTime;
+                        
+                        // Dosya kapalıyken geçmiş süreleri otomatik olarak doldur ve görevleri "tamamlandı" say!
+                        while (currentIdx < schedule.length && now >= endTime) {
+                            const task = schedule[currentIdx];
+                            completeTaskAction(task);
+                            currentIdx++;
+                            if (currentIdx < schedule.length) {
+                                endTime += schedule[currentIdx].duration * 60 * 1000;
+                            } else {
+                                endTime = null;
+                            }
+                        }
+                        
+                        // Eğer hala devam ediyorsa
+                        if (currentIdx < schedule.length && endTime !== null) {
+                            activeTaskIndex = currentIdx;
+                            targetEndTime = endTime;
+                            remainingSeconds = Math.round((targetEndTime - now) / 1000);
+                            isProgramRunning = true;
+                            
+                            document.getElementById('startBtn').classList.add('hidden');
+                            document.getElementById('pauseBtn').classList.remove('hidden');
+                            document.getElementById('pauseBtn').classList.add('flex');
+                            document.getElementById('activeTaskBanner').classList.remove('hidden');
+                            runTaskTimer(schedule[activeTaskIndex]);
+                        } else {
+                            // Dosya kapalıyken tüm görevler bitmiş
+                            isProgramRunning = false;
+                            activeTaskIndex = -1;
+                            targetEndTime = null;
+                            remainingSeconds = 0;
+                            saveTimerState();
+                        }
+                        renderSchedule();
+                    }
+                } catch (e) { console.error("Timer yükleme hatası", e); }
+            }
+        }
+
+        function updateHeaderStats() {
+            document.getElementById('userPoints').innerText = userPoints;
+            document.getElementById('streakCount').innerText = userStreak;
+        }
+
+        function loadDefaultPreset() {
+            if (confirm("Görev sıralamasını varsayılan Hafızlık düzenine döndürmek istiyor musunuz?")) {
+                tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS_PRESET));
+                completedTaskIds.clear();
+                saveState();
+                renderTaskBuilder();
+                renderSchedule();
+            }
+        }
+
+        function clearAllTasks() {
+            if (confirm("Tüm görev listesini temizlemek istediğinizden emin misiniz?")) {
+                tasks = [];
+                saveState();
+                renderTaskBuilder();
+                renderSchedule();
+            }
+        }
+
+        function resetSettingsToDefault() {
+            document.getElementById('startTimeInput').value = "17:00";
+            document.getElementById('aksamTimeInput').value = "18:45";
+            document.getElementById('yatsiTimeInput').value = "20:05";
+            document.getElementById('yemekTimeInput').value = "19:10";
+            document.getElementById('defaultBreakDuration').value = "15";
+            saveState();
+            renderSchedule();
+        }
+
+        function renderTaskBuilder() {
+            const container = document.getElementById('taskListContainer');
+            container.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const card = document.createElement('div');
+                card.className = "flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl gap-2 hover:bg-slate-100/80 transition";
+
+                const ptsValue = (task.points !== undefined && task.points !== null) ? task.points : 0;
+
+                card.innerHTML = `
+                    <div class="flex items-center space-x-2 flex-1 min-w-0">
+                        <div class="flex flex-col text-slate-400 text-[10px]">
+                            <button onclick="moveTask(${index}, -1)" ${index === 0 ? 'disabled class="opacity-30"' : 'class="hover:text-emerald-600"'} title="Yukarı Taşı">
+                                <i class="fa-solid fa-chevron-up"></i>
+                            </button>
+                            <button onclick="moveTask(${index}, 1)" ${index === tasks.length - 1 ? 'disabled class="opacity-30"' : 'class="hover:text-emerald-600"'} title="Aşağı Taşı">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <input type="text" id="taskInput_${index}" value="${escapeHtml(task.title)}" oninput="updateTaskTitle(${index}, this.value)" class="flex-1 bg-transparent text-xs font-semibold text-slate-800 focus:bg-white focus:px-2 focus:py-1 focus:rounded border-none focus:ring-1 focus:ring-emerald-500 truncate" title="Yazarak anında değiştirebilirsiniz">
+                    </div>
+                    <div class="flex items-center space-x-1.5 shrink-0">
+                        <input type="number" value="${task.duration}" min="1" max="180" oninput="updateTaskDuration(${index}, this.value)" class="w-12 px-1 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 bg-white" title="Süre (dk)">
+                        <span class="text-[10px] text-slate-400">dk</span>
+                        <input type="number" value="${ptsValue}" min="0" step="1" oninput="updateTaskPoints(${index}, this.value)" class="w-14 px-1 py-1 text-xs font-bold text-center border border-amber-300 rounded-lg focus:ring-1 focus:ring-amber-500 bg-amber-50/50 text-amber-700" title="Puan Değeri (Sınırsız girebilirsiniz)">
+                        <span class="text-[10px] text-amber-500 font-bold mr-1">⭐</span>
+                        
+                        <button onclick="openEditTaskModal(${index})" class="p-1 text-emerald-600 hover:text-emerald-800 transition text-xs rounded hover:bg-emerald-50" title="Detaylı Düzenle">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="deleteTask(${index})" class="p-1 text-slate-400 hover:text-red-500 transition text-xs rounded hover:bg-red-50" title="Görevi Sil">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function handleAddNewTask(e) {
+            e.preventDefault();
+            const titleInput = document.getElementById('newTaskTitle');
+            const durationInput = document.getElementById('newTaskDuration');
+            const pointsInput = document.getElementById('newTaskPoints');
+
+            if (!titleInput.value.trim()) return;
+
+            const ptsVal = parseInt(pointsInput.value);
+
+            const newTask = {
+                id: 'custom_' + Date.now(),
+                title: titleInput.value.trim(),
+                duration: parseInt(durationInput.value) || 15,
+                points: !isNaN(ptsVal) && ptsVal >= 0 ? ptsVal : 0,
+                type: 'study'
+            };
+
+            tasks.push(newTask);
+            titleInput.value = '';
+            saveState();
+            renderTaskBuilder();
+            renderSchedule();
+            playSound('pop');
+        }
+
+        function moveTask(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= tasks.length) return;
+            const temp = tasks[index];
+            tasks[index] = tasks[newIndex];
+            tasks[newIndex] = temp;
+            saveState();
+            renderTaskBuilder();
+            renderSchedule();
+        }
+
+        function updateTaskTitle(index, newTitle) {
+            if (tasks[index]) {
+                tasks[index].title = newTitle;
+                saveState();
+                renderSchedule();
+                if (isProgramRunning) {
+                    const schedule = calculateSchedule();
+                    if (schedule[activeTaskIndex]) updateActiveBannerUI(schedule[activeTaskIndex]);
+                }
+            }
+        }
+
+        function updateTaskDuration(index, newDuration) {
+            const val = parseInt(newDuration);
+            if (tasks[index] && !isNaN(val) && val > 0) {
+                tasks[index].duration = val;
+                saveState();
+                renderSchedule();
+            }
+        }
+
+        function updateTaskPoints(index, newPoints) {
+            const val = parseInt(newPoints);
+            if (tasks[index] && !isNaN(val) && val >= 0) {
+                tasks[index].points = val;
+                saveState();
+                renderSchedule();
+                if (isProgramRunning) {
+                    const schedule = calculateSchedule();
+                    if (schedule[activeTaskIndex]) updateActiveBannerUI(schedule[activeTaskIndex]);
+                }
+            }
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            saveState();
+            renderTaskBuilder();
+            renderSchedule();
+        }
+
+        // Görev Düzenleme Modalı Fonksiyonları
+        function openEditTaskModal(index) {
+            const task = tasks[index];
+            if (!task) return;
+
+            document.getElementById('editModalTaskIndex').value = index;
+            document.getElementById('editModalTaskTitle').value = task.title;
+            document.getElementById('editModalTaskDuration').value = task.duration;
+            document.getElementById('editModalTaskPoints').value = (task.points !== undefined && task.points !== null) ? task.points : 0;
+            document.getElementById('editModalTaskType').value = task.type || 'study';
+
+            document.getElementById('taskEditModal').classList.remove('hidden');
+        }
+
+        function closeTaskEditModal() {
+            document.getElementById('taskEditModal').classList.add('hidden');
+        }
+
+        function saveTaskEditModal(e) {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('editModalTaskIndex').value);
+            if (isNaN(index) || !tasks[index]) return;
+
+            const ptsVal = parseInt(document.getElementById('editModalTaskPoints').value);
+
+            tasks[index].title = document.getElementById('editModalTaskTitle').value.trim();
+            tasks[index].duration = parseInt(document.getElementById('editModalTaskDuration').value) || 15;
+            tasks[index].points = !isNaN(ptsVal) && ptsVal >= 0 ? ptsVal : 0;
+            tasks[index].type = document.getElementById('editModalTaskType').value;
+
+            saveState();
+            closeTaskEditModal();
+            renderTaskBuilder();
+            renderSchedule();
+            playSound('pop');
+        }
+
+        function renderRewards() {
+            const container = document.getElementById('rewardsList');
+            if (!container) return;
+
+            if (rewards.length === 0) {
+                container.innerHTML = `<div class="text-center py-4 text-slate-400 text-xs font-semibold">Henüz ödül eklenmemiş. "+ Ödül Ekle" butonunu kullanarak yeni ödüller oluşturabilirsiniz.</div>`;
+                return;
+            }
+
+            container.innerHTML = rewards.map(r => {
+                const canAfford = userPoints >= r.cost;
+                return `
+                    <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2 shadow-2xs hover:bg-slate-100/80 transition">
+                        <div class="flex items-center gap-2 min-w-0 flex-1">
+                            <span class="text-xl shrink-0">${r.icon}</span>
+                            <div class="truncate">
+                                <div class="font-bold text-slate-800 text-xs truncate" title="${escapeHtml(r.title)}">${escapeHtml(r.title)}</div>
+                                <div class="text-[11px] font-extrabold text-amber-600">⭐ ${r.cost} Puan</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button onclick="openEditRewardModal('${r.id}')" class="p-1.5 text-slate-400 hover:text-amber-600 transition text-xs rounded-lg hover:bg-white border border-transparent hover:border-slate-200" title="Ödülü Düzenle / Değiştir">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="deleteReward('${r.id}')" class="p-1.5 text-slate-400 hover:text-red-500 transition text-xs rounded-lg hover:bg-white border border-transparent hover:border-slate-200" title="Ödülü Sil">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            <button onclick="redeemReward('${r.id}', ${r.cost})" ${!canAfford ? 'disabled' : ''} class="pop-btn px-2.5 py-1 rounded-lg font-black text-xs ${canAfford ? 'bg-amber-500 hover:bg-amber-600 text-white cursor-pointer shadow-sm' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">
+                                ${canAfford ? 'AL' : 'Yetersiz'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openAddRewardModal() {
+            editingRewardId = null;
+            document.getElementById('rewardModalTitle').innerHTML = '<span>🎁</span> Yeni Ödül Ekle';
+            document.getElementById('rewardTitle').value = '';
+            document.getElementById('rewardCost').value = 30;
+            document.getElementById('rewardIcon').value = '🎮';
+            document.getElementById('rewardModal').classList.remove('hidden');
+        }
+
+        function openEditRewardModal(id) {
+            const reward = rewards.find(r => r.id === id);
+            if (!reward) return;
+
+            editingRewardId = id;
+            document.getElementById('rewardModalTitle').innerHTML = '<span>✏️</span> Ödülü Düzenle';
+            document.getElementById('rewardTitle').value = reward.title;
+            document.getElementById('rewardCost').value = reward.cost;
+            document.getElementById('rewardIcon').value = reward.icon;
+            document.getElementById('rewardModal').classList.remove('hidden');
+        }
+
+        function closeRewardModal() {
+            document.getElementById('rewardModal').classList.add('hidden');
+            editingRewardId = null;
+        }
+
+        function saveReward(e) {
+            e.preventDefault();
+            const title = document.getElementById('rewardTitle').value.trim();
+            const cost = parseInt(document.getElementById('rewardCost').value) || 30;
+            const icon = document.getElementById('rewardIcon').value;
+
+            if (!title) return;
+
+            if (editingRewardId) {
+                const targetReward = rewards.find(r => r.id === editingRewardId);
+                if (targetReward) {
+                    targetReward.title = title;
+                    targetReward.cost = cost;
+                    targetReward.icon = icon;
+                }
+            } else {
+                rewards.push({
+                    id: 'r_' + Date.now(),
+                    title: title,
+                    cost: cost,
+                    icon: icon
+                });
+            }
+
+            saveState();
+            closeRewardModal();
+            renderRewards();
+            playSound('pop');
+        }
+
+        function deleteReward(id) {
+            const reward = rewards.find(r => r.id === id);
+            const rewardName = reward ? reward.title : 'Bu ödülü';
+            
+            if (confirm(`"${rewardName}" ödülünü silmek istediğinizden emin misiniz?`)) {
+                rewards = rewards.filter(r => r.id !== id);
+                saveState();
+                renderRewards();
+                playSound('pop');
+            }
+        }
+
+        function renderBadges() {
+            const container = document.getElementById('badgesGrid');
+            if (!container) return;
+
+            container.innerHTML = badges.map(b => {
+                return `
+                    <div class="p-2 rounded-xl border text-center transition-all ${b.unlocked ? 'bg-amber-50/70 border-amber-300 shadow-2xs' : 'bg-slate-50 border-slate-200 opacity-60 grayscale'}">
+                        <div class="text-2xl mb-0.5">${b.icon}</div>
+                        <div class="text-[11px] font-black text-slate-800 leading-tight">${b.name}</div>
+                        <div class="text-[9px] font-bold mt-1 ${b.unlocked ? 'text-emerald-700' : 'text-slate-400'}">
+                            ${b.unlocked ? 'Kazanıldı! 🎉' : 'Kilitli 🔒'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function redeemReward(rewardId, cost) {
+            if (userPoints >= cost) {
+                userPoints -= cost;
+                playSound('redeem');
+                triggerConfetti();
+                updateHeaderStats();
+                saveState();
+                renderRewards();
+            }
+        }
+
+        function checkBadgeProgress(task) {
+            let updated = false;
+            badges.forEach(b => {
+                if (!b.unlocked) {
+                    if (b.reqType === 'ezber' && task && task.title.toLowerCase().includes('ezber')) {
+                        b.progress = (b.progress || 0) + 1;
+                    } else if (b.reqType === 'dinleme' && task && (task.title.toLowerCase().includes('dinlet') || task.title.toLowerCase().includes('dinleme'))) {
+                        b.progress = (b.progress || 0) + 1;
+                    } else if (b.reqType === 'points' && userPoints >= b.countNeeded) {
+                        b.progress = userPoints;
+                    } else if (b.reqType === 'tasks') {
+                        b.progress = completedTaskIds.size;
+                    }
+
+                    if (b.progress >= b.countNeeded) {
+                        b.unlocked = true;
+                        updated = true;
+                        triggerConfetti();
+                    }
+                }
+            });
+
+            if (updated) {
+                renderBadges();
+            }
+        }
+
+        function calculateSchedule() {
+            const startTimeVal = document.getElementById('startTimeInput').value || "17:00";
+            const autoMerge = document.getElementById('autoMergeToggle').checked;
+
+            const fixedEvents = [
+                { id: 'aksam', title: 'Akşam Namazı Molası', time: document.getElementById('aksamTimeInput').value, duration: 20, points: 15, icon: 'fa-mosque', color: 'bg-emerald-100 text-emerald-800' },
+                { id: 'yatsi', title: 'Yatsı Namazı Molası', time: document.getElementById('yatsiTimeInput').value, duration: 25, points: 15, icon: 'fa-mosque', color: 'bg-emerald-100 text-emerald-800' },
+                { id: 'yemek', title: 'Akşam Yemek Molası', time: document.getElementById('yemekTimeInput').value, duration: 30, points: 10, icon: 'fa-utensils', color: 'bg-amber-100 text-amber-900' }
+            ].filter(ev => ev.time);
+
+            const timeToMins = (tStr) => {
+                const [h, m] = tStr.split(':').map(Number);
+                return h * 60 + m;
+            };
+
+            let currentMins = timeToMins(startTimeVal);
+            const schedule = [];
+            const handledFixedEvents = new Set();
+
+            tasks.forEach((task, origTaskIndex) => {
+                let taskStartMins = currentMins;
+                let taskEndMins = currentMins + parseInt(task.duration);
+
+                if (autoMerge) {
+                    fixedEvents.forEach(ev => {
+                        if (!handledFixedEvents.has(ev.id)) {
+                            const evMins = timeToMins(ev.time);
+                            if (evMins >= taskStartMins && evMins < taskEndMins) {
+                                let totalDuration = ev.duration;
+                                let title = ev.title;
+                                let points = ev.points;
+                                handledFixedEvents.add(ev.id);
+
+                                fixedEvents.forEach(otherEv => {
+                                    if (!handledFixedEvents.has(otherEv.id)) {
+                                        const otherMins = timeToMins(otherEv.time);
+                                        if (Math.abs(otherMins - evMins) <= 35) {
+                                            handledFixedEvents.add(otherEv.id);
+                                            title += ` & ${otherEv.title}`;
+                                            totalDuration += otherEv.duration - 10;
+                                            points += otherEv.points;
+                                        }
+                                    }
+                                });
+
+                                const insertStart = evMins;
+                                const insertEnd = insertStart + totalDuration;
+
+                                schedule.push({
+                                    id: 'fixed_' + ev.id,
+                                    title: title,
+                                    duration: totalDuration,
+                                    points: points,
+                                    startMins: insertStart,
+                                    endMins: insertEnd,
+                                    isFixed: true,
+                                    icon: ev.icon,
+                                    color: ev.color,
+                                    origIndex: -1
+                                });
+
+                                currentMins = insertEnd;
+                                taskStartMins = currentMins;
+                                taskEndMins = taskStartMins + parseInt(task.duration);
+                            }
+                        }
+                    });
+                }
+
+                schedule.push({
+                    id: task.id,
+                    title: task.title,
+                    duration: parseInt(task.duration),
+                    points: (task.points !== undefined && task.points !== null && !isNaN(task.points)) ? parseInt(task.points) : 0,
+                    startMins: taskStartMins,
+                    endMins: taskEndMins,
+                    isFixed: false,
+                    type: task.type,
+                    origIndex: origTaskIndex
+                });
+
+                currentMins = taskEndMins;
+            });
+
+            return schedule;
+        }
+
+        function renderSchedule() {
+            const schedule = calculateSchedule();
+            const tbody = document.getElementById('timelineTableBody');
+            tbody.innerHTML = '';
+
+            let totalMinutes = 0;
+            let completedCount = 0;
+
+            schedule.forEach((item, index) => {
+                totalMinutes += item.duration;
+                const isCompleted = completedTaskIds.has(item.id);
+                if (isCompleted) completedCount++;
+
+                const isActive = isProgramRunning && index === activeTaskIndex;
+
+                const tr = document.createElement('tr');
+                tr.className = `transition ${isActive ? 'bg-amber-50/90 font-semibold border-l-4 border-l-amber-500' : isCompleted ? 'bg-emerald-50/40 text-slate-500 line-through' : 'hover:bg-slate-50'}`;
+
+                let typeBadge = '<i class="fa-solid fa-book-open text-emerald-600"></i>';
+                if (item.isFixed) {
+                    typeBadge = `<i class="fa-solid ${item.icon || 'fa-star'} text-amber-600"></i>`;
+                } else if (item.title.toLowerCase().includes('mola')) {
+                    typeBadge = '<i class="fa-solid fa-mug-hot text-amber-500"></i>';
+                } else if (item.title.toLowerCase().includes('dinlet') || item.title.toLowerCase().includes('dinleme')) {
+                    typeBadge = '<i class="fa-solid fa-headset text-teal-600"></i>';
+                } else if (item.title.toLowerCase().includes('tekrar') || item.title.toLowerCase().includes('okuma')) {
+                    typeBadge = '<i class="fa-solid fa-rotate text-indigo-600"></i>';
+                }
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 text-center">
+                        <input type="checkbox" ${isCompleted ? 'checked' : ''} onchange="toggleTaskComplete('${item.id}')" class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer">
+                    </td>
+                    <td class="py-3 px-4 font-mono text-slate-700 whitespace-nowrap text-xs">
+                        ${minsToFormattedTime(item.startMins)} - ${minsToFormattedTime(item.endMins)}
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="shrink-0">${typeBadge}</span>
+                            <span class="${item.isFixed ? 'font-bold text-amber-900' : 'text-slate-800'}">${escapeHtml(item.title)}</span>
+                            ${isActive ? '<span class="bg-amber-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse">ŞU AN</span>' : ''}
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 text-center font-bold text-slate-600 whitespace-nowrap">
+                        ${item.duration} dk
+                    </td>
+                    <td class="py-3 px-4 text-center font-bold text-amber-600 whitespace-nowrap">
+                        +${item.points} ⭐
+                    </td>
+                    <td class="py-3 px-4 text-right no-print whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <button onclick="startSpecificTask(${index})" class="text-xs bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 px-2.5 py-1 rounded-lg font-semibold transition border border-slate-200">
+                                ${isActive ? 'Sürdür' : 'Başlat'}
+                            </button>
+                            ${!item.isFixed && item.origIndex !== -1 ? `
+                                <button onclick="openEditTaskModal(${item.origIndex})" class="p-1 text-slate-400 hover:text-emerald-700 transition text-xs rounded hover:bg-emerald-50" title="Görevi Düzenle">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const totalTasks = schedule.length;
+            const progress = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressPercentText').innerText = `${progress}%`;
+            document.getElementById('completedTasksCount').innerText = `${completedCount} / ${totalTasks} Görev Tamamlandı`;
+            document.getElementById('totalDurationText').innerText = `Toplam Süre: ${Math.floor(totalMinutes / 60)} sa ${totalMinutes % 60} dk`;
+            document.getElementById('totalScheduleBadge').innerText = `${totalTasks} Görev Bilgisi`;
+        }
+
+        // --- ANA ZAMANLAYICI FONKSİYONLARI ---
+        function startSchedule() {
+            if (tasks.length === 0) return;
+
+            initAudioCtx(); // İlk tıklamada tarayıcı güvenlik politikasını kaldırmak için
+
+            const schedule = calculateSchedule();
+            if (activeTaskIndex < 0 || activeTaskIndex >= schedule.length) {
+                activeTaskIndex = 0;
+            }
+
+            isProgramRunning = true;
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('pauseBtn').classList.remove('hidden');
+            document.getElementById('pauseBtn').classList.add('flex');
+            document.getElementById('activeTaskBanner').classList.remove('hidden');
+
+            const task = schedule[activeTaskIndex];
+            
+            if (!remainingSeconds || remainingSeconds <= 0) {
+                remainingSeconds = task.duration * 60;
+            }
+            targetEndTime = Date.now() + remainingSeconds * 1000;
+            saveTimerState();
+
+            runTaskTimer(task);
+        }
+
+        function runTaskTimer(task) {
+            updateActiveBannerUI(task);
+            initWorker();
+            timerWorker.postMessage('start');
+        }
+
+        // Web Worker'dan her saniye gelen tick sinyali
+        function handleTick() {
+            if (!isProgramRunning || !targetEndTime) return;
+            
+            const now = Date.now();
+            remainingSeconds = Math.max(0, Math.round((targetEndTime - now) / 1000));
+            updateCountdownDisplay();
+
+            if (remainingSeconds <= 0) {
+                // SÜRE BİTTİ -> OTOMATİK GEÇİŞ
+                timerWorker.postMessage('stop');
+                
+                const schedule = calculateSchedule();
+                const task = schedule[activeTaskIndex];
+                
+                completeTaskAction(task);
+
+                activeTaskIndex++;
+                if (activeTaskIndex < schedule.length) {
+                    const nextTask = schedule[activeTaskIndex];
+                    remainingSeconds = nextTask.duration * 60;
+                    targetEndTime = Date.now() + remainingSeconds * 1000;
+                    saveTimerState();
+                    runTaskTimer(nextTask); // Otomatik olarak sıradaki başlatıldı
+                } else {
+                    pauseSchedule();
+                    document.getElementById('activeTaskBanner').classList.add('hidden');
+                    alert("Tebrikler! Günlük Hafızlık çalışma programınızı başarıyla tamamladınız! Tüm puanları topladınız.");
+                }
+                renderSchedule();
+            }
+        }
+
+        function pauseSchedule() {
+            isProgramRunning = false;
+            if (timerWorker) timerWorker.postMessage('stop');
+            
+            if (targetEndTime) {
+                remainingSeconds = Math.max(0, Math.round((targetEndTime - Date.now()) / 1000));
+            }
+            targetEndTime = null;
+            saveTimerState();
+            
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('pauseBtn').classList.add('hidden');
+            document.getElementById('pauseBtn').classList.remove('flex');
+        }
+
+        function resetProgress() {
+            if (confirm("Tüm günlük ilerleme ve tamamlandı işaretleri sıfırlansın mı?")) {
+                pauseSchedule();
+                completedTaskIds.clear();
+                activeTaskIndex = -1;
+                targetEndTime = null;
+                remainingSeconds = 0;
+                saveTimerState();
+                document.getElementById('activeTaskBanner').classList.add('hidden');
+                saveState();
+                renderSchedule();
+            }
+        }
+
+        function startSpecificTask(index) {
+            activeTaskIndex = index;
+            const schedule = calculateSchedule();
+            if (schedule[index]) {
+                const task = schedule[index];
+                remainingSeconds = task.duration * 60;
+                targetEndTime = Date.now() + remainingSeconds * 1000;
+                startSchedule();
+            }
+        }
+
+        function updateActiveBannerUI(task) {
+            document.getElementById('activeTaskTitle').innerText = task.title;
+            document.getElementById('activeTimeRange').innerText = `${minsToFormattedTime(task.startMins)} - ${minsToFormattedTime(task.endMins)}`;
+            document.getElementById('activeTaskPointsBadge').innerText = `⭐ +${task.points} Puan`;
+
+            const schedule = calculateSchedule();
+            const nextTask = schedule[activeTaskIndex + 1];
+            document.getElementById('nextTaskPreview').innerText = nextTask ? `Sonraki: ${nextTask.title}` : 'Son Görev';
+
+            updateCountdownDisplay();
+            renderSchedule();
+        }
+
+        function updateCountdownDisplay() {
+            const mins = Math.floor(remainingSeconds / 60);
+            const secs = remainingSeconds % 60;
+            document.getElementById('activeCountdown').innerText = `${formatTimeDigits(mins, secs)}`;
+        }
+
+        function completeTaskAction(task) {
+            if (!completedTaskIds.has(task.id)) {
+                completedTaskIds.add(task.id);
+                const taskPts = (task.points !== undefined && task.points !== null && !isNaN(task.points)) ? task.points : 0;
+                userPoints += taskPts;
+                
+                playSound('success');
+                triggerConfetti();
+                
+                updateHeaderStats();
+                checkBadgeProgress(task);
+                saveState();
+            }
+        }
+
+        function completeCurrentTaskAndNext() {
+            const schedule = calculateSchedule();
+            if (schedule[activeTaskIndex]) {
+                if (timerWorker) timerWorker.postMessage('stop');
+                
+                completeTaskAction(schedule[activeTaskIndex]);
+                
+                activeTaskIndex++;
+                if (activeTaskIndex < schedule.length) {
+                    const nextTask = schedule[activeTaskIndex];
+                    remainingSeconds = nextTask.duration * 60;
+                    targetEndTime = Date.now() + remainingSeconds * 1000;
+                    saveTimerState();
+                    runTaskTimer(nextTask);
+                } else {
+                    pauseSchedule();
+                    document.getElementById('activeTaskBanner').classList.add('hidden');
+                }
+                renderSchedule();
+            }
+        }
+
+        function toggleTaskComplete(id) {
+            const schedule = calculateSchedule();
+            const task = schedule.find(t => t.id === id);
+            const taskPts = (task && task.points !== undefined && task.points !== null && !isNaN(task.points)) ? task.points : 0;
+
+            if (completedTaskIds.has(id)) {
+                completedTaskIds.delete(id);
+                userPoints = Math.max(0, userPoints - taskPts);
+            } else {
+                completedTaskIds.add(id);
+                userPoints += taskPts;
+                playSound('success');
+                triggerConfetti();
+                if (task) checkBadgeProgress(task);
+            }
+
+            updateHeaderStats();
+            saveState();
+            renderRewards();
+            renderSchedule();
+        }
+
+        function toggleAudioPrompt() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('soundIcon');
+            if (audioEnabled) {
+                icon.className = "fa-solid fa-volume-high text-amber-400";
+            } else {
+                icon.className = "fa-solid fa-volume-xmark text-slate-400";
+            }
+        }
+
+        function minsToFormattedTime(totalMins) {
+            const hours = Math.floor(totalMins / 60) % 24;
+            const mins = totalMins % 60;
+            return formatTimeDigits(hours, mins);
+        }
+
+        function formatTimeDigits(h, m) {
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, function (m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+            });
+        }
+
+        function exportScheduleTxt() {
+            const schedule = calculateSchedule();
+            let txtContent = "HAFİZLIK GÜNLÜK ÇALIŞMA PROGRAMI VE ÖDÜL TAKİBİ\n";
+            txtContent += `Tarih: ${new Date().toLocaleDateString('tr-TR')}\n`;
+            txtContent += `Toplam Kazanılan Puan: ${userPoints} ⭐\n`;
+            txtContent += "=========================================\n\n";
+
+            schedule.forEach((item) => {
+                const status = completedTaskIds.has(item.id) ? "[X]" : "[ ]";
+                txtContent += `${status} ${minsToFormattedTime(item.startMins)} - ${minsToFormattedTime(item.endMins)} | ${item.title} (${item.duration} dk - ${item.points} Puan)\n`;
+            });
+
+            txtContent += "\n=========================================\n";
+            txtContent += "Allah zihin açıklığı versin!";
+
+            const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Hafizlik_Programi_${new Date().toISOString().slice(0, 10)}.txt`;
+            link.click();
+        }
+    </script>
+</body>
+</html>
