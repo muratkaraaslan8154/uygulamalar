@@ -315,7 +315,7 @@
             backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; padding: 20px;
         }
         .modal-box {
-            background: var(--bg-card); border-radius: 20px; width: 100%; max-width: 920px;
+            background: var(--bg-card); border-radius: 20px; width: 100%; max-width: 960px;
             max-height: 88vh; max-height: 88dvh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
             border: 1px solid var(--border); overflow: hidden;
         }
@@ -377,12 +377,20 @@
         }
         .page-acc-body.open { display: flex; }
 
-        /* YOUTUBE LİSTE KUTULARI VE FRAME STİLLERİ (BİRDEN FAZLA VİDEO DESTEĞİ) */
+        /* VİDEO LİSTE KUTULARI, YANDAKİ + BUTONLARI VE FRAME STİLLERİ */
         .yt-section-container {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-bottom: 6px;
+        }
+        .yt-section-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 4px 2px;
         }
         .yt-top-pinned-card {
             background: linear-gradient(135deg, rgba(229, 62, 62, 0.1), rgba(229, 62, 62, 0.04));
@@ -415,12 +423,28 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            flex-wrap: wrap;
         }
         .yt-pinned-desc {
             font-size: 13px;
             font-weight: 700;
             color: var(--text-primary);
             word-break: break-word;
+        }
+        .yt-clickable-link {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: underline;
+            word-break: break-all;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+        .yt-clickable-link:hover {
+            color: var(--accent);
         }
         .yt-pinned-actions {
             display: flex;
@@ -450,8 +474,123 @@
             font-size: 12px;
             font-weight: 700;
             text-decoration: none;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
+            gap: 4px;
+        }
+        .btn-yt-ext:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .btn-win-player {
+            background: rgba(43, 108, 176, 0.14);
+            color: var(--primary);
+            border: 1px solid rgba(43, 108, 176, 0.35);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-win-player:hover {
+            background: var(--primary);
+            color: #ffffff;
+        }
+        .btn-plus-side {
+            background: var(--success);
+            color: #ffffff;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 900;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            line-height: 1;
+            transition: transform 0.15s, opacity 0.15s;
+        }
+        .btn-plus-side:hover {
+            opacity: 0.92;
+            transform: scale(1.05);
+        }
+        .btn-minus-side {
+            background: var(--danger);
+            color: #ffffff;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 900;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .btn-file-pick {
+            background: var(--bg-sub);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 0 10px;
+            height: 38px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .btn-file-pick:hover {
+            border-color: var(--primary);
+        }
+        .yt-multi-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .yt-input-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            background: var(--bg-sub);
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .yt-input-row .yt-row-num {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--primary);
+            min-width: 24px;
+            text-align: center;
+        }
+        .yt-input-row input.yt-url-field {
+            flex: 1.5;
+            min-width: 180px;
+            padding: 8px 10px;
+            font-size: 13px;
+            background: var(--bg-card);
+        }
+        .yt-input-row input.yt-desc-field {
+            flex: 1;
+            min-width: 140px;
+            padding: 8px 10px;
+            font-size: 13px;
+            background: var(--bg-card);
         }
         .yt-Form-frame {
             background: var(--bg-card);
@@ -483,13 +622,27 @@
             overflow: hidden;
             background: #000;
         }
-        .yt-iframe-container iframe {
+        .yt-iframe-container iframe,
+        .yt-iframe-container video {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             border: 0;
+            background: #000;
+        }
+        .yt-frame-helper-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            background: var(--bg-card);
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 12px;
         }
 
         .log-row {
@@ -763,6 +916,19 @@
                 <input type="text" id="inpNote" placeholder="Örn: Tecvid hatası düzeltildi, akıcı okundu...">
             </div>
 
+            <!-- SOL PANEL SAYFA VİDEOLARI ÇOKLU EKLEME ALANI (YANDA + BUTONLU) -->
+            <div class="form-group" style="background: var(--bg-sub); padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
+                    <label style="margin-bottom:0; color:var(--primary); font-weight:800;">🎥 Sayfa Videoları Ekle (Yandaki + İle Sınırsız)</label>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <button type="button" class="btn-plus-side" style="width:28px; height:28px; font-size:16px;" onclick="addVideoInputRow('leftPanelVideoRows', getSelectedGlobalPage())" title="Yeni Video Satırı Ekle (+)">+</button>
+                        <button type="button" class="btn-sm" style="background:var(--primary);" onclick="saveVideosFromContainer('leftPanelVideoRows', getSelectedGlobalPage(), true)" title="Girilen videoları bu sayfaya kaydet">💾 Videoları Kaydet</button>
+                    </div>
+                </div>
+                <div id="leftPanelVideoRows" class="yt-multi-rows"></div>
+                <div id="leftPanelExistingVideosInfo" style="margin-top:8px; font-size:12px; color:var(--text-secondary);"></div>
+            </div>
+
             <button class="btn-primary" id="btnAddRecord" onclick="addRecord()" disabled>
                 🔒 DB Kayıt Aktif Değil
             </button>
@@ -795,7 +961,7 @@
         <div class="card">
             <div class="section-title">
                 <span>📊 1'den 30'a Cüz İlerleme Panosu</span>
-                <span style="font-size: 12px; color: var(--text-secondary);">Detay, YouTube video linkleri ve sayfa geçmişi için ilgili cüze tıklayın</span>
+                <span style="font-size: 12px; color: var(--text-secondary);">Detay, çoklu video linkleri ve sayfa geçmişi için ilgili cüze tıklayın</span>
             </div>
             <div class="cuz-grid" id="cuzGridContainer"></div>
         </div>
@@ -934,7 +1100,38 @@
     let records = [];
     let customTypes = [];
     let pageVideos = {}; // { "1": [ { id, url, desc, updatedAt } ] }
+    let runtimeVideoBlobs = {}; // Seçilen yerel video dosyaları için oturum içi Blob URL önbelleği
     let currentOpenModalState = null;
+
+    function normalizePageVideosObject(rawObj) {
+        const result = {};
+        if (!rawObj || typeof rawObj !== 'object') return result;
+        Object.keys(rawObj).forEach(key => {
+            const val = rawObj[key];
+            if (Array.isArray(val)) {
+                result[key] = val.filter(v => v && v.url).map((v, idx) => ({
+                    id: v.id || (Date.now() + idx + Math.floor(Math.random() * 1000)),
+                    url: String(v.url).trim(),
+                    desc: v.desc ? String(v.desc).trim() : `${key}. Sayfa Videosu`,
+                    updatedAt: v.updatedAt || ''
+                }));
+            } else if (val && typeof val === 'object' && val.url) {
+                result[key] = [{
+                    id: val.id || (Date.now() + Math.floor(Math.random() * 1000)),
+                    url: String(val.url).trim(),
+                    desc: val.desc ? String(val.desc).trim() : `${key}. Sayfa Videosu`,
+                    updatedAt: val.updatedAt || ''
+                }];
+            }
+        });
+        return result;
+    }
+
+    function getPageVideoList(globalPage) {
+        const key = String(globalPage);
+        const list = pageVideos[key];
+        return Array.isArray(list) ? list : [];
+    }
 
     try {
         const savedTypes = JSON.parse(localStorage.getItem(LOCAL_TYPES_KEY) || '[]');
@@ -943,7 +1140,7 @@
 
     try {
         const savedVideos = JSON.parse(localStorage.getItem(LOCAL_VIDEOS_KEY) || '{}');
-        if (savedVideos && typeof savedVideos === 'object') pageVideos = savedVideos;
+        pageVideos = normalizePageVideosObject(savedVideos);
     } catch (e) {}
 
     function toggleDbWriteActive() {
@@ -1005,7 +1202,7 @@
                 localStorage.setItem(LOCAL_TYPES_KEY, JSON.stringify(customTypes));
             }
             if (data.pageVideos && typeof data.pageVideos === 'object') {
-                pageVideos = data.pageVideos;
+                pageVideos = normalizePageVideosObject(data.pageVideos);
                 localStorage.setItem(LOCAL_VIDEOS_KEY, JSON.stringify(pageVideos));
             }
             if (typeof data.darkMode === 'boolean') {
@@ -1019,7 +1216,7 @@
             }
         }
         rebuildTypeOptions();
-        const currentGp = parseInt(document.getElementById('inpGlobalPage').value) || 1;
+        const currentGp = getSelectedGlobalPage();
         autoSuggestTypeForPage(currentGp);
         renderAll();
         refreshOpenModalIfAny();
@@ -1142,11 +1339,17 @@
                 hintBox.innerText = '';
             }
         }
+        renderLeftPanelPageVideosInfo(globalPage);
     }
 
     /* ==========================================================
        2. KUR'AN-I KERİM SAYFA <-> CÜZ DÖNÜŞÜM MATEMATİĞİ (1-604)
     ========================================================== */
+    function getSelectedGlobalPage() {
+        const val = parseInt(document.getElementById('inpGlobalPage')?.value);
+        return Math.max(1, Math.min(604, val || 1));
+    }
+
     function getCuzBounds(cuzNo) {
         const start = (cuzNo - 1) * 20 + 1;
         const end = (cuzNo === 30) ? 604 : cuzNo * 20;
@@ -1206,6 +1409,7 @@
         rebuildTypeOptions();
         renderAll();
         refreshOpenModalIfAny();
+        renderLeftPanelPageVideosInfo(getSelectedGlobalPage());
         if (window.ezberCloudDB && window.isDbWriteEnabled) {
             await window.ezberCloudDB.saveRecords(
                 records,
@@ -1241,6 +1445,11 @@
             alert(`⚠️ MÜKERRER KAYIT UYARISI!\n\n${info.globalPage}. Sayfa (${info.cuz}. Cüz, ${info.cuzPage}. Sayfa) için "${type}" kaydı zaten mevcut!\n\nAynı kayıt tekrar eklenemez. Bu sayfa için sıradaki önerilen işlem: "${suggestedNext}"`);
             autoSuggestTypeForPage(info.globalPage);
             return;
+        }
+
+        // Sol panelde girilmiş bekleyen video satırları varsa onları da aynı sayfaya ekle
+        if (!customPage) {
+            collectAndAppendVideosFromContainer('leftPanelVideoRows', info.globalPage);
         }
 
         ensureTypeOptionExists(type);
@@ -1281,8 +1490,7 @@
 
         records = records.filter(r => r.id !== id);
         await persistChanges();
-        const currentGp = parseInt(document.getElementById('inpGlobalPage').value) || 1;
-        autoSuggestTypeForPage(currentGp);
+        autoSuggestTypeForPage(getSelectedGlobalPage());
     }
 
     async function editRecord(id) {
@@ -1318,16 +1526,52 @@
 
         ensureTypeOptionExists(cleanedType);
         await persistChanges();
-        const currentGp = parseInt(document.getElementById('inpGlobalPage').value) || 1;
-        autoSuggestTypeForPage(currentGp);
+        autoSuggestTypeForPage(getSelectedGlobalPage());
     }
 
     /* ==========================================================
-       4. BİRDEN FAZLA SAYFA BAZLI YOUTUBE VİDEO LİNKİ VE FRAME YÖNETİMİ
+       4. SINIRSIZ ÇOKLU VİDEO (+ BUTONLU), FRAME OYNATICI, CHROME
+          VE WINDOWS VARSAYILAN VİDEO OYNATICI YÖNETİMİ
     ========================================================== */
+    function cleanVideoInputPath(rawInput) {
+        if (!rawInput) return '';
+        let s = String(rawInput).trim();
+        // Windows "Yol olarak kopyala" çift tırnaklarını temizle
+        if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+            s = s.slice(1, -1).trim();
+        }
+        if (/^www\./i.test(s)) {
+            s = 'https://' + s;
+        }
+        return s;
+    }
+
+    function isWindowsLocalPath(str) {
+        const s = cleanVideoInputPath(str);
+        return /^[a-zA-Z]:[\\/]/.test(s) || /^\\\\/.test(s) || /^file:\/\//i.test(s);
+    }
+
+    function isDirectMediaFileUrl(str) {
+        const s = cleanVideoInputPath(str).split('?')[0].split('#')[0];
+        return /\.(mp4|webm|ogg|ogv|mov|m4v|mkv|avi|wmv|flv|mp3|wav|m4a)$/i.test(s);
+    }
+
+    function toBrowserOpenableUrl(rawUrl) {
+        const s = cleanVideoInputPath(rawUrl);
+        if (!s) return '';
+        if (/^(https?:|file:|blob:)/i.test(s)) return s;
+        if (/^[a-zA-Z]:[\\/]/.test(s)) {
+            return 'file:///' + s.replace(/\\/g, '/');
+        }
+        if (/^\\\\/.test(s)) {
+            return 'file:' + s.replace(/\\/g, '/');
+        }
+        return s;
+    }
+
     function extractYouTubeEmbedUrl(url) {
         if (!url) return null;
-        const str = String(url).trim();
+        const str = cleanVideoInputPath(url);
         let videoId = null;
 
         const shortMatch = str.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
@@ -1351,53 +1595,164 @@
         return `https://www.youtube.com/embed/${videoId}?rel=0${startSec ? '&start=' + startSec : ''}`;
     }
 
-    function togglePageYtEditor(globalPage) {
+    // Dinamik + butonlu çoklu video giriş satırı oluşturur
+    function addVideoInputRow(containerId, globalPage, initialUrl = '', initialDesc = '') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const row = document.createElement('div');
+        row.className = 'yt-input-row';
+
+        const fileInputId = `filePick_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+
+        row.innerHTML = `
+            <span class="yt-row-num">#1</span>
+            <input type="text" class="yt-url-field" placeholder="Video Linki (YouTube/Chrome) veya Bilgisayar Dosya Yolu (C:\\...mp4)" value="${escapeHtml(initialUrl)}">
+            <input type="file" id="${fileInputId}" accept="video/*,audio/*" style="display:none">
+            <button type="button" class="btn-file-pick" onclick="document.getElementById('${fileInputId}').click()" title="Bilgisayardan Video Dosyası Seç">📁 Dosya</button>
+            <input type="text" class="yt-desc-field" placeholder="Açıklama / Hoca (Örn: 1. Dinleme...)" value="${escapeHtml(initialDesc)}">
+            <button type="button" class="btn-plus-side" onclick="addVideoInputRow('${containerId}', ${globalPage})" title="Yana/Alta Yeni Video Satırı Ekle (+)">+</button>
+            <button type="button" class="btn-minus-side" onclick="removeVideoInputRow(this, '${containerId}', ${globalPage})" title="Bu Satırı Kaldır">&times;</button>
+        `;
+
+        const fileInput = row.querySelector(`#${fileInputId}`);
+        const urlField = row.querySelector('.yt-url-field');
+        const descField = row.querySelector('.yt-desc-field');
+
+        fileInput.addEventListener('change', (ev) => {
+            const file = ev.target.files && ev.target.files[0];
+            if (!file) return;
+            const blobUrl = URL.createObjectURL(file);
+            row.dataset.tempBlobUrl = blobUrl;
+            if (!urlField.value.trim()) {
+                urlField.value = file.name;
+            }
+            if (!descField.value.trim()) {
+                descField.value = `${file.name} (Yerel Video)`;
+            }
+        });
+
+        container.appendChild(row);
+        renumberVideoInputRows(containerId);
+    }
+
+    function removeVideoInputRow(btnEl, containerId, globalPage) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const row = btnEl.closest('.yt-input-row');
+        if (row) row.remove();
+        if (container.querySelectorAll('.yt-input-row').length === 0) {
+            addVideoInputRow(containerId, globalPage);
+        } else {
+            renumberVideoInputRows(containerId);
+        }
+    }
+
+    function renumberVideoInputRows(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const rows = container.querySelectorAll('.yt-input-row');
+        rows.forEach((r, idx) => {
+            const numSpan = r.querySelector('.yt-row-num');
+            if (numSpan) numSpan.innerText = `#${idx + 1}`;
+        });
+    }
+
+    function collectAndAppendVideosFromContainer(containerId, globalPage) {
+        const container = document.getElementById(containerId);
+        if (!container) return 0;
+
+        const rows = Array.from(container.querySelectorAll('.yt-input-row'));
+        const key = String(globalPage);
+        if (!Array.isArray(pageVideos[key])) {
+            pageVideos[key] = [];
+        }
+
+        let addedCount = 0;
+        const nowStr = new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+        // Çoklu satırları sırasını koruyarak ekle
+        for (let i = rows.length - 1; i >= 0; i--) {
+            const r = rows[i];
+            const urlInp = r.querySelector('.yt-url-field');
+            const descInp = r.querySelector('.yt-desc-field');
+            const rawUrl = cleanVideoInputPath(urlInp ? urlInp.value : '');
+            const rawDesc = (descInp ? descInp.value : '').trim();
+            const tempBlob = r.dataset.tempBlobUrl || '';
+
+            if (!rawUrl && !tempBlob) continue;
+
+            const newId = Date.now() + i + Math.floor(Math.random() * 10000);
+            if (tempBlob) {
+                runtimeVideoBlobs[newId] = tempBlob;
+            }
+
+            pageVideos[key].unshift({
+                id: newId,
+                url: rawUrl || 'yerel_video.mp4',
+                desc: rawDesc || `${globalPage}. Sayfa Ezber / Dinleme Videosu`,
+                updatedAt: nowStr
+            });
+            addedCount++;
+        }
+
+        if (addedCount > 0) {
+            container.innerHTML = '';
+            addVideoInputRow(containerId, globalPage);
+        }
+        return addedCount;
+    }
+
+    async function saveVideosFromContainer(containerId, globalPage, isFromLeftPanel = false) {
+        if (!ensureWritePermission()) return;
+
+        const addedCount = collectAndAppendVideosFromContainer(containerId, globalPage);
+        if (addedCount === 0) {
+            alert("Lütfen en az bir video linki yapıştırın veya '📁 Dosya' butonu ile bilgisayardan bir video seçin.");
+            return;
+        }
+
+        await persistChanges();
+        if (isFromLeftPanel) {
+            renderLeftPanelPageVideosInfo(globalPage);
+        }
+    }
+
+    function renderLeftPanelPageVideosInfo(globalPage) {
+        const infoEl = document.getElementById('leftPanelExistingVideosInfo');
+        if (!infoEl) return;
+        const vArr = getPageVideoList(globalPage);
+        if (vArr.length === 0) {
+            infoEl.innerHTML = `ℹ️ ${globalPage}. sayfaya henüz video eklenmemiş.`;
+        } else {
+            infoEl.innerHTML = `✅ <strong>${globalPage}. Sayfada ${vArr.length} adet video kayıtlı.</strong> <a href="javascript:void(0)" onclick="openCuzDetailModal(${pageToCuzInfo(globalPage).cuz})" style="color:var(--primary); font-weight:800; text-decoration:underline; margin-left:6px;">Videoları Gör / İzle (${vArr.length})</a>`;
+        }
+    }
+
+    function togglePageYtEditor(globalPage, addExtraRow = false) {
         const accBody = document.getElementById(`accBody_${globalPage}`);
         const formFrame = document.getElementById(`ytFormFrame_${globalPage}`);
+        const rowsContainerId = `ytMultiRows_${globalPage}`;
         if (!accBody || !formFrame) return;
 
         if (!accBody.classList.contains('open')) {
             accBody.classList.add('open');
         }
-        formFrame.classList.toggle('open');
-    }
 
-    async function addPageYoutubeVideo(globalPage) {
-        if (!ensureWritePermission()) return;
-
-        const urlInput = document.getElementById(`ytUrlInp_${globalPage}`);
-        const descInput = document.getElementById(`ytDescInp_${globalPage}`);
-        if (!urlInput || !descInput) return;
-
-        const rawUrl = urlInput.value.trim();
-        const rawDesc = descInput.value.trim();
-
-        if (!rawUrl) {
-            alert("Lütfen geçerli bir YouTube video linki yapıştırınız.");
-            return;
+        const wasOpen = formFrame.classList.contains('open');
+        if (!wasOpen) {
+            formFrame.classList.add('open');
+            const container = document.getElementById(rowsContainerId);
+            if (container && container.querySelectorAll('.yt-input-row').length === 0) {
+                // İlk açılışta çoklu giriş kolaylığı için 2 hazır satır aç
+                addVideoInputRow(rowsContainerId, globalPage);
+                addVideoInputRow(rowsContainerId, globalPage);
+            }
+        } else if (addExtraRow) {
+            addVideoInputRow(rowsContainerId, globalPage);
+        } else {
+            formFrame.classList.remove('open');
         }
-        if (!/^https?:\/\//i.test(rawUrl)) {
-            alert("Lütfen linkin başına https:// ekleyerek tam YouTube bağlantısını yapıştırınız.");
-            return;
-        }
-
-        const key = String(globalPage);
-        if (!pageVideos[key] || !Array.isArray(pageVideos[key])) {
-            pageVideos[key] = [];
-        }
-
-        const newVideoObj = {
-            id: Date.now() + Math.floor(Math.random() * 1000),
-            url: rawUrl,
-            desc: rawDesc || `${globalPage}. Sayfa Ezber / Dinleme Videosu`,
-            updatedAt: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
-        };
-
-        pageVideos[key].unshift(newVideoObj);
-        urlInput.value = '';
-        descInput.value = '';
-
-        await persistChanges();
     }
 
     async function removePageYoutubeVideo(globalPage, videoId) {
@@ -1410,32 +1765,105 @@
             if (pageVideos[key].length === 0) {
                 delete pageVideos[key];
             }
+            delete runtimeVideoBlobs[videoId];
             await persistChanges();
         }
     }
 
+    // 1) FRAME İÇİNDE OYNATMA (YouTube Iframe, Yerel Video <video> veya Web Iframe)
     function toggleWatchPageVideo(globalPage, videoId) {
         const playerWrap = document.getElementById(`ytPlayerWrap_${globalPage}_${videoId}`);
         const iframeBox = document.getElementById(`ytIframeBox_${globalPage}_${videoId}`);
-        const key = String(globalPage);
+        const vList = getPageVideoList(globalPage);
 
-        if (!playerWrap || !iframeBox || !pageVideos[key]) return;
-        const vData = pageVideos[key].find(v => v.id === videoId);
+        if (!playerWrap || !iframeBox) return;
+        const vData = vList.find(v => v.id === videoId);
         if (!vData) return;
 
         const isOpening = !playerWrap.classList.contains('open');
-        if (isOpening) {
-            const embedUrl = extractYouTubeEmbedUrl(vData.url);
-            if (embedUrl) {
-                iframeBox.innerHTML = `<iframe src="${escapeHtml(embedUrl)}" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
-                playerWrap.classList.add('open');
-            } else {
-                window.open(vData.url, '_blank', 'noopener,noreferrer');
-            }
-        } else {
+        if (!isOpening) {
             iframeBox.innerHTML = '';
             playerWrap.classList.remove('open');
+            return;
         }
+
+        const rawUrl = cleanVideoInputPath(vData.url);
+        const ytEmbed = extractYouTubeEmbedUrl(rawUrl);
+        const sessionBlobUrl = runtimeVideoBlobs[videoId];
+
+        if (ytEmbed) {
+            iframeBox.innerHTML = `<iframe src="${escapeHtml(ytEmbed)}" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+        } else if (sessionBlobUrl || isWindowsLocalPath(rawUrl) || isDirectMediaFileUrl(rawUrl)) {
+            const mediaSrc = sessionBlobUrl || toBrowserOpenableUrl(rawUrl);
+            iframeBox.innerHTML = `
+                <video controls autoplay playsinline src="${escapeHtml(mediaSrc)}">
+                    Tarayıcınız bu video formatını frame içinde desteklemiyor.
+                </video>
+            `;
+        } else {
+            // Diğer web sayfaları veya harici video embed linkleri
+            const webSrc = toBrowserOpenableUrl(rawUrl);
+            iframeBox.innerHTML = `<iframe src="${escapeHtml(webSrc)}" title="Video Player" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+        }
+
+        playerWrap.classList.add('open');
+    }
+
+    // Yerel dosyayı frame içinden anında seçip oynatma (tarayıcı güvenlik kısıtlarına karşı)
+    function bindLocalFileToFramePlayer(globalPage, videoId, inputEl) {
+        const file = inputEl.files && inputEl.files[0];
+        if (!file) return;
+        const blobUrl = URL.createObjectURL(file);
+        runtimeVideoBlobs[videoId] = blobUrl;
+
+        const playerWrap = document.getElementById(`ytPlayerWrap_${globalPage}_${videoId}`);
+        const iframeBox = document.getElementById(`ytIframeBox_${globalPage}_${videoId}`);
+        if (playerWrap && iframeBox) {
+            playerWrap.classList.add('open');
+            iframeBox.innerHTML = `<video controls autoplay playsinline src="${escapeHtml(blobUrl)}"></video>`;
+        }
+    }
+
+    // 2) CHROME / TARAYICIDA DİREKT AÇMA
+    function openVideoInBrowserOrChrome(globalPage, videoId) {
+        const vData = getPageVideoList(globalPage).find(v => v.id === videoId);
+        if (!vData) return;
+
+        const sessionBlobUrl = runtimeVideoBlobs[videoId];
+        const targetUrl = sessionBlobUrl || toBrowserOpenableUrl(vData.url);
+
+        const win = window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        if (!win && isWindowsLocalPath(vData.url)) {
+            prompt("Tarayıcı güvenlik ayarı nedeniyle yerel dosya yolu kopyalanmaya hazır. Yeni sekme adres çubuğuna yapıştırarak açabilirsiniz:", targetUrl);
+        }
+    }
+
+    // 3) WINDOWS VARSAYILAN VİDEO OYNATICISINDA (Media Player / Filmler ve TV / VLC) DİREKT AÇMA
+    function openInWindowsDefaultPlayer(globalPage, videoId) {
+        const vData = getPageVideoList(globalPage).find(v => v.id === videoId);
+        if (!vData) return;
+
+        const rawPath = cleanVideoInputPath(vData.url);
+        const title = (vData.desc || `Sayfa_${globalPage}_Video`).replace(/[\r\n]+/g, ' ');
+
+        // Windows'ta .m3u çalma listesi dosyaları doğrudan varsayılan medya oynatıcısı (Windows Media Player / Filmler ve TV / VLC) ile açılır
+        let m3uTarget = rawPath;
+        if (/^file:\/\/\//i.test(m3uTarget)) {
+            m3uTarget = decodeURIComponent(m3uTarget.replace(/^file:\/\/\//i, '')).replace(/\//g, '\\');
+        }
+
+        const m3uContent = `#EXTM3U\r\n#EXTINF:-1,${title}\r\n${m3uTarget}\r\n`;
+        const blob = new Blob([m3uContent], { type: 'audio/x-mpegurl;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Sayfa_${globalPage}_Video_${videoId}.m3u`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
     }
 
     /* ==========================================================
@@ -1474,12 +1902,11 @@
                     doneInCuz++;
                     totalHaslamaInCuz += pRecs.length;
                 }
-                const vArr = pageVideos[String(p)];
-                if (Array.isArray(vArr)) {
-                    totalVideosInCuz += vArr.length;
-                }
+                const vArr = getPageVideoList(p);
+                totalVideosInCuz += vArr.length;
+
                 let dotClass = pRecs.length > 1 ? 'haslama' : (pRecs.length === 1 ? 'ezber' : '');
-                dotsHtml += `<div class="mp-dot ${dotClass}" title="${p}. Sayfa (${pRecs.length} okuma)"></div>`;
+                dotsHtml += `<div class="mp-dot ${dotClass}" title="${p}. Sayfa (${pRecs.length} okuma, ${vArr.length} video)"></div>`;
             }
 
             const pct = Math.round((doneInCuz / bounds.count) * 100);
@@ -1490,7 +1917,7 @@
             card.onclick = () => openCuzDetailModal(c);
             card.innerHTML = `
                 <div class="cuz-top">
-                    <span class="cuz-num">${c}. Cüz ${totalVideosInCuz > 0 ? `<span title="${totalVideosInCuz} adet YouTube videosu ekli" style="font-size:12px;">🎥</span>` : ''}</span>
+                    <span class="cuz-num">${c}. Cüz ${totalVideosInCuz > 0 ? `<span title="${totalVideosInCuz} adet video ekli" style="font-size:12px;">🎥(${totalVideosInCuz})</span>` : ''}</span>
                     <span class="cuz-pct">%${pct}</span>
                 </div>
                 <div class="cuz-bar-bg">
@@ -1593,8 +2020,8 @@
         for (let p = 1; p <= 604; p++) {
             if (searchVal && p !== searchVal) continue;
             const pRecs = getPageRecords(p);
-            const vArr = pageVideos[String(p)];
-            const hasVideos = Array.isArray(vArr) && vArr.length > 0;
+            const vArr = getPageVideoList(p);
+            const hasVideos = vArr.length > 0;
             if (!searchVal && mode === 'read' && pRecs.length === 0 && !hasVideos) continue;
 
             container.appendChild(buildPageAccordionItem(p));
@@ -1609,7 +2036,7 @@
     function buildPageAccordionItem(globalPage) {
         const info = pageToCuzInfo(globalPage);
         const pRecs = getPageRecords(globalPage);
-        const vArr = pageVideos[String(globalPage)] || [];
+        const vArr = getPageVideoList(globalPage);
         const wrap = document.createElement('div');
         wrap.className = 'page-accordion';
 
@@ -1618,7 +2045,7 @@
         if (pRecs.length > 1) statusBadge = `<span class="badge badge-haslama">${pRecs.length} Kez Okundu (${pRecs.length - 1}. Haslama)</span>`;
 
         const ytBadge = vArr.length > 0
-            ? `<span class="badge badge-yt" title="${vArr.length} adet YouTube videosu ekli">▶️ ${vArr.length} Video</span>`
+            ? `<span class="badge badge-yt" title="${vArr.length} adet video ekli">▶️ ${vArr.length} Video</span>`
             : '';
 
         const header = document.createElement('div');
@@ -1631,7 +2058,8 @@
             <div class="page-badges">
                 ${ytBadge}
                 ${statusBadge}
-                <button class="btn-sm btn-yt-link" onclick="event.stopPropagation(); togglePageYtEditor(${globalPage})" title="Bu sayfaya birden fazla YouTube video linki ve açıklama ekle">+ Video Ekle</button>
+                <button class="btn-sm btn-yt-link" onclick="event.stopPropagation(); togglePageYtEditor(${globalPage}, false)" title="Bu sayfaya istenildiği kadar video linki veya yerel video ekle">🎥 Video Ekle</button>
+                <button class="btn-plus-side" style="width:28px; height:28px; font-size:16px;" onclick="event.stopPropagation(); togglePageYtEditor(${globalPage}, true)" title="Yeni Video Giriş Satırı Ekle (+)">+</button>
                 <button class="btn-sm btn-quick-haslama" ${!window.isDbWriteEnabled ? 'disabled title="Önce üstten DB Kayıt anahtarını açın"' : ''} onclick="event.stopPropagation(); quickHaslama(${globalPage})">+ Haslama Ekle</button>
                 <span style="font-size:12px; opacity:0.7;">▼</span>
             </div>
@@ -1645,29 +2073,54 @@
             accBody.classList.add('open');
         }
 
-        // 1) EN ÜSTTE LİSTE HALİNDE SABİT DURAN YOUTUBE VİDEOLARI
+        // 1) EN ÜSTTE LİSTE HALİNDE SABİT DURAN VİDEOLAR (SINIRSIZ SAYIDA + YANDA '+' BUTONLU)
         if (vArr.length > 0) {
             const ytSection = document.createElement('div');
             ytSection.className = 'yt-section-container';
 
+            const topBar = document.createElement('div');
+            topBar.className = 'yt-section-top-bar';
+            topBar.innerHTML = `
+                <span style="font-size:12px; font-weight:800; color:var(--text-secondary);">🎬 Kayıtlı Videolar (${vArr.length} Adet) — İster Frame İçinde İzleyin, İster Linke Tıklayarak Açın:</span>
+                <button type="button" class="btn-plus-side" style="width:28px; height:28px; font-size:16px;" onclick="togglePageYtEditor(${globalPage}, true)" title="Yeni Video Ekle (+)">+</button>
+            `;
+            ytSection.appendChild(topBar);
+
             vArr.forEach((vData, vIdx) => {
+                const openableHref = toBrowserOpenableUrl(vData.url);
+                const rebindInputId = `rebindFile_${globalPage}_${vData.id}`;
                 const ytPinned = document.createElement('div');
                 ytPinned.className = 'yt-top-pinned-card';
                 ytPinned.innerHTML = `
                     <div class="yt-pinned-header">
                         <div class="yt-pinned-info">
-                            <div class="yt-pinned-title">▶️ VİDEO #${vIdx + 1} (ÜSTTE SABİT)</div>
-                            <div class="yt-pinned-desc">📌 Ekleme Amacı / Açıklama: ${escapeHtml(vData.desc)}</div>
-                            ${vData.updatedAt ? `<div style="font-size:11px; color:var(--text-secondary);">Ekleme Tarihi: ${escapeHtml(vData.updatedAt)}</div>` : ''}
+                            <div class="yt-pinned-title">
+                                <span>▶️ VİDEO #${vIdx + 1}</span>
+                                ${vData.updatedAt ? `<span style="font-size:11px; font-weight:600; color:var(--text-secondary);">(${escapeHtml(vData.updatedAt)})</span>` : ''}
+                            </div>
+                            <div class="yt-pinned-desc">📌 ${escapeHtml(vData.desc)}</div>
+                            <a href="${escapeHtml(openableHref)}" target="_blank" rel="noopener noreferrer" class="yt-clickable-link" title="Tıklayarak Chrome / Tarayıcıda veya varsayılan uygulamada direkt aç">
+                                🔗 ${escapeHtml(vData.url)}
+                            </a>
                         </div>
                         <div class="yt-pinned-actions">
-                            <button type="button" class="btn-yt-watch" onclick="toggleWatchPageVideo(${globalPage}, ${vData.id})">▶️ İzle / Kapat</button>
-                            <a href="${escapeHtml(vData.url)}" target="_blank" rel="noopener noreferrer" class="btn-yt-ext">↗ Yeni Sekme</a>
+                            <button type="button" class="btn-yt-watch" onclick="toggleWatchPageVideo(${globalPage}, ${vData.id})" title="Videoyu bu kutunun içindeki framede oynat / kapat">▶️ Frame'de İzle / Kapat</button>
+                            <a href="${escapeHtml(openableHref)}" target="_blank" rel="noopener noreferrer" class="btn-yt-ext" onclick="event.stopPropagation();" title="Chrome / Tarayıcı yeni sekmesinde direkt aç">🌐 Chrome / Tarayıcıda Aç</a>
+                            <button type="button" class="btn-win-player" onclick="openInWindowsDefaultPlayer(${globalPage}, ${vData.id})" title="Windows Varsayılan Video Oynatıcısında (Media Player / Filmler ve TV / VLC) direkt aç">🖥️ Windows Oynatıcıda Aç</button>
+                            <button type="button" class="btn-plus-side" style="width:30px; height:30px; font-size:16px;" onclick="togglePageYtEditor(${globalPage}, true)" title="Yanına / Altına Yeni Video Ekle (+)">+</button>
                             <button type="button" class="btn-sm btn-del" ${!window.isDbWriteEnabled ? 'disabled' : ''} onclick="removePageYoutubeVideo(${globalPage}, ${vData.id})">Sil</button>
                         </div>
                     </div>
                     <div class="yt-player-frame-wrap" id="ytPlayerWrap_${globalPage}_${vData.id}">
                         <div class="yt-iframe-container" id="ytIframeBox_${globalPage}_${vData.id}"></div>
+                        <div class="yt-frame-helper-bar">
+                            <span>💡 Yerel bilgisayar videosu tarayıcı tarafından engellenirse dosyayı buradan seçip framede oynatabilirsiniz:</span>
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <input type="file" id="${rebindInputId}" accept="video/*,audio/*" style="display:none" onchange="bindLocalFileToFramePlayer(${globalPage}, ${vData.id}, this)">
+                                <button type="button" class="btn-file-pick" style="height:30px;" onclick="document.getElementById('${rebindInputId}').click()">📂 Dosyayı Seç & Frame'de Oynat</button>
+                                <button type="button" class="btn-win-player" onclick="openInWindowsDefaultPlayer(${globalPage}, ${vData.id})">🖥️ Windows Oynatıcı</button>
+                            </div>
+                        </div>
                     </div>
                 `;
                 ytSection.appendChild(ytPinned);
@@ -1675,25 +2128,26 @@
             accBody.appendChild(ytSection);
         }
 
-        // 2) YOUTUBE VİDEO LİNKİ VE AÇIKLAMA EKLEME FRAME'İ (İSTENDİĞİ KADAR EKLENEBİLİR)
+        // 2) ÇOKLU VİDEO EKLEME FRAME'İ (YANDA + BUTONU İLE İSTENİLDİĞİ KADAR EKLENEBİLİR)
+        const rowsContainerId = `ytMultiRows_${globalPage}`;
         const ytFormFrame = document.createElement('div');
         ytFormFrame.className = 'yt-Form-frame';
         ytFormFrame.id = `ytFormFrame_${globalPage}`;
         ytFormFrame.innerHTML = `
-            <div style="font-size:13px; font-weight:800; color:var(--primary); display:flex; justify-content:space-between; align-items:center;">
-                <span>🎥 ${globalPage}. Sayfa İçin Yeni YouTube Video Linki Ekle</span>
-                <button type="button" class="btn-sm btn-del" onclick="togglePageYtEditor(${globalPage})">Kapat</button>
+            <div style="font-size:13px; font-weight:800; color:var(--primary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <span>🎥 ${globalPage}. Sayfa İçin Çoklu Video Ekle (Yandaki + Butonu İle İstenildiği Kadar Ekleyin)</span>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <button type="button" class="btn-plus-side" style="width:30px; height:30px; font-size:16px;" onclick="addVideoInputRow('${rowsContainerId}', ${globalPage})" title="Yeni Video Satırı Ekle (+)">+</button>
+                    <button type="button" class="btn-sm btn-del" onclick="togglePageYtEditor(${globalPage}, false)">Kapat</button>
+                </div>
             </div>
-            <div>
-                <label style="font-size:12px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">YouTube Video Linki</label>
-                <input type="url" id="ytUrlInp_${globalPage}" placeholder="https://www.youtube.com/watch?v=...">
+            <div style="font-size:12px; color:var(--text-secondary);">
+                YouTube linki, Chrome web linki, bilgisayarınızdaki video yolu (<code>C:\\...mp4</code>) yapıştırabilir veya <strong>📁 Dosya</strong> butonundan seçebilirsiniz. Sağdaki <strong>+</strong> ile istediğiniz kadar satır ekleyin:
             </div>
-            <div>
-                <label style="font-size:12px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">Bu Link Ne İçin Eklendi? (Açıklama / Hoca)</label>
-                <input type="text" id="ytDescInp_${globalPage}" placeholder="Örn: Talim dinlemesi, 1. dinleme kaydı...">
-            </div>
-            <div style="display:flex; gap:8px; justify-content:flex-end;">
-                <button type="button" class="btn-sm" style="background:var(--success); padding:8px 14px;" ${!window.isDbWriteEnabled ? 'disabled title="Önce üstten DB Kayıt anahtarını açın"' : ''} onclick="addPageYoutubeVideo(${globalPage})">➕ Bu Videoyu Sayfaya Ekle</button>
+            <div id="${rowsContainerId}" class="yt-multi-rows"></div>
+            <div style="display:flex; gap:8px; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                <button type="button" class="btn-sm" style="background:var(--primary); padding:8px 12px;" onclick="addVideoInputRow('${rowsContainerId}', ${globalPage})">➕ Yeni Video Satırı Ekle (+)</button>
+                <button type="button" class="btn-sm" style="background:var(--success); padding:8px 16px;" ${!window.isDbWriteEnabled ? 'disabled title="Önce üstten DB Kayıt anahtarını açın"' : ''} onclick="saveVideosFromContainer('${rowsContainerId}', ${globalPage}, false)">💾 Girilen Tüm Videoları Sayfaya Kaydet</button>
             </div>
         `;
         accBody.appendChild(ytFormFrame);
@@ -1845,6 +2299,7 @@
         document.getElementById('darkModeToggle').checked = true;
     }
     rebuildTypeOptions();
+    addVideoInputRow('leftPanelVideoRows', 1);
     updateClockAndCalendar();
     renderAll();
     autoSuggestTypeForPage(1);
