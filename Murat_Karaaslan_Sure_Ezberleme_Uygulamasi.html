@@ -289,7 +289,7 @@ html[data-theme="dark"]{--bg:#071a17;--surface:#102622;--surface2:#17342d;--text
             </article>
             <article class="card setting-card">
               <h3>🛟 Yedekleme ve Veri Taşıma</h3>
-              <p class="muted smalltext">Kayıtlar cihazınızın tarayıcısına (Local) özeldir. <strong style="color:var(--danger)">Eğer uygulamayı yerelden (bilgisayardan) açıp sonra internete (GitHub vb.) yüklerseniz, verileriniz otomatik geçmez.</strong> Eski verilerinizi görmek için önce yereldeki uygulamadan "JSON Yedeği İndir" diyerek yedeği alın, ardından internetteki (GitHub) uygulamaya girip bu yedeği "Yedek İçe Aktar" diyerek yükleyin.</p>
+              <p class="muted smalltext">Kayıtlar cihazınızın tarayıcısına (Local) özeldir. <strong style="color:var(--danger)">Eğer uygulamayı yerelden (bilgisayardan) açıp sonra internete (GitHub vb.) yüklerseniz, verileriniz otomatik geçmez.</strong> Eski verilerinizi görmek için önce yereldeki uygulamadan "JSON Yedeği İndir" diyerek yedeği alın, ardından internetteki (GitHub) uygulamaya girip bu yedeği "Yedek İçe Aktar" diyerek yükleyin.<br><br><strong style="color:var(--danger)">⚠️ ÖNEMLİ BİLGİ:</strong> JSON yedeği uygulamanın metinlerini, ilerlemenizi ve web linklerinizi taşır. Ancak cihazdan "Dosya Seç" diyerek doğrudan yüklediğiniz büyük Video ve PDF'leri <u>taşımaz</u>. Bunlar yerel cihaz hafızasında (IndexedDB) kalır. Başka bir bilgisayara veya GitHub'a geçtiğinizde bu dosyaları tekrar yüklemeniz gerekir (Bu yüzden video ve dokümanların YouTube / Drive linklerini eklemek çok daha sağlıklıdır).</p>
               <div class="form-actions" style="margin-top:13px">
                 <button class="btn" type="button" onclick="exportBackup()">⬇ JSON yedeği indir</button>
                 <label class="btn primary" for="backupImportInput" style="cursor:pointer">⬆ Yedek içe aktar</label>
@@ -992,6 +992,18 @@ async function renderMediaViewerStage(){
   const navBtns = resources.length > 1
     ? `<button class="media-nav-btn prev" onclick="navigateMedia(-1)" title="Önceki">‹</button><button class="media-nav-btn next" onclick="navigateMedia(1)" title="Sonraki">›</button>`
     : '';
+
+  // EĞER DOSYA YEREL BLOB ISE AMA IDB'DEN BULUNAMADIYSA (YEDEKLE TAŞINMIŞSA)
+  if(item.blobId && !fileBlob && !item.url && !item.cloudUrl){
+    toolbar.innerHTML = `<button class="btn small danger" disabled>Dosya Bulunamadı</button>`;
+    stage.innerHTML = `${navBtns}<div style="color:var(--danger);text-align:center;padding:30px;background:var(--surface);border-radius:12px;margin:20px;max-width:500px;line-height:1.5;border:1px solid var(--danger);">
+      <div style="font-size:40px;margin-bottom:10px">⚠️</div>
+      <h3 style="margin-top:0">Cihaz Dosyası Bulunamadı</h3>
+      <p>Bu dosya (<strong>${escapeHtml(item.title)}</strong>) yerel cihaz hafızasına kaydedilmiş, ancak şu an bulunduğunuz tarayıcıda veya adreste bulunamıyor.</p>
+      <p style="font-size:12px;color:var(--muted)"><strong>Neden?</strong> JSON yedek dosyası sadece metinleri ve linkleri taşır; cihazınızdan doğrudan yüklediğiniz gigabaytlarca büyük Video veya PDF dosyalarını taşımaz. Yerelden GitHub'a (internete) geçtiğinizde bu eksik dosyaları bir kereliğine tekrar eklemeniz veya doğrudan YouTube/Drive linklerini kullanmanız gerekir.</p>
+    </div>`;
+    return;
+  }
 
   if(item.kind==='image'){
     toolbar.innerHTML=`<button class="btn small" onclick="adjustZoom(0.25)">🔍 Zum (+)</button><button class="btn small" onclick="adjustZoom(-0.25)">🔍 Zum (-)</button><button class="btn small" onclick="resetZoom()">%100 Sıfırla</button><a class="btn small" href="${mediaSrc}" target="_blank" rel="noopener noreferrer">↗ Yeni Sekmede Aç</a><a class="btn small" href="${mediaSrc}" download="${escapeHtml(item.title)}">⬇ İndir</a>`;
