@@ -287,7 +287,15 @@ html[data-theme="dark"]{--bg:#071a17;--surface:#102622;--surface2:#17342d;--text
                 <div class="form-actions"><button class="btn" type="submit">Şifreyi Güncelle</button></div>
               </form>
             </article>
-            <article class="card setting-card"><h3>🛟 Yedekleme ve veri güvenliği</h3><p class="muted smalltext">Kayıtlar ayrı bir yerel anahtarda saklanır. Yedek JSON, sureleri, duaları ve ezber geçmişini dışa aktarır.</p><div class="form-actions" style="margin-top:13px"><button class="btn" onclick="exportBackup()">⬇ JSON yedeği indir</button><label class="btn" for="backupImportInput">⬆ Yedek içe aktar</label><input class="hidden" id="backupImportInput" type="file" accept="application/json,.json" onchange="importBackupFile(this.files?.[0]);this.value=''"></div></article>
+            <article class="card setting-card">
+              <h3>🛟 Yedekleme ve Veri Taşıma</h3>
+              <p class="muted smalltext">Kayıtlar cihazınızın tarayıcısına (Local) özeldir. <strong style="color:var(--danger)">Eğer uygulamayı yerelden (bilgisayardan) açıp sonra internete (GitHub vb.) yüklerseniz, verileriniz otomatik geçmez.</strong> Eski verilerinizi görmek için önce yereldeki uygulamadan "JSON Yedeği İndir" diyerek yedeği alın, ardından internetteki (GitHub) uygulamaya girip bu yedeği "Yedek İçe Aktar" diyerek yükleyin.</p>
+              <div class="form-actions" style="margin-top:13px">
+                <button class="btn" type="button" onclick="exportBackup()">⬇ JSON yedeği indir</button>
+                <label class="btn primary" for="backupImportInput" style="cursor:pointer">⬆ Yedek içe aktar</label>
+                <input class="hidden" id="backupImportInput" type="file" accept="application/json,.json" onchange="importBackupFile(this.files?.[0]);this.value=''">
+              </div>
+            </article>
           </div>
           <div>
             <article class="card setting-card"><h3>☁️ Firebase / Veritabanı bağlantısı</h3><div class="status-line"><span id="dbStatusDot" class="status-dot"></span><span id="dbStatusText">Bulut bağlantısı henüz test edilmedi. Yerel kayıt aktif.</span></div><label class="check-row"><input type="checkbox" id="cloudEnabledToggle" onchange="toggleCloudSync(this.checked)"><span>Bulut kayıt ve eşitlemeyi etkinleştir (Tablet/Telefon senkronizasyonu)</span></label><div class="settings-info">Bulut açıldığında bu uygulama başka hiçbir verinin üzerine yazmadan yalnızca kendi izole koleksiyonlarını kullanır.</div>
