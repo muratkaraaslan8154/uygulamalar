@@ -1,0 +1,2334 @@
+<!doctype html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Murat KaraaslanSure Ezberleme Uygulaması</title>
+<script>
+(() => {
+  try {
+    const raw = localStorage.getItem('murat_karaaslan_sure_ezberleme_v1');
+    const saved = raw ? JSON.parse(raw) : null;
+    const pref = saved?.settings?.theme || 'system';
+    const dark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = pref === 'system' ? (dark ? 'dark' : 'light') : pref;
+  } catch (_) {
+    document.documentElement.dataset.theme = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+})();
+</script>
+<style>
+:root{--bg:#f4f8f4;--surface:#fffefa;--surface2:#f3f7f0;--text:#172d26;--muted:#60766d;--line:#dce7df;--primary:#0f766e;--primary2:#115e59;--accent:#c59a35;--good:#15803d;--warn:#a16207;--danger:#b91c1c;--shadow:0 12px 35px rgba(15,56,42,.08);--radius:20px}
+html[data-theme="dark"]{--bg:#071a17;--surface:#102622;--surface2:#17342d;--text:#f0f8f2;--muted:#a8c4b5;--line:#2e5145;--primary:#5eead4;--primary2:#2dd4bf;--accent:#e4bd61;--good:#4ade80;--warn:#fbbf24;--danger:#fda4af;--shadow:0 14px 38px rgba(0,0,0,.28);color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 8% 5%,rgba(197,154,53,.12),transparent 24rem),radial-gradient(circle at 92% 22%,rgba(15,118,110,.10),transparent 28rem),repeating-conic-gradient(from 0deg at 100% 100%,transparent 0deg 15deg,rgba(15,118,110,.018) 15deg 30deg),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}a{color:var(--primary);overflow-wrap:anywhere}.app{max-width:1600px;margin:auto;padding:20px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:18px 22px;box-shadow:var(--shadow);margin-bottom:18px}.brand{display:flex;align-items:center;gap:14px;min-width:0}.brand-mark{width:52px;height:52px;border-radius:17px;background:linear-gradient(140deg,#0f766e,#14532d 70%,#c59a35);display:grid;place-items:center;color:#fff8df;font-size:27px;flex:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.2),0 6px 15px rgba(15,118,110,.18)}.brand h1{font-size:clamp(18px,2.2vw,26px);line-height:1.2;margin:0 0 5px;font-weight:850;overflow-wrap:anywhere}.brand p{margin:0;color:var(--muted);font-size:12px}.top-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.date-card{display:flex;flex-direction:column;gap:3px;font-size:12px;padding:10px 13px;background:var(--surface2);border:1px solid var(--line);border-radius:14px;min-width:190px;cursor:pointer;transition:.15s ease;text-align:left;margin-top:6px}
+.date-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:0 4px 12px rgba(15,118,110,.12)}
+.date-card strong{font-size:13px}
+.icon-btn,.btn{border:1px solid var(--line);background:var(--surface);color:var(--text);padding:10px 13px;border-radius:12px;font-weight:750;transition:.15s ease}.icon-btn{width:44px;height:44px;padding:0;font-size:19px}.btn:hover,.icon-btn:hover{transform:translateY(-1px);border-color:var(--primary)}.btn.primary{background:var(--primary);color:white;border-color:var(--primary)}.btn.primary:hover{background:var(--primary2)}.btn.good{background:var(--good);color:#fff;border-color:var(--good)}.btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,var(--line))}.btn.small{padding:7px 10px;font-size:12px;border-radius:9px}.btn.ghost{background:transparent}.layout{display:grid;grid-template-columns:235px minmax(0,1fr);gap:18px;align-items:start}.sidebar{position:sticky;top:16px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:12px;box-shadow:var(--shadow)}.nav-label{font-size:10px;color:var(--muted);font-weight:850;text-transform:uppercase;letter-spacing:.1em;padding:12px 12px 8px}.nav-btn{width:100%;border:1px solid transparent;background:transparent;color:var(--muted);text-align:left;padding:12px;border-radius:12px;font-weight:750;display:flex;gap:11px;align-items:center;margin:2px 0}.nav-btn span:first-child{font-size:18px;width:23px;text-align:center}.nav-btn:hover{background:var(--surface2);color:var(--text)}.nav-btn.active{background:color-mix(in srgb,var(--primary) 13%,var(--surface));border-color:color-mix(in srgb,var(--primary) 22%,var(--line));color:var(--primary)}.sidebar-note{margin-top:12px;padding:12px;background:var(--surface2);border-radius:13px;color:var(--muted);font-size:11px}.content{min-width:0}.view{display:none}.view.active{display:block}.section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin:4px 0 17px;flex-wrap:wrap}.section-head h2{margin:0 0 4px;font-size:25px;letter-spacing:-.025em}.section-head p{margin:0;color:var(--muted);font-size:13px}.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);min-width:0}.card h3{margin:0 0 13px;font-size:16px}.muted{color:var(--muted)}.smalltext{font-size:12px}.grid{display:grid;gap:16px}.stats-grid{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px}.stat{padding:18px}.stat .label{color:var(--muted);font-size:12px;font-weight:700}.stat .value{font-size:30px;font-weight:900;letter-spacing:-.03em;margin:6px 0}.stat .sub{font-size:11px;color:var(--muted)}.stat-icon{float:right;font-size:23px}.dashboard-grid{grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr)}.stopwatch{background:linear-gradient(140deg,#111827,#243a60);color:white;border:0;overflow:hidden;position:relative}.stopwatch h3{color:#dbeafe}.stopwatch .muted{color:#b7c5df}.timer-digits{font-variant-numeric:tabular-nums;font-size:clamp(40px,5vw,65px);font-weight:800;letter-spacing:.03em;line-height:1.2;margin:18px 0}.timer-controls{display:flex;flex-wrap:wrap;gap:8px}.stopwatch .btn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:white}.stopwatch .btn.primary{background:#a5b4fc;color:#111827;border-color:#a5b4fc}.lap-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.lap{font-size:11px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:5px 8px}.progress-track{height:10px;background:var(--surface2);border:1px solid var(--line);border-radius:100px;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,#4f46e5,#14b8a6);width:0;transition:width .25s}.recent-item{display:flex;align-items:flex-start;gap:11px;padding:12px 0;border-bottom:1px solid var(--line)}.recent-item:last-child{border-bottom:0}.round-icon{width:35px;height:35px;display:grid;place-items:center;border-radius:11px;background:var(--surface2);flex:none}.recent-copy{min-width:0;flex:1}.recent-copy strong{display:block;font-size:13px}.recent-copy p{margin:3px 0 0;color:var(--muted);font-size:11px;overflow-wrap:anywhere}.empty{padding:24px 12px;text-align:center;color:var(--muted);font-size:13px}.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field label{font-size:12px;font-weight:800;color:var(--muted)}.field input,.field select,.field textarea,.input{width:100%;min-width:0;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:11px;padding:11px 12px;outline:none}.field textarea{min-height:96px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 17%,transparent)}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.span-2{grid-column:1/-1}.form-actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.surah-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:16px}.surah-list-card{padding:14px}.searchbox{margin-bottom:11px}.surah-list{max-height:calc(100vh - 310px);min-height:360px;overflow:auto;padding-right:3px}.surah-item{width:100%;display:flex;align-items:center;gap:11px;text-align:left;background:transparent;color:var(--text);border:1px solid transparent;padding:10px;border-radius:12px;margin:2px 0}.surah-item:hover{background:var(--surface2)}.surah-item.active{background:color-mix(in srgb,var(--primary) 12%,var(--surface));border-color:color-mix(in srgb,var(--primary) 28%,var(--line))}.surah-number{width:33px;height:33px;flex:none;border-radius:10px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:850}.surah-item.active .surah-number{background:var(--primary);border-color:var(--primary);color:white}.surah-name{font-weight:800;font-size:13px;display:block}.surah-meta{color:var(--muted);font-size:10px;display:block;margin-top:2px}.surah-detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}.surah-titleline{display:flex;gap:12px;align-items:center}.big-number{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:color-mix(in srgb,var(--primary) 13%,var(--surface));color:var(--primary);font-size:19px;font-weight:900;flex:none}.surah-titleline h3{font-size:24px;margin:0 0 4px}.resource-heading{display:flex;justify-content:space-between;align-items:center;gap:9px;margin-bottom:10px}.resource-heading h3{margin:0}.resource-panels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.resource-panel{border:1px solid var(--line);border-radius:15px;padding:13px;background:var(--surface2);min-width:0}.resource-panel h4{margin:0 0 10px;font-size:13px}.resource-list{display:grid;gap:8px}.resource-item{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line);padding:10px;border-radius:11px;min-width:0}.resource-type{font-size:20px;flex:none}.resource-label{font-size:12px;font-weight:800;flex:1;min-width:0;overflow-wrap:anywhere}.resource-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap}.resource-empty{color:var(--muted);font-size:11px;padding:7px 0}.next-stage{background:color-mix(in srgb,var(--accent) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line));padding:12px 14px;border-radius:13px;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.next-stage strong{color:var(--accent);font-size:14px}.table-wrap{width:100%;overflow:auto;border:1px solid var(--line);border-radius:13px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}th{background:var(--surface2);font-size:11px;color:var(--muted);font-weight:850;white-space:nowrap}tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:color-mix(in srgb,var(--primary) 4%,var(--surface))}.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);font-size:10px;font-weight:850;white-space:nowrap}.pill.good{color:var(--good)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--danger)}.toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:13px}.toolbar .field{min-width:150px;flex:1}.settings-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.setting-card{margin-bottom:16px}.setting-card:last-child{margin-bottom:0}.settings-info{padding:12px 14px;border:1px solid var(--line);background:var(--surface2);border-radius:12px;color:var(--muted);font-size:12px;margin:12px 0}.status-line{display:flex;align-items:center;gap:9px;padding:12px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);font-size:12px;font-weight:750;margin:13px 0}.status-dot{width:9px;height:9px;border-radius:50%;background:var(--warn);flex:none}.status-dot.ok{background:#22c55e}.status-dot.error{background:#ef4444}.check-row{display:flex;align-items:flex-start;gap:10px;font-size:13px;font-weight:700}.check-row input{margin-top:4px;accent-color:var(--primary)}.report-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.report-row{padding:11px;border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:10px}.report-row .copy{flex:1;min-width:0}.report-row strong{font-size:12px;display:block}.report-row small{font-size:10px;color:var(--muted)}.report-row .btn{flex:none}.toast-host{position:fixed;right:18px;bottom:18px;z-index:100;display:grid;gap:8px;max-width:min(420px,calc(100vw - 36px))}.toast{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--primary);box-shadow:var(--shadow);border-radius:12px;padding:12px 14px;font-size:12px;font-weight:750;animation:slideIn .2s ease}.toast.error{border-left-color:#ef4444}.toast.success{border-left-color:#22c55e}@keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.75);display:none;align-items:center;justify-content:center;padding:18px;z-index:80;backdrop-filter:blur(4px)}.modal-backdrop.open{display:flex}.modal{width:min(680px,100%);max-height:min(88vh,900px);overflow:auto;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 30px 100px #0005}.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:17px}.modal-head h3{margin:0;font-size:20px}.close-modal{border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:10px;width:37px;height:37px;font-size:20px}.modal-note{font-size:11px;color:var(--muted);margin-top:10px}.footer-note{text-align:center;padding:19px 0 4px;font-size:10px;color:var(--muted)}.hidden{display:none!important}#printArea{display:none}
+.group-filter{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 0 12px}.group-filter button{border:1px solid var(--line);background:var(--surface2);color:var(--muted);border-radius:11px;padding:9px 7px;font-size:11px;font-weight:850}.group-filter button.active{background:color-mix(in srgb,var(--accent) 16%,var(--surface));border-color:color-mix(in srgb,var(--accent) 65%,var(--line));color:var(--text)}.group-caption{font-size:10px;color:var(--muted);margin:0 0 7px;padding:0 3px}.lesson-layout{display:grid;grid-template-columns:285px minmax(0,1fr);gap:16px;align-items:start}.lesson-list-card{padding:14px}.lesson-list{max-height:calc(100vh - 330px);min-height:340px;overflow:auto;padding-right:3px}.lesson-day-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:900;color:var(--accent);padding:10px 8px 4px}.lesson-item{width:100%;display:flex;align-items:flex-start;gap:10px;text-align:left;background:transparent;color:var(--text);border:1px solid transparent;padding:10px;border-radius:12px;margin:2px 0}.lesson-item:hover{background:var(--surface2)}.lesson-item.active{background:color-mix(in srgb,var(--primary) 12%,var(--surface));border-color:color-mix(in srgb,var(--primary) 35%,var(--line))}.lesson-day-number{width:36px;height:36px;display:grid;place-items:center;flex:none;border-radius:11px;background:color-mix(in srgb,var(--accent) 16%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 36%,var(--line));font-weight:900;color:var(--text)}.lesson-item strong{display:block;font-size:12px;line-height:1.35}.lesson-item small{display:block;font-size:10px;color:var(--muted);margin-top:3px}.lesson-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}.lesson-header h3{margin:0 0 4px;font-size:21px}.lesson-tag{display:inline-flex;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));background:color-mix(in srgb,var(--accent) 10%,var(--surface));border-radius:999px;padding:4px 9px;font-size:10px;font-weight:850}.lesson-resources{margin:14px 0}.quran-divider{display:flex;align-items:center;gap:10px;color:var(--accent);font-size:12px;font-weight:850;margin:12px 0}.quran-divider:before,.quran-divider:after{content:"";height:1px;background:color-mix(in srgb,var(--accent) 35%,var(--line));flex:1}
+.list-mode-toggle{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0 12px}.list-mode-toggle .btn{padding:6px 9px;font-size:11px}.list-mode-toggle .btn.active{background:color-mix(in srgb,var(--primary) 14%,var(--surface));border-color:var(--primary);color:var(--primary)}
+.surah-list.cards-mode{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:7px;max-height:calc(100vh - 390px);min-height:240px;padding:2px 3px 8px}
+.surah-list.cards-mode .surah-item{align-items:flex-start;min-height:90px;background:var(--surface);border:1px solid var(--line);box-shadow:0 3px 12px rgba(15,56,42,.035);padding:11px;transition:transform .16s,border-color .16s}
+.surah-list.cards-mode .surah-item:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:var(--shadow)}
+.surah-list.cards-mode .surah-item.active{border-color:var(--primary);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary) 16%,transparent)}
+.ayah-editor{margin:14px 0 8px;padding:13px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:14px;background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
+.ayah-editor-row{display:flex;align-items:end;gap:8px;flex-wrap:wrap}.ayah-editor-row .field{max-width:180px;flex:1 1 140px}
+.lesson-list.cards-mode{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:7px;max-height:calc(100vh - 380px);min-height:230px;padding:2px 3px 8px}.lesson-list.cards-mode .lesson-day-label{grid-column:1/-1}.lesson-list.cards-mode .lesson-item{background:var(--surface);border:1px solid var(--line);min-height:82px}
+.site-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}.site-toolbar .field{flex:1 1 220px}.site-links-list{display:grid;gap:10px}.site-links-list.cards-mode{grid-template-columns:repeat(auto-fill,minmax(235px,1fr))}.site-link-card{border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:14px;display:flex;gap:12px;align-items:flex-start;min-width:0;box-shadow:0 4px 15px rgba(15,56,42,.035)}.site-link-icon{width:46px;height:46px;border-radius:13px;background:color-mix(in srgb,var(--accent) 15%,var(--surface));display:grid;place-items:center;font-size:25px;flex:none}.site-link-copy{min-width:0;flex:1}.site-link-copy strong{display:block;overflow-wrap:anywhere}.site-link-copy p{margin:5px 0;color:var(--muted);font-size:12px;overflow-wrap:anywhere}.site-link-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.site-link-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.site-link-category{font-size:10px;padding:3px 7px;border:1px solid var(--line);border-radius:99px;color:var(--muted)}
+.topic-manager-list{display:grid;gap:8px;max-height:42vh;overflow:auto}.topic-manager-row{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:12px;padding:11px;background:var(--surface2)}.topic-manager-row .topic-main{min-width:0;flex:1}.topic-manager-row strong{display:block;font-size:12px}.topic-manager-row p{font-size:11px;color:var(--muted);margin:3px 0 0;white-space:pre-wrap}.topic-manager-actions{display:flex;gap:5px;flex-wrap:wrap}.reference-links{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;margin-top:12px}.form-hint{font-size:11px;color:var(--muted);margin-top:4px}
+.media-modal{width:min(1180px,96vw);height:min(90vh,920px);display:flex;flex-direction:column;padding:16px;background:var(--surface);border-radius:20px;box-shadow:0 25px 60px rgba(0,0,0,.5);overflow:hidden}
+.media-modal-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line);flex:none;flex-wrap:wrap}
+.media-modal-header h4{margin:0;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:45ch}
+.media-toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.media-viewer-stage{flex:1;min-height:0;position:relative;background:#050d0b;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:12px;margin-top:12px}
+.image-pan-container{position:relative;width:100%;height:100%;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:grab}
+.image-pan-container.dragging{cursor:grabbing}
+.image-pan-container img{max-width:92%;max-height:92%;object-fit:contain;user-select:none;transition:transform .08s linear}
+.media-nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(15,23,42,.75);color:#fff;border:1px solid rgba(255,255,255,.2);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:24px;cursor:pointer;z-index:10;transition:.15s}
+.media-nav-btn:hover{background:var(--primary);color:#fff}
+.media-nav-btn.prev{left:14px}
+.media-nav-btn.next{right:14px}
+.media-frame{width:100%;height:100%;border:none;border-radius:8px;background:#fff}
+.media-video{width:100%;max-height:100%;border-radius:8px;outline:none}
+.media-doc-text{width:100%;height:100%;overflow:auto;padding:22px;background:var(--surface);color:var(--text);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;border-radius:8px}
+.recorder-banner{display:none;background:color-mix(in srgb,var(--danger) 15%,var(--surface));border:1px solid var(--danger);border-radius:14px;padding:10px 16px;margin-bottom:14px;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.recorder-banner.active{display:flex}
+.recorder-banner.paused{background:color-mix(in srgb,var(--warn) 15%,var(--surface));border-color:var(--warn)}
+.recorder-banner.paused .recorder-dot{background:var(--warn)}
+.recorder-dot{width:10px;height:10px;border-radius:50%;background:var(--danger);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.2)}}
+.islamic-emoji-library{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:8px;max-height:210px;overflow-y:auto;padding:10px;background:var(--surface2);border:1px solid var(--line);border-radius:14px;margin-top:6px}
+.emoji-pick-btn{height:50px;font-size:26px;border:1px solid var(--line);background:var(--surface);border-radius:12px;display:grid;place-items:center;transition:.14s ease;padding:0}
+.emoji-pick-btn:hover,.emoji-pick-btn.selected{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 16%,var(--surface));transform:scale(1.07)}
+.emoji-cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.hijri-calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+.hijri-weekday{text-align:center;font-size:11px;font-weight:850;color:var(--muted);padding:6px 0}
+.hijri-day-cell{border:1px solid var(--line);background:var(--surface2);border-radius:12px;padding:8px;min-height:68px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:.14s ease;text-align:left}
+.hijri-day-cell:hover{border-color:var(--primary);background:var(--surface)}
+.hijri-day-cell.today{border:2px solid var(--primary);background:color-mix(in srgb,var(--primary) 12%,var(--surface))}
+.hijri-day-cell.selected{border:2px solid var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+.hijri-day-cell.has-event{background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+.hijri-day-cell .g-num{font-weight:900;font-size:14px}
+.hijri-day-cell .h-num{font-size:11px;color:var(--accent);font-weight:800}
+.hijri-day-cell .ev-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block}
+.hijri-event-list{display:grid;gap:8px;margin-top:12px;max-height:220px;overflow:auto}
+.hijri-event-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--surface2)}
+.hijri-event-item.highlight{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+.live-frame-wrap{width:100%;height:min(72vh,680px);border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#06110e;position:relative}
+.live-frame-wrap iframe{width:100%;height:100%;border:0}
+@media(max-width:1120px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}.surah-layout{grid-template-columns:245px minmax(0,1fr)}.resource-panels{grid-template-columns:1fr}}
+@media(max-width:780px){.app{padding:10px}.topbar{align-items:flex-start;padding:14px;flex-direction:column}.top-actions{justify-content:flex-start;width:100%}.layout{grid-template-columns:1fr}.sidebar{position:static;padding:8px;display:flex;gap:5px;overflow-x:auto;white-space:nowrap}.nav-label,.sidebar-note{display:none}.nav-btn{width:auto;flex:none;padding:10px;font-size:12px}.nav-btn span:last-child{display:none}.surah-layout{grid-template-columns:1fr}.surah-list{max-height:300px;min-height:180px}.settings-grid{grid-template-columns:1fr}.report-list{grid-template-columns:1fr}.card{padding:15px}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">📖</div>
+      <div style="min-width:0">
+        <h1 id="appTitle">Murat KaraaslanSure Ezberleme Uygulaması</h1>
+        <p>Kur’an-ı Kerim • Sureler • Dualar • Namaz Sureleri • Tecvid & Canlı Dersler</p>
+        <button type="button" class="date-card" onclick="openHijriCalendarModal()" title="Hicri & Miladi Takvimi ve Mübarek Günleri Aç">
+          <strong id="gregorianDate">Miladi takvim</strong>
+          <span id="hijriDate" class="muted">Hicri takvim</span>
+          <span style="font-size:10px;color:var(--primary);font-weight:800">📅 Takvimi & Önemli Günleri Gör ↗</span>
+        </button>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="recordScreenBtn" type="button" onclick="toggleScreenRecorder()">📹 Ekran Kaydet</button>
+      <button class="btn" type="button" onclick="switchView('live')">🎥 Canlı Ders</button>
+      <button class="icon-btn" id="quickThemeBtn" type="button" onclick="cycleTheme()" title="Açık/koyu tema değiştir" aria-label="Açık/koyu tema">🌙</button>
+      <button class="btn" type="button" onclick="switchView('settings')">⚙️ Ayarlar</button>
+    </div>
+  </header>
+
+  <div class="recorder-banner" id="recorderBanner">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="recorder-dot"></span>
+      <strong>Ekran Kaydediliyor (Sessiz Mod)</strong>
+      <span id="recordTimer" style="font-variant-numeric:tabular-nums;color:var(--danger);font-weight:800">00:00</span>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn small" id="pauseResumeBtn" onclick="pauseResumeScreenRecorder()">⏸ Duraklat</button>
+      <button class="btn small danger" onclick="stopScreenRecorder()">⏹ Kaydı Bitir & Uygulamaya Kaydet</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar" aria-label="Yan menü">
+      <div class="nav-label">ÇALIŞMA ALANI</div>
+      <button class="nav-btn active" data-view="dashboard" onclick="switchView('dashboard')"><span>⌂</span><span>Ana ekran</span></button>
+      <button class="nav-btn" data-view="surahs" onclick="switchView('surahs')"><span>📚</span><span>Sureler ve ezber</span></button>
+      <button class="nav-btn" data-view="prayers" onclick="switchView('prayers')"><span>🤲</span><span>Dualar</span></button>
+      <button class="nav-btn" data-view="tajweed" onclick="switchView('tajweed')"><span>۞</span><span>Tecvid dersleri</span></button>
+      <button class="nav-btn" data-view="live" onclick="switchView('live')"><span>🎥</span><span>Canlı ders</span></button>
+      <button class="nav-btn" data-view="sites" onclick="switchView('sites')"><span>🔗</span><span>Site bağlantıları</span></button>
+      <button class="nav-btn" data-view="history" onclick="switchView('history')"><span>🕘</span><span>Ezber geçmişi</span></button>
+      <button class="nav-btn" data-view="reports" onclick="switchView('reports')"><span>📊</span><span>İlerleme ve PDF</span></button>
+      <button class="nav-btn" data-view="settings" onclick="switchView('settings')"><span>⚙️</span><span>Ayarlar / Veritabanı</span></button>
+      <div class="sidebar-note">Kayıtlar izole uygulama alanında ve etkinleştirildiğinde bulutta saklanır.</div>
+    </aside>
+    <main class="content">
+      
+      <section id="view-dashboard" class="view active">
+        <div class="section-head"><div><h2>Selam, hoş geldiniz</h2><p>Ezber çalışmalarınızı kaydedin, her surenin ve duanın ilerlemesini ayrı izleyin.</p></div><button class="btn primary" onclick="switchView('surahs')">＋ Ezber oturumu başlat</button></div>
+        <div class="grid stats-grid">
+          <article class="card stat"><span class="stat-icon">📚</span><div class="label">Sure sayısı</div><div class="value" id="statTotal">114</div><div class="sub">Kur’an-ı Kerim’deki sureler</div></article>
+          <article class="card stat"><span class="stat-icon">✅</span><div class="label">Ezberi tamamlanan</div><div class="value" id="statMastered">0</div><div class="sub">Tamamlandı olarak işaretlenen sureler</div></article>
+          <article class="card stat"><span class="stat-icon">⏱️</span><div class="label">Çalışma oturumu</div><div class="value" id="statSessions">0</div><div class="sub">Silinmemiş kayıt sayısı</div></article>
+          <article class="card stat"><span class="stat-icon">📈</span><div class="label">Genel ilerleme</div><div class="value" id="statProgress">0%</div><div class="progress-track"><div class="progress-fill" id="statProgressBar"></div></div></article>
+        </div>
+        <div class="grid dashboard-grid">
+          <article class="card stopwatch">
+            <h3>⏱️ Apple Tarzı Kronometre</h3><p class="muted smalltext">Süreyi başlatın, tur kaydedin ve seçtiğiniz surenin/duanın ezber kaydına aktarın.</p>
+            <div class="timer-digits" id="timerDisplay">00:00:00</div>
+            <div class="timer-controls"><button class="btn primary" id="timerStartBtn" onclick="toggleStopwatch()">▶ Başlat</button><button class="btn" onclick="lapStopwatch()">⚑ Tur kaydet</button><button class="btn" onclick="resetStopwatch()">↺ Sıfırla</button><button class="btn" onclick="useStopwatchTime()">↗ Süreyi kayda aktar</button></div>
+            <div class="lap-list" id="lapList"></div>
+          </article>
+          <article class="card"><div class="section-head" style="margin-top:0"><div><h3 style="margin-bottom:3px">📈 Ezber ilerlemesi</h3><p class="muted smalltext">Tamamlandı olarak işaretlediğiniz sureler üzerinden hesaplanır.</p></div></div><div style="display:flex;align-items:baseline;gap:8px;margin:20px 0 10px"><strong style="font-size:35px" id="dashboardPercent">0%</strong><span class="muted smalltext" id="dashboardProgressLabel">0 / 114 sure</span></div><div class="progress-track"><div class="progress-fill" id="dashboardProgressBar"></div></div><div class="form-actions" style="margin-top:18px"><button class="btn primary" onclick="switchView('reports')">Raporları görüntüle</button><button class="btn" onclick="printOverallReport()">PDF hazırla</button></div></article>
+        </div>
+        <article class="card" style="margin-top:16px"><div class="section-head" style="margin:0 0 10px"><div><h3 style="margin-bottom:3px">🕘 Son çalışma kayıtları</h3><p class="muted smalltext">En son kaydedilen ezber oturumları.</p></div><button class="btn small" onclick="switchView('history')">Tüm geçmiş</button></div><div id="dashboardRecent"></div></article>
+      </section>
+
+      <section id="view-surahs" class="view">
+        <div class="section-head"><div><h2>Sureler ve ezber çalışması</h2><p>Sure seçin; video, PDF, ses ve görüntü kaynaklarını toplu ekleyin, frame içinde inceleyin.</p></div><span class="pill" id="surahCountBadge">114 sure</span></div>
+        <div class="surah-layout">
+          <aside class="card surah-list-card"><div class="field searchbox"><label for="surahSearch">Sure ara</label><input id="surahSearch" type="search" placeholder="Sure adı veya numarası…" oninput="renderSurahList()"></div><div class="group-filter" role="group" aria-label="Sure grubu"><button id="surahGroupAllBtn" type="button" class="active" onclick="setSurahGroup('all')">📚 Tüm Sureler</button><button id="surahGroupNamazBtn" type="button" onclick="setSurahGroup('namaz')">🕌 Namaz Sureleri</button></div><p class="group-caption" id="surahGroupCaption">Kur’an-ı Kerim’deki 114 sure</p><div class="list-mode-toggle" aria-label="Sure görünümü"><button type="button" class="btn active" id="surahsCardsModeBtn" onclick="setListMode('surahs','cards')">▦ Kartlar</button><button type="button" class="btn" id="surahsListModeBtn" onclick="setListMode('surahs','list')">☷ Liste</button></div><div class="surah-list" id="surahList" aria-label="Kur'an sure listesi"></div></aside>
+          <div class="grid" style="align-content:start;gap:14px;min-width:0">
+            <article class="card" id="surahDetailCard"><div class="empty">Sure ayrıntılarını görmek için soldan bir sure seçin.</div></article>
+            <article class="card" id="sessionFormCard"><h3>＋ Yeni ezber oturumu</h3><div class="empty">Önce soldan bir sure seçin.</div></article>
+            <article class="card"><div class="section-head" style="margin:0 0 10px"><div><h3 style="margin-bottom:2px">🕘 Seçili surenin geçmişi</h3><p class="muted smalltext">Kayıt ekleme, düzenleme ve silme işlemlerini burada yönetin.</p></div></div><div id="surahHistoryTable"></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-prayers" class="view">
+        <div class="section-head"><div><h2>🤲 Dualar ve Ezber Çalışması</h2><p>Namaz duaları, Kur’an-ı Kerim’deki dualar ve günlük tesbihatları ekleyin, dokümanları frame içinde açın.</p></div><div class="form-actions"><span class="pill" id="prayerCountBadge">0 dua</span><button class="btn primary" onclick="newPrayer()">＋ Yeni Dua Ekle</button></div></div>
+        <div class="surah-layout">
+          <aside class="card surah-list-card"><div class="field searchbox"><label for="prayerSearch">Dua ara</label><input id="prayerSearch" type="search" placeholder="Dua adı, kategori…" oninput="renderPrayerList()"></div><div class="list-mode-toggle" aria-label="Dua görünümü"><button type="button" class="btn active" id="prayersCardsModeBtn" onclick="setListMode('prayers','cards')">▦ Kartlar</button><button type="button" class="btn" id="prayersListModeBtn" onclick="setListMode('prayers','list')">☷ Liste</button></div><div class="surah-list" id="prayerList"></div></aside>
+          <div class="grid" style="align-content:start;gap:14px;min-width:0">
+            <article class="card" id="prayerDetailCard"><div class="empty">Dua ayrıntılarını görmek için soldan bir dua seçin veya yeni dua ekleyin.</div></article>
+            <article class="card" id="prayerSessionFormCard"><h3>＋ Yeni dua ezber oturumu</h3><div class="empty">Önce soldan bir dua seçin.</div></article>
+            <article class="card"><div class="section-head" style="margin:0 0 10px"><div><h3 style="margin-bottom:2px">🕘 Seçili Duanın Ezber Geçmişi</h3><p class="muted smalltext">1. Ham Ezberleme ve Haşlama oturum kayıtları.</p></div></div><div id="prayerHistoryTable"></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-tajweed" class="view">
+        <div class="section-head"><div><h2>۞ Tecvid Dersleri</h2><p>Gün gün derslerinizi kaydedin; her derse toplu seçimle birden fazla video, PDF ve görsel ekleyin.</p></div><div class="form-actions"><span class="pill" id="tajweedLessonCount">0 ders</span><button class="btn" onclick="openTopicManager()">🗂️ Ders adlarını yönet</button><button class="btn" onclick="printAllTajweedReport()">📄 Tüm Tecvid dersleri PDF</button><button class="btn primary" onclick="newTajweedLesson()">＋ Yeni gün / ders</button></div></div>
+        <div class="lesson-layout">
+          <aside class="card lesson-list-card"><div class="field searchbox"><label for="tajweedSearch">Derslerde ara</label><input id="tajweedSearch" type="search" placeholder="Gün, tarih veya ders adı…" oninput="renderTajweedList()"></div><button class="btn primary" style="width:100%;margin:0 0 9px" type="button" onclick="newTajweedLesson()">＋ Yeni gün / ders ekle</button><button class="btn" style="width:100%;margin:0 0 7px" type="button" onclick="openTopicManager()">🗂️ Ders adı listesi</button><div class="list-mode-toggle" aria-label="Tecvid ders görünümü"><button type="button" class="btn active" id="tajweedCardsModeBtn" onclick="setListMode('tajweed','cards')">▦ Kartlar</button><button type="button" class="btn" id="tajweedListModeBtn" onclick="setListMode('tajweed','list')">☷ Liste</button></div><div class="quran-divider">DERS TAKVİMİ</div><div class="lesson-list" id="tajweedLessonList" aria-label="Tecvid gün ve ders listesi"></div></aside>
+          <div class="grid" style="align-content:start;gap:14px;min-width:0"><article class="card" id="tajweedEditorCard"><div class="empty">Düzenlemek veya yeni ders eklemek için soldan seçim yapın.</div></article></div>
+        </div>
+      </section>
+
+      <section id="view-live" class="view">
+        <div class="section-head">
+          <div>
+            <h2>🎥 Canlı Ders & Kayıt Merkezi</h2>
+            <p>Canlı derse aşağıdaki frame üzerinden katılın, ekranı sessizce kaydedin. Kayıtlar seçilen günün dersiyle çift yönlü bağlantılıdır.</p>
+          </div>
+          <div class="form-actions">
+            <button class="btn primary" onclick="toggleScreenRecorder()">📹 Canlı Dersi Kaydet (Sessiz)</button>
+            <button class="btn" onclick="openManualLiveRecordingModal()">＋ Video / Link Kaydı Ekle</button>
+          </div>
+        </div>
+
+        <article class="card" style="margin-bottom:16px">
+          <div class="toolbar" style="margin-bottom:10px">
+            <div class="field" style="flex:3">
+              <label for="liveJoinUrlInput">Canlı Ders Katılım Adresi</label>
+              <input id="liveJoinUrlInput" type="url" value="https://canli25009.hayrategitim.com/html5client/join?sessionToken=lqmqr8dhoy98gngk">
+            </div>
+            <div class="field" style="flex:2">
+              <label for="liveActiveLessonSelect">Kaydın Ekleneceği Gün / Ders</label>
+              <select id="liveActiveLessonSelect"></select>
+            </div>
+            <div class="form-actions" style="align-self:flex-end;padding-bottom:2px">
+              <button class="btn primary" type="button" onclick="loadLiveClassFrame()">🔄 Frame İçinde Yükle</button>
+              <a class="btn" id="liveExternalOpenBtn" href="https://canli25009.hayrategitim.com/html5client/join?sessionToken=lqmqr8dhoy98gngk" target="_blank" rel="noopener noreferrer">↗ Yeni Sekmede Aç</a>
+            </div>
+          </div>
+          <div class="live-frame-wrap">
+            <iframe id="liveClassIframe" src="https://canli25009.hayrategitim.com/html5client/join?sessionToken=lqmqr8dhoy98gngk" allow="camera; microphone; fullscreen; display-capture; autoplay" title="Canlı Ders Ekranı"></iframe>
+          </div>
+          <div class="settings-info" style="margin-bottom:0;margin-top:10px">
+            💡 <strong>Bilgi:</strong> "📹 Canlı Dersi Kaydet" butonuna bastığınızda kayıt karşı tarafa bildirim gitmeden başlar. İstediğinizde duraklatabilirsiniz. Kaydı bitirdiğinizde <strong>otomatik olarak bugünün Tecvid dersine</strong> eklenir.
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="section-head" style="margin-top:0">
+            <div>
+              <h3>📼 Kaydedilen Canlı Ders Videoları</h3>
+              <p class="muted smalltext">Hangi günün ders videosu olduğu listede belirtilir. Düzenleme ve silme işlemleri Admin Şifresi ve onay gerektirir.</p>
+            </div>
+            <span class="pill" id="liveRecordingCountBadge">0 kayıt</span>
+          </div>
+          <div id="liveRecordingsTable"></div>
+        </article>
+      </section>
+
+      <section id="view-sites" class="view">
+        <div class="section-head"><div><h2>🔗 Site bağlantıları</h2><p>Güvenilir Kur’an, tecvid, meal ve tilavet kaynaklarını tek yerden açın. Bağlantılar yeni sekmede güvenli biçimde açılır.</p></div><div class="form-actions"><span class="pill" id="siteLinkCount">0 bağlantı</span><button class="btn primary" onclick="openSiteLinkEditor()">＋ Site ekle</button></div></div>
+        <article class="card hidden" id="siteLinkEditorCard" style="margin-bottom:14px"><div class="section-head" style="margin-top:0"><div><h3 id="siteLinkEditorTitle">Yeni site bağlantısı</h3><p class="muted smalltext">Sadece http/https adresleri kaydedilir; kayıt bu uygulamanın kendi alanında tutulur.</p></div><button class="btn small" type="button" onclick="closeSiteLinkEditor()">Kapat</button></div>
+          <form id="siteLinkForm" class="form-grid" onsubmit="saveSiteLink(event)">
+            <input type="hidden" id="siteLinkId">
+            <div class="field"><label for="siteLinkName">Site adı</label><input id="siteLinkName" maxlength="100" required placeholder="Örn. Diyanet Kur’an Portalı"></div>
+            <div class="field"><label for="siteLinkUrl">Web adresi</label><input id="siteLinkUrl" type="url" maxlength="2000" required placeholder="https://..."></div>
+            <div class="field"><label for="siteLinkCategory">Kategori</label><input id="siteLinkCategory" maxlength="50" list="siteCategorySuggestions" placeholder="Tecvid eğitimi"><datalist id="siteCategorySuggestions"><option value="Kur’an-ı Kerim"><option value="Tecvid eğitimi"><option value="Meal ve tefsir"><option value="Sesli tilavet"><option value="Canlı Ders"><option value="Eğitim"><option value="Diğer"></datalist></div>
+            <div class="field"><label for="siteLinkIcon">Seçili Simge (Emoji)</label><input id="siteLinkIcon" maxlength="12" value="🕌" placeholder="🕌" style="font-size:20px;font-weight:900"></div>
+            <div class="field span-2">
+              <label>🕋 İslami Emoji ve Büyük Simge Kütüphanesi (Tıklayarak Seçin)</label>
+              <div class="emoji-cat-tabs" id="emojiCategoryTabs"></div>
+              <div class="islamic-emoji-library" id="islamicEmojiLibrary"></div>
+            </div>
+            <div class="field span-2"><label for="siteLinkDescription">Kısa açıklama</label><textarea id="siteLinkDescription" maxlength="500" placeholder="Bu bağlantıyı ne için kullanıyorsunuz?"></textarea></div>
+            <div class="form-actions span-2"><button class="btn primary" type="submit">Bağlantıyı kaydet</button><button class="btn" type="button" onclick="closeSiteLinkEditor()">Vazgeç</button></div>
+          </form>
+        </article>
+        <article class="card"><div class="site-toolbar"><div class="field"><label for="siteLinkSearch">Bağlantılarda ara</label><input id="siteLinkSearch" type="search" placeholder="Site adı, kategori veya açıklama…" oninput="renderSiteLinks()"></div><div class="list-mode-toggle" aria-label="Site görünümü" style="margin:0"><button type="button" class="btn active" id="sitesCardsModeBtn" onclick="setListMode('sites','cards')">▦ Kartlar</button><button type="button" class="btn" id="sitesListModeBtn" onclick="setListMode('sites','list')">☷ Liste</button></div></div><div id="siteLinksList" class="site-links-list cards-mode"></div>
+          <div class="settings-info" style="margin-top:15px">Başlangıç önerileri: <button type="button" class="btn small" onclick="addSuggestedSite('diyanet')">Diyanet Kur’an Portalı</button> <button type="button" class="btn small" onclick="addSuggestedSite('diyanet-egitim')">Diyanet Eğitim Programları</button> <button type="button" class="btn small" onclick="addSuggestedSite('tdv-tecvid')">TDV Tecvid bilgisi</button> <button type="button" class="btn small" onclick="addSuggestedSite('hayrat-canli')">Hayrat Canlı Ders</button>.</div>
+        </article>
+      </section>
+
+      <section id="view-history" class="view">
+        <div class="section-head"><div><h2>Ezber kayıtları geçmişi</h2><p>Tüm sure ve dualara ait kayıtları arayın, düzenleyin veya uygulama içinden silin.</p></div><button class="btn" onclick="exportBackup()">⬇ Yedek JSON</button></div>
+        <article class="card"><div class="toolbar"><div class="field"><label for="historySearch">Kayıtlarda ara</label><input id="historySearch" type="search" placeholder="Sure/Dua adı, not veya aşama…" oninput="renderHistoryTable()"></div><div class="field"><label for="historySurahFilter">Öğe filtresi</label><select id="historySurahFilter" onchange="renderHistoryTable()"><option value="all">Tüm kayıtlar</option></select></div><div class="field"><label for="historyResultFilter">Sonuç filtresi</label><select id="historyResultFilter" onchange="renderHistoryTable()"><option value="all">Tüm sonuçlar</option><option value="İyi">İyi</option><option value="Tekrar gerekli">Tekrar gerekli</option><option value="Tamamlandı">Tamamlandı</option></select></div></div><div id="historyTable"></div></article>
+      </section>
+
+      <section id="view-reports" class="view">
+        <div class="section-head"><div><h2>İlerleme ve PDF raporları</h2><p>Toplam sure ilerlemesini ve her surenin ayrı çalışma geçmişini yazdırın veya PDF olarak kaydedin.</p></div><button class="btn primary" onclick="printOverallReport()">📄 Toplam ilerleme PDF</button></div>
+        <div class="grid stats-grid"><article class="card stat"><div class="label">Tamamlanan sure</div><div class="value" id="reportMastered">0 / 114</div></article><article class="card stat"><div class="label">İlerleme oranı</div><div class="value" id="reportPercent">0%</div><div class="progress-track"><div class="progress-fill" id="reportProgressBar"></div></div></article><article class="card stat"><div class="label">Aktif çalışılan sure</div><div class="value" id="reportStarted">0</div></article><article class="card stat"><div class="label">Toplam oturum</div><div class="value" id="reportSessions">0</div></article></div>
+        <article class="card"><div class="section-head" style="margin-top:0"><div><h3 style="margin-bottom:3px">Sure ve Dua bazında rapor</h3><p class="muted smalltext">Her satırdan o surenin veya duanın ilerleme ve oturum geçmişi PDF'sini oluşturabilirsiniz.</p></div><div class="field" style="min-width:180px"><label for="reportSearch">Ara</label><input id="reportSearch" type="search" placeholder="Sure veya dua ara…" oninput="renderReportsList()"></div></div><div id="reportsList" class="report-list"></div></article>
+      </section>
+
+      <section id="view-settings" class="view">
+        <div class="section-head"><div><h2>Ayarlar</h2><p>Uygulama adını, görünümü, admin şifresini, veritabanı bağlantısını ve silinme geçmişini yönetin.</p></div><span class="pill">Yerel & Bulut kayıt korumalı</span></div>
+        <div class="grid settings-grid">
+          <div>
+            <article class="card setting-card"><h3>🪪 Uygulama adı</h3><form id="appSettingsForm" class="grid" style="gap:13px"><div class="field"><label for="appTitleInput">Başlık</label><input id="appTitleInput" maxlength="100" required value="Murat KaraaslanSure Ezberleme Uygulaması"></div><div class="form-actions"><button class="btn primary" type="submit">Adı kaydet</button></div></form></article>
+            <article class="card setting-card"><h3>🌗 Görünüm</h3><div class="field"><label for="themePreference">Tema tercihi</label><select id="themePreference" onchange="setThemePreference(this.value)"><option value="system">Sistem ayarını izle (varsayılan)</option><option value="light">Açık tema</option><option value="dark">Koyu tema</option></select></div></article>
+            <article class="card setting-card">
+              <h3>🗑️ Çöp Kutusu Otomatik Temizleme</h3>
+              <div class="field">
+                <label for="trashRetentionDays">Silinen öğelerin saklanma süresi (Gün)</label>
+                <input id="trashRetentionDays" type="number" min="0" max="365" onchange="saveTrashRetention(this.value)">
+              </div>
+              <div class="settings-info">0 yaparsanız otomatik silinmez. Süresi dolan öğeler cihazdan ve veritabanından kalıcı olarak temizlenir.</div>
+            </article>
+            <article class="card setting-card">
+              <h3>🔐 Canlı Ders Admin Şifresi</h3>
+              <form class="grid" style="gap:10px" onsubmit="saveAdminPasswordSetting(event)">
+                <div class="field"><label for="adminPasswordInput">Admin Şifresi (Düzenleme/Silme için)</label><input id="adminPasswordInput" type="password" maxlength="60" required placeholder="Varsayılan: 1234"></div>
+                <div class="form-actions"><button class="btn" type="submit">Şifreyi Güncelle</button></div>
+              </form>
+            </article>
+            <article class="card setting-card"><h3>🛟 Yedekleme ve veri güvenliği</h3><p class="muted smalltext">Kayıtlar ayrı bir yerel anahtarda saklanır. Yedek JSON, sureleri, duaları ve ezber geçmişini dışa aktarır.</p><div class="form-actions" style="margin-top:13px"><button class="btn" onclick="exportBackup()">⬇ JSON yedeği indir</button><label class="btn" for="backupImportInput">⬆ Yedek içe aktar</label><input class="hidden" id="backupImportInput" type="file" accept="application/json,.json" onchange="importBackupFile(this.files?.[0]);this.value=''"></div></article>
+          </div>
+          <div>
+            <article class="card setting-card"><h3>☁️ Firebase / Veritabanı bağlantısı</h3><div class="status-line"><span id="dbStatusDot" class="status-dot"></span><span id="dbStatusText">Bulut bağlantısı henüz test edilmedi. Yerel kayıt aktif.</span></div><label class="check-row"><input type="checkbox" id="cloudEnabledToggle" onchange="toggleCloudSync(this.checked)"><span>Bulut kayıt ve eşitlemeyi etkinleştir (Tablet/Telefon senkronizasyonu)</span></label><div class="settings-info">Bulut açıldığında bu uygulama başka hiçbir verinin üzerine yazmadan yalnızca kendi izole koleksiyonlarını kullanır.</div>
+              <form id="firebaseConfigForm" class="grid" style="gap:11px"><div class="field"><label for="fbApiKey">API Key</label><input id="fbApiKey" autocomplete="off" spellcheck="false"></div><div class="field"><label for="fbAuthDomain">Auth Domain</label><input id="fbAuthDomain" autocomplete="off" spellcheck="false"></div><div class="field"><label for="fbProjectId">Project ID</label><input id="fbProjectId" autocomplete="off" spellcheck="false"></div><div class="field"><label for="fbStorageBucket">Storage Bucket</label><input id="fbStorageBucket" autocomplete="off" spellcheck="false"></div><div class="field"><label for="fbSenderId">Messaging Sender ID</label><input id="fbSenderId" autocomplete="off" spellcheck="false"></div><div class="field"><label for="fbAppId">App ID</label><input id="fbAppId" autocomplete="off" spellcheck="false"></div><div class="form-actions"><button type="submit" class="btn">Bağlantı ayarlarını kaydet</button><button type="button" class="btn primary" onclick="testCloudConnection()">Bağlantıyı test et</button></div></form>
+            </article>
+          </div>
+        </div>
+
+        <article class="card" style="margin-top:16px">
+          <div class="section-head" style="margin-top:0">
+            <div>
+              <h3>🗑️ Silinme Geçmişi ve Geri Alma Merkezi</h3>
+              <p class="muted smalltext">Silinen öğeleri geri alabilir veya tamamen (kalıcı olarak) silebilirsiniz.</p>
+            </div>
+            <div class="form-actions">
+              <span class="pill" id="deletedTrashCountBadge">0 silinen öğe</span>
+              <button class="btn small primary" type="button" onclick="restoreAllDeletedItems()">↩ Tümünü Geri Al</button>
+              <button class="btn small danger" type="button" onclick="emptyAllTrashPermanently()">🔥 Tümünü Kalıcı Sil</button>
+            </div>
+          </div>
+          <div class="toolbar">
+            <div class="field">
+              <label for="trashSearchInput">Silinenlerde ara</label>
+              <input id="trashSearchInput" type="search" placeholder="Kayıt adı, tür veya bağlı olduğu ders/sure…" oninput="renderDeletionHistory()">
+            </div>
+            <div class="field">
+              <label for="trashTypeFilter">Kategori filtresi</label>
+              <select id="trashTypeFilter" onchange="renderDeletionHistory()">
+                <option value="all">Tüm silinen kayıtlar</option>
+                <option value="live">🎥 Canlı Ders & Bağlı Ders Videoları</option>
+                <option value="resource">📎 Ekli Dosya / Medya Kaynakları</option>
+                <option value="tajweed">۞ Tecvid Ders Günleri</option>
+                <option value="prayer">🤲 Dualar</option>
+                <option value="history">🕘 Ezber Oturumları (Sure & Dua)</option>
+                <option value="sitelink">🔗 Site Bağlantıları</option>
+                <option value="topic">🗂️ Tecvid Konu Başlıkları</option>
+              </select>
+            </div>
+          </div>
+          <div id="deletionHistoryTable"></div>
+        </article>
+      </section>
+    </main>
+  </div>
+  <div class="footer-note">Murat KaraaslanSure Ezberleme Uygulaması · Yerel ve Bulut kayıt alanı yalnızca bu uygulamaya aittir</div>
+</div>
+
+<div id="toastHost" class="toast-host" aria-live="polite" aria-atomic="true"></div>
+
+<!-- MODALLAR AYNEN KORUNDU -->
+<div id="resourceModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="resourceModalTitle">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="resourceModalTitle">Kaynak Ekle (Toplu Seçim Destekli)</h3>
+      <button class="close-modal" type="button" onclick="closeModal('resourceModal')" aria-label="Kapat">×</button>
+    </div>
+    <form id="resourceForm" class="grid" style="gap:13px">
+      <div class="field">
+        <label for="resourceTitle">Kaynak Başlığı (Çoklu dosyada boş bırakılırsa dosya adları kullanılır)</label>
+        <input id="resourceTitle" maxlength="120" placeholder="Örn. Tecvid tablosu / Telaffuz videosu">
+      </div>
+      <div class="field">
+        <label for="resourceUrl">Web Bağlantısı (URL - İsteğe Bağlı)</label>
+        <input id="resourceUrl" type="url" maxlength="2000" placeholder="https://…">
+      </div>
+      <div class="field">
+        <label for="resourceFile">Veya Cihazdan Dosya(lar) Seçin (Toplu Seçim Yapabilirsiniz)</label>
+        <input id="resourceFile" type="file" multiple accept="image/*,application/pdf,video/*,audio/*,text/*,.mp4,.mov,.webm,.mkv,.mp3,.wav,.ogg,.png,.jpg,.jpeg,.webp,.gif,.svg,.pdf,.txt,.md">
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Kaynakları Kaydet</button>
+        <button class="btn" type="button" onclick="closeModal('resourceModal')">Vazgeç</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="mediaViewerModal" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="media-modal">
+    <div class="media-modal-header">
+      <h4 id="mediaViewerTitle">Medya Görüntüleyici</h4>
+      <div class="media-toolbar" id="mediaViewerToolbar"></div>
+      <button class="close-modal" type="button" onclick="closeModal('mediaViewerModal')" aria-label="Kapat">×</button>
+    </div>
+    <div class="media-viewer-stage" id="mediaViewerStage"></div>
+  </div>
+</div>
+
+<div id="hijriCalendarModal" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal" style="width:min(860px,96vw)">
+    <div class="modal-head">
+      <div>
+        <h3>📅 Hicri & Miladi Takvim ve Mübarek Günler</h3>
+        <p class="muted smalltext" id="calendarModalSubtitle">Aylara göre Hicri gün karşılıkları ve İslami önemli günler/geceler</p>
+      </div>
+      <button class="close-modal" type="button" onclick="closeModal('hijriCalendarModal')">×</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <div class="form-actions">
+        <button class="btn small" type="button" onclick="changeCalendarMonth(-1)">◀ Önceki Ay</button>
+        <button class="btn small primary" type="button" onclick="resetCalendarToToday()">Bugün</button>
+        <button class="btn small" type="button" onclick="changeCalendarMonth(1)">Sonraki Ay ▶</button>
+      </div>
+      <strong id="calendarMonthLabel" style="font-size:16px"></strong>
+    </div>
+    <div class="hijri-calendar-grid" id="hijriCalendarGrid"></div>
+    <div class="quran-divider">SEÇİLEN AYDAKİ ÖNEMLİ İSLAMİ GÜNLER VE OLAYLAR</div>
+    <div class="hijri-event-list" id="hijriEventsList"></div>
+  </div>
+</div>
+
+<div id="liveRecordingModal" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="liveRecordingModalTitle">Canlı Ders Kaydını Kaydet</h3>
+      <button class="close-modal" type="button" onclick="closeModal('liveRecordingModal')">×</button>
+    </div>
+    <form id="liveRecordingForm" class="grid" style="gap:12px" onsubmit="saveLiveRecordingForm(event)">
+      <input type="hidden" id="liveRecId">
+      <div class="field">
+        <label for="liveRecTitle">Kayıt / Video Adı</label>
+        <input id="liveRecTitle" required maxlength="140" placeholder="Örn. 5. Gün Tecvid Canlı Ders Kaydı">
+      </div>
+      <div class="field">
+        <label for="liveRecLessonId">Hangi Gün / Ders Videosu?</label>
+        <select id="liveRecLessonId"></select>
+      </div>
+      <div class="field">
+        <label for="liveRecDate">Ders Tarihi</label>
+        <input id="liveRecDate" type="date" required>
+      </div>
+      <div class="field">
+        <label for="liveRecUrl">Video Bağlantısı (Link varsa)</label>
+        <input id="liveRecUrl" type="url" placeholder="https://...">
+      </div>
+      <div class="field" id="liveRecFileField">
+        <label for="liveRecFile">Veya Cihazdan Video Dosyası Seç (İsteğe Bağlı)</label>
+        <input id="liveRecFile" type="file" accept="video/*,.mp4,.webm,.mov">
+      </div>
+      <div class="field">
+        <label for="liveRecNotes">Kısa Açıklama / Not</label>
+        <textarea id="liveRecNotes" maxlength="1000" placeholder="Bu canlı derste işlenen konular..."></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" type="submit" id="liveRecSaveBtn">Uygulamaya & Buluta Kaydet</button>
+        <button class="btn" type="button" onclick="closeModal('liveRecordingModal')">Vazgeç</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="editRecordModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="editRecordTitle"><div class="modal"><div class="modal-head"><h3 id="editRecordTitle">Ezber kaydını düzenle</h3><button class="close-modal" type="button" onclick="closeModal('editRecordModal')" aria-label="Kapat">×</button></div><form id="editRecordForm" class="grid" style="gap:13px"><input type="hidden" id="editRecordId"><input type="hidden" id="editRecordType"><div class="field"><label>Aşama</label><input id="editRecordStage" disabled></div><div class="field"><label for="editRecordDate">Tarih</label><input id="editRecordDate" type="date" required></div><div class="field"><label for="editRecordDuration">Süre (dakika)</label><input id="editRecordDuration" type="number" min="0" max="1440" step="0.1" required></div><div class="field"><label for="editRecordResult">Sonuç</label><select id="editRecordResult"><option>İyi</option><option>Tekrar gerekli</option><option>Tamamlandı</option></select></div><div class="field span-2"><label for="editRecordNotes">Not</label><textarea id="editRecordNotes" maxlength="3000"></textarea></div><div class="form-actions"><button class="btn primary" type="submit">Değişiklikleri kaydet</button><button class="btn" type="button" onclick="closeModal('editRecordModal')">Vazgeç</button></div></form></div></div>
+
+<div id="topicManagerModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="topicManagerTitle"><div class="modal" style="max-width:760px"><div class="modal-head"><div><h3 id="topicManagerTitle">Tecvid ders adları</h3><p class="muted smalltext">Hazır konuları düzenleyin; yeni konu eklediğinizde ders formundaki açılır listeye eklenir.</p></div><button class="close-modal" type="button" onclick="closeModal('topicManagerModal')" aria-label="Kapat">×</button></div><form id="tajweedTopicForm" class="grid" style="gap:10px" onsubmit="saveTajweedTopic(event)"><input type="hidden" id="tajweedTopicId"><div class="field"><label for="tajweedTopicName">Ders adı / konu başlığı</label><input id="tajweedTopicName" maxlength="140" required placeholder="Örn. Med çeşitleri"></div><div class="field"><label for="tajweedTopicNotes">Ders notu taslağı / öğretim akışı</label><textarea id="tajweedTopicNotes" maxlength="5000" placeholder="Konu hedefi, açıklama, örnek çalışma ve ödev..."></textarea></div><div class="field"><label for="tajweedTopicSource">Kaynak bağlantısı (isteğe bağlı)</label><input id="tajweedTopicSource" type="url" maxlength="2000" placeholder="https://..."></div><div class="form-actions"><button class="btn primary" type="submit">Konuyu kaydet</button><button class="btn" type="button" onclick="resetTajweedTopicForm()">Yeni konu formu</button></div></form><div class="quran-divider">KONU LİSTESİ</div><div id="tajweedTopicsManagerList" class="topic-manager-list"></div></div></div>
+
+<div id="prayerModal" class="modal-backdrop" role="dialog" aria-modal="true"><div class="modal"><div class="modal-head"><h3 id="prayerModalTitle">Yeni Dua</h3><button class="close-modal" type="button" onclick="closeModal('prayerModal')">×</button></div><form id="prayerForm" class="grid" style="gap:12px" onsubmit="savePrayerForm(event)"><input type="hidden" id="prayerId"><div class="field"><label for="prayerTitleInput">Dua Adı</label><input id="prayerTitleInput" required maxlength="120" placeholder="Örn. Sübhâneke Duası"></div><div class="field"><label for="prayerCategoryInput">Kategori</label><input id="prayerCategoryInput" list="prayerCategorySuggestions" required placeholder="Namaz Duaları"><datalist id="prayerCategorySuggestions"><option value="Namaz Duaları"><option value="Kur’an-ı Kerim Duaları"><option value="Günlük Dualar"><option value="Tesbihat ve Zikirler"></datalist></div><div class="field span-2"><label for="prayerArabicInput">Arapça Metin / Okunuş</label><textarea id="prayerArabicInput" placeholder="Arapça metin veya Latin harfleriyle okunuşu…"></textarea></div><div class="field span-2"><label for="prayerMeaningInput">Türkçe Anlamı / Meali</label><textarea id="prayerMeaningInput" placeholder="Duanın meali ve açıklaması…"></textarea></div><div class="form-actions span-2"><button type="submit" class="btn primary">Duayı Kaydet</button><button class="btn" type="button" onclick="closeModal('prayerModal')">Vazgeç</button></div></form></div></div>
+
+<section id="printArea" aria-hidden="true"></section>
+
+<script>
+'use strict';
+const APP_ID = 'murat_karaaslan_sure_ezberleme_v1';
+const STORAGE_KEY = 'murat_karaaslan_sure_ezberleme_v1';
+const IDB_NAME = 'murat_karaaslan_sure_ezberleme_files_v1';
+const IDB_STORE = 'attachments';
+const DEFAULT_LIVE_URL = 'https://canli25009.hayrategitim.com/html5client/join?sessionToken=lqmqr8dhoy98gngk';
+
+const CLOUD = {
+  surahs: 'murat_karaaslan_sure_ezberleme_surahs_v1',
+  history: 'murat_karaaslan_sure_ezberleme_history_v1',
+  settings: 'murat_karaaslan_sure_ezberleme_settings_v1',
+  tajweed: 'murat_karaaslan_sure_ezberleme_tajweed_v1',
+  siteLinks: 'murat_karaaslan_sure_ezberleme_site_links_v1',
+  tajweedTopics: 'murat_karaaslan_sure_ezberleme_tajweed_topics_v1',
+  prayers: 'murat_karaaslan_sure_ezberleme_prayers_v1',
+  prayerHistory: 'murat_karaaslan_sure_ezberleme_prayer_history_v1',
+  liveRecordings: 'murat_karaaslan_sure_ezberleme_live_recordings_v1'
+};
+
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyAhjq7KL_e80LiW8fC-wttmn8gba5UvhVE',
+  authDomain: 'muratilactakip.firebaseapp.com',
+  projectId: 'muratilactakip',
+  storageBucket: 'muratilactakip.firebasestorage.app',
+  messagingSenderId: '1029760039126',
+  appId: '1:1029760039126:web:08dc48a945e8e7e19df177'
+};
+
+const SURAH_NAMES = [
+'Fâtiha','Bakara','Âl-i İmrân','Nisâ','Mâide','En’âm','A’râf','Enfâl','Tevbe','Yûnus','Hûd','Yûsuf','Ra’d','İbrâhîm','Hicr','Nahl','İsrâ','Kehf','Meryem','Tâhâ','Enbiyâ','Hac','Mü’minûn','Nûr','Furkân','Şuarâ','Neml','Kasas','Ankebût','Rûm','Lokmân','Secde','Ahzâb','Sebe’','Fâtır','Yâsîn','Sâffât','Sâd','Zümer','Mü’min (Gâfir)','Fussilet','Şûrâ','Zuhruf','Duhân','Câsiye','Ahkâf','Muhammed','Fetih','Hucurât','Kâf','Zâriyât','Tûr','Necm','Kamer','Rahmân','Vâkıa','Hadîd','Mücâdele','Haşr','Mümtehine','Saff','Cuma','Münâfikûn','Tegâbün','Talâk','Tahrîm','Mülk','Kalem','Hâkka','Meâric','Nûh','Cin','Müzzemmil','Müddessir','Kıyâme','İnsan','Mürselât','Nebe’','Nâziât','Abese','Tekvîr','İnfitâr','Mutaffifîn','İnşikâk','Bürûc','Târık','A’lâ','Gâşiye','Fecr','Beled','Şems','Leyl','Duhâ','İnşirâh','Tîn','Alak','Kadr','Beyyine','Zilzâl','Âdiyât','Kâria','Tekâsür','Asr','Hümeze','Fîl','Kureyş','Mâûn','Kevser','Kâfirûn','Nasr','Tebbet (Mesed)','İhlâs','Felak','Nâs'
+];
+const DEFAULT_AYAH_COUNTS = [7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,24,13,14,11,11,18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,19,26,30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6];
+const NAMAZ_SURAH_NUMBERS = new Set([1,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114]);
+const ISLAMIC_EMOJI_LIBRARY = {
+  'İslami & Mabed': ['🕌','🕋','📖','📿','🤲','🌙','⭐','🌟','۞','﷽','☪️','🕯️','🧭','🏛️','⛲','🌴','🌿','🕊️','💧','☀️'],
+  'İlim & Eğitim': ['📚','📜','🖋️','📝','🎓','🎧','🎬','🎥','📄','🗂️','🔖','💡','🔍','🖥️','📱','🎙️','⏱️','📊','✅','🏆'],
+  'Sembol & Hat': ['🟢','🟡','🟤','⚜️','💠','🔷','🔶','✨','🛡️','🔑','🚪','🪴','🌺','🌾','🍯','🫖','🧿','❤️','🤍','🔗']
+};
+
+const HIJRI_MONTH_NAMES = ['Muharrem','Safer','Rebîülevvel','Rebîülâhir','Cemâziyelevvel','Cemâziyelâhir','Receb','Şâban','Ramazan','Şevval','Zilkâde','Zilhicce'];
+const ISLAMIC_IMPORTANT_EVENTS = [
+  { month: 1, day: 1, title: 'Hicrî Yılbaşı', desc: 'Muharrem ayının 1. günü, Hicrî takvim yeni yılı.' },
+  { month: 1, day: 10, title: 'Âşûre Günü', desc: 'Muharrem ayının 10. günü, peygamberler tarihinde önemli hadiselerin yaşandığı mübarek gün.' },
+  { month: 3, day: 12, title: 'Mevlid Kandili', desc: 'Peygamber Efendimiz Hz. Muhammed’in (s.a.v.) dünyaya teşrifi.' },
+  { month: 7, day: 1, title: 'Üç Ayların Başlangıcı', desc: 'Mübarek Receb, Şâban ve Ramazan aylarının başlangıcı.' },
+  { month: 7, day: 4, title: 'Regâib Kandili (Receb İlk Cuma Gecesi)', desc: 'Receb ayının ilk Cuma gecesi idrak edilen rahmet ve mağfiret gecesi.' },
+  { month: 7, day: 27, title: 'Mîrac Kandili', desc: 'Peygamber Efendimizin (s.a.v.) Mescid-i Harâm’dan Mescid-i Aksâ’ya ve semaya yükselişi.' },
+  { month: 8, day: 15, title: 'Berât Kandili', desc: 'Şâban ayının 15. gecesi; af, mağfiret ve kurtuluş gecesi.' },
+  { month: 9, day: 1, title: 'Ramazan-ı Şerif Başlangıcı', desc: 'On bir ayın sultanı, Kur’an ve oruç ayı Ramazan’ın ilk günü.' },
+  { month: 9, day: 27, title: 'Kadir Gecesi', desc: 'Kur’an-ı Kerim’in indirildiği, bin aydan daha hayırlı mübarek gece.' },
+  { month: 10, day: 1, title: 'Ramazan Bayramı (1. Gün)', desc: 'Şevval ayının 1. günü, Ramazan Bayramı başlangıcı.' },
+  { month: 12, day: 9, title: 'Arefe Günü (Zilhicce 9)', desc: 'Kurban Bayramı öncesi Arefe günü ve Vakfe.' },
+  { month: 12, day: 10, title: 'Kurban Bayramı (1. Gün)', desc: 'Zilhicce ayının 10. günü, Kurban Bayramı başlangıcı.' }
+];
+
+const SEED_PRAYERS = [
+  {id:'pr_subhaneke',title:'Sübhâneke Duası',category:'Namaz Duaları',arabic:'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَى جَدُّكَ وَلَا إِلَهَ غَيْرُكَ',meaning:'Allahım! Sen eksik sıfatlardan pak ve uzaksın. Seni daima böyle tenzih eder ve överim. Senin adın mübarektir. Varlığın her şeyden üstündür. Senden başka hiçbir ilah yoktur.',resources:[]},
+  {id:'pr_ettehiyyatu',title:'Ettehiyyâtü Duası',category:'Namaz Duaları',arabic:'التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ...',meaning:'Her türlü hürmet, salavât ve bütün güzel sözler, iyilikler Allah’a mahsustur. Ey Nebî! Selâm, Allah’ın rahmeti ve bereketi senin üzerine olsun...',resources:[]}
+];
+
+const DEFAULT_TAJWEED_TOPICS = [
+ {id:'tp_seed_intro',title:'Tecvide Giriş ve Tertîl',notes:'Hedef: Tecvidin amacını ve düzenli çalışma yöntemini kavramak.',sourceUrl:'https://islamansiklopedisi.org.tr/tecvid--kuran'},
+ {id:'tp_seed_makhraj',title:'Harflerin Mahreçleri',notes:'Hedef: Harflerin çıktığı yerleri fark etmek.',sourceUrl:'https://islamansiklopedisi.org.tr/tecvid--kuran'}
+];
+
+const DEFAULT_SETTINGS = {
+  appTitle:'Murat KaraaslanSure Ezberleme Uygulaması',
+  theme:'system',
+  cloudEnabled:false,
+  adminPassword:'1234',
+  liveJoinUrl:DEFAULT_LIVE_URL,
+  firebaseConfig:DEFAULT_FIREBASE_CONFIG,
+  listModes:{surahs:'cards',tajweed:'cards',sites:'cards',prayers:'cards'},
+  trashRetentionDays: 30
+};
+
+const deepCopy = obj => JSON.parse(JSON.stringify(obj));
+function nowIso(){return new Date().toISOString()}
+function todayLocal(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function uid(prefix='id'){return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,10)}`}
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function safeExternalUrl(value){try{const u=new URL(String(value||''));return ['http:','https:'].includes(u.protocol)?u.href:''}catch(_){return ''}}
+
+function detectResourceKind(file, url=''){
+  const mime = (file?.type || '').toLowerCase();
+  const name = (file?.name || url || '').toLowerCase();
+  if(mime.startsWith('image/') || /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name)) return 'image';
+  if(mime === 'application/pdf' || /\.pdf(\?|$)/i.test(name)) return 'pdf';
+  if(mime.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac|flac)$/i.test(name)) return 'audio';
+  if(mime.startsWith('text/') || /\.(txt|md|csv|json)$/i.test(name)) return 'doc';
+  return 'video';
+}
+
+function normalizeResource(r){
+  const allowed = ['video','pdf','image','audio','doc'];
+  return {
+    id:String(r.id||uid('res')),
+    kind:allowed.includes(r.kind)?r.kind:(r.kind==='pdf'?'pdf':'video'),
+    title:String(r.title||'Kaynak').slice(0,120),
+    url:safeExternalUrl(r.url||''),
+    blobId:typeof r.blobId==='string'?r.blobId:'',
+    mimeType:typeof r.mimeType==='string'?r.mimeType:'',
+    linkedLiveRecId:typeof r.linkedLiveRecId==='string'?r.linkedLiveRecId:'',
+    addedAt:String(r.addedAt||nowIso()),
+    deleted:r.deleted===true,
+    deletedAt:typeof r.deletedAt==='string'?r.deletedAt:''
+  };
+}
+
+function normalizeSurahList(value){
+  const saved=Array.isArray(value)?value:[];const byId=new Map(saved.filter(s=>s&&typeof s==='object'&&/^s\d{3}$/.test(String(s.id||''))).map(s=>[s.id,s]));
+  return SURAH_NAMES.map((name,i)=>{const id=`s${String(i+1).padStart(3,'0')}`;const old=byId.get(id)||{};const rawCount=Object.prototype.hasOwnProperty.call(old,'ayahCount')?old.ayahCount:DEFAULT_AYAH_COUNTS[i];const ayahCount=Number.isInteger(Number(rawCount))&&Number(rawCount)>=1&&Number(rawCount)<=1000?Number(rawCount):null;return {id,number:i+1,name,ayahCount,mastered:old.mastered===true,notes:typeof old.notes==='string'?old.notes.slice(0,5000):'',resources:Array.isArray(old.resources)?old.resources.map(normalizeResource):[],updatedAt:typeof old.updatedAt==='string'?old.updatedAt:''};});
+}
+
+function normalizeHistory(value){if(!Array.isArray(value))return [];return value.filter(r=>r&&typeof r==='object'&&typeof r.id==='string').map(r=>({id:r.id,surahId:r.surahId||'',stageIndex:Number.isInteger(Number(r.stageIndex))?Math.max(0,Number(r.stageIndex)):0,date:/^\d{4}-\d{2}-\d{2}$/.test(String(r.date||''))?r.date:todayLocal(),durationSeconds:Number(r.durationSeconds)||0,result:r.result||'İyi',notes:r.notes||'',createdAt:r.createdAt||nowIso(),updatedAt:r.updatedAt||nowIso(),deleted:r.deleted===true,deletedAt:r.deletedAt||'',appId:APP_ID}));}
+
+function normalizePrayers(value){
+  if(!Array.isArray(value)||!value.length)return deepCopy(SEED_PRAYERS).map(p=>({...p,resources:[],mastered:false,updatedAt:nowIso(),deleted:false,deletedAt:''}));
+  return value.map(p=>({id:p.id||uid('pr'),title:p.title||'Dua',category:p.category||'Namaz Duaları',arabic:p.arabic||'',meaning:p.meaning||'',notes:p.notes||'',resources:Array.isArray(p.resources)?p.resources.map(normalizeResource):[],mastered:p.mastered===true,updatedAt:p.updatedAt||nowIso(),deleted:p.deleted===true,deletedAt:typeof p.deletedAt==='string'?p.deletedAt:''}));
+}
+
+function normalizeLiveRecordings(value){
+  if(!Array.isArray(value)) return [];
+  return value.filter(r=>r&&typeof r==='object').map(r=>({
+    id:String(r.id||uid('live')),
+    title:String(r.title||'Canlı Ders Kaydı').slice(0,140),
+    lessonId:String(r.lessonId||''),
+    lessonLabel:String(r.lessonLabel||'Genel Canlı Ders'),
+    linkedResourceId:String(r.linkedResourceId||''),
+    date:/^\d{4}-\d{2}-\d{2}$/.test(String(r.date||''))?r.date:todayLocal(),
+    durationSeconds:Number(r.durationSeconds)||0,
+    url:safeExternalUrl(r.url||''),
+    cloudUrl:safeExternalUrl(r.cloudUrl||''),
+    blobId:String(r.blobId||''),
+    notes:String(r.notes||'').slice(0,1000),
+    createdAt:String(r.createdAt||nowIso()),
+    updatedAt:String(r.updatedAt||nowIso()),
+    deleted:r.deleted===true,
+    deletedAt:typeof r.deletedAt==='string'?r.deletedAt:'',
+    appId:APP_ID
+  }));
+}
+
+function loadAppState(){
+  const defaultState={settings:deepCopy(DEFAULT_SETTINGS),surahs:normalizeSurahList([]),prayers:normalizePrayers([]),history:[],prayerHistory:[],tajweedLessons:[],siteLinks:[],tajweedTopics:deepCopy(DEFAULT_TAJWEED_TOPICS),liveRecordings:[],timer:{elapsedMs:0,runningSince:null,laps:[]}};
+  try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return defaultState;const parsed=JSON.parse(raw);if(!parsed)return defaultState;
+    const settings=parsed.settings||{};
+    return {
+      settings:{...deepCopy(DEFAULT_SETTINGS),...settings,listModes:{...DEFAULT_SETTINGS.listModes,...(settings.listModes||{})},firebaseConfig:{...DEFAULT_FIREBASE_CONFIG,...(settings.firebaseConfig||{})},theme:settings.theme||'system',appTitle:settings.appTitle||DEFAULT_SETTINGS.appTitle,adminPassword:settings.adminPassword||'1234',liveJoinUrl:settings.liveJoinUrl||DEFAULT_LIVE_URL,cloudEnabled:settings.cloudEnabled===true,trashRetentionDays:Number(settings.trashRetentionDays)>=0?Number(settings.trashRetentionDays):30},
+      surahs:normalizeSurahList(parsed.surahs),
+      prayers:normalizePrayers(parsed.prayers),
+      history:normalizeHistory(parsed.history),
+      prayerHistory:normalizeHistory(parsed.prayerHistory),
+      tajweedLessons:Array.isArray(parsed.tajweedLessons)?parsed.tajweedLessons.map(l=>({...l,deleted:l.deleted===true,deletedAt:l.deletedAt||'',resources:(l.resources||[]).map(normalizeResource)})):[],
+      siteLinks:Array.isArray(parsed.siteLinks)?parsed.siteLinks.map(x=>({...x,deleted:x.deleted===true,deletedAt:x.deletedAt||''})):[],
+      tajweedTopics:Array.isArray(parsed.tajweedTopics)?parsed.tajweedTopics.map(t=>({...t,deleted:t.deleted===true,deletedAt:t.deletedAt||''})):deepCopy(DEFAULT_TAJWEED_TOPICS),
+      liveRecordings:normalizeLiveRecordings(parsed.liveRecordings),
+      timer:{elapsedMs:parsed.timer?.elapsedMs||0,runningSince:parsed.timer?.runningSince||null,laps:parsed.timer?.laps||[]}
+    };
+  }catch(e){console.warn('Veri okunamadı:',e);return defaultState;}
+}
+
+let state = loadAppState();
+let selectedSurahId = 's001';
+let selectedSurahGroup = 'all';
+let selectedPrayerId = state.prayers[0]?.id || '';
+let selectedTajweedId = '';
+let resourceOwner = {type:'surah', id:'s001'};
+let currentView = 'dashboard';
+let cloudContext = null;
+let cloudBusy = false;
+let activeEmojiCat = Object.keys(ISLAMIC_EMOJI_LIBRARY)[0];
+
+let currentMediaContext = { ownerId: '', resources: [], currentIndex: -1, zoom: 1, panX: 0, panY: 0, isDragging: false, startX: 0, startY: 0 };
+
+let screenMediaStream = null;
+let screenRecorder = null;
+let recordedChunks = [];
+let recordStartTime = 0;
+let recordTimerInterval = null;
+let pendingRecordedBlob = null;
+let pendingRecordedSeconds = 0;
+
+let isRecordPaused = false;
+let recordPausedTotalMs = 0;
+let recordLastPauseTime = 0;
+
+let calendarState = { year: new Date().getFullYear(), month: new Date().getMonth(), selectedDateStr: todayLocal() };
+
+function reconcileBidirectionalLinks(){
+  let changed = false;
+  for(const rec of (state.liveRecordings||[])){
+    if(rec.lessonId){
+      const lesson = state.tajweedLessons.find(l=>l.id===rec.lessonId);
+      if(lesson && Array.isArray(lesson.resources)){
+        let linkedRes = lesson.resources.find(r=>r.id===rec.linkedResourceId || r.linkedLiveRecId===rec.id);
+        if(!linkedRes){
+          linkedRes = lesson.resources.find(r => (rec.blobId && r.blobId===rec.blobId) || r.title===`🎥 ${rec.title}` || r.title===rec.title);
+        }
+        if(linkedRes){
+          if(rec.linkedResourceId !== linkedRes.id){ rec.linkedResourceId = linkedRes.id; changed = true; }
+          if(linkedRes.linkedLiveRecId !== rec.id){ linkedRes.linkedLiveRecId = rec.id; changed = true; }
+        }
+      }
+    }
+  }
+  if(changed) persist();
+}
+
+function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));return true}catch(e){toast('Depolama hatası.','error');return false}}
+function toast(message,type=''){const host=document.getElementById('toastHost');const node=document.createElement('div');node.className=`toast ${type}`;node.textContent=message;host.appendChild(node);setTimeout(()=>node.remove(),4000)}
+function surahById(id){return state.surahs.find(s=>s.id===id)||state.surahs[0]}
+function surahName(id){const s=state.surahs.find(x=>x.id===id);return s?`${s.number}. ${s.name}`:'Bilinmeyen sure'}
+function prayerById(id){return state.prayers.find(p=>p.id===id)||state.prayers[0]}
+function stageLabel(index){return index===0?'1. Ham Ezberleme':`Haşlama ${index}`}
+function activeHistory(){return state.history.filter(r=>!r.deleted)}
+function activePrayerHistory(){return (state.prayerHistory||[]).filter(r=>!r.deleted)}
+function activeResources(owner){return (owner?.resources||[]).filter(r=>!r.deleted)}
+function surahHistory(id){return activeHistory().filter(r=>r.surahId===id).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.createdAt).localeCompare(String(a.createdAt)))}
+function prayerHistoryRecords(id){return activePrayerHistory().filter(r=>r.surahId===id).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.createdAt).localeCompare(String(a.createdAt)))}
+function nextStageIndex(id,isPrayer=false){const arr=(isPrayer?activePrayerHistory():activeHistory()).filter(r=>r.surahId===id);return arr.length?Math.max(...arr.map(r=>r.stageIndex))+1:0}
+function formatDuration(seconds){seconds=Math.max(0,Math.floor(Number(seconds)||0));const h=Math.floor(seconds/3600),m=Math.floor((seconds%3600)/60),s=seconds%60;return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+function formatDateTimeShort(iso){if(!iso)return '—';try{return new Intl.DateTimeFormat('tr-TR',{dateStyle:'short',timeStyle:'short'}).format(new Date(iso))}catch(_){return String(iso).slice(0,16)}}
+function elapsedNow(){return state.timer.elapsedMs+(state.timer.runningSince?Math.max(0,Date.now()-state.timer.runningSince):0)}
+
+function getTheme(){return state.settings.theme==='system'?(window.matchMedia?.('(prefers-color-scheme: dark)').matches?'dark':'light'):state.settings.theme}
+function applyTheme(){
+  const effective = getTheme();
+  document.documentElement.dataset.theme = effective;
+  const btn = document.getElementById('quickThemeBtn');
+  if(btn) btn.textContent = effective === 'dark' ? '☀️' : '🌙';
+  const sel = document.getElementById('themePreference');
+  if(sel) sel.value = state.settings.theme;
+}
+function setThemePreference(pref){
+  state.settings.theme = ['light','dark','system'].includes(pref) ? pref : 'system';
+  persist();
+  applyTheme();
+}
+function cycleTheme(){
+  const next = getTheme() === 'dark' ? 'light' : 'dark';
+  setThemePreference(next);
+}
+
+function getHijriParts(dateObj){
+  const calTypes = ['islamic-umalqura','islamic-civil','islamic'];
+  for(const cal of calTypes){
+    try{
+      const parts = new Intl.DateTimeFormat(`en-u-ca-${cal}-nu-latn`,{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(dateObj);
+      const day = Number(parts.find(p=>p.type==='day')?.value);
+      const month = Number(parts.find(p=>p.type==='month')?.value);
+      const year = Number(parts.find(p=>p.type==='year')?.value);
+      if(day && month && year){
+        return { day, month, year, monthName: HIJRI_MONTH_NAMES[month-1] || `${month}. Ay` };
+      }
+    }catch(_){}
+  }
+  return { day: 1, month: 1, year: 1448, monthName: 'Muharrem' };
+}
+
+function updateDates(){
+  const now=new Date();
+  document.getElementById('gregorianDate').textContent=`Miladi: ${new Intl.DateTimeFormat('tr-TR',{day:'numeric',month:'long',year:'numeric',weekday:'long'}).format(now)}`;
+  const h = getHijriParts(now);
+  document.getElementById('hijriDate').textContent=`Hicri: ${h.day} ${h.monthName} ${h.year}`;
+}
+
+function openHijriCalendarModal(){
+  const now = new Date();
+  calendarState = { year: now.getFullYear(), month: now.getMonth(), selectedDateStr: todayLocal() };
+  renderHijriCalendarModal();
+  openModal('hijriCalendarModal');
+}
+
+function changeCalendarMonth(delta){
+  const d = new Date(calendarState.year, calendarState.month + delta, 1);
+  calendarState.year = d.getFullYear();
+  calendarState.month = d.getMonth();
+  renderHijriCalendarModal();
+}
+
+function resetCalendarToToday(){
+  const now = new Date();
+  calendarState = { year: now.getFullYear(), month: now.getMonth(), selectedDateStr: todayLocal() };
+  renderHijriCalendarModal();
+}
+
+function selectCalendarDay(dateStr){
+  calendarState.selectedDateStr = dateStr;
+  renderHijriCalendarModal();
+}
+
+function renderHijriCalendarModal(){
+  const { year, month, selectedDateStr } = calendarState;
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const daysInMonth = lastDay.getDate();
+  const startOffset = (firstDay.getDay() + 6) % 7;
+
+  const hFirst = getHijriParts(firstDay);
+  const hLast = getHijriParts(lastDay);
+  const monthTitle = new Intl.DateTimeFormat('tr-TR',{month:'long',year:'numeric'}).format(firstDay);
+  const hijriSpan = hFirst.month === hLast.month
+    ? `${hFirst.monthName} ${hFirst.year}`
+    : `${hFirst.monthName} – ${hLast.monthName} ${hLast.year}`;
+
+  document.getElementById('calendarMonthLabel').textContent = `${monthTitle} (${hijriSpan})`;
+
+  const weekdays = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+  let gridHtml = weekdays.map(w=>`<div class="hijri-weekday">${w}</div>`).join('');
+  for(let i=0;i<startOffset;i++){
+    gridHtml += `<div></div>`;
+  }
+
+  const eventsInThisMonth = [];
+  const todayStr = todayLocal();
+
+  for(let d=1; d<=daysInMonth; d++){
+    const dateObj = new Date(year, month, d);
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const h = getHijriParts(dateObj);
+    const matchedEvents = ISLAMIC_IMPORTANT_EVENTS.filter(ev => ev.month === h.month && ev.day === h.day);
+    if(matchedEvents.length){
+      matchedEvents.forEach(ev => eventsInThisMonth.push({ dateStr, gDay: d, h, ...ev }));
+    }
+    const isToday = dateStr === todayStr;
+    const isSelected = dateStr === selectedDateStr;
+    gridHtml += `<button type="button" class="hijri-day-cell ${isToday?'today':''} ${isSelected?'selected':''} ${matchedEvents.length?'has-event':''}" onclick="selectCalendarDay('${dateStr}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
+        <span class="g-num">${d}</span>
+        ${matchedEvents.length ? '<span class="ev-dot" title="Önemli İslami Gün"></span>' : ''}
+      </div>
+      <div class="h-num">${h.day} ${h.monthName}</div>
+    </button>`;
+  }
+
+  document.getElementById('hijriCalendarGrid').innerHTML = gridHtml;
+
+  const eventsHost = document.getElementById('hijriEventsList');
+  if(!eventsInThisMonth.length){
+    eventsHost.innerHTML = `<div class="empty">Bu Miladi ay içerisinde kayıtlı özel gün bulunmuyor.</div>`;
+  } else {
+    eventsHost.innerHTML = eventsInThisMonth.map(ev => `
+      <div class="hijri-event-item ${ev.dateStr===selectedDateStr?'highlight':''}" onclick="selectCalendarDay('${ev.dateStr}')" style="cursor:pointer">
+        <div>
+          <strong>🌙 ${escapeHtml(ev.title)}</strong>
+          <div class="muted smalltext">${escapeHtml(ev.desc)}</div>
+        </div>
+        <div style="text-align:right;flex:none">
+          <span class="pill">${ev.gDay} ${new Intl.DateTimeFormat('tr-TR',{month:'long'}).format(new Date(year,month,ev.gDay))} ${year}</span>
+          <div class="smalltext" style="color:var(--accent);font-weight:800;margin-top:3px">${ev.h.day} ${ev.h.monthName} ${ev.h.year}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function switchView(view){
+  currentView=view;
+  document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.id===`view-${view}`));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.toggle('active',el.dataset.view===view));
+  if(view==='surahs')renderSurahWorkspace();
+  if(view==='prayers')renderPrayerWorkspace();
+  if(view==='tajweed')renderTajweedWorkspace();
+  if(view==='live')renderLiveWorkspace();
+  if(view==='sites'){renderEmojiLibrary();renderSiteLinks();}
+  if(view==='history'){populateHistoryFilters();renderHistoryTable()}
+  if(view==='reports')renderReports();
+  if(view==='settings'){renderSettings();renderDeletionHistory();}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderStats(){
+  const mastered=state.surahs.filter(s=>s.mastered).length, sessions=activeHistory().length+activePrayerHistory().length,started=state.surahs.filter(s=>surahHistory(s.id).length).length,percent=Math.round(mastered/Math.max(1,state.surahs.length)*100);
+  [['statTotal',state.surahs.length],['statMastered',mastered],['statSessions',sessions],['statProgress',`${percent}%`],['dashboardPercent',`${percent}%`],['dashboardProgressLabel',`${mastered} / ${state.surahs.length} sure`],['reportMastered',`${mastered} / ${state.surahs.length}`],['reportPercent',`${percent}%`],['reportStarted',started],['reportSessions',sessions]].forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.textContent=val});
+  ['statProgressBar','dashboardProgressBar','reportProgressBar'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.width=`${percent}%`});
+}
+
+function renderRecent(){
+  const recent=[...activeHistory(),...activePrayerHistory()].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).slice(0,5);
+  const host=document.getElementById('dashboardRecent');
+  if(!recent.length){host.innerHTML='<div class="empty">Henüz ezber kaydı yok.</div>';return}
+  host.innerHTML=recent.map(r=>{
+    const isP=r.surahId.startsWith('pr_');
+    const title=isP?prayerById(r.surahId)?.title:surahName(r.surahId);
+    return `<div class="recent-item"><div class="round-icon">${isP?'🤲':'📖'}</div><div class="recent-copy"><strong>${escapeHtml(title)} · ${escapeHtml(stageLabel(r.stageIndex))}</strong><p>${escapeHtml(r.date)} · ${formatDuration(r.durationSeconds)} · ${escapeHtml(r.result)}${r.notes?` · ${escapeHtml(r.notes)}`:''}</p></div><button class="btn small" onclick="editHistoryRecord('${r.id}','${isP?'prayer':'surah'}')">Düzenle</button></div>`;
+  }).join('');
+}
+
+function setListMode(key,mode){state.settings.listModes[key]=mode;persist();if(key==='surahs')renderSurahList();else if(key==='prayers')renderPrayerList();else if(key==='tajweed')renderTajweedList();else renderSiteLinks()}
+function updateListModeButtons(key){const mode=state.settings.listModes[key]||'cards';document.getElementById(`${key}CardsModeBtn`)?.classList.toggle('active',mode==='cards');document.getElementById(`${key}ListModeBtn`)?.classList.toggle('active',mode==='list')}
+
+function setSurahGroup(group){selectedSurahGroup=group==='namaz'?'namaz':'all';document.getElementById('surahGroupAllBtn')?.classList.toggle('active',selectedSurahGroup==='all');document.getElementById('surahGroupNamazBtn')?.classList.toggle('active',selectedSurahGroup==='namaz');renderSurahWorkspace()}
+function renderSurahList(){
+  const host=document.getElementById('surahList');if(!host)return;
+  const q=(document.getElementById('surahSearch')?.value||'').trim().toLocaleLowerCase('tr-TR');
+  const groupList=state.surahs.filter(s=>selectedSurahGroup!=='namaz'||NAMAZ_SURAH_NUMBERS.has(s.number));
+  const list=groupList.filter(s=>!q||s.name.toLocaleLowerCase('tr-TR').includes(q)||String(s.number)===q);
+  host.classList.toggle('cards-mode',state.settings.listModes.surahs==='cards');
+  updateListModeButtons('surahs');
+  host.innerHTML=list.map(s=>{
+    const count=surahHistory(s.id).length;
+    const resCount=activeResources(s).length;
+    return `<button type="button" class="surah-item ${s.id===selectedSurahId?'active':''}" onclick="selectSurah('${s.id}')"><span class="surah-number">${s.number}</span><span style="min-width:0;flex:1"><span class="surah-name">${escapeHtml(s.name)} ${s.mastered?'✓':''}</span><span class="surah-meta">${s.ayahCount?`${s.ayahCount} ayet`:'Ayet belirsiz'} · ${count?`${count} oturum`:'Kayıt yok'} · ${resCount} kaynak</span></span></button>`;
+  }).join('')||'<div class="empty">Sure bulunamadı.</div>';
+  document.getElementById('surahCountBadge').textContent=`${list.length} sure`;
+}
+function selectSurah(id){selectedSurahId=id;renderSurahWorkspace()}
+
+function renderSurahWorkspace(){
+  renderSurahList();
+  const s=surahById(selectedSurahId);if(!s)return;
+  const history=surahHistory(s.id);
+  const stage=stageLabel(nextStageIndex(s.id));
+  document.getElementById('surahDetailCard').innerHTML=`<div class="surah-detail-head"><div class="surah-titleline"><div class="big-number">${s.number}</div><div><h3>${escapeHtml(s.name)} Suresi</h3><p class="muted smalltext">Kur’an-ı Kerim · Sure ${s.number} / 114 · ${s.ayahCount?`${s.ayahCount} ayet`:'Ayet sayısı girilmedi'} · ${history.length} oturum</p></div></div><label class="check-row"><input type="checkbox" ${s.mastered?'checked':''} onchange="toggleMastered('${s.id}',this.checked)"><span>Ezber tamamlandı</span></label></div>
+  <div class="ayah-editor"><div style="font-weight:850;font-size:12px;margin-bottom:8px">📝 Ayet Sayısı</div><form class="ayah-editor-row" onsubmit="saveSurahAyahCount(event,'${s.id}')"><div class="field"><label for="surahAyahCount">Ayet adedi</label><input id="surahAyahCount" type="number" min="1" max="1000" value="${s.ayahCount??''}" placeholder="Ayet sayısı"></div><button type="submit" class="btn primary">Ayet sayısını kaydet</button><button type="button" class="btn" onclick="clearSurahAyahCount('${s.id}')">Kaldır</button></form></div>
+  <div style="margin:15px 0 7px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px"><strong class="smalltext">Ekli Kaynaklar (Video, PDF, Görsel, Ses/Metin) — Frame İçinde Açılır</strong><button class="btn small primary" onclick="openResourceModal('surah','${s.id}')">＋ Kaynak Ekle (Toplu Seçim)</button></div>
+  <div class="resource-panels">${renderResourcePanel(s,'video','surah')}${renderResourcePanel(s,'pdf','surah')}${renderResourcePanel(s,'image','surah')}</div>
+  <div style="margin-top:14px" class="field"><label for="surahNotes">Sure Notları</label><textarea id="surahNotes" maxlength="5000">${escapeHtml(s.notes)}</textarea></div><div class="form-actions" style="margin-top:9px"><button class="btn" onclick="saveSurahNotes('${s.id}')">Notları kaydet</button><button class="btn" onclick="printSurahReport('${s.id}')">📄 Bu Surenin PDF Raporu</button></div>`;
+  
+  document.getElementById('sessionFormCard').innerHTML=`<h3>＋ Yeni ezber oturumu</h3><div class="next-stage"><div><span class="muted smalltext">Otomatik sıradaki aşama</span><br><strong>${escapeHtml(stage)}</strong></div><span class="pill">Sıra: ${nextStageIndex(s.id)+1}</span></div><form id="newSessionForm" class="form-grid" onsubmit="saveNewSession(event,'${s.id}')"><div class="field"><label for="recordDate">Tarih</label><input type="date" id="recordDate" value="${todayLocal()}" required></div><div class="field"><label for="recordDurationMinutes">Süre (dakika)</label><input type="number" id="recordDurationMinutes" min="0" max="1440" step="0.1" value="${elapsedNow()>0?(elapsedNow()/60000).toFixed(1):'0'}" required></div><div class="field"><label for="recordResult">Sonuç</label><select id="recordResult"><option>İyi</option><option>Tekrar gerekli</option><option>Tamamlandı</option></select></div><div class="field span-2"><label for="recordNotes">Çalışma notu</label><textarea id="recordNotes" maxlength="3000"></textarea></div><div class="form-actions span-2"><button type="submit" class="btn primary">✓ Oturumu kaydet</button><button type="button" class="btn" onclick="useStopwatchTime()">⏱ Kronometre süresini al</button></div></form>`;
+  document.getElementById('surahHistoryTable').innerHTML=renderRecordTable(history,false,false);
+}
+
+function saveSurahAyahCount(e,id){e.preventDefault();const s=surahById(id);s.ayahCount=Number(document.getElementById('surahAyahCount').value)||null;s.updatedAt=nowIso();persist();renderSurahWorkspace();if(state.settings.cloudEnabled)pushSurahCloud(s).catch(console.error);toast('Ayet sayısı güncellendi.','success')}
+function clearSurahAyahCount(id){if(!confirm('Bu surenin ayet sayısı kaldırılsın mı?'))return;const s=surahById(id);s.ayahCount=null;s.updatedAt=nowIso();persist();renderSurahWorkspace();if(state.settings.cloudEnabled)pushSurahCloud(s).catch(console.error);toast('Ayet sayısı kaldırıldı.','success')}
+function toggleMastered(id,v){const s=surahById(id);s.mastered=!!v;s.updatedAt=nowIso();persist();renderStats();renderSurahList();if(state.settings.cloudEnabled)pushSurahCloud(s).catch(console.error);toast(v?'Tamamlandı işaretlendi.':'Tamamlandı işareti kaldırıldı.','success')}
+function saveSurahNotes(id){const s=surahById(id);s.notes=(document.getElementById('surahNotes')?.value||'').trim();s.updatedAt=nowIso();persist();if(state.settings.cloudEnabled)pushSurahCloud(s).catch(console.error);toast('Notlar kaydedildi.','success')}
+function saveNewSession(e,id){e.preventDefault();const d=document.getElementById('recordDate').value,m=Number(document.getElementById('recordDurationMinutes').value),stg=nextStageIndex(id);const r={id:uid('h'),surahId:id,stageIndex:stg,date:d,durationSeconds:Math.round(m*60),result:document.getElementById('recordResult').value,notes:document.getElementById('recordNotes').value.trim(),createdAt:nowIso(),updatedAt:nowIso(),deleted:false,deletedAt:'',appId:APP_ID};state.history.push(r);persist();if(state.settings.cloudEnabled)pushHistoryCloud(r).catch(console.error);renderStats();renderRecent();renderSurahWorkspace();toast(`${stageLabel(stg)} kaydedildi.`,'success')}
+
+function renderPrayerList(){
+  const host=document.getElementById('prayerList');if(!host)return;
+  const q=(document.getElementById('prayerSearch')?.value||'').trim().toLocaleLowerCase('tr-TR');
+  const list=(state.prayers||[]).filter(p=>!p.deleted&&(!q||p.title.toLocaleLowerCase('tr-TR').includes(q)||p.category.toLocaleLowerCase('tr-TR').includes(q)));
+  host.classList.toggle('cards-mode',state.settings.listModes.prayers==='cards');
+  updateListModeButtons('prayers');
+  host.innerHTML=list.map(p=>{
+    const count=prayerHistoryRecords(p.id).length;
+    const resCount=activeResources(p).length;
+    return `<button type="button" class="surah-item ${p.id===selectedPrayerId?'active':''}" onclick="selectPrayer('${p.id}')"><span class="surah-number">🤲</span><span style="min-width:0;flex:1"><span class="surah-name">${escapeHtml(p.title)} ${p.mastered?'✓':''}</span><span class="surah-meta">${escapeHtml(p.category)} · ${count} oturum · ${resCount} kaynak</span></span></button>`;
+  }).join('')||'<div class="empty">Dua bulunamadı.</div>';
+  document.getElementById('prayerCountBadge').textContent=`${list.length} dua`;
+}
+function selectPrayer(id){selectedPrayerId=id;renderPrayerWorkspace()}
+function newPrayer(){document.getElementById('prayerForm').reset();document.getElementById('prayerId').value='';document.getElementById('prayerModalTitle').textContent='Yeni Dua Ekle';openModal('prayerModal')}
+function editPrayer(id){const p=prayerById(id);if(!p)return;document.getElementById('prayerId').value=p.id;document.getElementById('prayerTitleInput').value=p.title;document.getElementById('prayerCategoryInput').value=p.category;document.getElementById('prayerArabicInput').value=p.arabic||'';document.getElementById('prayerMeaningInput').value=p.meaning||'';document.getElementById('prayerModalTitle').textContent='Duayı Düzenle';openModal('prayerModal')}
+function savePrayerForm(e){e.preventDefault();const id=document.getElementById('prayerId').value,t=document.getElementById('prayerTitleInput').value.trim(),c=document.getElementById('prayerCategoryInput').value.trim(),a=document.getElementById('prayerArabicInput').value.trim(),m=document.getElementById('prayerMeaningInput').value.trim();if(!t)return;let p;if(!id){p={id:uid('pr'),title:t,category:c,arabic:a,meaning:m,notes:'',resources:[],mastered:false,updatedAt:nowIso(),deleted:false,deletedAt:''};state.prayers.push(p);selectedPrayerId=p.id}else{p=prayerById(id);Object.assign(p,{title:t,category:c,arabic:a,meaning:m,updatedAt:nowIso()})}persist();closeModal('prayerModal');renderPrayerWorkspace();if(state.settings.cloudEnabled)pushPrayerCloud(p).catch(console.error);toast('Dua kaydedildi.','success')}
+function deletePrayer(id){const p=prayerById(id);if(!p||!confirm(`“${p.title}” duası silinsin mi?
+
+(İstediğiniz zaman Ayarlar > Silinme Geçmişi bölümünden geri alabilirsiniz.)`))return;p.deleted=true;p.deletedAt=nowIso();p.updatedAt=nowIso();selectedPrayerId=state.prayers.find(x=>!x.deleted)?.id||'';persist();renderPrayerWorkspace();if(state.settings.cloudEnabled)pushPrayerCloud(p).catch(console.error);toast('Dua silindi.','success')}
+
+function renderPrayerWorkspace(){
+  renderPrayerList();
+  const p=prayerById(selectedPrayerId);if(!p || p.deleted){document.getElementById('prayerDetailCard').innerHTML='<div class="empty">Soldan bir dua seçin veya yeni dua ekleyin.</div>';return;}
+  const history=prayerHistoryRecords(p.id);
+  const stage=stageLabel(nextStageIndex(p.id,true));
+  document.getElementById('prayerDetailCard').innerHTML=`<div class="surah-detail-head"><div class="surah-titleline"><div class="big-number">🤲</div><div><h3>${escapeHtml(p.title)}</h3><p class="muted smalltext">${escapeHtml(p.category)} · ${history.length} ezber oturumu</p></div></div><div class="form-actions"><button class="btn small" onclick="editPrayer('${p.id}')">Düzenle</button><button class="btn small danger" onclick="deletePrayer('${p.id}')">Sil</button><label class="check-row"><input type="checkbox" ${p.mastered?'checked':''} onchange="togglePrayerMastered('${p.id}',this.checked)"><span>Tamamlandı</span></label></div></div>
+  ${p.arabic?`<div style="font-size:18px;direction:rtl;margin:12px 0;padding:12px;background:var(--surface2);border-radius:12px;line-height:1.8;color:var(--primary)">${escapeHtml(p.arabic)}</div>`:''}
+  ${p.meaning?`<div style="font-size:13px;margin:8px 0;color:var(--text);font-style:italic">"${escapeHtml(p.meaning)}"</div>`:''}
+  <div style="margin:15px 0 7px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px"><strong class="smalltext">Dua Kaynakları (Video, PDF, Görsel, Ses/Metin) — Frame İçinde Açılır</strong><button class="btn small primary" onclick="openResourceModal('prayer','${p.id}')">＋ Kaynak Ekle (Toplu Seçim)</button></div>
+  <div class="resource-panels">${renderResourcePanel(p,'video','prayer')}${renderResourcePanel(p,'pdf','prayer')}${renderResourcePanel(p,'image','prayer')}</div>
+  <div style="margin-top:14px" class="field"><label for="prayerNotes">Dua Çalışma Notları</label><textarea id="prayerNotes" maxlength="5000">${escapeHtml(p.notes||'')}</textarea></div><div class="form-actions" style="margin-top:9px"><button class="btn" onclick="savePrayerNotes('${p.id}')">Notları kaydet</button><button class="btn" onclick="printPrayerReport('${p.id}')">📄 Bu Duanın PDF Raporu</button></div>`;
+
+  document.getElementById('prayerSessionFormCard').innerHTML=`<h3>＋ Yeni ezber oturumu</h3><div class="next-stage"><div><span class="muted smalltext">Otomatik sıradaki aşama</span><br><strong>${escapeHtml(stage)}</strong></div><span class="pill">Sıra: ${nextStageIndex(p.id,true)+1}</span></div><form class="form-grid" onsubmit="savePrayerSession(event,'${p.id}')"><div class="field"><label>Tarih</label><input type="date" id="prayerRecordDate" value="${todayLocal()}" required></div><div class="field"><label>Süre (dakika)</label><input type="number" id="prayerRecordDurationMinutes" min="0" max="1440" step="0.1" value="${elapsedNow()>0?(elapsedNow()/60000).toFixed(1):'0'}" required></div><div class="field"><label>Sonuç</label><select id="prayerRecordResult"><option>İyi</option><option>Tekrar gerekli</option><option>Tamamlandı</option></select></div><div class="field span-2"><label>Not</label><textarea id="prayerRecordNotes" maxlength="3000"></textarea></div><div class="form-actions span-2"><button type="submit" class="btn primary">✓ Oturumu kaydet</button><button type="button" class="btn" onclick="useStopwatchTime()">⏱ Kronometre süresini al</button></div></form>`;
+  document.getElementById('prayerHistoryTable').innerHTML=renderRecordTable(history,false,true);
+}
+
+function togglePrayerMastered(id,v){const p=prayerById(id);p.mastered=!!v;p.updatedAt=nowIso();persist();renderPrayerList();if(state.settings.cloudEnabled)pushPrayerCloud(p).catch(console.error);toast('Dua durumu güncellendi.','success')}
+function savePrayerNotes(id){const p=prayerById(id);p.notes=document.getElementById('prayerNotes').value.trim();p.updatedAt=nowIso();persist();if(state.settings.cloudEnabled)pushPrayerCloud(p).catch(console.error);toast('Dua notları kaydedildi.','success')}
+function savePrayerSession(e,id){e.preventDefault();const d=document.getElementById('prayerRecordDate').value,m=Number(document.getElementById('prayerRecordDurationMinutes').value),stg=nextStageIndex(id,true);const r={id:uid('ph'),surahId:id,stageIndex:stg,date:d,durationSeconds:Math.round(m*60),result:document.getElementById('prayerRecordResult').value,notes:document.getElementById('prayerRecordNotes').value.trim(),createdAt:nowIso(),updatedAt:nowIso(),deleted:false,deletedAt:'',appId:APP_ID};state.prayerHistory.push(r);persist();if(state.settings.cloudEnabled)pushPrayerHistoryCloud(r).catch(console.error);renderStats();renderRecent();renderPrayerWorkspace();toast(`${stageLabel(stg)} kaydedildi.`,'success')}
+
+function renderResourcePanel(owner,kind){
+  const list=activeResources(owner).filter(r=> kind==='video' ? (r.kind==='video'||r.kind==='audio') : kind==='pdf' ? (r.kind==='pdf'||r.kind==='doc') : r.kind==='image');
+  const titles={video:'🎬 Video & Sesler',pdf:'📄 PDF & Dokümanlar',image:'🖼️ Görseller (PNG/JPG)'};
+  return `<div class="resource-panel"><div class="resource-heading"><h4>${titles[kind]||kind} (${list.length})</h4></div><div class="resource-list">${list.length?list.map(r=>`<div class="resource-item"><span class="resource-type">${r.kind==='video'?'🎞️':r.kind==='audio'?'🎧':r.kind==='pdf'?'📕':r.kind==='doc'?'📝':'🖼️'}</span><span class="resource-label">${escapeHtml(r.title)}<small class="muted" style="display:block">${r.linkedLiveRecId?'🎥 Canlı Ders Bağlantılı':r.blobId?'Uygulama Dosyası':'Web Bağlantısı'}</small></span><div class="resource-actions"><button class="btn small primary" type="button" onclick="openMediaViewer('${owner.id}','${r.id}')">Frame Aç</button>${r.url?`<a class="btn small" href="${escapeHtml(r.url)}" target="_blank" rel="noopener noreferrer" title="Tarayıcıda Aç">↗</a>`:''}<button class="btn small danger" type="button" onclick="removeResource('${owner.id}','${r.id}')">×</button></div></div>`).join(''):`<div class="resource-empty">Henüz eklenmedi.</div>`}</div></div>`;
+}
+
+function toEmbedUrl(rawUrl){
+  if(!rawUrl) return '';
+  try{
+    const u = new URL(rawUrl);
+    if(u.hostname.includes('youtube.com') && u.searchParams.get('v')){
+      return `https://www.youtube.com/embed/${u.searchParams.get('v')}?autoplay=1`;
+    }
+    if(u.hostname === 'youtu.be'){
+      return `https://www.youtube.com/embed/${u.pathname.slice(1)}?autoplay=1`;
+    }
+    if(u.hostname.includes('drive.google.com') && rawUrl.includes('/view')){
+      return rawUrl.replace('/view','/preview');
+    }
+  }catch(_){}
+  return rawUrl;
+}
+
+async function openMediaViewer(ownerId,resourceId){
+  const ownerRef=getResourceOwnerById(ownerId);if(!ownerRef)return;
+  const resources=activeResources(ownerRef.record);
+  const idx=resources.findIndex(x=>x.id===resourceId);if(idx<0)return;
+  currentMediaContext={ownerId,resources,currentIndex:idx,zoom:1,panX:0,panY:0,isDragging:false,startX:0,startY:0};
+  await renderMediaViewerStage();
+  openModal('mediaViewerModal');
+}
+
+async function renderMediaViewerStage(){
+  const {resources,currentIndex}=currentMediaContext;
+  const item=resources[currentIndex];if(!item)return;
+  document.getElementById('mediaViewerTitle').textContent=`${item.title} (${currentIndex+1} / ${resources.length})`;
+  const stage=document.getElementById('mediaViewerStage');
+  const toolbar=document.getElementById('mediaViewerToolbar');
+  toolbar.innerHTML='';stage.innerHTML='';
+
+  let mediaSrc=item.url;
+  let fileBlob=null;
+  if(item.blobId){
+    try{
+      const data=await idbGet(item.blobId);
+      if(data?.blob){
+        fileBlob=data.blob;
+        mediaSrc=URL.createObjectURL(data.blob);
+      }
+    }catch(err){console.error(err)}
+  }
+
+  const navBtns = resources.length > 1
+    ? `<button class="media-nav-btn prev" onclick="navigateMedia(-1)" title="Önceki">‹</button><button class="media-nav-btn next" onclick="navigateMedia(1)" title="Sonraki">›</button>`
+    : '';
+
+  if(item.kind==='image'){
+    toolbar.innerHTML=`<button class="btn small" onclick="adjustZoom(0.25)">🔍 Zum (+)</button><button class="btn small" onclick="adjustZoom(-0.25)">🔍 Zum (-)</button><button class="btn small" onclick="resetZoom()">%100 Sıfırla</button><a class="btn small" href="${mediaSrc}" target="_blank" rel="noopener noreferrer">↗ Yeni Sekmede Aç</a><a class="btn small" href="${mediaSrc}" download="${escapeHtml(item.title)}">⬇ İndir</a>`;
+    stage.innerHTML=`${navBtns}<div class="image-pan-container" id="imagePanContainer"><img id="viewerImage" src="${mediaSrc}" alt="${escapeHtml(item.title)}"></div>`;
+    initImagePan();
+  }else if(item.kind==='pdf'){
+    toolbar.innerHTML=`<button class="btn small" onclick="printCurrentMediaFrame()">🖨️ Yazdır</button><a class="btn small" href="${mediaSrc}" target="_blank" rel="noopener noreferrer">↗ Tarayıcıda Tam Ekran Aç</a><a class="btn small" href="${mediaSrc}" download="${escapeHtml(item.title)}.pdf">⬇ PDF İndir</a>`;
+    stage.innerHTML=`${navBtns}<iframe id="activePdfFrame" class="media-frame" src="${mediaSrc}#toolbar=1&navpanes=1&view=FitH" title="${escapeHtml(item.title)}"></iframe>`;
+  }else if(item.kind==='audio'){
+    toolbar.innerHTML=`<a class="btn small" href="${mediaSrc}" target="_blank" rel="noopener noreferrer">↗ Tarayıcıda Aç</a><a class="btn small" href="${mediaSrc}" download="${escapeHtml(item.title)}">⬇ Ses İndir</a>`;
+    stage.innerHTML=`${navBtns}<div style="text-align:center;color:#fff;padding:30px"><div style="font-size:54px;margin-bottom:15px">🎧</div><h4 style="margin:0 0 16px">${escapeHtml(item.title)}</h4><audio controls autoplay src="${mediaSrc}" style="width:min(520px,85vw)"></audio></div>`;
+  }else if(item.kind==='doc'){
+    let textContent = 'Doküman yükleniyor...';
+    if(fileBlob){
+      try{ textContent = await fileBlob.text(); }catch(_){ textContent = 'Metin okunamadı.'; }
+    }
+    toolbar.innerHTML=`<a class="btn small" href="${mediaSrc}" target="_blank" rel="noopener noreferrer">↗ Yeni Sekmede Aç</a><a class="btn small" href="${mediaSrc}" download="${escapeHtml(item.title)}">⬇ İndir</a>`;
+    stage.innerHTML = fileBlob
+      ? `${navBtns}<div class="media-doc-text">${escapeHtml(textContent)}</div>`
+      : `${navBtns}<iframe class="media-frame" src="${mediaSrc}" title="${escapeHtml(item.title)}"></iframe>`;
+  }else{
+    const isDirectVideo = Boolean(fileBlob) || /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(mediaSrc);
+    const embedSrc = toEmbedUrl(mediaSrc);
+    toolbar.innerHTML=`<a class="btn small primary" href="${escapeHtml(item.url || mediaSrc)}" target="_blank" rel="noopener noreferrer">↗ Chrome / Yeni Sekmede Aç</a>${fileBlob?`<a class="btn small" href="${mediaSrc}" download="${escapeHtml(item.title)}.webm">⬇ Videoyu İndir</a>`:''}`;
+    if(isDirectVideo){
+      stage.innerHTML=`${navBtns}<video class="media-video" controls autoplay src="${mediaSrc}"></video>`;
+    }else{
+      stage.innerHTML=`${navBtns}<iframe class="media-frame" src="${embedSrc}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="${escapeHtml(item.title)}"></iframe>`;
+    }
+  }
+}
+
+function printCurrentMediaFrame(){
+  const frame = document.getElementById('activePdfFrame');
+  try{ frame?.contentWindow?.print(); }catch(_){ window.open(frame?.src, '_blank'); }
+}
+
+function navigateMedia(dir){
+  const {resources,currentIndex}=currentMediaContext;
+  if(!resources.length)return;
+  let next=currentIndex+dir;
+  if(next<0)next=resources.length-1;
+  if(next>=resources.length)next=0;
+  currentMediaContext.currentIndex=next;
+  currentMediaContext.zoom=1;currentMediaContext.panX=0;currentMediaContext.panY=0;
+  renderMediaViewerStage();
+}
+
+function adjustZoom(delta){
+  currentMediaContext.zoom=Math.max(0.3,Math.min(6,currentMediaContext.zoom+delta));
+  applyImageTransform();
+}
+function resetZoom(){currentMediaContext.zoom=1;currentMediaContext.panX=0;currentMediaContext.panY=0;applyImageTransform()}
+function applyImageTransform(){
+  const img=document.getElementById('viewerImage');
+  if(img)img.style.transform=`translate(${currentMediaContext.panX}px, ${currentMediaContext.panY}px) scale(${currentMediaContext.zoom})`;
+}
+function initImagePan(){
+  const container=document.getElementById('imagePanContainer');if(!container)return;
+  container.onmousedown = e=>{
+    currentMediaContext.isDragging=true;
+    currentMediaContext.startX=e.clientX-currentMediaContext.panX;
+    currentMediaContext.startY=e.clientY-currentMediaContext.panY;
+    container.classList.add('dragging');
+  };
+  window.onmousemove = e=>{
+    if(!currentMediaContext.isDragging)return;
+    currentMediaContext.panX=e.clientX-currentMediaContext.startX;
+    currentMediaContext.panY=e.clientY-currentMediaContext.startY;
+    applyImageTransform();
+  };
+  window.onmouseup = ()=>{currentMediaContext.isDragging=false;container?.classList.remove('dragging')};
+  container.onwheel = e=>{
+    e.preventDefault();
+    adjustZoom(e.deltaY<0?0.2:-0.2);
+  };
+}
+
+async function toggleScreenRecorder(){
+  if(screenRecorder&&screenRecorder.state!=='inactive'){stopScreenRecorder();return}
+  try{
+    screenMediaStream=await navigator.mediaDevices.getDisplayMedia({video:{cursor:'always'},audio:true});
+    recordedChunks=[];
+    const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+    screenRecorder=new MediaRecorder(screenMediaStream,{mimeType:mime});
+    screenRecorder.ondataavailable=e=>{if(e.data&&e.data.size>0)recordedChunks.push(e.data)};
+    screenRecorder.onstop=finishScreenRecording;
+    screenRecorder.start(1000);
+    recordStartTime=Date.now();
+    isRecordPaused = false;
+    recordPausedTotalMs = 0;
+    recordLastPauseTime = 0;
+
+    document.getElementById('recorderBanner').classList.add('active');
+    document.getElementById('recorderBanner').classList.remove('paused');
+    document.getElementById('recordScreenBtn').textContent='⏹ Kaydı Durdur';
+    document.getElementById('pauseResumeBtn').innerHTML = '⏸ Duraklat';
+    
+    clearInterval(recordTimerInterval);
+    recordTimerInterval=setInterval(()=>{
+      if(isRecordPaused) return;
+      const ms = Date.now() - recordStartTime - recordPausedTotalMs;
+      const s = Math.floor(ms / 1000);
+      document.getElementById('recordTimer').textContent=`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+    },1000);
+    screenMediaStream.getVideoTracks()[0].onended=stopScreenRecorder;
+    toast('Ekran kaydı sessizce başladı. Karşı tarafa hiçbir bildirim gitmez.','success');
+  }catch(err){
+    console.error(err);
+    toast('Ekran kaydı başlatılamadı veya iptal edildi.','error');
+  }
+}
+
+function pauseResumeScreenRecorder(){
+  if(!screenRecorder) return;
+  if(screenRecorder.state === 'recording'){
+    screenRecorder.pause();
+    isRecordPaused = true;
+    recordLastPauseTime = Date.now();
+    document.getElementById('pauseResumeBtn').innerHTML = '▶ Devam Et';
+    document.getElementById('recorderBanner').classList.add('paused');
+    toast('Kayıt duraklatıldı.', 'warn');
+  } else if(screenRecorder.state === 'paused'){
+    screenRecorder.resume();
+    isRecordPaused = false;
+    recordPausedTotalMs += (Date.now() - recordLastPauseTime);
+    document.getElementById('pauseResumeBtn').innerHTML = '⏸ Duraklat';
+    document.getElementById('recorderBanner').classList.remove('paused');
+    toast('Kayda devam ediliyor.', 'success');
+  }
+}
+
+function stopScreenRecorder(){
+  if(screenRecorder&&screenRecorder.state!=='inactive')screenRecorder.stop();
+  if(screenMediaStream)screenMediaStream.getTracks().forEach(t=>t.stop());
+  clearInterval(recordTimerInterval);
+  document.getElementById('recorderBanner').classList.remove('active');
+  document.getElementById('recorderBanner').classList.remove('paused');
+  document.getElementById('recordScreenBtn').textContent='📹 Ekran Kaydet';
+}
+
+function ensureTodayTajweedLesson(){
+  const today = todayLocal();
+  let l = state.tajweedLessons.find(x => x.date === today && !x.deleted);
+  if(!l){
+    const nextDay = state.tajweedLessons.filter(x=>!x.deleted).length ? Math.max(...state.tajweedLessons.filter(x=>!x.deleted).map(x=>x.day)) + 1 : 1;
+    l = { id:uid('t'), day:nextDay, date:today, title:`${nextDay}. Gün - Canlı Tecvid Dersi`, notes:'Ekran kaydı ile otomatik oluşturuldu.', resources:[], updatedAt:nowIso(), deleted:false, deletedAt:'' };
+    state.tajweedLessons.push(l);
+    persist();
+    if(state.settings.cloudEnabled) pushTajweedCloud(l).catch(console.error);
+  }
+  return l;
+}
+
+function finishScreenRecording(){
+  pendingRecordedBlob = new Blob(recordedChunks,{type:'video/webm'});
+  pendingRecordedSeconds = Math.max(1, Math.round((Date.now() - recordStartTime - recordPausedTotalMs)/1000));
+  
+  const lessonObj = ensureTodayTajweedLesson();
+  populateLiveLessonDropdowns();
+  
+  document.getElementById('liveRecId').value = '';
+  document.getElementById('liveRecLessonId').value = lessonObj.id;
+  document.getElementById('liveRecTitle').value = `${lessonObj.day}. Gün - Canlı Ders Kaydı`;
+  document.getElementById('liveRecDate').value = todayLocal();
+  document.getElementById('liveRecUrl').value = '';
+  document.getElementById('liveRecNotes').value = 'Uygulama içi sessiz ekran kaydedici ile kaydedildi.';
+  document.getElementById('liveRecFileField').classList.add('hidden');
+  document.getElementById('liveRecordingModalTitle').textContent = '📹 Alınan Canlı Ders Kaydını Uygulamaya Kaydet';
+  openModal('liveRecordingModal');
+}
+
+function openManualLiveRecordingModal(){
+  pendingRecordedBlob = null;
+  pendingRecordedSeconds = 0;
+  populateLiveLessonDropdowns();
+  document.getElementById('liveRecordingForm').reset();
+  document.getElementById('liveRecId').value = '';
+  document.getElementById('liveRecDate').value = todayLocal();
+  document.getElementById('liveRecFileField').classList.remove('hidden');
+  document.getElementById('liveRecordingModalTitle').textContent = '＋ Canlı Ders Video / Link Kaydı Ekle';
+  openModal('liveRecordingModal');
+}
+
+function populateLiveLessonDropdowns(){
+  const lessons = (state.tajweedLessons||[]).filter(x=>!x.deleted).sort((a,b)=>a.day-b.day);
+  const optionsHtml = `<option value="">Genel Canlı Ders (Güne Bağlama)</option>` + lessons.map(l=>`<option value="${escapeHtml(l.id)}">${l.day}. Gün · ${escapeHtml(l.title)} (${escapeHtml(l.date)})</option>`).join('');
+  const sel1 = document.getElementById('liveActiveLessonSelect');
+  const sel2 = document.getElementById('liveRecLessonId');
+  if(sel1) sel1.innerHTML = optionsHtml;
+  if(sel2) sel2.innerHTML = optionsHtml;
+}
+
+function loadLiveClassFrame(){
+  const raw = document.getElementById('liveJoinUrlInput')?.value.trim() || DEFAULT_LIVE_URL;
+  const safe = safeExternalUrl(raw);
+  if(!safe){ toast('Geçerli bir https:// canlı ders adresi girin.','error'); return; }
+  state.settings.liveJoinUrl = safe;
+  persist();
+  const iframe = document.getElementById('liveClassIframe');
+  const extBtn = document.getElementById('liveExternalOpenBtn');
+  if(iframe) iframe.src = safe;
+  if(extBtn) extBtn.href = safe;
+  toast('Canlı ders frame ekranı güncellendi.','success');
+}
+
+function verifyAdminPassword(){
+  const expected = state.settings.adminPassword || '1234';
+  const input = prompt('Bu işlem için Admin Şifresini girin:');
+  if(input === null) return false;
+  if(input !== expected){
+    toast('Hatalı Admin Şifresi! İşlem reddedildi.','error');
+    return false;
+  }
+  return true;
+}
+
+function saveAdminPasswordSetting(e){
+  e.preventDefault();
+  const val = document.getElementById('adminPasswordInput').value.trim();
+  if(!val) return;
+  state.settings.adminPassword = val;
+  persist();
+  toast('Admin şifresi güncellendi.','success');
+}
+
+async function saveLiveRecordingForm(e){
+  e.preventDefault();
+  const btn = document.getElementById('liveRecSaveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Kaydediliyor...';
+  try{
+    const id = document.getElementById('liveRecId').value;
+    const title = document.getElementById('liveRecTitle').value.trim();
+    const lessonId = document.getElementById('liveRecLessonId').value;
+    const date = document.getElementById('liveRecDate').value || todayLocal();
+    const url = safeExternalUrl(document.getElementById('liveRecUrl').value.trim());
+    const notes = document.getElementById('liveRecNotes').value.trim();
+    const uploadedFile = document.getElementById('liveRecFile')?.files?.[0];
+
+    const lessonObj = state.tajweedLessons.find(x=>x.id===lessonId && !x.deleted);
+    const lessonLabel = lessonObj ? `${lessonObj.day}. Gün - ${lessonObj.title}` : 'Genel Canlı Ders';
+
+    let rec;
+    if(id){
+      rec = state.liveRecordings.find(x=>x.id===id);
+      if(!rec) return;
+      const oldLessonId = rec.lessonId;
+      const oldResourceId = rec.linkedResourceId;
+      if(oldLessonId && oldLessonId !== lessonId){
+        const oldLesson = state.tajweedLessons.find(x=>x.id===oldLessonId);
+        if(oldLesson && Array.isArray(oldLesson.resources)){
+          const oldRes = oldLesson.resources.find(r=>r.id===oldResourceId || r.linkedLiveRecId===rec.id);
+          if(oldRes){ oldRes.deleted = true; oldRes.deletedAt = nowIso(); }
+          oldLesson.updatedAt = nowIso();
+          if(state.settings.cloudEnabled) pushTajweedCloud(oldLesson).catch(console.error);
+        }
+        rec.linkedResourceId = '';
+      }
+      Object.assign(rec,{ title, lessonId, lessonLabel, date, url: url || rec.url, notes, updatedAt: nowIso() });
+      if(lessonObj){
+        lessonObj.resources = lessonObj.resources || [];
+        let linkedRes = lessonObj.resources.find(r=>r.id===rec.linkedResourceId || r.linkedLiveRecId===rec.id);
+        if(linkedRes){
+          linkedRes.title = `🎥 ${title}`;
+          linkedRes.url = rec.cloudUrl || rec.url || '';
+          linkedRes.deleted = false;
+          linkedRes.deletedAt = '';
+        }else{
+          const newResId = uid('res');
+          rec.linkedResourceId = newResId;
+          lessonObj.resources.push({
+            id: newResId,
+            kind: 'video',
+            title: `🎥 ${title}`,
+            url: rec.cloudUrl || rec.url || '',
+            blobId: rec.blobId || '',
+            linkedLiveRecId: rec.id,
+            addedAt: nowIso(),
+            deleted: false,
+            deletedAt: ''
+          });
+        }
+        lessonObj.updatedAt = nowIso();
+        if(state.settings.cloudEnabled) pushTajweedCloud(lessonObj).catch(console.error);
+      }
+    }else{
+      const blobToSave = pendingRecordedBlob || uploadedFile || null;
+      let blobId = '';
+      if(blobToSave){
+        blobId = uid('liveblob');
+        await idbPut(blobId, blobToSave);
+      }
+      const newRecId = uid('live');
+      const newResId = lessonObj ? uid('res') : '';
+      rec = {
+        id: newRecId,
+        title,
+        lessonId,
+        lessonLabel,
+        linkedResourceId: newResId,
+        date,
+        durationSeconds: pendingRecordedSeconds || 0,
+        url,
+        cloudUrl: '',
+        blobId,
+        notes,
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+        deleted: false,
+        deletedAt: '',
+        appId: APP_ID
+      };
+      state.liveRecordings.push(rec);
+      if(lessonObj){
+        lessonObj.resources = lessonObj.resources || [];
+        lessonObj.resources.push({
+          id: newResId,
+          kind: 'video',
+          title: `🎥 ${title}`,
+          url: url || '',
+          blobId,
+          linkedLiveRecId: newRecId,
+          addedAt: nowIso(),
+          deleted: false,
+          deletedAt: ''
+        });
+        lessonObj.updatedAt = nowIso();
+        if(state.settings.cloudEnabled) pushTajweedCloud(lessonObj).catch(console.error);
+      }
+    }
+
+    pendingRecordedBlob = null;
+    pendingRecordedSeconds = 0;
+    persist();
+
+    if(state.settings.cloudEnabled){
+      await pushLiveRecordingCloud(rec);
+    }
+
+    closeModal('liveRecordingModal');
+    renderLiveWorkspace();
+    toast('Canlı ders videosu kaydedildi.','success');
+  }finally{
+    btn.disabled = false;
+    btn.textContent = 'Uygulamaya & Buluta Kaydet';
+  }
+}
+
+function editLiveRecordingWithPassword(id){
+  if(!verifyAdminPassword()) return;
+  const r = state.liveRecordings.find(x=>x.id===id && !x.deleted);
+  if(!r) return;
+  populateLiveLessonDropdowns();
+  document.getElementById('liveRecId').value = r.id;
+  document.getElementById('liveRecTitle').value = r.title;
+  document.getElementById('liveRecLessonId').value = r.lessonId || '';
+  document.getElementById('liveRecDate').value = r.date;
+  document.getElementById('liveRecUrl').value = r.url || r.cloudUrl || '';
+  document.getElementById('liveRecNotes').value = r.notes || '';
+  document.getElementById('liveRecFileField').classList.add('hidden');
+  document.getElementById('liveRecordingModalTitle').textContent = '🔐 Canlı Ders Kaydını Düzenle (Admin)';
+  openModal('liveRecordingModal');
+}
+
+function deleteLiveRecordingWithPassword(id){
+  if(!verifyAdminPassword()) return;
+  const r = state.liveRecordings.find(x=>x.id===id && !x.deleted);
+  if(!r) return;
+  const linkedNote = r.lessonId ? `
+• Bağlı olduğu "${r.lessonLabel}" dersindeki video kaydı da otomatik silinecektir.` : '';
+  if(!confirm(`“${r.title}” canlı ders kaydını silmek istediğinize emin misiniz?${linkedNote}
+
+(Yanlışlıkla silerseniz Ayarlar > Silinme Geçmişi bölümünden tüm bağlantılarıyla geri alabilirsiniz.)`)) return;
+
+  const stamp = nowIso();
+  r.deleted = true;
+  r.deletedAt = stamp;
+  r.updatedAt = stamp;
+  if(r.lessonId){
+    const lesson = state.tajweedLessons.find(l=>l.id===r.lessonId);
+    if(lesson && Array.isArray(lesson.resources)){
+      const linkedRes = lesson.resources.find(res => res.id===r.linkedResourceId || res.linkedLiveRecId===r.id || (r.blobId && res.blobId===r.blobId));
+      if(linkedRes){
+        linkedRes.deleted = true;
+        linkedRes.deletedAt = stamp;
+        lesson.updatedAt = stamp;
+        if(state.settings.cloudEnabled) pushTajweedCloud(lesson).catch(console.error);
+      }
+    }
+  }
+
+  persist();
+  if(state.settings.cloudEnabled) pushLiveRecordingCloud(r).catch(console.error);
+  renderLiveWorkspace();
+  if(currentView==='tajweed') renderTajweedWorkspace();
+  toast('Kayıt silindi (Silinme geçmişinden geri alınabilir).','success');
+}
+
+async function openLiveRecordingViewer(id){
+  const r = state.liveRecordings.find(x=>x.id===id && !x.deleted);
+  if(!r) return;
+  currentMediaContext = {
+    ownerId: 'live_center',
+    resources: [{
+      id: r.id,
+      kind: 'video',
+      title: `${r.lessonLabel} · ${r.title}`,
+      url: r.cloudUrl || r.url || '',
+      blobId: r.blobId || ''
+    }],
+    currentIndex: 0, zoom: 1, panX: 0, panY: 0, isDragging: false, startX: 0, startY: 0
+  };
+  await renderMediaViewerStage();
+  openModal('mediaViewerModal');
+}
+
+function renderLiveWorkspace(){
+  reconcileBidirectionalLinks();
+  populateLiveLessonDropdowns();
+  const urlInput = document.getElementById('liveJoinUrlInput');
+  if(urlInput) urlInput.value = state.settings.liveJoinUrl || DEFAULT_LIVE_URL;
+  const list = (state.liveRecordings||[]).filter(r=>!r.deleted).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.createdAt).localeCompare(String(a.createdAt)));
+  document.getElementById('liveRecordingCountBadge').textContent = `${list.length} kayıt`;
+  const host = document.getElementById('liveRecordingsTable');
+  if(!list.length){
+    host.innerHTML = `<div class="empty">Henüz kaydedilmiş canlı ders videosu yok. Üstteki "📹 Canlı Dersi Kaydet" veya "＋ Video / Link Kaydı Ekle" butonunu kullanabilirsiniz.</div>`;
+    return;
+  }
+  host.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Hangi Gün / Ders (Bağlantılı)</th><th>Kayıt Adı</th><th>Durum / Erişim</th><th>Not</th><th>Admin İşlemleri</th></tr></thead><tbody>${list.map(r=>`
+    <tr>
+      <td>${escapeHtml(r.date)}</td>
+      <td><span class="pill">${escapeHtml(r.lessonLabel||'Genel Canlı Ders')}</span></td>
+      <td><strong>${escapeHtml(r.title)}</strong>${r.durationSeconds?`<br><small class="muted">${formatDuration(r.durationSeconds)}</small>`:''}</td>
+      <td><span class="pill good">${r.cloudUrl?'☁️ Bulut + Uygulama':r.blobId?'📱 Uygulama İçi':'🔗 Video Linki'}</span></td>
+      <td>${escapeHtml(r.notes||'—')}</td>
+      <td>
+        <button class="btn small primary" onclick="openLiveRecordingViewer('${r.id}')">▶ İzle</button>
+        ${(r.cloudUrl||r.url)?`<a class="btn small" href="${escapeHtml(r.cloudUrl||r.url)}" target="_blank" rel="noopener noreferrer">↗ Link</a>`:''}
+        <button class="btn small" onclick="editLiveRecordingWithPassword('${r.id}')">🔐 Düzenle</button>
+        <button class="btn small danger" onclick="deleteLiveRecordingWithPassword('${r.id}')">🔐 Sil</button>
+      </td>
+    </tr>
+  `).join('')}</tbody></table></div>`;
+}
+
+function openResourceModal(ownerType,ownerId){
+  resourceOwner={type:ownerType,id:ownerId};
+  document.getElementById('resourceTitle').value='';
+  document.getElementById('resourceUrl').value='';
+  document.getElementById('resourceFile').value='';
+  openModal('resourceModal');
+}
+
+function getResourceOwnerById(id){
+  const s=state.surahs.find(x=>x.id===id);if(s)return {type:'surah',record:s,label:`${s.number}. ${s.name} Suresi`};
+  const p=state.prayers.find(x=>x.id===id);if(p)return {type:'prayer',record:p,label:`${p.title} (Dua)`};
+  const t=state.tajweedLessons.find(x=>x.id===id);if(t)return {type:'tajweed',record:t,label:`${t.day}. Gün - ${t.title} (Tecvid)`};
+  return null;
+}
+
+document.getElementById('resourceForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const ownerRef=getResourceOwnerById(resourceOwner.id);if(!ownerRef)return;
+  const owner=ownerRef.record;
+  const customTitle=document.getElementById('resourceTitle').value.trim();
+  const url=document.getElementById('resourceUrl').value.trim();
+  const files=Array.from(document.getElementById('resourceFile').files || []);
+  if(!files.length && !url){
+    toast('Lütfen en az bir dosya seçin veya geçerli bir URL girin.','error');
+    return;
+  }
+  owner.resources = owner.resources || [];
+  for(let i=0; i<files.length; i++){
+    const file = files[i];
+    const kind = detectResourceKind(file, '');
+    const blobId = uid('file');
+    await idbPut(blobId, file);
+    const title = (files.length === 1 && customTitle)
+      ? customTitle
+      : (customTitle ? `${customTitle} (${i+1}) - ${file.name}` : file.name);
+    owner.resources.push({
+      id: uid('res'),
+      kind,
+      title: title.slice(0,120),
+      url: '',
+      blobId,
+      mimeType: file.type || '',
+      linkedLiveRecId: '',
+      addedAt: nowIso(),
+      deleted: false,
+      deletedAt: ''
+    });
+  }
+  if(url){
+    const safe = safeExternalUrl(url);
+    if(!safe){ toast('Geçersiz web bağlantısı (http/https olmalı).','error'); return; }
+    const kind = detectResourceKind(null, safe);
+    owner.resources.push({
+      id: uid('res'),
+      kind,
+      title: (customTitle || 'Web Kaynağı').slice(0,120),
+      url: safe,
+      blobId: '',
+      mimeType: '',
+      linkedLiveRecId: '',
+      addedAt: nowIso(),
+      deleted: false,
+      deletedAt: ''
+    });
+  }
+  owner.updatedAt=nowIso();
+  persist();closeModal('resourceModal');
+  if(ownerRef.type==='surah'){renderSurahWorkspace();if(state.settings.cloudEnabled)pushSurahCloud(owner).catch(console.error)}
+  else if(ownerRef.type==='prayer'){renderPrayerWorkspace();if(state.settings.cloudEnabled)pushPrayerCloud(owner).catch(console.error)}
+  else {renderTajweedWorkspace();if(state.settings.cloudEnabled)pushTajweedCloud(owner).catch(console.error)}
+  toast(`${files.length + (url?1:0)} kaynak başarıyla eklendi.`,'success');
+});
+
+async function removeResource(ownerId,resId){
+  reconcileBidirectionalLinks();
+  const ref=getResourceOwnerById(ownerId);if(!ref)return;
+  const r=(ref.record.resources||[]).find(x=>x.id===resId && !x.deleted);
+  if(!r) return;
+  const linkedLive = (state.liveRecordings||[]).find(lr => !lr.deleted && (lr.id===r.linkedLiveRecId || lr.linkedResourceId===r.id || (r.blobId && lr.blobId===r.blobId)));
+  const extraMsg = linkedLive ? `
+• Bu kaynak Canlı Ders sekmesindeki "${linkedLive.title}" kaydıyla bağlantılıdır; oradan da silinecektir.` : '';
+  if(!confirm(`“${r.title}” kaynağını silmek istediğinize emin misiniz?${extraMsg}
+
+(Yanlışlıkla silerseniz Ayarlar > Silinme Geçmişi bölümünden geri alabilirsiniz.)`)) return;
+  const stamp = nowIso();
+  r.deleted = true;
+  r.deletedAt = stamp;
+  ref.record.updatedAt = stamp;
+  if(linkedLive){
+    linkedLive.deleted = true;
+    linkedLive.deletedAt = stamp;
+    linkedLive.updatedAt = stamp;
+    if(state.settings.cloudEnabled) pushLiveRecordingCloud(linkedLive).catch(console.error);
+  }
+  persist();
+  if(ref.type==='surah'){renderSurahWorkspace();if(state.settings.cloudEnabled)pushSurahCloud(ref.record).catch(console.error)}
+  else if(ref.type==='prayer'){renderPrayerWorkspace();if(state.settings.cloudEnabled)pushPrayerCloud(ref.record).catch(console.error)}
+  else {renderTajweedWorkspace();if(state.settings.cloudEnabled)pushTajweedCloud(ref.record).catch(console.error)}
+  if(currentView==='live') renderLiveWorkspace();
+  toast('Kaynak silindi.','success');
+}
+
+function renderTajweedList(){
+  const host=document.getElementById('tajweedLessonList');if(!host)return;
+  const q=(document.getElementById('tajweedSearch')?.value||'').trim().toLocaleLowerCase('tr-TR');
+  const list=(state.tajweedLessons||[]).filter(x=>!x.deleted&&`${x.day} ${x.date} ${x.title}`.toLocaleLowerCase('tr-TR').includes(q)).sort((a,b)=>a.day-b.day);
+  host.classList.toggle('cards-mode',state.settings.listModes.tajweed==='cards');
+  updateListModeButtons('tajweed');
+  host.innerHTML=list.map(x=>`<button type="button" class="lesson-item ${x.id===selectedTajweedId?'active':''}" onclick="selectTajweedLesson('${x.id}')"><span class="lesson-day-number">${x.day}</span><span style="min-width:0;flex:1"><strong>${escapeHtml(x.title)}</strong><small>${escapeHtml(x.date)} · ${activeResources(x).length} kaynak</small></span></button>`).join('')||'<div class="empty">Ders bulunamadı.</div>';
+  document.getElementById('tajweedLessonCount').textContent=`${list.length} ders`;
+}
+function selectTajweedLesson(id){selectedTajweedId=id;renderTajweedWorkspace()}
+function newTajweedLesson(){selectedTajweedId='';renderTajweedWorkspace()}
+
+function renderTajweedWorkspace(){
+  renderTajweedList();
+  const host=document.getElementById('tajweedEditorCard');if(!host)return;
+  const lesson=state.tajweedLessons.find(x=>x.id===selectedTajweedId&&!x.deleted);
+  const nextDay=Math.max(0,...state.tajweedLessons.filter(x=>!x.deleted).map(x=>x.day))+1;
+  const opts=(state.tajweedTopics||[]).filter(t=>!t.deleted).map(t=>`<option value="${escapeHtml(t.id)}">${escapeHtml(t.title)}</option>`).join('');
+  if(!lesson){
+    host.innerHTML=`<div class="lesson-header"><div><span class="lesson-tag">YENİ TECVİD DERSİ</span><h3>Yeni Gün / Konu Ekle</h3></div></div>
+    <form class="form-grid" onsubmit="saveTajweedLesson(event)"><div class="field"><label>Gün Sırası</label><input id="tajweedDay" type="number" min="1" value="${nextDay}" required></div><div class="field"><label>Tarih</label><input id="tajweedDate" type="date" value="${todayLocal()}" required></div><div class="field span-2"><label>Ders Konusu (Açılır Liste)</label><select id="tajweedTopicSelect" onchange="applyTajweedTopic(this.value)"><option value="">Konu seçin…</option>${opts}</select></div><div class="field span-2"><label>Ders Notları</label><textarea id="tajweedNotes" maxlength="5000"></textarea></div><div class="form-actions span-2"><button type="submit" class="btn primary">Dersi Kaydet</button></div></form>`;
+    return;
+  }
+  host.innerHTML=`<div class="lesson-header"><div><span class="lesson-tag">${lesson.day}. GÜN · ${escapeHtml(lesson.date)}</span><h3>${escapeHtml(lesson.title)}</h3></div><button class="btn small danger" onclick="deleteTajweedLesson('${lesson.id}')">Sil</button></div>
+  <div style="margin:15px 0 7px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px"><strong class="smalltext">Ders Dokümanları (Video, PDF, Görsel, Ses/Metin) — Toplu Seçim & Frame Açılış</strong><button class="btn small primary" onclick="openResourceModal('tajweed','${lesson.id}')">＋ Toplu Kaynak / Dosya Ekle</button></div>
+  <div class="resource-panels">${renderResourcePanel(lesson,'video','tajweed')}${renderResourcePanel(lesson,'pdf','tajweed')}${renderResourcePanel(lesson,'image','tajweed')}</div>
+  <form class="form-grid" style="margin-top:14px" onsubmit="saveTajweedLesson(event)"><input type="hidden" id="tajweedLessonId" value="${lesson.id}"><div class="field"><label>Gün</label><input id="tajweedDay" type="number" value="${lesson.day}" required></div><div class="field"><label>Tarih</label><input id="tajweedDate" type="date" value="${lesson.date}" required></div><div class="field span-2"><label>Ders Notları</label><textarea id="tajweedNotes" maxlength="5000">${escapeHtml(lesson.notes)}</textarea></div><div class="form-actions span-2"><button type="submit" class="btn primary">Değişiklikleri Kaydet</button></div></form>`;
+}
+function applyTajweedTopic(val){const t=state.tajweedTopics.find(x=>x.id===val);if(t)document.getElementById('tajweedNotes').value=t.notes||'';}
+function saveTajweedLesson(e){e.preventDefault();const id=document.getElementById('tajweedLessonId')?.value,day=Number(document.getElementById('tajweedDay').value),date=document.getElementById('tajweedDate').value,notes=document.getElementById('tajweedNotes').value.trim();let title=document.getElementById('tajweedTopicSelect')?.selectedOptions[0]?.text;if(!id&&(!title||title==='Konu seçin…'))title=`${day}. Gün Tecvid Dersi`;let l;if(!id){l={id:uid('t'),day,date,title,notes,resources:[],updatedAt:nowIso(),deleted:false,deletedAt:''};state.tajweedLessons.push(l);selectedTajweedId=l.id}else{l=state.tajweedLessons.find(x=>x.id===id);Object.assign(l,{day,date,notes,updatedAt:nowIso()})}persist();renderTajweedWorkspace();if(state.settings.cloudEnabled)pushTajweedCloud(l).catch(console.error);toast('Tecvid dersi kaydedildi.','success')}
+
+function deleteTajweedLesson(id){
+  const l=state.tajweedLessons.find(x=>x.id===id && !x.deleted);
+  if(!l) return;
+  const linkedLives = (state.liveRecordings||[]).filter(r=>!r.deleted && r.lessonId===l.id);
+  const extra = linkedLives.length ? `
+• Bu güne bağlı ${linkedLives.length} adet Canlı Ders video kaydı da birlikte silinecektir.` : '';
+  if(!confirm(`“${l.day}. Gün - ${l.title}” dersini silmek istediğinize emin misiniz?${extra}
+
+(Ayarlar > Silinme Geçmişi bölümünden tüm bağlantılarıyla geri alabilirsiniz.)`))return;
+  const stamp = nowIso();
+  l.deleted=true;
+  l.deletedAt=stamp;
+  l.updatedAt=stamp;
+  linkedLives.forEach(r=>{
+    r.deleted = true;
+    r.deletedAt = stamp;
+    r.updatedAt = stamp;
+    if(state.settings.cloudEnabled) pushLiveRecordingCloud(r).catch(console.error);
+  });
+  selectedTajweedId='';
+  persist();
+  renderTajweedWorkspace();
+  if(state.settings.cloudEnabled)pushTajweedCloud(l).catch(console.error);
+  toast('Tecvid dersi silindi.','success');
+}
+
+function openTopicManager(){document.getElementById('topicManagerModal').classList.add('open');renderTopicManager()}
+function resetTajweedTopicForm(){document.getElementById('tajweedTopicForm').reset();document.getElementById('tajweedTopicId').value=''}
+function editTajweedTopic(id){const t=state.tajweedTopics.find(x=>x.id===id);if(!t)return;document.getElementById('tajweedTopicId').value=t.id;document.getElementById('tajweedTopicName').value=t.title;document.getElementById('tajweedTopicNotes').value=t.notes||'';document.getElementById('tajweedTopicSource').value=t.sourceUrl||'';}
+function renderTopicManager(){const host=document.getElementById('tajweedTopicsManagerList');const list=state.tajweedTopics.filter(t=>!t.deleted);host.innerHTML=list.map(t=>`<div class="topic-manager-row"><div class="topic-main"><strong>${escapeHtml(t.title)}</strong><p>${escapeHtml(t.notes)}</p></div><div class="topic-manager-actions"><button class="btn small" type="button" onclick="editTajweedTopic('${t.id}')">Düzenle</button><button class="btn small danger" type="button" onclick="deleteTajweedTopic('${t.id}')">Sil</button></div></div>`).join('');}
+function saveTajweedTopic(e){e.preventDefault();const id=document.getElementById('tajweedTopicId').value,t=document.getElementById('tajweedTopicName').value.trim(),n=document.getElementById('tajweedTopicNotes').value.trim(),s=safeExternalUrl(document.getElementById('tajweedTopicSource').value.trim());let p;if(id){p=state.tajweedTopics.find(x=>x.id===id);if(p)Object.assign(p,{title:t,notes:n,sourceUrl:s,updatedAt:nowIso()})}else{p={id:uid('tp'),title:t,notes:n,sourceUrl:s,updatedAt:nowIso(),deleted:false,deletedAt:''};state.tajweedTopics.push(p)}persist();renderTopicManager();renderTajweedWorkspace();resetTajweedTopicForm();if(state.settings.cloudEnabled&&p)pushTajweedTopicCloud(p).catch(console.error);toast('Konu kaydedildi.','success')}
+function deleteTajweedTopic(id){const t=state.tajweedTopics.find(x=>x.id===id);if(!t||!confirm(`“${t.title}” konu başlığı silinsin mi?
+
+(Ayarlar > Silinme Geçmişi'nden geri alabilirsiniz.)`))return;t.deleted=true;t.deletedAt=nowIso();t.updatedAt=nowIso();persist();renderTopicManager();renderTajweedWorkspace();if(state.settings.cloudEnabled)pushTajweedTopicCloud(t).catch(console.error);toast('Konu silindi.','success')}
+function printAllTajweedReport(){
+  const lessons=(state.tajweedLessons||[]).filter(x=>!x.deleted).sort((a,b)=>a.day-b.day);
+  showPrint(`<h1>${escapeHtml(state.settings.appTitle)}</h1><h2>Tüm Tecvid Dersleri Raporu</h2><table><thead><tr><th>Gün</th><th>Tarih</th><th>Konu</th><th>Kaynak Sayısı</th><th>Notlar</th></tr></thead><tbody>${lessons.map(l=>`<tr><td>${l.day}</td><td>${escapeHtml(l.date)}</td><td>${escapeHtml(l.title)}</td><td>${activeResources(l).length}</td><td>${escapeHtml(l.notes||'—')}</td></tr>`).join('')||'<tr><td colspan="5">Kayıt yok.</td></tr>'}</tbody></table>`);
+}
+
+function renderEmojiLibrary(){
+  const tabsHost = document.getElementById('emojiCategoryTabs');
+  const libHost = document.getElementById('islamicEmojiLibrary');
+  if(!tabsHost || !libHost) return;
+  const currentVal = document.getElementById('siteLinkIcon')?.value || '🕌';
+  tabsHost.innerHTML = Object.keys(ISLAMIC_EMOJI_LIBRARY).map(cat =>
+    `<button type="button" class="btn small ${cat===activeEmojiCat?'primary':''}" onclick="selectEmojiCategory('${escapeHtml(cat)}')">${escapeHtml(cat)}</button>`
+  ).join('');
+  const emojis = ISLAMIC_EMOJI_LIBRARY[activeEmojiCat] || [];
+  libHost.innerHTML = emojis.map(em =>
+    `<button type="button" class="emoji-pick-btn ${em===currentVal?'selected':''}" onclick="pickIslamicEmoji('${em}')" title="${em} Seç">${em}</button>`
+  ).join('');
+}
+function selectEmojiCategory(cat){ activeEmojiCat = cat; renderEmojiLibrary(); }
+function pickIslamicEmoji(emoji){
+  const input = document.getElementById('siteLinkIcon');
+  if(input) input.value = emoji;
+  renderEmojiLibrary();
+}
+
+function renderSiteLinks(){
+  const host=document.getElementById('siteLinksList');if(!host)return;
+  const q=(document.getElementById('siteLinkSearch')?.value||'').trim().toLocaleLowerCase('tr-TR');
+  const list=(state.siteLinks||[]).filter(x=>!x.deleted&&(!q||`${x.title} ${x.category} ${x.description}`.toLocaleLowerCase('tr-TR').includes(q)));
+  host.classList.toggle('cards-mode',state.settings.listModes.sites==='cards');
+  updateListModeButtons('sites');
+  document.getElementById('siteLinkCount').textContent = `${list.length} bağlantı`;
+  host.innerHTML=list.map(x=>`<article class="site-link-card"><div class="site-link-icon">${escapeHtml(x.icon||'🕌')}</div><div class="site-link-copy"><div class="site-link-title-row"><strong>${escapeHtml(x.title)}</strong><span class="site-link-category">${escapeHtml(x.category)}</span></div><p>${escapeHtml(x.description||'')}</p><div class="site-link-actions"><a class="btn small primary" href="${escapeHtml(x.url)}" target="_blank" rel="noopener noreferrer">↗ Siteyi Aç</a><button class="btn small" onclick="editSiteLink('${x.id}')">Düzenle</button><button class="btn small danger" onclick="deleteSiteLink('${x.id}')">Sil</button></div></div></article>`).join('')||'<div class="empty">Henüz site bağlantısı yok.</div>';
+}
+function openSiteLinkEditor(){
+  document.getElementById('siteLinkForm').reset();
+  document.getElementById('siteLinkId').value='';
+  document.getElementById('siteLinkIcon').value='🕌';
+  document.getElementById('siteLinkEditorTitle').textContent='Yeni site bağlantısı';
+  document.getElementById('siteLinkEditorCard').classList.remove('hidden');
+  renderEmojiLibrary();
+}
+function editSiteLink(id){
+  const x=state.siteLinks.find(s=>s.id===id && !s.deleted);if(!x)return;
+  document.getElementById('siteLinkId').value=x.id;
+  document.getElementById('siteLinkName').value=x.title;
+  document.getElementById('siteLinkUrl').value=x.url;
+  document.getElementById('siteLinkCategory').value=x.category||'';
+  document.getElementById('siteLinkIcon').value=x.icon||'🕌';
+  document.getElementById('siteLinkDescription').value=x.description||'';
+  document.getElementById('siteLinkEditorTitle').textContent='Site bağlantısını düzenle';
+  document.getElementById('siteLinkEditorCard').classList.remove('hidden');
+  renderEmojiLibrary();
+}
+function closeSiteLinkEditor(){document.getElementById('siteLinkEditorCard').classList.add('hidden')}
+function saveSiteLink(e){
+  e.preventDefault();
+  const id=document.getElementById('siteLinkId').value;
+  const t=document.getElementById('siteLinkName').value.trim(),u=safeExternalUrl(document.getElementById('siteLinkUrl').value.trim()),c=document.getElementById('siteLinkCategory').value.trim(),i=document.getElementById('siteLinkIcon').value.trim(),d=document.getElementById('siteLinkDescription').value.trim();
+  if(!t||!u){toast('Geçerli site adı ve https:// adresi girin.','error');return}
+  let sl;
+  if(id){
+    sl=state.siteLinks.find(s=>s.id===id);
+    if(sl)Object.assign(sl,{title:t,url:u,category:c||'Diğer',icon:i||'🕌',description:d,updatedAt:nowIso()});
+  }else{
+    sl={id:uid('sl'),title:t,url:u,category:c||'Diğer',icon:i||'🕌',description:d,updatedAt:nowIso(),deleted:false,deletedAt:''};
+    state.siteLinks.push(sl);
+  }
+  persist();closeSiteLinkEditor();renderSiteLinks();if(state.settings.cloudEnabled&&sl)pushSiteLinkCloud(sl).catch(console.error);toast('Site bağlantısı kaydedildi.','success');
+}
+function deleteSiteLink(id){const x=state.siteLinks.find(s=>s.id===id);if(!x||!confirm(`“${x.title}” site bağlantısı silinsin mi?
+
+(Ayarlar > Silinme Geçmişi'nden geri alabilirsiniz.)`))return;x.deleted=true;x.deletedAt=nowIso();x.updatedAt=nowIso();persist();renderSiteLinks();if(state.settings.cloudEnabled)pushSiteLinkCloud(x).catch(console.error);toast('Bağlantı silindi.','success')}
+function addSuggestedSite(preset){
+  const presets = {
+    'diyanet': { title:'Diyanet Kur’an-ı Kerim Portalı', url:'https://kuran.diyanet.gov.tr', category:'Kur’an-ı Kerim', icon:'📖', description:'Meal, tefsir ve tilavet portalı.' },
+    'diyanet-egitim': { title:'Diyanet Eğitim Hizmetleri', url:'https://egitimhizmetleri.diyanet.gov.tr', category:'Eğitim', icon:'🕌', description:'Kur’an eğitim materyalleri.' },
+    'tdv-tecvid': { title:'TDV İslam Ansiklopedisi - Tecvid', url:'https://islamansiklopedisi.org.tr/tecvid--kuran', category:'Tecvid eğitimi', icon:'۞', description:'Kapsamlı tecvid maddesi ve kuralları.' },
+    'hayrat-canli': { title:'Hayrat Eğitim Canlı Ders Sınıfı', url:DEFAULT_LIVE_URL, category:'Canlı Ders', icon:'🎥', description:'Canlı ders katılım bağlantısı.' }
+  };
+  const item = presets[preset]; if(!item) return;
+  const sl = { id: uid('sl'), ...item, updatedAt: nowIso(), deleted: false, deletedAt: '' };
+  state.siteLinks.push(sl);
+  persist(); renderSiteLinks();
+  if(state.settings.cloudEnabled) pushSiteLinkCloud(sl).catch(console.error);
+  toast(`${item.title} eklendi.`,'success');
+}
+
+function populateHistoryFilters(){
+  const sel = document.getElementById('historySurahFilter');
+  if(!sel) return;
+  const current = sel.value || 'all';
+  const surahOpts = state.surahs.map(s=>`<option value="${s.id}">${s.number}. ${escapeHtml(s.name)}</option>`).join('');
+  const prayerOpts = (state.prayers||[]).filter(p=>!p.deleted).map(p=>`<option value="${p.id}">🤲 ${escapeHtml(p.title)}</option>`).join('');
+  sel.innerHTML = `<option value="all">Tüm Sure ve Dualar</option><optgroup label="Sureler">${surahOpts}</optgroup><optgroup label="Dualar">${prayerOpts}</optgroup>`;
+  sel.value = current;
+}
+
+function renderHistoryTable(){
+  const host=document.getElementById('historyTable');if(!host)return;
+  const q=(document.getElementById('historySearch')?.value||'').trim().toLocaleLowerCase('tr-TR');
+  const itemFilter=document.getElementById('historySurahFilter')?.value||'all';
+  const resFilter=document.getElementById('historyResultFilter')?.value||'all';
+  const rows=[...activeHistory(),...activePrayerHistory()].filter(r=>{
+    const isP=r.surahId.startsWith('pr_');
+    const title=isP?(prayerById(r.surahId)?.title||'Dua'):surahName(r.surahId);
+    if(itemFilter!=='all' && r.surahId!==itemFilter) return false;
+    if(resFilter!=='all' && r.result!==resFilter) return false;
+    return !q||r.notes.toLocaleLowerCase('tr-TR').includes(q)||title.toLocaleLowerCase('tr-TR').includes(q)||stageLabel(r.stageIndex).toLocaleLowerCase('tr-TR').includes(q);
+  }).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  host.innerHTML=renderRecordTable(rows, true);
+}
+function renderRecordTable(records, showOwner=false){
+  if(!records.length)return '<div class="empty">Kayıt bulunamadı.</div>';
+  return `<div class="table-wrap"><table><thead><tr>${showOwner?'<th>Sure / Dua</th>':''}<th>Tarih</th><th>Aşama</th><th>Süre</th><th>Sonuç</th><th>Not</th><th>İşlem</th></tr></thead><tbody>${records.map(r=>{
+    const pFlag = r.surahId.startsWith('pr_');
+    const ownerName = pFlag ? `🤲 ${prayerById(r.surahId)?.title||'Dua'}` : surahName(r.surahId);
+    return `<tr>${showOwner?`<td><strong>${escapeHtml(ownerName)}</strong></td>`:''}<td>${r.date}</td><td><span class="pill">${escapeHtml(stageLabel(r.stageIndex))}</span></td><td>${formatDuration(r.durationSeconds)}</td><td><span class="pill">${escapeHtml(r.result)}</span></td><td>${escapeHtml(r.notes||'—')}</td><td><button class="btn small" onclick="editHistoryRecord('${r.id}','${pFlag?'prayer':'surah'}')">Düzenle</button> <button class="btn small danger" onclick="deleteRecordDirect('${r.id}','${pFlag?'prayer':'surah'}')">Sil</button></td></tr>`;
+  }).join('')}</tbody></table></div>`;
+}
+
+function editHistoryRecord(id, type){
+  const list=type==='prayer'?state.prayerHistory:state.history;
+  const r=list.find(x=>x.id===id);if(!r)return;
+  document.getElementById('editRecordId').value=r.id;
+  document.getElementById('editRecordType').value=type;
+  document.getElementById('editRecordStage').value=stageLabel(r.stageIndex);
+  document.getElementById('editRecordDate').value=r.date;
+  document.getElementById('editRecordDuration').value=(r.durationSeconds/60).toFixed(1);
+  document.getElementById('editRecordResult').value=r.result;
+  document.getElementById('editRecordNotes').value=r.notes||'';
+  openModal('editRecordModal');
+}
+document.getElementById('editRecordForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const id=document.getElementById('editRecordId').value;
+  const type=document.getElementById('editRecordType').value;
+  const list=type==='prayer'?state.prayerHistory:state.history;
+  const r=list.find(x=>x.id===id);if(!r)return;
+  r.date=document.getElementById('editRecordDate').value;
+  r.durationSeconds=Math.round(Number(document.getElementById('editRecordDuration').value)*60);
+  r.result=document.getElementById('editRecordResult').value;
+  r.notes=document.getElementById('editRecordNotes').value;
+  r.updatedAt=nowIso();
+  persist();closeModal('editRecordModal');
+  if(state.settings.cloudEnabled){
+    if(type==='prayer')pushPrayerHistoryCloud(r).catch(console.error);
+    else pushHistoryCloud(r).catch(console.error);
+  }
+  renderHistoryTable();if(type==='prayer')renderPrayerWorkspace();else renderSurahWorkspace();
+  toast('Kayıt güncellendi.','success');
+});
+
+function deleteRecordDirect(id,type){
+  const list=type==='prayer'?state.prayerHistory:state.history;
+  const r=list.find(x=>x.id===id && !x.deleted);
+  if(!r) return;
+  const ownerTitle = type==='prayer' ? (prayerById(r.surahId)?.title||'Dua') : surahName(r.surahId);
+  if(!confirm(`“${ownerTitle} - ${stageLabel(r.stageIndex)}” oturum kaydı silinsin mi?
+
+(Ayarlar > Silinme Geçmişi bölümünden geri alabilirsiniz.)`))return;
+  const stamp = nowIso();
+  r.deleted=true;
+  r.deletedAt=stamp;
+  r.updatedAt=stamp;
+  persist();renderStats();renderRecent();
+  if(type==='prayer'){renderPrayerWorkspace();if(state.settings.cloudEnabled)pushPrayerHistoryCloud(r).catch(console.error);}
+  else{renderSurahWorkspace();if(state.settings.cloudEnabled)pushHistoryCloud(r).catch(console.error);}
+  renderHistoryTable();
+  toast('Kayıt silindi.','success');
+}
+
+function saveTrashRetention(val){
+  const num = Number(val);
+  if(num >= 0 && num <= 365){
+    state.settings.trashRetentionDays = num;
+    persist();
+    if(state.settings.cloudEnabled) pushSettingsCloud().catch(console.error);
+    toast('Çöp kutusu saklama süresi güncellendi.','success');
+  }
+}
+
+async function purgeExpiredTrashItems(){
+  const retention = Number(state.settings.trashRetentionDays);
+  if(retention <= 0) return;
+  const nowMs = Date.now();
+  const maxAgeMs = retention * 24 * 60 * 60 * 1000;
+  
+  const processArray = async (arr) => {
+    let changed = false;
+    for (let i = arr.length - 1; i >= 0; i--) {
+      const item = arr[i];
+      if (item.deleted && item.deletedAt) {
+        const delTime = new Date(item.deletedAt).getTime();
+        if (nowMs - delTime > maxAgeMs) {
+          if (item.blobId) await idbDelete(item.blobId);
+          arr.splice(i, 1);
+          changed = true;
+        }
+      }
+    }
+    return changed;
+  };
+
+  const processResources = async (owners) => {
+    let changed = false;
+    for(const owner of owners){
+      if(owner.resources){
+        for (let i = owner.resources.length - 1; i >= 0; i--) {
+          const res = owner.resources[i];
+          if (res.deleted && res.deletedAt) {
+            const delTime = new Date(res.deletedAt).getTime();
+            if (nowMs - delTime > maxAgeMs) {
+              if(res.blobId) await idbDelete(res.blobId);
+              owner.resources.splice(i, 1);
+              changed = true;
+            }
+          }
+        }
+      }
+    }
+    return changed;
+  };
+
+  let anyChange = false;
+  anyChange = (await processArray(state.liveRecordings)) || anyChange;
+  anyChange = (await processArray(state.tajweedLessons)) || anyChange;
+  anyChange = (await processArray(state.prayers)) || anyChange;
+  anyChange = (await processArray(state.history)) || anyChange;
+  anyChange = (await processArray(state.prayerHistory)) || anyChange;
+  anyChange = (await processArray(state.siteLinks)) || anyChange;
+  anyChange = (await processArray(state.tajweedTopics)) || anyChange;
+  
+  anyChange = (await processResources(state.surahs)) || anyChange;
+  anyChange = (await processResources(state.prayers)) || anyChange;
+  anyChange = (await processResources(state.tajweedLessons)) || anyChange;
+  
+  if(anyChange){
+    persist();
+    renderDeletionHistory();
+  }
+}
+
+function collectAllDeletedItems(){
+  reconcileBidirectionalLinks();
+  const items = [];
+  const handledResources = new Set();
+  
+  for(const rec of (state.liveRecordings||[])){
+    if(rec.deleted){
+      if(rec.linkedResourceId) handledResources.add(rec.linkedResourceId);
+      items.push({
+        trashKey: `live:${rec.id}`,
+        cat: 'live',
+        typeBadge: '🎥 Canlı Ders',
+        title: rec.title,
+        relation: rec.lessonId ? `Bağlı Ders: ${rec.lessonLabel}` : 'Genel',
+        deletedAt: rec.deletedAt || rec.updatedAt || rec.createdAt,
+        restoreFn: () => restoreDeletedEntry('live', rec.id),
+        purgeFn: async () => await purgeSingleItem('live', rec.id)
+      });
+    }
+  }
+
+  const scanOwnerResources = (ownerList, ownerTypeLabel, getLabelFn) => {
+    for(const owner of (ownerList||[])){
+      for(const res of (owner.resources||[])){
+        if(res.deleted && !handledResources.has(res.id)){
+          items.push({
+            trashKey: `resource:${owner.id}:${res.id}`,
+            cat: 'resource',
+            typeBadge: `📎 ${res.kind.toUpperCase()}`,
+            title: res.title,
+            relation: `${ownerTypeLabel}: ${getLabelFn(owner)}`,
+            deletedAt: res.deletedAt || owner.updatedAt || res.addedAt,
+            restoreFn: () => restoreDeletedEntry('resource', owner.id, res.id),
+            purgeFn: async () => await purgeSingleItem('resource', owner.id, res.id)
+          });
+        }
+      }
+    }
+  };
+  scanOwnerResources(state.surahs, 'Sure', s => `${s.number}. ${s.name}`);
+  scanOwnerResources(state.prayers, 'Dua', p => p.title);
+  scanOwnerResources(state.tajweedLessons, 'Tecvid Dersi', l => `${l.day}. Gün - ${l.title}`);
+
+  for(const l of (state.tajweedLessons||[])){
+    if(l.deleted){
+      items.push({
+        trashKey: `tajweed:${l.id}`,
+        cat: 'tajweed',
+        typeBadge: '۞ Tecvid',
+        title: `${l.day}. Gün · ${l.title}`,
+        relation: `Tarih: ${l.date}`,
+        deletedAt: l.deletedAt || l.updatedAt,
+        restoreFn: () => restoreDeletedEntry('tajweed', l.id),
+        purgeFn: async () => await purgeSingleItem('tajweed', l.id)
+      });
+    }
+  }
+
+  for(const p of (state.prayers||[])){
+    if(p.deleted){
+      items.push({
+        trashKey: `prayer:${p.id}`,
+        cat: 'prayer',
+        typeBadge: '🤲 Dua',
+        title: p.title,
+        relation: `Kategori: ${p.category}`,
+        deletedAt: p.deletedAt || p.updatedAt,
+        restoreFn: () => restoreDeletedEntry('prayer', p.id),
+        purgeFn: async () => await purgeSingleItem('prayer', p.id)
+      });
+    }
+  }
+
+  for(const h of (state.history||[])){
+    if(h.deleted){
+      items.push({
+        trashKey: `history_surah:${h.id}`,
+        cat: 'history',
+        typeBadge: '🕘 Sure Oturumu',
+        title: `${surahName(h.surahId)}`,
+        relation: `Tarih: ${h.date}`,
+        deletedAt: h.deletedAt || h.updatedAt,
+        restoreFn: () => restoreDeletedEntry('history_surah', h.id),
+        purgeFn: async () => await purgeSingleItem('history_surah', h.id)
+      });
+    }
+  }
+  for(const ph of (state.prayerHistory||[])){
+    if(ph.deleted){
+      items.push({
+        trashKey: `history_prayer:${ph.id}`,
+        cat: 'history',
+        typeBadge: '🕘 Dua Oturumu',
+        title: `${prayerById(ph.surahId)?.title||'Dua'}`,
+        relation: `Tarih: ${ph.date}`,
+        deletedAt: ph.deletedAt || ph.updatedAt,
+        restoreFn: () => restoreDeletedEntry('history_prayer', ph.id),
+        purgeFn: async () => await purgeSingleItem('history_prayer', ph.id)
+      });
+    }
+  }
+
+  for(const sl of (state.siteLinks||[])){
+    if(sl.deleted){
+      items.push({
+        trashKey: `sitelink:${sl.id}`,
+        cat: 'sitelink',
+        typeBadge: '🔗 Site',
+        title: `${sl.title}`,
+        relation: `${sl.url}`,
+        deletedAt: sl.deletedAt || sl.updatedAt,
+        restoreFn: () => restoreDeletedEntry('sitelink', sl.id),
+        purgeFn: async () => await purgeSingleItem('sitelink', sl.id)
+      });
+    }
+  }
+
+  for(const tp of (state.tajweedTopics||[])){
+    if(tp.deleted){
+      items.push({
+        trashKey: `topic:${tp.id}`,
+        cat: 'topic',
+        typeBadge: '🗂️ Konu',
+        title: tp.title,
+        relation: 'Açılır menü',
+        deletedAt: tp.deletedAt || tp.updatedAt,
+        restoreFn: () => restoreDeletedEntry('topic', tp.id),
+        purgeFn: async () => await purgeSingleItem('topic', tp.id)
+      });
+    }
+  }
+
+  return items.sort((a,b)=>String(b.deletedAt||'').localeCompare(String(a.deletedAt||'')));
+}
+
+function renderDeletionHistory(){
+  const host = document.getElementById('deletionHistoryTable');
+  const badge = document.getElementById('deletedTrashCountBadge');
+  if(!host) return;
+  
+  const retentionInput = document.getElementById('trashRetentionDays');
+  if(retentionInput && state.settings.trashRetentionDays !== undefined){
+    retentionInput.value = state.settings.trashRetentionDays;
+  }
+  
+  const allItems = collectAllDeletedItems();
+  if(badge) badge.textContent = `${allItems.length} öğe`;
+
+  const q = (document.getElementById('trashSearchInput')?.value||'').trim().toLocaleLowerCase('tr-TR');
+  const catFilter = document.getElementById('trashTypeFilter')?.value || 'all';
+  const filtered = allItems.filter(item => {
+    if(catFilter !== 'all' && item.cat !== catFilter) return false;
+    return !q || `${item.typeBadge} ${item.title} ${item.relation}`.toLocaleLowerCase('tr-TR').includes(q);
+  });
+
+  if(!filtered.length){
+    host.innerHTML = `<div class="empty">Silinme geçmişinde kayıt bulunmuyor.</div>`;
+    return;
+  }
+  host.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Tür</th><th>Silinen Kayıt Adı</th><th>İlişkili Bağlantı / Konum</th><th>Silinme Zamanı</th><th>İşlem</th></tr></thead><tbody>${filtered.map((item) => `
+    <tr>
+      <td><span class="pill">${escapeHtml(item.typeBadge)}</span></td>
+      <td><strong>${escapeHtml(item.title)}</strong></td>
+      <td>${escapeHtml(item.relation)}</td>
+      <td>${escapeHtml(formatDateTimeShort(item.deletedAt))}</td>
+      <td style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn small good" type="button" onclick="triggerTrashRestore('${escapeHtml(item.trashKey)}')">↩ Geri Al</button>
+        <button class="btn small danger" type="button" onclick="permanentlyDeleteTrashItem('${escapeHtml(item.trashKey)}')">🗑️ Kalıcı Sil</button>
+      </td>
+    </tr>
+  `).join('')}</tbody></table></div>`;
+}
+
+function triggerTrashRestore(trashKey){
+  const parts = String(trashKey||'').split(':');
+  restoreDeletedEntry(parts[0], parts[1], parts[2]);
+}
+
+function restoreDeletedEntry(kind, id1, id2=''){
+  const stamp = nowIso();
+  if(kind === 'live'){
+    const rec = state.liveRecordings.find(r=>r.id===id1);
+    if(!rec) return;
+    rec.deleted = false;
+    rec.deletedAt = '';
+    rec.updatedAt = stamp;
+    if(rec.lessonId){
+      const lesson = state.tajweedLessons.find(l=>l.id===rec.lessonId);
+      if(lesson){
+        if(lesson.deleted){ lesson.deleted = false; lesson.deletedAt = ''; }
+        lesson.resources = lesson.resources || [];
+        const linkedRes = lesson.resources.find(res=>res.id===rec.linkedResourceId || res.linkedLiveRecId===rec.id || (rec.blobId && res.blobId===rec.blobId));
+        if(linkedRes){ linkedRes.deleted = false; linkedRes.deletedAt = ''; }
+        lesson.updatedAt = stamp;
+        if(state.settings.cloudEnabled) pushTajweedCloud(lesson).catch(console.error);
+      }
+    }
+    if(state.settings.cloudEnabled) pushLiveRecordingCloud(rec).catch(console.error);
+  }else if(kind === 'resource'){
+    const ownerRef = getResourceOwnerById(id1);
+    if(!ownerRef) return;
+    const res = (ownerRef.record.resources||[]).find(r=>r.id===id2);
+    if(!res) return;
+    res.deleted = false;
+    res.deletedAt = '';
+    if(ownerRef.record.deleted){ ownerRef.record.deleted = false; ownerRef.record.deletedAt = ''; }
+    ownerRef.record.updatedAt = stamp;
+    const linkedLive = (state.liveRecordings||[]).find(lr=>lr.id===res.linkedLiveRecId || lr.linkedResourceId===res.id || (res.blobId && lr.blobId===res.blobId));
+    if(linkedLive){
+      linkedLive.deleted = false;
+      linkedLive.deletedAt = '';
+      linkedLive.updatedAt = stamp;
+      if(state.settings.cloudEnabled) pushLiveRecordingCloud(linkedLive).catch(console.error);
+    }
+    if(state.settings.cloudEnabled){
+      if(ownerRef.type==='surah') pushSurahCloud(ownerRef.record).catch(console.error);
+      else if(ownerRef.type==='prayer') pushPrayerCloud(ownerRef.record).catch(console.error);
+      else pushTajweedCloud(ownerRef.record).catch(console.error);
+    }
+  }else if(kind === 'tajweed'){
+    const l = state.tajweedLessons.find(x=>x.id===id1);
+    if(!l) return;
+    l.deleted = false; l.deletedAt = ''; l.updatedAt = stamp;
+    (l.resources||[]).forEach(res=>{ if(res.deleted){ res.deleted=false; res.deletedAt=''; }});
+    (state.liveRecordings||[]).filter(r=>r.lessonId===l.id && r.deleted).forEach(r=>{
+      r.deleted = false; r.deletedAt = ''; r.updatedAt = stamp;
+      if(state.settings.cloudEnabled) pushLiveRecordingCloud(r).catch(console.error);
+    });
+    if(state.settings.cloudEnabled) pushTajweedCloud(l).catch(console.error);
+  }else if(kind === 'prayer'){
+    const p = state.prayers.find(x=>x.id===id1);
+    if(!p) return;
+    p.deleted = false; p.deletedAt = ''; p.updatedAt = stamp;
+    if(state.settings.cloudEnabled) pushPrayerCloud(p).catch(console.error);
+  }else if(kind === 'history_surah'){
+    const h = state.history.find(x=>x.id===id1);
+    if(h){ h.deleted = false; h.deletedAt = ''; h.updatedAt = stamp; if(state.settings.cloudEnabled) pushHistoryCloud(h).catch(console.error); }
+  }else if(kind === 'history_prayer'){
+    const ph = state.prayerHistory.find(x=>x.id===id1);
+    if(ph){ ph.deleted = false; ph.deletedAt = ''; ph.updatedAt = stamp; if(state.settings.cloudEnabled) pushPrayerHistoryCloud(ph).catch(console.error); }
+  }else if(kind === 'sitelink'){
+    const sl = state.siteLinks.find(x=>x.id===id1);
+    if(sl){ sl.deleted = false; sl.deletedAt = ''; sl.updatedAt = stamp; if(state.settings.cloudEnabled) pushSiteLinkCloud(sl).catch(console.error); }
+  }else if(kind === 'topic'){
+    const tp = state.tajweedTopics.find(x=>x.id===id1);
+    if(tp){ tp.deleted = false; tp.deletedAt = ''; tp.updatedAt = stamp; if(state.settings.cloudEnabled) pushTajweedTopicCloud(tp).catch(console.error); }
+  }
+  persist(); renderStats(); renderRecent(); renderDeletionHistory();
+  toast('Öğe geri alındı.','success');
+}
+
+function restoreAllDeletedItems(){
+  const items = collectAllDeletedItems();
+  if(!items.length){ toast('Geri alınacak kayıt yok.','error'); return; }
+  if(!confirm(`Silinme geçmişindeki ${items.length} kaydın tamamı ilişkili bağlantılarıyla birlikte geri yüklensin mi?`)) return;
+  items.forEach(item => item.restoreFn());
+  persist(); renderStats(); renderRecent(); renderDeletionHistory();
+  toast('Tüm silinen kayıtlar geri yüklendi.','success');
+}
+
+async function permanentlyDeleteTrashItem(trashKey){
+  if(!confirm("Bu öğe ve ekli cihaz dosyaları kalıcı olarak silinecektir. Bu işlem geri alınamaz. Onaylıyor musunuz?")) return;
+  const parts = String(trashKey||'').split(':');
+  await purgeSingleItem(parts[0], parts[1], parts[2]);
+  persist(); renderDeletionHistory();
+  toast('Öğe kalıcı olarak silindi.','success');
+}
+
+async function purgeSingleItem(kind, id1, id2=''){
+  if(kind === 'live'){
+    const idx = state.liveRecordings.findIndex(r=>r.id===id1);
+    if(idx > -1){
+      if(state.liveRecordings[idx].blobId) await idbDelete(state.liveRecordings[idx].blobId);
+      state.liveRecordings.splice(idx, 1);
+    }
+  } else if(kind === 'resource'){
+    const ownerRef = getResourceOwnerById(id1);
+    if(ownerRef && ownerRef.record.resources){
+      const resIdx = ownerRef.record.resources.findIndex(r=>r.id===id2);
+      if(resIdx > -1){
+        if(ownerRef.record.resources[resIdx].blobId) await idbDelete(ownerRef.record.resources[resIdx].blobId);
+        ownerRef.record.resources.splice(resIdx, 1);
+      }
+    }
+  } else if(kind === 'tajweed'){
+    const idx = state.tajweedLessons.findIndex(x=>x.id===id1);
+    if(idx > -1) state.tajweedLessons.splice(idx, 1);
+  } else if(kind === 'prayer'){
+    const idx = state.prayers.findIndex(x=>x.id===id1);
+    if(idx > -1) state.prayers.splice(idx, 1);
+  } else if(kind === 'history_surah'){
+    const idx = state.history.findIndex(x=>x.id===id1);
+    if(idx > -1) state.history.splice(idx, 1);
+  } else if(kind === 'history_prayer'){
+    const idx = state.prayerHistory.findIndex(x=>x.id===id1);
+    if(idx > -1) state.prayerHistory.splice(idx, 1);
+  } else if(kind === 'sitelink'){
+    const idx = state.siteLinks.findIndex(x=>x.id===id1);
+    if(idx > -1) state.siteLinks.splice(idx, 1);
+  } else if(kind === 'topic'){
+    const idx = state.tajweedTopics.findIndex(x=>x.id===id1);
+    if(idx > -1) state.tajweedTopics.splice(idx, 1);
+  }
+}
+
+async function emptyAllTrashPermanently(){
+  if(!verifyAdminPassword()) return;
+  const items = collectAllDeletedItems();
+  if(!items.length) return;
+  if(!confirm(`DİKKAT: Çöp kutusundaki ${items.length} kayıt KALICI OLARAK SİLİNECEK ve bu işlem Geri Alınamaz!
+Emin misiniz?`)) return;
+  
+  document.getElementById('deletedTrashCountBadge').textContent = "Siliniyor...";
+  for(const item of items){
+    await item.purgeFn();
+  }
+  
+  persist();
+  renderDeletionHistory();
+  toast('Tüm çöp kutusu kalıcı olarak temizlendi.','success');
+}
+
+function renderReports(){renderStats();renderReportsList()}
+function renderReportsList(){
+  const host=document.getElementById('reportsList');if(!host)return;
+  const q=(document.getElementById('reportSearch')?.value||'').trim().toLocaleLowerCase('tr-TR');
+  const sList = state.surahs.filter(s=>!q||s.name.toLocaleLowerCase('tr-TR').includes(q)||String(s.number)===q).map(s=>`<div class="report-row"><div class="round-icon">${s.mastered?'✅':'📖'}</div><div class="copy"><strong>${s.number}. ${escapeHtml(s.name)}</strong><small>${s.ayahCount?`${s.ayahCount} ayet`:'Ayet sayısı belirsiz'} · ${surahHistory(s.id).length} oturum</small></div><button class="btn small" onclick="printSurahReport('${s.id}')">PDF Rapor</button></div>`).join('');
+  const pList = state.prayers.filter(p=>!p.deleted&&(!q||p.title.toLocaleLowerCase('tr-TR').includes(q))).map(p=>`<div class="report-row"><div class="round-icon">${p.mastered?'✅':'🤲'}</div><div class="copy"><strong>${escapeHtml(p.title)}</strong><small>${escapeHtml(p.category)} · ${prayerHistoryRecords(p.id).length} oturum</small></div><button class="btn small" onclick="printPrayerReport('${p.id}')">PDF Rapor</button></div>`).join('');
+  host.innerHTML=`<h4 style="margin:0 0 10px;grid-column:1/-1">Sureler</h4>${sList}<h4 style="margin:15px 0 10px;grid-column:1/-1">Dualar</h4>${pList||'<div class="empty">Dua yok.</div>'}`;
+}
+function printOverallReport(){
+  const rows=state.surahs.map(s=>`<tr><td>${s.number}</td><td>${escapeHtml(s.name)}</td><td>${s.ayahCount||'—'}</td><td>${s.mastered?'Tamamlandı':'Devam'}</td><td>${surahHistory(s.id).length}</td></tr>`).join('');
+  showPrint(`<h1>${escapeHtml(state.settings.appTitle)}</h1><h2>Genel Sure İlerleme Raporu</h2><table><thead><tr><th>No</th><th>Sure</th><th>Ayet</th><th>Durum</th><th>Oturum</th></tr></thead><tbody>${rows}</tbody></table>`);
+}
+function printSurahReport(id){
+  const s=surahById(id),recs=surahHistory(id);
+  showPrint(`<h1>${escapeHtml(state.settings.appTitle)}</h1><h2>${s.number}. ${escapeHtml(s.name)} Suresi Raporu</h2><p>Ayet: ${s.ayahCount||'—'} · Toplam Oturum: ${recs.length}</p><table><thead><tr><th>Tarih</th><th>Aşama</th><th>Süre</th><th>Sonuç</th><th>Not</th></tr></thead><tbody>${recs.map(r=>`<tr><td>${r.date}</td><td>${stageLabel(r.stageIndex)}</td><td>${formatDuration(r.durationSeconds)}</td><td>${r.result}</td><td>${escapeHtml(r.notes||'—')}</td></tr>`).join('')||'<tr><td colspan="5">Kayıt yok.</td></tr>'}</tbody></table>`);
+}
+function printPrayerReport(id){
+  const p=prayerById(id),recs=prayerHistoryRecords(id);
+  showPrint(`<h1>${escapeHtml(state.settings.appTitle)}</h1><h2>${escapeHtml(p.title)} Ezber Raporu</h2><p>Kategori: ${escapeHtml(p.category)} · Oturum: ${recs.length}</p><table><thead><tr><th>Tarih</th><th>Aşama</th><th>Süre</th><th>Sonuç</th><th>Not</th></tr></thead><tbody>${recs.map(r=>`<tr><td>${r.date}</td><td>${stageLabel(r.stageIndex)}</td><td>${formatDuration(r.durationSeconds)}</td><td>${r.result}</td><td>${escapeHtml(r.notes||'—')}</td></tr>`).join('')||'<tr><td colspan="5">Kayıt yok.</td></tr>'}</tbody></table>`);
+}
+function showPrint(content){const a=document.getElementById('printArea');a.innerHTML=content;a.setAttribute('aria-hidden','false');window.print();setTimeout(()=>{a.innerHTML='';a.setAttribute('aria-hidden','true')},1000)}
+
+function renderSettings(){
+  document.getElementById('appTitleInput').value=state.settings.appTitle;
+  document.getElementById('themePreference').value=state.settings.theme;
+  document.getElementById('adminPasswordInput').value=state.settings.adminPassword||'1234';
+  document.getElementById('cloudEnabledToggle').checked=state.settings.cloudEnabled;
+  if(document.getElementById('trashRetentionDays')){
+    document.getElementById('trashRetentionDays').value = state.settings.trashRetentionDays ?? 30;
+  }
+  const c={...DEFAULT_FIREBASE_CONFIG,...state.settings.firebaseConfig};
+  [['fbApiKey','apiKey'],['fbAuthDomain','authDomain'],['fbProjectId','projectId'],['fbStorageBucket','storageBucket'],['fbSenderId','messagingSenderId'],['fbAppId','appId']].forEach(([id,key])=>document.getElementById(id).value=c[key]||'');
+}
+document.getElementById('appSettingsForm').addEventListener('submit',e=>{e.preventDefault();state.settings.appTitle=document.getElementById('appTitleInput').value.trim();state.settings.updatedAt=nowIso();persist();document.getElementById('appTitle').textContent=state.settings.appTitle;document.title=state.settings.appTitle;if(state.settings.cloudEnabled)pushSettingsCloud().catch(console.error);toast('Uygulama adı güncellendi.','success')});
+document.getElementById('firebaseConfigForm').addEventListener('submit',e=>{e.preventDefault();state.settings.firebaseConfig=readFirebaseConfigFromForm();persist();toast('Firebase bağlantı bilgileri kaydedildi.','success')});
+
+function toggleStopwatch(){if(state.timer.runningSince){state.timer.elapsedMs=elapsedNow();state.timer.runningSince=null;document.getElementById('timerStartBtn').textContent='▶ Devam et'}else{state.timer.runningSince=Date.now();document.getElementById('timerStartBtn').textContent='Ⅱ Duraklat'}persist();renderStopwatch()}
+function resetStopwatch(){state.timer={elapsedMs:0,runningSince:null,laps:[]};persist();renderStopwatch()}
+function lapStopwatch(){const e=elapsedNow();if(e>0)state.timer.laps.push(e);persist();renderStopwatch()}
+function renderStopwatch(){document.getElementById('timerDisplay').textContent=formatDuration(elapsedNow()/1000);document.getElementById('lapList').innerHTML=(state.timer.laps||[]).slice(-5).map((l,i)=>`<span class="lap">Tur ${i+1}: ${formatDuration(l/1000)}</span>`).join('')}
+function useStopwatchTime(){const m=(elapsedNow()/60000).toFixed(1);const sInput=document.getElementById('recordDurationMinutes'),pInput=document.getElementById('prayerRecordDurationMinutes');if(sInput)sInput.value=m;if(pInput)pInput.value=m;toast('Süre forma aktarıldı.','success')}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){
+  const el=document.getElementById(id);
+  el.classList.remove('open');
+  if(id==='mediaViewerModal'){
+    document.getElementById('mediaViewerStage').innerHTML='';
+  }
+}
+function openIdb(){return new Promise((res,rej)=>{const req=indexedDB.open(IDB_NAME,1);req.onupgradeneeded=()=>req.result.createObjectStore(IDB_STORE,{keyPath:'id'});req.onsuccess=()=>res(req.result);req.onerror=()=>rej(req.error)})}
+async function idbPut(id,file){const db=await openIdb();return new Promise((res,rej)=>{const tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).put({id,blob:file});tx.oncomplete=res;tx.onerror=rej})}
+async function idbGet(id){const db=await openIdb();return new Promise((res,rej)=>{const tx=db.transaction(IDB_STORE,'readonly');const req=tx.objectStore(IDB_STORE).get(id);req.onsuccess=()=>res(req.result);req.onerror=rej})}
+async function idbDelete(id){const db=await openIdb();return new Promise((res,rej)=>{const tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).delete(id);tx.oncomplete=res;tx.onerror=rej})}
+
+function exportBackup(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});downloadBlob(blob,`yedek-${todayLocal()}.json`);toast('Yedek indirildi.','success')}
+function downloadBlob(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove()}
+async function importBackupFile(f){if(!f)return;const t=await f.text();try{const d=JSON.parse(t);if(d.surahs)state=d;persist();location.reload()}catch(e){toast('Yedek okunamadı.','error')}}
+
+function readFirebaseConfigFromForm(){return {apiKey:document.getElementById('fbApiKey').value.trim(),authDomain:document.getElementById('fbAuthDomain').value.trim(),projectId:document.getElementById('fbProjectId').value.trim(),storageBucket:document.getElementById('fbStorageBucket').value.trim(),messagingSenderId:document.getElementById('fbSenderId').value.trim(),appId:document.getElementById('fbAppId').value.trim()}}
+async function getCloudContext(){
+  const config={...state.settings.firebaseConfig};
+  const fingerprint=JSON.stringify(config);
+  if(cloudContext?.fingerprint===fingerprint)return cloudContext;
+  if(cloudContext){try{await cloudContext.deleteApp(cloudContext.app)}catch(_){}cloudContext=null}
+  const [appMod,dbMod,storageMod]=await Promise.all([
+    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js').catch(()=>null)
+  ]);
+  const app=appMod.initializeApp(config,'muratKaraaslanSureEzberlemeApp');
+  const db=dbMod.getFirestore(app);
+  const storage=storageMod?storageMod.getStorage(app):null;
+  cloudContext={fingerprint,app,db,dbMod,storage,storageMod,deleteApp:appMod.deleteApp};
+  return cloudContext;
+}
+function setDbStatus(text,type=''){document.getElementById('dbStatusText').textContent=text;document.getElementById('dbStatusDot').className=`status-dot ${type}`}
+
+async function toggleCloudSync(enabled){state.settings.cloudEnabled=!!enabled;state.settings.firebaseConfig=readFirebaseConfigFromForm();persist();if(!enabled){setDbStatus('Bulut eşitlemesi kapalı. Yerel mod aktif.');return}setDbStatus('Firebase bağlantısı kuruluyor…');try{await hydrateCloud();setDbStatus('Bulut eşitlemesi etkin.','ok');toast('Bulut eşitlemesi açıldı.','success')}catch(e){setDbStatus('Bağlantı hatası.','error');console.error(e)}}
+async function testCloudConnection(){const b=document.querySelector('button[onclick="testCloudConnection()"]');b.disabled=true;b.textContent='Test ediliyor…';try{state.settings.firebaseConfig=readFirebaseConfigFromForm();persist();const c=await getCloudContext(),m=c.dbMod;await m.setDoc(m.doc(c.db,CLOUD.settings,'connection_test'),{appId:APP_ID,lastTestAt:nowIso()},{merge:true});setDbStatus('Bağlantı başarılı.','ok');toast('Firebase testi başarılı.','success');if(state.settings.cloudEnabled)await hydrateCloud()}catch(e){setDbStatus('Bağlantı hatası.','error')}finally{b.disabled=false;b.textContent='Bağlantıyı test et'}}
+
+async function hydrateCloud(){
+  if(cloudBusy)return;cloudBusy=true;
+  try{
+    const c=await getCloudContext(),m=c.dbMod;
+    const [ss,hs,ts,ls,ps,settingsSnap,prs,phs,lrs]=await Promise.all([
+      m.getDocs(m.collection(c.db,CLOUD.surahs)),
+      m.getDocs(m.collection(c.db,CLOUD.history)),
+      m.getDocs(m.collection(c.db,CLOUD.tajweed)),
+      m.getDocs(m.collection(c.db,CLOUD.siteLinks)),
+      m.getDocs(m.collection(c.db,CLOUD.tajweedTopics)),
+      m.getDoc(m.doc(c.db,CLOUD.settings,'app_settings')),
+      m.getDocs(m.collection(c.db,CLOUD.prayers)),
+      m.getDocs(m.collection(c.db,CLOUD.prayerHistory)),
+      m.getDocs(m.collection(c.db,CLOUD.liveRecordings))
+    ]);
+
+    const remoteSurahs=new Map();ss.forEach(d=>{const x=d.data();if(x?.appId===APP_ID)remoteSurahs.set(d.id,x)});
+    const byLocal=new Map(state.surahs.map(s=>[s.id,s]));
+    for(const [id,remote] of remoteSurahs){const local=byLocal.get(id);if(!local||String(remote.updatedAt||'')>String(local.updatedAt||'')){byLocal.set(id,{...local,...remote,resources:Array.isArray(remote.resources)?remote.resources.map(normalizeResource):local?.resources||[]})}else if(local.updatedAt&&String(local.updatedAt)>String(remote.updatedAt||'')){await pushSurahCloud(local)}}
+    for(const [id,local] of byLocal){if(local.updatedAt&&!remoteSurahs.has(id))await pushSurahCloud(local)}
+    state.surahs=normalizeSurahList([...byLocal.values()]);
+
+    const remoteHistory=new Map();hs.forEach(d=>{const x=d.data();if(x?.appId===APP_ID)remoteHistory.set(d.id,x)});
+    const localHist=new Map(state.history.map(r=>[r.id,r]));
+    for(const [id,remote] of remoteHistory){const local=localHist.get(id);if(!local||String(remote.updatedAt||'')>String(local.updatedAt||''))localHist.set(id,normalizeHistory([remote])[0]||remote);else if(String(local.updatedAt||'')>String(remote.updatedAt||''))await pushHistoryCloud(local)}
+    for(const [id,local] of localHist){if(!remoteHistory.has(id))await pushHistoryCloud(local)}
+    state.history=[...localHist.values()];
+
+    const remotePrayers=new Map();prs.forEach(d=>{const x=d.data();if(x?.appId===APP_ID)remotePrayers.set(d.id,x)});
+    const localPrayers=new Map(state.prayers.map(p=>[p.id,p]));
+    for(const [id,remote] of remotePrayers){const local=localPrayers.get(id);if(!local||String(remote.updatedAt||'')>String(local.updatedAt||'')){localPrayers.set(id,{...local,...remote,resources:Array.isArray(remote.resources)?remote.resources.map(normalizeResource):local?.resources||[]})}else if(String(local.updatedAt||'')>String(remote.updatedAt||'')){await pushPrayerCloud(local)}}
+    for(const [id,local] of localPrayers){if(local.updatedAt&&!remotePrayers.has(id))await pushPrayerCloud(local)}
+    state.prayers=normalizePrayers([...localPrayers.values()]);
+
+    const remotePHistory=new Map();phs.forEach(d=>{const x=d.data();if(x?.appId===APP_ID)remotePHistory.set(d.id,x)});
+    const localPHistory=new Map(state.prayerHistory.map(r=>[r.id,r]));
+    for(const [id,remote] of remotePHistory){const local=localPHistory.get(id);if(!local||String(remote.updatedAt||'')>String(local.updatedAt||''))localPHistory.set(id,normalizeHistory([remote])[0]||remote);else if(String(local.updatedAt||'')>String(remote.updatedAt||''))await pushPrayerHistoryCloud(local)}
+    for(const [id,local] of localPHistory){if(!remotePHistory.has(id))await pushPrayerHistoryCloud(local)}
+    state.prayerHistory=[...localPHistory.values()];
+
+    const remoteLive=new Map();lrs.forEach(d=>{const x=d.data();if(x?.appId===APP_ID)remoteLive.set(d.id,x)});
+    const localLive=new Map((state.liveRecordings||[]).map(r=>[r.id,r]));
+    for(const [id,remote] of remoteLive){const local=localLive.get(id);if(!local||String(remote.updatedAt||'')>String(local.updatedAt||''))localLive.set(id,{...local,...remote});else if(String(local.updatedAt||'')>String(remote.updatedAt||''))await pushLiveRecordingCloud(local)}
+    for(const [id,local] of localLive){if(!remoteLive.has(id))await pushLiveRecordingCloud(local)}
+    state.liveRecordings=normalizeLiveRecordings([...localLive.values()]);
+
+    const remoteLessons=new Map();ts.forEach(d=>{const x=d.data();if(x?.appId===APP_ID)remoteLessons.set(d.id,x)});const localLessons=new Map(state.tajweedLessons.map(x=>[x.id,x]));for(const [id,remote] of remoteLessons){const local=localLessons.get(id);if(!local||String(remote.updatedAt||'')>String(local.updatedAt||''))localLessons.set(id,{...local,...remote,resources:Array.isArray(remote.resources)?remote.resources.map(normalizeResource):local?.resources||[]});else if(String(local.updatedAt||'')>String(remote.updatedAt||''))await pushTajweedCloud(local)}for(const [id,local] of localLessons){if(local.updatedAt&&!remoteLessons.has(id))await pushTajweedCloud(local)}state.tajweedLessons=[...localLessons.values()];
+    const remoteLinks=new Map();ls.forEach(d=>{const x=d.data();if(x?.appId===APP_ID)remoteLinks.set(d.id,x)});const localLinks=new Map((state.siteLinks||[]).map(x=>[x.id,x]));for(const [id,remote] of remoteLinks){const local=localLinks.get(id);if(!local||String(remote.updatedAt||'')>String(local.updatedAt||''))localLinks.set(id,{...local,...remote});else if(String(local.updatedAt||'')>String(remote.updatedAt||''))await pushSiteLinkCloud(local)}for(const [id,local] of localLinks){if(!remoteLinks.has(id))await pushSiteLinkCloud(local)}state.siteLinks=[...localLinks.values()];
+    const remoteTopics=new Map();ps.forEach(d=>{const x=d.data();if(x?.appId===APP_ID)remoteTopics.set(d.id,x)});const localTopics=new Map((state.tajweedTopics||[]).map(x=>[x.id,x]));for(const [id,remote] of remoteTopics){const local=localTopics.get(id);if(!local||String(remote.updatedAt||'')>String(local.updatedAt||''))localTopics.set(id,{...local,...remote});else if(String(local.updatedAt||'')>String(remote.updatedAt||''))await pushTajweedTopicCloud(local)}for(const [id,local] of localTopics){if(!remoteTopics.has(id))await pushTajweedTopicCloud(local)}state.tajweedTopics=[...localTopics.values()];
+    
+    if(settingsSnap.exists()){const remote=settingsSnap.data();if(remote?.appId===APP_ID&&remote.appTitle){if(!state.settings.updatedAt||String(remote.updatedAt||'')>String(state.settings.updatedAt||'')){state.settings.appTitle=String(remote.appTitle);state.settings.updatedAt=String(remote.updatedAt||nowIso())}else if(String(state.settings.updatedAt)>String(remote.updatedAt||'')){await pushSettingsCloud()}}}else if(state.settings.updatedAt){await pushSettingsCloud()}
+
+    reconcileBidirectionalLinks();
+    persist();if(currentView==='dashboard')renderRecent();else switchView(currentView);
+  }finally{cloudBusy=false;}
+}
+
+async function pushSurahCloud(s){if(!state.settings.cloudEnabled)return;const c=await getCloudContext(),m=c.dbMod;await m.setDoc(m.doc(c.db,CLOUD.surahs,s.id),{...s,appId:APP_ID},{merge:true})}
+async function pushHistoryCloud(r){if(!state.settings.cloudEnabled)return;const c=await getCloudContext(),m=c.dbMod;await m.setDoc(m.doc(c.db,CLOUD.history,r.id),{...r,appId:APP_ID},{merge:true})}
+async function pushPrayerCloud(p){if(!state.settings.cloudEnabled)return;const c=await getCloudContext(),m=c.dbMod;await m.setDoc(m.doc(c.db,CLOUD.prayers,p.id),{...p,appId:APP_ID},{merge:true})}
+async function pushPrayerHistoryCloud(r){if(!state.settings.cloudEnabled)return;const c=await getCloudContext(),m=c.dbMod;await m.setDoc(m.doc(c.db,CLOUD.prayerHistory,r.id),{...r,appId:APP_ID},{merge:true})}
+async function pushTajweedCloud(l){if(!state.settings.cloudEnabled)return;const c=await getCloudContext(),m=c.dbMod;await m.setDoc(m.doc(c.db,CLOUD.tajweed,l.id),{...l,appId:APP_ID},{merge:true})}
+async function pushSiteLinkCloud(sl){if(!state.settings.cloudEnabled)return;const c=await getCloudContext(),m=c.dbMod;await m.setDoc(m.doc(c.db,CLOUD.siteLinks,sl.id),{...sl,appId:APP_ID},{merge:true})}
+async function pushTajweedTopicCloud(t){if(!state.settings.cloudEnabled)return;const c=await getCloudContext(),m=c.dbMod;await m.setDoc(m.doc(c.db,CLOUD.tajweedTopics,t.id),{...t,appId:APP_ID},{merge:true})}
+async function pushSettingsCloud(){if(!state.settings.cloudEnabled)return;const c=await getCloudContext(),m=c.dbMod;await m.setDoc(m.doc(c.db,CLOUD.settings,'app_settings'),{appId:APP_ID,appTitle:state.settings.appTitle,trashRetentionDays:state.settings.trashRetentionDays,updatedAt:state.settings.updatedAt||nowIso()},{merge:true})}
+
+async function pushLiveRecordingCloud(r){
+  if(!state.settings.cloudEnabled) return;
+  const c = await getCloudContext(), m = c.dbMod;
+  if(r.blobId && !r.cloudUrl && c.storage && c.storageMod && !r.deleted){
+    try{
+      const data = await idbGet(r.blobId);
+      if(data?.blob){
+        const ref = c.storageMod.ref(c.storage, `${APP_ID}/live_recordings/${r.id}.webm`);
+        await c.storageMod.uploadBytes(ref, data.blob);
+        r.cloudUrl = await c.storageMod.getDownloadURL(ref);
+        persist();
+      }
+    }catch(err){
+      console.warn('Firebase Storage yükleme uyarısı:', err);
+    }
+  }
+  await m.setDoc(m.doc(c.db, CLOUD.liveRecordings, r.id), { ...r, appId: APP_ID }, { merge: true });
+}
+
+function init(){
+  purgeExpiredTrashItems();
+  reconcileBidirectionalLinks();
+  updateDates();renderStats();renderRecent();applyTheme();
+  document.getElementById('appTitle').textContent=state.settings.appTitle;document.title=state.settings.appTitle;
+  window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', () => {
+    if(state.settings.theme === 'system') applyTheme();
+  });
+  setInterval(()=>{renderStopwatch();if(new Date().getSeconds()===0)updateDates()},250);
+  if(state.settings.cloudEnabled){setDbStatus('Bulut bağlantısı kuruluyor…');hydrateCloud().then(()=>setDbStatus('Bulut eşitlemesi etkin.','ok')).catch(()=>setDbStatus('Bağlantı hatası.','error'))}
+}
+init();
+</script>
+</body>
+</html>
