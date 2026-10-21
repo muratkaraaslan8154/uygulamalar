@@ -97,6 +97,7 @@ html[data-theme="dark"]{--bg:#071a17;--surface:#102622;--surface2:#17342d;--text
       </div>
     </div>
     <div class="top-actions">
+      <a class="btn" href="https://muratkaraaslan8154.github.io/uygulamalar/index.html" title="Ana Uygulamalar Menüsüne Dön">⬅ Geri</a>
       <button class="btn" id="recordScreenBtn" type="button" onclick="toggleScreenRecorder()">📹 Ekran Kaydet</button>
       <button class="btn" type="button" onclick="switchView('live')">🎥 Canlı Ders</button>
       <button class="icon-btn" id="quickThemeBtn" type="button" onclick="cycleTheme()" title="Açık/koyu tema değiştir" aria-label="Açık/koyu tema">🌙</button>
@@ -927,15 +928,25 @@ function renderResourcePanel(owner,kind){
 function toEmbedUrl(rawUrl){
   if(!rawUrl) return '';
   try{
-    const u = new URL(rawUrl);
-    if(u.hostname.includes('youtube.com') && u.searchParams.get('v')){
-      return `https://www.youtube.com/embed/${u.searchParams.get('v')}?autoplay=1`;
+    let str = rawUrl.replace('m.youtube.com', 'www.youtube.com');
+    const u = new URL(str);
+    if(u.hostname.includes('youtube.com') || u.hostname.includes('youtube-nocookie.com')){
+      if(u.pathname.startsWith('/shorts/')){
+        return `https://www.youtube.com/embed/${u.pathname.split('/')[2]}?autoplay=1`;
+      }
+      if(u.pathname.startsWith('/embed/')) return str;
+      const v = u.searchParams.get('v');
+      if(v) return `https://www.youtube.com/embed/${v}?autoplay=1`;
     }
     if(u.hostname === 'youtu.be'){
-      return `https://www.youtube.com/embed/${u.pathname.slice(1)}?autoplay=1`;
+      return `https://www.youtube.com/embed/${u.pathname.replace('/','')}?autoplay=1`;
     }
-    if(u.hostname.includes('drive.google.com') && rawUrl.includes('/view')){
-      return rawUrl.replace('/view','/preview');
+    if(u.hostname.includes('vimeo.com') && !str.includes('player.vimeo')){
+      const p = u.pathname.split('/');
+      return `https://player.vimeo.com/video/${p[p.length-1]}`;
+    }
+    if(u.hostname.includes('drive.google.com') && str.includes('/view')){
+      return str.replace('/view','/preview');
     }
   }catch(_){}
   return rawUrl;
@@ -980,7 +991,8 @@ async function renderMediaViewerStage(){
     initImagePan();
   }else if(item.kind==='pdf'){
     toolbar.innerHTML=`<button class="btn small" onclick="printCurrentMediaFrame()">🖨️ Yazdır</button><a class="btn small" href="${mediaSrc}" target="_blank" rel="noopener noreferrer">↗ Tarayıcıda Tam Ekran Aç</a><a class="btn small" href="${mediaSrc}" download="${escapeHtml(item.title)}.pdf">⬇ PDF İndir</a>`;
-    stage.innerHTML=`${navBtns}<iframe id="activePdfFrame" class="media-frame" src="${mediaSrc}#toolbar=1&navpanes=1&view=FitH" title="${escapeHtml(item.title)}"></iframe>`;
+    const pdfSrc = mediaSrc.includes('#') ? mediaSrc : mediaSrc + '#toolbar=1&navpanes=1&view=FitH';
+    stage.innerHTML=`${navBtns}<iframe id="activePdfFrame" class="media-frame" src="${pdfSrc}" title="${escapeHtml(item.title)}"></iframe>`;
   }else if(item.kind==='audio'){
     toolbar.innerHTML=`<a class="btn small" href="${mediaSrc}" target="_blank" rel="noopener noreferrer">↗ Tarayıcıda Aç</a><a class="btn small" href="${mediaSrc}" download="${escapeHtml(item.title)}">⬇ Ses İndir</a>`;
     stage.innerHTML=`${navBtns}<div style="text-align:center;color:#fff;padding:30px"><div style="font-size:54px;margin-bottom:15px">🎧</div><h4 style="margin:0 0 16px">${escapeHtml(item.title)}</h4><audio controls autoplay src="${mediaSrc}" style="width:min(520px,85vw)"></audio></div>`;
