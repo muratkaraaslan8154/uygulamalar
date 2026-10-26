@@ -121,6 +121,14 @@
         .date-card::after {
             content: "☪"; position: absolute; right: 15px; bottom: -10px; font-size: 90px; opacity: 0.05; pointer-events: none;
         }
+        /* Tarih kartını eşit iki bölüme ayıran hedefli ekleme. */
+        .date-card.date-card-split { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; align-items:center; }
+        .date-card-split .date-info { min-width:0; }
+        .date-card-split .date-gregorian { font-size:16px; overflow-wrap:anywhere; }
+        .date-card-split .date-hijri { font-size:13px; flex-wrap:wrap; }
+        .date-guide-link { align-self:stretch; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:8px; border-left:1px solid var(--border); padding-left:14px; color:var(--primary); text-decoration:none; font-weight:800; }
+        .date-guide-link small { font-size:11px; font-weight:600; color:var(--text-secondary); }
+        .date-guide-link:focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
         .date-gregorian { font-size: 20px; font-weight: 800; color: var(--primary); }
         .date-hijri { font-size: 16px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 8px; }
         .live-clock { font-size: 28px; font-weight: 900; letter-spacing: 1px; color: var(--text-primary); margin-top: 4px; font-variant-numeric: tabular-nums; }
@@ -825,10 +833,15 @@
     <!-- ÜST BAR -->
     <div class="top-bar">
         <!-- SOL ÜST: MİLADİ & HİCRİ TAKVİM -->
-        <div class="card date-card">
-            <div class="date-gregorian" id="miladiTarih">Yükleniyor...</div>
-            <div class="date-hijri" id="hicriTarih">Yükleniyor...</div>
-            <div class="live-clock" id="canliSaat">00:00:00</div>
+        <div class="card date-card date-card-split">
+            <div class="date-info">
+                <div class="date-gregorian" id="miladiTarih">Yükleniyor...</div>
+                <div class="date-hijri" id="hicriTarih">Yükleniyor...</div>
+                <div class="live-clock" id="canliSaat">00:00:00</div>
+            </div>
+            <a class="date-guide-link" href="Fatih_Collak_Hafizlik.html" onclick="this.href='Fatih_Collak_Hafizlik.html?gp='+getSelectedGlobalPage()">
+                <span aria-hidden="true" style="font-size:26px;">🎥</span><span>Fatih Çollak<br>Video Rehberi</span><small>Cüz / sayfa seç · Link kopyala ↗</small>
+            </a>
         </div>
 
         <!-- ORTA ÜST: GENEL KUR'AN İLERLEMESİ & DARK MODE -->
@@ -1045,7 +1058,11 @@
         },
 
         startListening() {
-            onSnapshot(doc(db, COLLECTION_NAME, ISOLATED_DOC_ID), (snap) => {
+            onSnapshot(doc(db, COLLECTION_NAME, ISOLATED_DOC_ID), { includeMetadataChanges: true }, (snap) => {
+                if (snap.metadata.fromCache) {
+                    updateDbIndicator('saving', 'DB Sunucu Bağlantısı Bekleniyor...');
+                    return;
+                }
                 this.isInitialLoaded = true;
                 updateDbIndicator('online', 'DB Bağlı (Senkron)');
 
@@ -1061,6 +1078,7 @@
                     window.dispatchEvent(new CustomEvent('ezber-db-synced', { detail: null }));
                 }
             }, (error) => {
+                this.isInitialLoaded = false;
                 console.error("Firestore Dinleme Hatası:", error);
                 updateDbIndicator('error', 'DB Bağlantı Hatası');
             });
@@ -1085,7 +1103,7 @@
     window.isDbWriteEnabled = false;
     const LOCAL_BACKUP_KEY = 'emre_hafizlik_ezber_haslama_backup_v1';
     const LOCAL_TYPES_KEY = 'emre_hafizlik_custom_types_v1';
-    const LOCAL_VIDEOS_KEY = 'emre_hafizlik_page_videos_v1';
+    // Video bağlantılarının tek kalıcı kaynağı Firestore pageVideos alanıdır.
     const ADMIN_PASS = '1234';
 
     const DEFAULT_TYPES = [
@@ -1138,10 +1156,6 @@
         if (Array.isArray(savedTypes)) customTypes = savedTypes;
     } catch (e) {}
 
-    try {
-        const savedVideos = JSON.parse(localStorage.getItem(LOCAL_VIDEOS_KEY) || '{}');
-        pageVideos = normalizePageVideosObject(savedVideos);
-    } catch (e) {}
 
     function toggleDbWriteActive() {
         const toggle = document.getElementById('dbWriteActiveToggle');
@@ -1203,7 +1217,7 @@
             }
             if (data.pageVideos && typeof data.pageVideos === 'object') {
                 pageVideos = normalizePageVideosObject(data.pageVideos);
-                localStorage.setItem(LOCAL_VIDEOS_KEY, JSON.stringify(pageVideos));
+
             }
             if (typeof data.darkMode === 'boolean') {
                 document.body.classList.toggle('dark-mode', data.darkMode);
@@ -1405,7 +1419,7 @@
     async function persistChanges() {
         localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(records));
         localStorage.setItem(LOCAL_TYPES_KEY, JSON.stringify(customTypes));
-        localStorage.setItem(LOCAL_VIDEOS_KEY, JSON.stringify(pageVideos));
+
         rebuildTypeOptions();
         renderAll();
         refreshOpenModalIfAny();
@@ -2303,6 +2317,12 @@
     updateClockAndCalendar();
     renderAll();
     autoSuggestTypeForPage(1);
+    // Video rehberinden dönüşte yalnızca seçili sayfayı geri yükle; kayıt oluşturma.
+    const guideReturnPage = Number(new URLSearchParams(location.search).get('gp'));
+    if (Number.isInteger(guideReturnPage) && guideReturnPage >= 1 && guideReturnPage <= 604) {
+        document.getElementById('inpGlobalPage').value = guideReturnPage;
+        syncFromGlobalPage();
+    }
 </script>
 
 </body>
