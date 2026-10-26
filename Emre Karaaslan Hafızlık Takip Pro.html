@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Emre Karaaslan - Hafızlık & Haslama Takip Sistemi Pro (Bulut DB)</title>
+    <style>
+        :root {
+            --bg-main: #f4f7fb;
+            --bg-card: #ffffff;
+            --bg-sub: #edf2f7;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --accent: #d69e2e;
+            --accent-hover: #b7791f;
+            --primary: #2b6cb0;
+            --primary-hover: #2c5282;
+            --success: #38a169;
+            --danger: #e53e3e;
+            --border: #e2e8f0;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --radius: 16px;
+        }
+
+        body.dark-mode {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-sub: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #ecc94b;
+            --accent-hover: #d69e2e;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --border: #334155;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+            padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        .container { max-width: 1420px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+        /* ÜST VERİTABANI GÜVENLİK VE AKTİVASYON BARI */
+        .db-control-bar {
+            background: linear-gradient(90deg, #064e3b, #0f766e);
+            color: #ffffff;
+            padding: 14px 22px;
+            border-radius: var(--radius);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--shadow);
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+
+        .db-status-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .db-badge {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(0,0,0,0.35); padding: 8px 14px; border-radius: 12px;
+            font-size: 13px; font-weight: 700; border: 1px solid rgba(255,255,255,0.15);
+        }
+        .db-dot { width: 10px; height: 10px; border-radius: 50%; background: #fbbf24; }
+        .db-dot.online { background: #4ade80; box-shadow: 0 0 8px #4ade80; }
+        .db-dot.saving { background: #fbbf24; animation: pulse 1s infinite; }
+        .db-dot.error { background: #f87171; }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .db-write-lock-box {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255,255,255,0.12); padding: 8px 16px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        .db-write-lock-box.active-write {
+            background: rgba(34, 197, 94, 0.25);
+            border-color: #4ade80;
+        }
+        .lock-label { font-size: 13px; font-weight: 800; letter-spacing: 0.3px; }
+        .lock-sub { font-size: 11px; opacity: 0.85; display: block; font-weight: 500; }
+
+        /* Üst Bar: Takvim, Başlık & Dark Mode, Apple Kronometre */
+        .top-bar {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 1.2fr;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.25s ease;
+        }
+
+        /* Sol Üst: Tarih Kartı */
+        .date-card { display: flex; flex-direction: column; justify-content: center; gap: 8px; position: relative; overflow: hidden; }
+        .date-card::after {
+            content: "☪"; position: absolute; right: 15px; bottom: -10px; font-size: 90px; opacity: 0.05; pointer-events: none;
+        }
+        /* Tarih kartını eşit iki bölüme ayıran hedefli ekleme. */
+        .date-card.date-card-split { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; align-items:center; }
+        .date-card-split .date-info { min-width:0; }
+        .date-card-split .date-gregorian { font-size:16px; overflow-wrap:anywhere; }
+        .date-card-split .date-hijri { font-size:13px; flex-wrap:wrap; }
+        .date-guide-link { align-self:stretch; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:8px; border-left:1px solid var(--border); padding-left:14px; color:var(--primary); text-decoration:none; font-weight:800; }
+        .date-guide-link small { font-size:11px; font-weight:600; color:var(--text-secondary); }
+        .date-guide-link:focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
+        .date-gregorian { font-size: 20px; font-weight: 800; color: var(--primary); }
+        .date-hijri { font-size: 16px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+        .live-clock { font-size: 28px; font-weight: 900; letter-spacing: 1px; color: var(--text-primary); margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+        /* Orta Üst: Emre Profil, Genel İlerleme ve Dark Mode Toggle */
+        .center-card { display: flex; flex-direction: column; justify-content: space-between; gap: 15px; }
+        .profile-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .app-title { font-size: 20px; font-weight: 800; }
+        .app-subtitle { font-size: 13px; color: var(--text-secondary); }
+
+        /* Sağa Sola Çekmeli Switch */
+        .theme-switch-box { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+        .switch { position: relative; display: inline-block; width: 56px; height: 30px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1; transition: 0.4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: "☀️"; display: flex; align-items: center; justify-content: center;
+            height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white;
+            transition: 0.4s; border-radius: 50%; font-size: 12px;
+        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(26px); content: "🌙"; }
+
+        /* DB Kayıt Switch Özel Stili */
+        .slider.db-slider { background-color: #ef4444; }
+        .slider.db-slider:before { content: "🔒"; }
+        input:checked + .slider.db-slider { background-color: #22c55e; }
+        input:checked + .slider.db-slider:before { transform: translateX(26px); content: "🔓"; }
+
+        /* Kur'an Genel İlerleme Butonu/Alanı */
+        .quran-master-btn {
+            background: linear-gradient(135deg, var(--primary), #1e40af);
+            color: white; border-radius: 12px; padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            cursor: pointer; border: none; width: 100%; text-align: left;
+            box-shadow: 0 4px 12px rgba(43, 108, 176, 0.3); transition: transform 0.2s;
+        }
+        .quran-master-btn:hover { transform: translateY(-2px); }
+        .qm-info h3 { font-size: 16px; margin-bottom: 4px; }
+        .qm-info p { font-size: 12px; opacity: 0.85; }
+        .qm-percent { font-size: 28px; font-weight: 900; background: rgba(255,255,255,0.15); padding: 8px 14px; border-radius: 10px; flex-shrink: 0; }
+
+        /* Sağ Üst: Apple Tarzı Tur Atlatmalı Kronometre */
+        .apple-stopwatch {
+            background: #000000; color: #ffffff; border-radius: var(--radius);
+            padding: 18px 22px; display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: var(--shadow);
+        }
+        .sw-top { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        .sw-time { font-size: 38px; font-weight: 300; font-family: 'SF Pro Display', 'Courier New', monospace; font-variant-numeric: tabular-nums; letter-spacing: 1px; }
+        .sw-buttons { display: flex; gap: 12px; flex-shrink: 0; }
+        .sw-btn {
+            width: 54px; height: 54px; border-radius: 50%; border: 2px solid transparent;
+            font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.2s;
+        }
+        .sw-btn:active { opacity: 0.7; }
+        .sw-btn.lap { background: #333333; color: #ffffff; border-color: #444; }
+        .sw-btn.start { background: rgba(48, 209, 88, 0.2); color: #30d158; border-color: #30d158; }
+        .sw-btn.stop { background: rgba(255, 69, 58, 0.2); color: #ff453a; border-color: #ff453a; }
+        .sw-laps {
+            margin-top: 10px; max-height: 65px; overflow-y: auto; font-size: 12px;
+            border-top: 1px solid #222; padding-top: 6px;
+        }
+        .sw-lap-row { display: flex; justify-content: space-between; padding: 3px 4px; border-bottom: 1px solid #1a1a1a; color: #a1a1aa; font-variant-numeric: tabular-nums; }
+
+        /* Ana İçerik Grid */
+        .main-grid { display: grid; grid-template-columns: 390px 1fr; gap: 24px; align-items: start; }
+
+        /* Sol Panel: Otomatik Dönüşümlü Giriş Formu */
+        .section-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        input, select, textarea {
+            width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg-sub); color: var(--text-primary); font-size: 15px; font-weight: 600; outline: none;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+
+        .type-select-row {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+        .type-select-row select {
+            flex: 1;
+            min-width: 0;
+        }
+        .btn-add-type {
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1px solid var(--primary);
+            background: rgba(43, 108, 176, 0.12);
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-add-type:hover {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .auto-sync-badge {
+            background: rgba(214, 158, 46, 0.15); color: var(--accent);
+            padding: 10px 12px; border-radius: 10px; font-size: 13px; font-weight: 700;
+            margin-bottom: 15px; border: 1px dashed var(--accent); text-align: center;
+        }
+
+        .page-status-hint {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: none;
+        }
+        .page-status-hint.haslama-mode {
+            display: block;
+            background: rgba(56, 161, 105, 0.14);
+            color: var(--success);
+            border: 1px solid rgba(56, 161, 105, 0.35);
+        }
+
+        .btn-primary {
+            width: 100%; padding: 14px; background: var(--success); color: white;
+            border: none; border-radius: 12px; font-size: 16px; font-weight: 800;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-primary:hover:not(:disabled) { opacity: 0.92; }
+        .btn-primary:disabled {
+            background: #94a3b8; cursor: not-allowed; opacity: 0.7;
+        }
+
+        .lock-warning-banner {
+            background: rgba(229, 62, 62, 0.12);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        /* İstatistik Özeti */
+        .stats-mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+        .stat-box { background: var(--bg-sub); padding: 12px; border-radius: 12px; text-align: center; }
+        .stat-box .val { font-size: 20px; font-weight: 900; color: var(--primary); }
+        .stat-box .lbl { font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-top: 2px; }
+
+        /* Sağ Panel: 30 Cüz Grafiksel Grid */
+        .cuz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+            gap: 14px;
+        }
+
+        .cuz-card {
+            background: var(--bg-sub); border-radius: 14px; padding: 15px;
+            cursor: pointer; border: 2px solid transparent; transition: all 0.2s;
+            display: flex; flex-direction: column; gap: 10px; position: relative;
+        }
+        .cuz-card:hover { transform: translateY(-3px); border-color: var(--primary); background: var(--bg-card); box-shadow: var(--shadow); }
+        .cuz-card.done { border-color: var(--success); background: rgba(56, 161, 105, 0.08); }
+        .cuz-card.active { border-color: var(--accent); }
+
+        .cuz-top { display: flex; justify-content: space-between; align-items: center; }
+        .cuz-num { font-weight: 800; font-size: 16px; }
+        .cuz-pct { font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 20px; background: var(--bg-card); }
+        .cuz-bar-bg { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .cuz-bar-fill { height: 100%; background: var(--success); transition: width 0.3s; }
+        .cuz-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); font-weight: 600; }
+
+        /* Mini 20 sayfa nokta matrisi */
+        .mini-pages { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin-top: 2px; }
+        .mp-dot { height: 6px; border-radius: 2px; background: var(--border); }
+        .mp-dot.ezber { background: var(--success); }
+        .mp-dot.haslama { background: var(--accent); }
+
+        /* Modallar */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-box {
+            background: var(--bg-card); border-radius: 20px; width: 100%; max-width: 960px;
+            max-height: 88vh; max-height: 88dvh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            border: 1px solid var(--border); overflow: hidden;
+        }
+        .modal-header {
+            padding: 18px 24px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--bg-sub);
+            flex-shrink: 0;
+        }
+        .modal-header h2 { font-size: 19px; font-weight: 800; line-height: 1.3; }
+        .close-btn { background: none; border: none; font-size: 30px; cursor: pointer; color: var(--text-secondary); line-height: 1; padding: 4px 8px; }
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        /* Sayfa Akordiyon & Geçmiş Satırları */
+        .page-accordion {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-sub);
+            flex-shrink: 0;
+        }
+        .page-acc-header {
+            padding: 12px 16px;
+            min-height: 52px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            cursor: pointer;
+            font-weight: 700;
+            background: var(--bg-card);
+            border-radius: 12px;
+            color: var(--text-primary);
+        }
+        .page-acc-header:hover { background: var(--bg-sub); }
+        .page-badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .badge { padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; }
+        .badge-ezber { background: rgba(56, 161, 105, 0.15); color: var(--success); }
+        .badge-haslama { background: rgba(214, 161, 46, 0.2); color: var(--accent); }
+        .badge-empty { background: var(--bg-sub); color: var(--text-secondary); }
+        .badge-yt { background: rgba(229, 62, 62, 0.15); color: #e53e3e; display: inline-flex; align-items: center; gap: 4px; }
+
+        .page-acc-body {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            background: var(--bg-sub);
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+        .page-acc-body.open { display: flex; }
+
+        /* VİDEO LİSTE KUTULARI, YANDAKİ + BUTONLARI VE FRAME STİLLERİ */
+        .yt-section-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .yt-section-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 4px 2px;
+        }
+        .yt-top-pinned-card {
+            background: linear-gradient(135deg, rgba(229, 62, 62, 0.1), rgba(229, 62, 62, 0.04));
+            border: 1px solid rgba(229, 62, 62, 0.35);
+            border-left: 5px solid #e53e3e;
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .yt-pinned-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .yt-pinned-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 180px;
+        }
+        .yt-pinned-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #e53e3e;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .yt-pinned-desc {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+        .yt-clickable-link {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: underline;
+            word-break: break-all;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+        .yt-clickable-link:hover {
+            color: var(--accent);
+        }
+        .yt-pinned-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .btn-yt-watch {
+            background: #e53e3e;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-yt-ext {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-yt-ext:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .btn-win-player {
+            background: rgba(43, 108, 176, 0.14);
+            color: var(--primary);
+            border: 1px solid rgba(43, 108, 176, 0.35);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-win-player:hover {
+            background: var(--primary);
+            color: #ffffff;
+        }
+        .btn-plus-side {
+            background: var(--success);
+            color: #ffffff;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 900;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            line-height: 1;
+            transition: transform 0.15s, opacity 0.15s;
+        }
+        .btn-plus-side:hover {
+            opacity: 0.92;
+            transform: scale(1.05);
+        }
+        .btn-minus-side {
+            background: var(--danger);
+            color: #ffffff;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 900;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .btn-file-pick {
+            background: var(--bg-sub);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 0 10px;
+            height: 38px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .btn-file-pick:hover {
+            border-color: var(--primary);
+        }
+        .yt-multi-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .yt-input-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            background: var(--bg-sub);
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .yt-input-row .yt-row-num {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--primary);
+            min-width: 24px;
+            text-align: center;
+        }
+        .yt-input-row input.yt-url-field {
+            flex: 1.5;
+            min-width: 180px;
+            padding: 8px 10px;
+            font-size: 13px;
+            background: var(--bg-card);
+        }
+        .yt-input-row input.yt-desc-field {
+            flex: 1;
+            min-width: 140px;
+            padding: 8px 10px;
+            font-size: 13px;
+            background: var(--bg-card);
+        }
+        .yt-Form-frame {
+            background: var(--bg-card);
+            border: 2px dashed var(--primary);
+            border-radius: 10px;
+            padding: 14px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .yt-Form-frame.open {
+            display: flex;
+        }
+        .yt-player-frame-wrap {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .yt-player-frame-wrap.open {
+            display: flex;
+        }
+        .yt-iframe-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            height: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+        }
+        .yt-iframe-container iframe,
+        .yt-iframe-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #000;
+        }
+        .yt-frame-helper-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            background: var(--bg-card);
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 12px;
+        }
+
+        .log-row {
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
+            background: var(--bg-card); padding: 10px 14px; border-radius: 8px;
+            border-left: 4px solid var(--primary); font-size: 13px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .log-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .btn-sm {
+            padding: 6px 10px; border-radius: 6px; border: none; font-size: 12px;
+            font-weight: 700; cursor: pointer; color: white;
+        }
+        .btn-sm:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-edit { background: var(--primary); }
+        .btn-del { background: var(--danger); }
+        .btn-quick-haslama { background: var(--accent); color: #000; }
+        .btn-yt-link { background: #dc2626; color: #fff; }
+
+        .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
+        .filter-bar input, .filter-bar select { flex: 1; min-width: 160px; }
+
+        /* ==========================================================
+           iPAD PRO 11" (834x1194) & TABLET ÖZEL UYUMLULUK
+        ========================================================== */
+        @media (min-width: 768px) and (max-width: 1180px) {
+            .top-bar {
+                grid-template-columns: 1fr 1fr;
+            }
+            .top-bar .center-card {
+                grid-column: 1 / -1;
+                order: -1;
+            }
+            .main-grid {
+                grid-template-columns: 340px 1fr;
+                gap: 16px;
+            }
+            .cuz-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 12px;
+            }
+        }
+
+        /* ==========================================================
+           iPHONE 11 PRO (375x812) & MOBİL TELEFON ÖZEL UYUMLULUK
+        ========================================================== */
+        @media (max-width: 767px) {
+            body {
+                padding: max(10px, env(safe-area-inset-top)) 10px max(16px, env(safe-area-inset-bottom)) 10px;
+            }
+            .container {
+                gap: 14px;
+            }
+            .top-bar {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .card {
+                padding: 16px;
+            }
+            .db-control-bar {
+                padding: 12px 14px;
+                gap: 10px;
+            }
+            .db-write-lock-box {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .app-title {
+                font-size: 17px;
+            }
+            .date-gregorian {
+                font-size: 17px;
+            }
+            .live-clock {
+                font-size: 24px;
+            }
+            .qm-percent {
+                font-size: 22px;
+                padding: 6px 10px;
+            }
+            .sw-time {
+                font-size: 30px;
+            }
+            .sw-btn {
+                width: 48px;
+                height: 48px;
+            }
+            .cuz-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .cuz-card {
+                padding: 12px;
+            }
+            /* iOS Safari Otomatik Zoom Engelleme (En az 16px font) */
+            input, select, textarea {
+                font-size: 16px;
+                padding: 10px 12px;
+            }
+            .modal-overlay {
+                padding: 8px;
+            }
+            .modal-box {
+                max-height: 94vh;
+                max-height: 94dvh;
+                border-radius: 16px;
+            }
+            .modal-header {
+                padding: 14px 16px;
+            }
+            .modal-header h2 {
+                font-size: 16px;
+            }
+            .modal-body {
+                padding: 12px;
+            }
+            .page-acc-header {
+                padding: 10px 12px;
+            }
+            .page-badges {
+                width: 100%;
+                justify-content: flex-start;
+                margin-top: 4px;
+            }
+            .log-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .log-actions {
+                width: 100%;
+                justify-content: flex-end;
+                margin-top: 4px;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .cuz-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .stats-mini-grid .val {
+                font-size: 17px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ÜST VERİTABANI BAĞLANTI VE KAYIT KİLİDİ BARI -->
+    <div class="db-control-bar">
+        <div class="db-status-left">
+            <div class="db-badge" title="Firebase Bulut Veritabanı Bağlantı Durumu">
+                <span class="db-dot" id="dbConnectionDot"></span>
+                <span id="dbConnectionText">DB Bağlanıyor...</span>
+            </div>
+            <div style="font-size: 12px; opacity: 0.9;">
+                🛡️ <strong>Güvenli İzole Doküman:</strong> <code>hafizlik_programi_sistem / emre_karaaslan_ezber_haslama_v1</code> (Diğer DB verilerine dokunmaz)
+            </div>
+        </div>
+
+        <div class="db-write-lock-box" id="dbWriteBox">
+            <div>
+                <span class="lock-label" id="dbWriteStatusLabel">🔒 DB KAYIT: KAPALI (Sadece Okuma Modu)</span>
+                <span class="lock-sub" id="dbWriteSubText">Kayıt yapabilmek için sağdaki anahtarı aktif edin</span>
+            </div>
+            <label class="switch" title="DB Kayıt Yetkisini Aç / Kapat">
+                <input type="checkbox" id="dbWriteActiveToggle" onchange="toggleDbWriteActive()" disabled>
+                <span class="slider db-slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- ÜST BAR -->
+    <div class="top-bar">
+        <!-- SOL ÜST: MİLADİ & HİCRİ TAKVİM -->
+        <div class="card date-card date-card-split">
+            <div class="date-info">
+                <div class="date-gregorian" id="miladiTarih">Yükleniyor...</div>
+                <div class="date-hijri" id="hicriTarih">Yükleniyor...</div>
+                <div class="live-clock" id="canliSaat">00:00:00</div>
+            </div>
+            <a class="date-guide-link" href="Fatih_Collak_Hafizlik.html" onclick="this.href='Fatih_Collak_Hafizlik.html?gp='+getSelectedGlobalPage()">
+                <span aria-hidden="true" style="font-size:26px;">🎥</span><span>Fatih Çollak<br>Video Rehberi</span><small>Cüz / sayfa seç · Link kopyala ↗</small>
+            </a>
+        </div>
+
+        <!-- ORTA ÜST: GENEL KUR'AN İLERLEMESİ & DARK MODE -->
+        <div class="card center-card">
+            <div class="profile-row">
+                <div>
+                    <div class="app-title">Emre Karaaslan Hafızlık Takip Pro</div>
+                    <div class="app-subtitle">Hafızlık Proje Okulu • Bulut Senkronizasyonlu Ezber & Haslama</div>
+                </div>
+                <div class="theme-switch-box">
+                    <span>Tema</span>
+                    <label class="switch">
+                        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <button class="quran-master-btn" onclick="openQuranMasterModal()">
+                <div class="qm-info">
+                    <h3>📖 Kur'an-ı Kerim Genel İlerleme & Tüm Geçmiş</h3>
+                    <p id="qmSubText">0 / 604 Sayfa Ezberlendi • Tüm sayfaların okunma geçmişi için tıklayın</p>
+                </div>
+                <div class="qm-percent" id="qmPercent">%0</div>
+            </button>
+        </div>
+
+        <!-- SAĞ ÜST: APPLE TARZI TUR ATLATMALI KRONOMETRE -->
+        <div class="apple-stopwatch">
+            <div class="sw-top">
+                <div class="sw-time" id="swDisplay">00:00.00</div>
+                <div class="sw-buttons">
+                    <button class="sw-btn lap" id="swLapBtn" onclick="lapOrReset()">Tur</button>
+                    <button class="sw-btn start" id="swStartBtn" onclick="startStopSw()">Başlat</button>
+                </div>
+            </div>
+            <div class="sw-laps" id="swLaps"></div>
+        </div>
+    </div>
+
+    <!-- ANA İÇERİK -->
+    <div class="main-grid">
+        <!-- SOL PANEL: OTOMATİK DÖNÜŞÜMLÜ GİRİŞ PANELİ -->
+        <div class="card">
+            <div class="section-title">
+                <span>✍️ Ezber & Haslama Girişi</span>
+            </div>
+
+            <div class="lock-warning-banner" id="formLockBanner">
+                ⚠️ Üst kısımdan "DB Kayıt" anahtarını aktif etmeden yeni kayıt eklenemez, silinemez veya düzenlenemez.
+            </div>
+
+            <div class="form-group">
+                <label>Kur'an-ı Kerim Sayfa No (1 - 604)</label>
+                <input type="number" id="inpGlobalPage" min="1" max="604" value="1" oninput="syncFromGlobalPage()">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Cüz No (1 - 30)</label>
+                    <input type="number" id="inpCuzNo" min="1" max="30" value="1" oninput="syncFromCuzAndLocalPage()">
+                </div>
+                <div class="form-group">
+                    <label>Cüz İçi Sayfa (1 - 24)</label>
+                    <input type="number" id="inpCuzPage" min="1" max="24" value="1" oninput="syncFromCuzAndLocalPage()">
+                </div>
+            </div>
+
+            <div class="auto-sync-badge" id="syncInfoBadge">
+                🔄 Otomatik Eşleşme: 1. Sayfa = 1. Cüz, 1. Sayfa
+            </div>
+
+            <div class="page-status-hint" id="pageStatusHint"></div>
+
+            <div class="form-group">
+                <label>Okuma / İşlem Türü (İstediğiniz Kadar Ekleyebilirsiniz)</label>
+                <div class="type-select-row">
+                    <select id="inpType"></select>
+                    <button type="button" class="btn-add-type" onclick="promptAddCustomType()" title="Yeni Haşlama veya İşlem Türü Ekle">+ Tür Ekle</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Not / Hata Kaydı (İsteğe Bağlı)</label>
+                <input type="text" id="inpNote" placeholder="Örn: Tecvid hatası düzeltildi, akıcı okundu...">
+            </div>
+
+            <!-- SOL PANEL SAYFA VİDEOLARI ÇOKLU EKLEME ALANI (YANDA + BUTONLU) -->
+            <div class="form-group" style="background: var(--bg-sub); padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
+                    <label style="margin-bottom:0; color:var(--primary); font-weight:800;">🎥 Sayfa Videoları Ekle (Yandaki + İle Sınırsız)</label>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <button type="button" class="btn-plus-side" style="width:28px; height:28px; font-size:16px;" onclick="addVideoInputRow('leftPanelVideoRows', getSelectedGlobalPage())" title="Yeni Video Satırı Ekle (+)">+</button>
+                        <button type="button" class="btn-sm" style="background:var(--primary);" onclick="saveVideosFromContainer('leftPanelVideoRows', getSelectedGlobalPage(), true)" title="Girilen videoları bu sayfaya kaydet">💾 Videoları Kaydet</button>
+                    </div>
+                </div>
+                <div id="leftPanelVideoRows" class="yt-multi-rows"></div>
+                <div id="leftPanelExistingVideosInfo" style="margin-top:8px; font-size:12px; color:var(--text-secondary);"></div>
+            </div>
+
+            <button class="btn-primary" id="btnAddRecord" onclick="addRecord()" disabled>
+                🔒 DB Kayıt Aktif Değil
+            </button>
+
+            <div class="stats-mini-grid">
+                <div class="stat-box">
+                    <div class="val" id="statEzberPage">0</div>
+                    <div class="lbl">Ezberlenen S.</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val" id="statTotalReads">0</div>
+                    <div class="lbl">Toplam Okuma</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val" id="statCompletedCuz">0/30</div>
+                    <div class="lbl">Biten Cüz</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 22px;">
+                <div class="section-title" style="font-size: 15px;">
+                    <span>🕒 Son Yapılan İşlemler</span>
+                    <span style="font-size: 11px; color: var(--text-secondary);">Düzenleme/Silme Şifresi: 1234</span>
+                </div>
+                <div id="recentLogsContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto;"></div>
+            </div>
+        </div>
+
+        <!-- SAĞ PANEL: 30 CÜZ GRAFİKSEL TAKİP PANOSU -->
+        <div class="card">
+            <div class="section-title">
+                <span>📊 1'den 30'a Cüz İlerleme Panosu</span>
+                <span style="font-size: 12px; color: var(--text-secondary);">Detay, çoklu video linkleri ve sayfa geçmişi için ilgili cüze tıklayın</span>
+            </div>
+            <div class="cuz-grid" id="cuzGridContainer"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CÜZ & KUR'AN GENEL DETAY GEÇMİŞİ -->
+<div class="modal-overlay" id="historyModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2 id="modalTitle">Detaylı Geçmiş</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<!-- FIREBASE FIRESTORE ENTEGRASYONU (MEVCUT DB İLE AYNI PROJE, İZOLE DOKÜMAN) -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp, enableNetwork, disableNetwork } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAhjq7KL_e80LiW8fC-wttmn8gba5UvhVE",
+        authDomain: "muratilactakip.firebaseapp.com",
+        projectId: "muratilactakip",
+        storageBucket: "muratilactakip.firebasestorage.app",
+        messagingSenderId: "1029760039126",
+        appId: "1:1029760039126:web:08dc48a945e8e7e19df177"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const COLLECTION_NAME = "hafizlik_programi_sistem";
+    const ISOLATED_DOC_ID = "emre_karaaslan_ezber_haslama_v1";
+
+    function updateDbIndicator(state, message) {
+        const dot = document.getElementById('dbConnectionDot');
+        const text = document.getElementById('dbConnectionText');
+        if (!dot || !text) return;
+
+        dot.className = 'db-dot ' + (state === 'online' ? 'online' : state === 'saving' ? 'saving' : 'error');
+        text.innerText = message;
+    }
+
+    window.ezberCloudDB = {
+        isInitialLoaded: false,
+
+        async saveRecords(recordsArray, darkThemeState, customTypesArray, pageVideosObj) {
+            if (!window.isDbWriteEnabled || !this.isInitialLoaded) {
+                console.warn("DB Kayıt aktif değil veya ilk okuma henüz tamamlanmadı.");
+                return false;
+            }
+            updateDbIndicator('saving', 'DB Kaydediliyor...');
+            try {
+                const payload = {
+                    recordType: "emre_ezber_haslama_tracker",
+                    owner: "emre_karaaslan",
+                    ezberRecords: recordsArray,
+                    darkMode: darkThemeState,
+                    updatedAt: serverTimestamp()
+                };
+                if (Array.isArray(customTypesArray)) {
+                    payload.customTypes = customTypesArray;
+                }
+                if (pageVideosObj && typeof pageVideosObj === 'object') {
+                    payload.pageVideos = pageVideosObj;
+                }
+
+                await setDoc(doc(db, COLLECTION_NAME, ISOLATED_DOC_ID), payload, { merge: true });
+
+                updateDbIndicator('online', 'DB Bağlı & Kaydedildi');
+                return true;
+            } catch (err) {
+                console.error("Firestore Kayıt Hatası:", err);
+                updateDbIndicator('error', 'DB Kayıt Hatası!');
+                alert("Veritabanına kaydedilirken bir hata oluştu: " + err.message);
+                return false;
+            }
+        },
+
+        startListening() {
+            onSnapshot(doc(db, COLLECTION_NAME, ISOLATED_DOC_ID), { includeMetadataChanges: true }, (snap) => {
+                if (snap.metadata.fromCache) {
+                    updateDbIndicator('saving', 'DB Sunucu Bağlantısı Bekleniyor...');
+                    return;
+                }
+                this.isInitialLoaded = true;
+                updateDbIndicator('online', 'DB Bağlı (Senkron)');
+
+                const writeToggle = document.getElementById('dbWriteActiveToggle');
+                if (writeToggle && writeToggle.disabled) {
+                    writeToggle.disabled = false;
+                }
+
+                if (snap.exists()) {
+                    const data = snap.data();
+                    window.dispatchEvent(new CustomEvent('ezber-db-synced', { detail: data }));
+                } else {
+                    window.dispatchEvent(new CustomEvent('ezber-db-synced', { detail: null }));
+                }
+            }, (error) => {
+                this.isInitialLoaded = false;
+                console.error("Firestore Dinleme Hatası:", error);
+                updateDbIndicator('error', 'DB Bağlantı Hatası');
+            });
+        }
+    };
+
+    window.addEventListener('online', async () => {
+        try { await enableNetwork(db); updateDbIndicator('online', 'DB Bağlı'); } catch (e) {}
+    });
+    window.addEventListener('offline', async () => {
+        try { await disableNetwork(db); } catch (e) {}
+        updateDbIndicator('error', 'İnternet Yok');
+    });
+
+    window.ezberCloudDB.startListening();
+</script>
+
+<script>
+    /* ==========================================================
+       0. DB KAYIT KİLİDİ VE YEREL YEDEKLEME KONTROLÜ
+    ========================================================== */
+    window.isDbWriteEnabled = false;
+    const LOCAL_BACKUP_KEY = 'emre_hafizlik_ezber_haslama_backup_v1';
+    const LOCAL_TYPES_KEY = 'emre_hafizlik_custom_types_v1';
+    // Video bağlantılarının tek kalıcı kaynağı Firestore pageVideos alanıdır.
+    const ADMIN_PASS = '1234';
+
+    const DEFAULT_TYPES = [
+        "İlk Ezber",
+        "1. Haslama",
+        "2. Haslama",
+        "3. Haslama",
+        "4. Haslama",
+        "Genel Tekrar / Dinletme"
+    ];
+
+    let records = [];
+    let customTypes = [];
+    let pageVideos = {}; // { "1": [ { id, url, desc, updatedAt } ] }
+    let runtimeVideoBlobs = {}; // Seçilen yerel video dosyaları için oturum içi Blob URL önbelleği
+    let currentOpenModalState = null;
+
+    function normalizePageVideosObject(rawObj) {
+        const result = {};
+        if (!rawObj || typeof rawObj !== 'object') return result;
+        Object.keys(rawObj).forEach(key => {
+            const val = rawObj[key];
+            if (Array.isArray(val)) {
+                result[key] = val.filter(v => v && v.url).map((v, idx) => ({
+                    id: v.id || (Date.now() + idx + Math.floor(Math.random() * 1000)),
+                    url: String(v.url).trim(),
+                    desc: v.desc ? String(v.desc).trim() : `${key}. Sayfa Videosu`,
+                    updatedAt: v.updatedAt || ''
+                }));
+            } else if (val && typeof val === 'object' && val.url) {
+                result[key] = [{
+                    id: val.id || (Date.now() + Math.floor(Math.random() * 1000)),
+                    url: String(val.url).trim(),
+                    desc: val.desc ? String(val.desc).trim() : `${key}. Sayfa Videosu`,
+                    updatedAt: val.updatedAt || ''
+                }];
+            }
+        });
+        return result;
+    }
+
+    function getPageVideoList(globalPage) {
+        const key = String(globalPage);
+        const list = pageVideos[key];
+        return Array.isArray(list) ? list : [];
+    }
+
+    try {
+        const savedTypes = JSON.parse(localStorage.getItem(LOCAL_TYPES_KEY) || '[]');
+        if (Array.isArray(savedTypes)) customTypes = savedTypes;
+    } catch (e) {}
+
+
+    function toggleDbWriteActive() {
+        const toggle = document.getElementById('dbWriteActiveToggle');
+        if (!window.ezberCloudDB || !window.ezberCloudDB.isInitialLoaded) {
+            alert("Henüz veritabanı bağlantısı tamamlanmadı. Lütfen 'DB Bağlı' yazısını bekleyin.");
+            toggle.checked = false;
+            return;
+        }
+
+        window.isDbWriteEnabled = toggle.checked;
+        const box = document.getElementById('dbWriteBox');
+        const statusLbl = document.getElementById('dbWriteStatusLabel');
+        const subLbl = document.getElementById('dbWriteSubText');
+        const addBtn = document.getElementById('btnAddRecord');
+        const banner = document.getElementById('formLockBanner');
+
+        if (window.isDbWriteEnabled) {
+            box.classList.add('active-write');
+            statusLbl.innerText = "🔓 DB KAYIT: AKTİF (Buluta Yazma Açık)";
+            subLbl.innerText = "Yapılan tüm işlemler anında veritabanına kaydedilir";
+            addBtn.disabled = false;
+            addBtn.innerText = "✅ Kaydı Veritabanına Ekle";
+            banner.style.display = 'none';
+        } else {
+            box.classList.remove('active-write');
+            statusLbl.innerText = "🔒 DB KAYIT: KAPALI (Sadece Okuma Modu)";
+            subLbl.innerText = "Kayıt yapabilmek için sağdaki anahtarı aktif edin";
+            addBtn.disabled = true;
+            addBtn.innerText = "🔒 DB Kayıt Aktif Değil";
+            banner.style.display = 'block';
+        }
+
+        renderAll();
+        refreshOpenModalIfAny();
+    }
+
+    function ensureWritePermission() {
+        if (!window.ezberCloudDB || !window.ezberCloudDB.isInitialLoaded) {
+            alert("⚠️ Veritabanı henüz yüklenmedi! Lütfen bağlantının kurulmasını bekleyin.");
+            return false;
+        }
+        if (!window.isDbWriteEnabled) {
+            alert("🔒 DB Kayıt şu an KAPALI!\n\nKayıt eklemek, silmek veya düzenlemek için lütfen sayfanın en üstündeki 'DB KAYIT' anahtarını AKTİF konuma getirin.");
+            return false;
+        }
+        return true;
+    }
+
+    window.addEventListener('ezber-db-synced', (e) => {
+        const data = e.detail;
+        if (data) {
+            if (Array.isArray(data.ezberRecords)) {
+                records = data.ezberRecords;
+                localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(records));
+            }
+            if (Array.isArray(data.customTypes)) {
+                customTypes = data.customTypes;
+                localStorage.setItem(LOCAL_TYPES_KEY, JSON.stringify(customTypes));
+            }
+            if (data.pageVideos && typeof data.pageVideos === 'object') {
+                pageVideos = normalizePageVideosObject(data.pageVideos);
+
+            }
+            if (typeof data.darkMode === 'boolean') {
+                document.body.classList.toggle('dark-mode', data.darkMode);
+                document.getElementById('darkModeToggle').checked = data.darkMode;
+            }
+        } else {
+            const localBackup = localStorage.getItem(LOCAL_BACKUP_KEY);
+            if (localBackup && records.length === 0) {
+                try { records = JSON.parse(localBackup) || []; } catch (err) {}
+            }
+        }
+        rebuildTypeOptions();
+        const currentGp = getSelectedGlobalPage();
+        autoSuggestTypeForPage(currentGp);
+        renderAll();
+        refreshOpenModalIfAny();
+    });
+
+    /* ==========================================================
+       1. İŞLEM TÜRLERİ YÖNETİMİ VE OTOMATİK HAŞLAMA ÖNERİSİ
+    ========================================================== */
+    function getAllAvailableTypes() {
+        const merged = [...DEFAULT_TYPES];
+        records.forEach(r => {
+            if (r && r.type && !merged.includes(r.type)) {
+                merged.push(r.type);
+            }
+        });
+        customTypes.forEach(t => {
+            if (t && !merged.includes(t)) {
+                merged.push(t);
+            }
+        });
+        return merged;
+    }
+
+    function formatTypeLabel(typeVal) {
+        if (typeVal === "İlk Ezber") return "🟢 İlk Ezber (Ham Ezber)";
+        if (typeVal === "1. Haslama") return "🟡 1. Haslama (Tekrar)";
+        if (typeVal === "2. Haslama") return "🟠 2. Haslama (Tekrar)";
+        if (typeVal === "3. Haslama") return "🔵 3. Haslama (Tekrar)";
+        if (typeVal === "Genel Tekrar / Dinletme") return "🟣 Hoca Dinletmesi / Genel Tekrar";
+        if (/^\d+\.\s*Haslama$/i.test(typeVal)) return `🔶 ${typeVal} (Tekrar)`;
+        return `📌 ${typeVal}`;
+    }
+
+    function rebuildTypeOptions(selectedValue = null) {
+        const selectEl = document.getElementById('inpType');
+        if (!selectEl) return;
+        const previousVal = selectedValue || selectEl.value;
+        const allTypes = getAllAvailableTypes();
+
+        selectEl.innerHTML = '';
+        allTypes.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = formatTypeLabel(t);
+            selectEl.appendChild(opt);
+        });
+
+        if (previousVal && allTypes.includes(previousVal)) {
+            selectEl.value = previousVal;
+        }
+    }
+
+    function ensureTypeOptionExists(typeVal) {
+        const clean = (typeVal || '').trim();
+        if (!clean) return;
+        const allTypes = getAllAvailableTypes();
+        if (!allTypes.includes(clean)) {
+            customTypes.push(clean);
+            localStorage.setItem(LOCAL_TYPES_KEY, JSON.stringify(customTypes));
+        }
+        rebuildTypeOptions(clean);
+    }
+
+    async function promptAddCustomType() {
+        let maxHaslama = 3;
+        getAllAvailableTypes().forEach(t => {
+            const m = String(t).match(/^(\d+)\.\s*Haslama$/i);
+            if (m) {
+                const num = parseInt(m[1]);
+                if (num > maxHaslama) maxHaslama = num;
+            }
+        });
+        const suggested = `${maxHaslama + 1}. Haslama`;
+        const input = prompt("Eklemek istediğiniz yeni Okuma / İşlem Türünü yazınız\n(Örn: 4. Haslama, 5. Haslama, Sabah Tekrarı vb.):", suggested);
+        if (input === null) return;
+        const cleaned = input.trim();
+        if (!cleaned) return alert("Geçerli bir işlem türü adı giriniz.");
+
+        ensureTypeOptionExists(cleaned);
+        document.getElementById('inpType').value = cleaned;
+
+        if (window.ezberCloudDB && window.isDbWriteEnabled) {
+            await persistChanges();
+        }
+    }
+
+    function getSuggestedNextTypeForPage(globalPage) {
+        const pRecs = getPageRecords(globalPage);
+        if (pRecs.length === 0) {
+            return "İlk Ezber";
+        }
+        const existingTypesLower = new Set(pRecs.map(r => String(r.type || '').trim().toLocaleLowerCase('tr-TR')));
+        if (!existingTypesLower.has("ilk ezber")) {
+            return "İlk Ezber";
+        }
+        let n = 1;
+        while (existingTypesLower.has(`${n}. haslama`)) {
+            n++;
+        }
+        return `${n}. Haslama`;
+    }
+
+    function autoSuggestTypeForPage(globalPage) {
+        const pRecs = getPageRecords(globalPage);
+        const hintBox = document.getElementById('pageStatusHint');
+        const suggested = getSuggestedNextTypeForPage(globalPage);
+
+        ensureTypeOptionExists(suggested);
+        const selectEl = document.getElementById('inpType');
+        if (selectEl) {
+            selectEl.value = suggested;
+        }
+
+        if (hintBox) {
+            if (pRecs.length > 0) {
+                hintBox.className = 'page-status-hint haslama-mode';
+                hintBox.innerText = `💡 ${globalPage}. Sayfa daha önce ${pRecs.length} kez okunmuş. İşlem türü otomatik olarak "${suggested}" seçildi.`;
+            } else {
+                hintBox.className = 'page-status-hint';
+                hintBox.innerText = '';
+            }
+        }
+        renderLeftPanelPageVideosInfo(globalPage);
+    }
+
+    /* ==========================================================
+       2. KUR'AN-I KERİM SAYFA <-> CÜZ DÖNÜŞÜM MATEMATİĞİ (1-604)
+    ========================================================== */
+    function getSelectedGlobalPage() {
+        const val = parseInt(document.getElementById('inpGlobalPage')?.value);
+        return Math.max(1, Math.min(604, val || 1));
+    }
+
+    function getCuzBounds(cuzNo) {
+        const start = (cuzNo - 1) * 20 + 1;
+        const end = (cuzNo === 30) ? 604 : cuzNo * 20;
+        return { start, end, count: end - start + 1 };
+    }
+
+    function pageToCuzInfo(globalPage) {
+        let p = Math.max(1, Math.min(604, parseInt(globalPage) || 1));
+        let cuz = (p > 580) ? 30 : Math.ceil(p / 20);
+        let start = (cuz - 1) * 20 + 1;
+        let cuzPage = p - start + 1;
+        return { globalPage: p, cuz, cuzPage };
+    }
+
+    function cuzToGlobalPage(cuz, cuzPage) {
+        let c = Math.max(1, Math.min(30, parseInt(cuz) || 1));
+        let maxLocal = (c === 30) ? 24 : 20;
+        let cp = Math.max(1, Math.min(maxLocal, parseInt(cuzPage) || 1));
+        let globalPage = (c - 1) * 20 + cp;
+        return { globalPage, cuz: c, cuzPage: cp };
+    }
+
+    function syncFromGlobalPage() {
+        const val = document.getElementById('inpGlobalPage').value;
+        if (!val) return;
+        const info = pageToCuzInfo(val);
+        document.getElementById('inpCuzNo').value = info.cuz;
+        document.getElementById('inpCuzPage').max = (info.cuz === 30) ? 24 : 20;
+        document.getElementById('inpCuzPage').value = info.cuzPage;
+        updateSyncBadge(info.globalPage, info.cuz, info.cuzPage);
+        autoSuggestTypeForPage(info.globalPage);
+    }
+
+    function syncFromCuzAndLocalPage() {
+        const c = document.getElementById('inpCuzNo').value;
+        const cp = document.getElementById('inpCuzPage').value;
+        if (!c || !cp) return;
+        const info = cuzToGlobalPage(c, cp);
+        document.getElementById('inpCuzPage').max = (info.cuz === 30) ? 24 : 20;
+        document.getElementById('inpGlobalPage').value = info.globalPage;
+        updateSyncBadge(info.globalPage, info.cuz, info.cuzPage);
+        autoSuggestTypeForPage(info.globalPage);
+    }
+
+    function updateSyncBadge(gp, c, cp) {
+        document.getElementById('syncInfoBadge').innerText =
+            `🔄 Otomatik Eşleşme: Kur'an ${gp}. Sayfa = ${c}. Cüz, ${cp}. Sayfa`;
+    }
+
+    /* ==========================================================
+       3. VERİTABANI KAYIT, MÜKERRER KONTROLÜ, SİLME VE DÜZENLEME
+    ========================================================== */
+    async function persistChanges() {
+        localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(records));
+        localStorage.setItem(LOCAL_TYPES_KEY, JSON.stringify(customTypes));
+
+        rebuildTypeOptions();
+        renderAll();
+        refreshOpenModalIfAny();
+        renderLeftPanelPageVideosInfo(getSelectedGlobalPage());
+        if (window.ezberCloudDB && window.isDbWriteEnabled) {
+            await window.ezberCloudDB.saveRecords(
+                records,
+                document.body.classList.contains('dark-mode'),
+                customTypes,
+                pageVideos
+            );
+        }
+    }
+
+    function isDuplicateRecord(globalPage, typeStr, ignoreRecordId = null) {
+        const normType = String(typeStr || '').trim().toLocaleLowerCase('tr-TR');
+        return records.some(r => {
+            if (ignoreRecordId !== null && r.id === ignoreRecordId) return false;
+            return Number(r.globalPage) === Number(globalPage) &&
+                   String(r.type || '').trim().toLocaleLowerCase('tr-TR') === normType;
+        });
+    }
+
+    async function addRecord(customPage = null, customType = null) {
+        if (!ensureWritePermission()) return;
+
+        const gp = customPage || parseInt(document.getElementById('inpGlobalPage').value);
+        if (!gp || gp < 1 || gp > 604) return alert('Lütfen 1 ile 604 arasında geçerli bir sayfa giriniz.');
+
+        const info = pageToCuzInfo(gp);
+        const type = (customType || document.getElementById('inpType').value || '').trim();
+        if (!type) return alert('Lütfen geçerli bir işlem türü seçiniz.');
+
+        // MÜKERRER KAYIT KONTROLÜ
+        if (isDuplicateRecord(info.globalPage, type)) {
+            const suggestedNext = getSuggestedNextTypeForPage(info.globalPage);
+            alert(`⚠️ MÜKERRER KAYIT UYARISI!\n\n${info.globalPage}. Sayfa (${info.cuz}. Cüz, ${info.cuzPage}. Sayfa) için "${type}" kaydı zaten mevcut!\n\nAynı kayıt tekrar eklenemez. Bu sayfa için sıradaki önerilen işlem: "${suggestedNext}"`);
+            autoSuggestTypeForPage(info.globalPage);
+            return;
+        }
+
+        // Sol panelde girilmiş bekleyen video satırları varsa onları da aynı sayfaya ekle
+        if (!customPage) {
+            collectAndAppendVideosFromContainer('leftPanelVideoRows', info.globalPage);
+        }
+
+        ensureTypeOptionExists(type);
+        const note = customPage ? 'Hızlı giriş' : document.getElementById('inpNote').value.trim();
+
+        const now = new Date();
+        const newRec = {
+            id: Date.now() + Math.floor(Math.random() * 1000),
+            globalPage: info.globalPage,
+            cuz: info.cuz,
+            cuzPage: info.cuzPage,
+            type: type,
+            note: note,
+            dateStr: now.toLocaleDateString('tr-TR'),
+            timeStr: now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            timestamp: now.getTime()
+        };
+
+        records.unshift(newRec);
+        if (!customPage) document.getElementById('inpNote').value = '';
+        await persistChanges();
+        autoSuggestTypeForPage(info.globalPage);
+    }
+
+    function checkPassword() {
+        const pwd = prompt('İşlem yapmak için şifreyi giriniz (Şifre: 1234):');
+        if (pwd === null) return false;
+        if (pwd !== ADMIN_PASS) {
+            alert('❌ Hatalı şifre! İşlem iptal edildi.');
+            return false;
+        }
+        return true;
+    }
+
+    async function deleteRecord(id) {
+        if (!ensureWritePermission()) return;
+        if (!checkPassword()) return;
+
+        records = records.filter(r => r.id !== id);
+        await persistChanges();
+        autoSuggestTypeForPage(getSelectedGlobalPage());
+    }
+
+    async function editRecord(id) {
+        if (!ensureWritePermission()) return;
+        if (!checkPassword()) return;
+
+        const rec = records.find(r => r.id === id);
+        if (!rec) return;
+
+        const newPage = prompt(`Yeni Sayfa Numarası (1-604):`, rec.globalPage);
+        if (newPage === null) return;
+        const gp = parseInt(newPage);
+        if (!gp || gp < 1 || gp > 604) return alert('Geçersiz sayfa numarası!');
+
+        const newType = prompt(`Okuma Türü (Örn: İlk Ezber, 1. Haslama, 2. Haslama):`, rec.type);
+        if (newType === null) return;
+        const cleanedType = newType.trim() || rec.type;
+
+        if (isDuplicateRecord(gp, cleanedType, id)) {
+            alert(`⚠️ UYARI: ${gp}. Sayfa için "${cleanedType}" kaydı zaten mevcut! Aynı kayıt oluşturulamaz.`);
+            return;
+        }
+
+        const newNote = prompt(`Not:`, rec.note || '');
+        if (newNote === null) return;
+
+        const info = pageToCuzInfo(gp);
+        rec.globalPage = info.globalPage;
+        rec.cuz = info.cuz;
+        rec.cuzPage = info.cuzPage;
+        rec.type = cleanedType;
+        rec.note = newNote.trim();
+
+        ensureTypeOptionExists(cleanedType);
+        await persistChanges();
+        autoSuggestTypeForPage(getSelectedGlobalPage());
+    }
+
+    /* ==========================================================
+       4. SINIRSIZ ÇOKLU VİDEO (+ BUTONLU), FRAME OYNATICI, CHROME
+          VE WINDOWS VARSAYILAN VİDEO OYNATICI YÖNETİMİ
+    ========================================================== */
+    function cleanVideoInputPath(rawInput) {
+        if (!rawInput) return '';
+        let s = String(rawInput).trim();
+        // Windows "Yol olarak kopyala" çift tırnaklarını temizle
+        if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+            s = s.slice(1, -1).trim();
+        }
+        if (/^www\./i.test(s)) {
+            s = 'https://' + s;
+        }
+        return s;
+    }
+
+    function isWindowsLocalPath(str) {
+        const s = cleanVideoInputPath(str);
+        return /^[a-zA-Z]:[\\/]/.test(s) || /^\\\\/.test(s) || /^file:\/\//i.test(s);
+    }
+
+    function isDirectMediaFileUrl(str) {
+        const s = cleanVideoInputPath(str).split('?')[0].split('#')[0];
+        return /\.(mp4|webm|ogg|ogv|mov|m4v|mkv|avi|wmv|flv|mp3|wav|m4a)$/i.test(s);
+    }
+
+    function toBrowserOpenableUrl(rawUrl) {
+        const s = cleanVideoInputPath(rawUrl);
+        if (!s) return '';
+        if (/^(https?:|file:|blob:)/i.test(s)) return s;
+        if (/^[a-zA-Z]:[\\/]/.test(s)) {
+            return 'file:///' + s.replace(/\\/g, '/');
+        }
+        if (/^\\\\/.test(s)) {
+            return 'file:' + s.replace(/\\/g, '/');
+        }
+        return s;
+    }
+
+    function extractYouTubeEmbedUrl(url) {
+        if (!url) return null;
+        const str = cleanVideoInputPath(url);
+        let videoId = null;
+
+        const shortMatch = str.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+        const watchMatch = str.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+        const embedMatch = str.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+        const shortsMatch = str.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
+        const liveMatch = str.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/);
+
+        if (shortMatch) videoId = shortMatch[1];
+        else if (watchMatch) videoId = watchMatch[1];
+        else if (embedMatch) videoId = embedMatch[1];
+        else if (shortsMatch) videoId = shortsMatch[1];
+        else if (liveMatch) videoId = liveMatch[1];
+
+        if (!videoId) return null;
+
+        let startSec = 0;
+        const tMatch = str.match(/[?&](?:t|start)=(\d+)/);
+        if (tMatch) startSec = parseInt(tMatch[1]) || 0;
+
+        return `https://www.youtube.com/embed/${videoId}?rel=0${startSec ? '&start=' + startSec : ''}`;
+    }
+
+    // Dinamik + butonlu çoklu video giriş satırı oluşturur
+    function addVideoInputRow(containerId, globalPage, initialUrl = '', initialDesc = '') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const row = document.createElement('div');
+        row.className = 'yt-input-row';
+
+        const fileInputId = `filePick_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+
+        row.innerHTML = `
+            <span class="yt-row-num">#1</span>
+            <input type="text" class="yt-url-field" placeholder="Video Linki (YouTube/Chrome) veya Bilgisayar Dosya Yolu (C:\\...mp4)" value="${escapeHtml(initialUrl)}">
+            <input type="file" id="${fileInputId}" accept="video/*,audio/*" style="display:none">
+            <button type="button" class="btn-file-pick" onclick="document.getElementById('${fileInputId}').click()" title="Bilgisayardan Video Dosyası Seç">📁 Dosya</button>
+            <input type="text" class="yt-desc-field" placeholder="Açıklama / Hoca (Örn: 1. Dinleme...)" value="${escapeHtml(initialDesc)}">
+            <button type="button" class="btn-plus-side" onclick="addVideoInputRow('${containerId}', ${globalPage})" title="Yana/Alta Yeni Video Satırı Ekle (+)">+</button>
+            <button type="button" class="btn-minus-side" onclick="removeVideoInputRow(this, '${containerId}', ${globalPage})" title="Bu Satırı Kaldır">&times;</button>
+        `;
+
+        const fileInput = row.querySelector(`#${fileInputId}`);
+        const urlField = row.querySelector('.yt-url-field');
+        const descField = row.querySelector('.yt-desc-field');
+
+        fileInput.addEventListener('change', (ev) => {
+            const file = ev.target.files && ev.target.files[0];
+            if (!file) return;
+            const blobUrl = URL.createObjectURL(file);
+            row.dataset.tempBlobUrl = blobUrl;
+            if (!urlField.value.trim()) {
+                urlField.value = file.name;
+            }
+            if (!descField.value.trim()) {
+                descField.value = `${file.name} (Yerel Video)`;
+            }
+        });
+
+        container.appendChild(row);
+        renumberVideoInputRows(containerId);
+    }
+
+    function removeVideoInputRow(btnEl, containerId, globalPage) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const row = btnEl.closest('.yt-input-row');
+        if (row) row.remove();
+        if (container.querySelectorAll('.yt-input-row').length === 0) {
+            addVideoInputRow(containerId, globalPage);
+        } else {
+            renumberVideoInputRows(containerId);
+        }
+    }
+
+    function renumberVideoInputRows(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const rows = container.querySelectorAll('.yt-input-row');
+        rows.forEach((r, idx) => {
+            const numSpan = r.querySelector('.yt-row-num');
+            if (numSpan) numSpan.innerText = `#${idx + 1}`;
+        });
+    }
+
+    function collectAndAppendVideosFromContainer(containerId, globalPage) {
+        const container = document.getElementById(containerId);
+        if (!container) return 0;
+
+        const rows = Array.from(container.querySelectorAll('.yt-input-row'));
+        const key = String(globalPage);
+        if (!Array.isArray(pageVideos[key])) {
+            pageVideos[key] = [];
+        }
+
+        let addedCount = 0;
+        const nowStr = new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+        // Çoklu satırları sırasını koruyarak ekle
+        for (let i = rows.length - 1; i >= 0; i--) {
+            const r = rows[i];
+            const urlInp = r.querySelector('.yt-url-field');
+            const descInp = r.querySelector('.yt-desc-field');
+            const rawUrl = cleanVideoInputPath(urlInp ? urlInp.value : '');
+            const rawDesc = (descInp ? descInp.value : '').trim();
+            const tempBlob = r.dataset.tempBlobUrl || '';
+
+            if (!rawUrl && !tempBlob) continue;
+
+            const newId = Date.now() + i + Math.floor(Math.random() * 10000);
+            if (tempBlob) {
+                runtimeVideoBlobs[newId] = tempBlob;
+            }
+
+            pageVideos[key].unshift({
+                id: newId,
+                url: rawUrl || 'yerel_video.mp4',
+                desc: rawDesc || `${globalPage}. Sayfa Ezber / Dinleme Videosu`,
+                updatedAt: nowStr
+            });
+            addedCount++;
+        }
+
+        if (addedCount > 0) {
+            container.innerHTML = '';
+            addVideoInputRow(containerId, globalPage);
+        }
+        return addedCount;
+    }
+
+    async function saveVideosFromContainer(containerId, globalPage, isFromLeftPanel = false) {
+        if (!ensureWritePermission()) return;
+
+        const addedCount = collectAndAppendVideosFromContainer(containerId, globalPage);
+        if (addedCount === 0) {
+            alert("Lütfen en az bir video linki yapıştırın veya '📁 Dosya' butonu ile bilgisayardan bir video seçin.");
+            return;
+        }
+
+        await persistChanges();
+        if (isFromLeftPanel) {
+            renderLeftPanelPageVideosInfo(globalPage);
+        }
+    }
+
+    function renderLeftPanelPageVideosInfo(globalPage) {
+        const infoEl = document.getElementById('leftPanelExistingVideosInfo');
+        if (!infoEl) return;
+        const vArr = getPageVideoList(globalPage);
+        if (vArr.length === 0) {
+            infoEl.innerHTML = `ℹ️ ${globalPage}. sayfaya henüz video eklenmemiş.`;
+        } else {
+            infoEl.innerHTML = `✅ <strong>${globalPage}. Sayfada ${vArr.length} adet video kayıtlı.</strong> <a href="javascript:void(0)" onclick="openCuzDetailModal(${pageToCuzInfo(globalPage).cuz})" style="color:var(--primary); font-weight:800; text-decoration:underline; margin-left:6px;">Videoları Gör / İzle (${vArr.length})</a>`;
+        }
+    }
+
+    function togglePageYtEditor(globalPage, addExtraRow = false) {
+        const accBody = document.getElementById(`accBody_${globalPage}`);
+        const formFrame = document.getElementById(`ytFormFrame_${globalPage}`);
+        const rowsContainerId = `ytMultiRows_${globalPage}`;
+        if (!accBody || !formFrame) return;
+
+        if (!accBody.classList.contains('open')) {
+            accBody.classList.add('open');
+        }
+
+        const wasOpen = formFrame.classList.contains('open');
+        if (!wasOpen) {
+            formFrame.classList.add('open');
+            const container = document.getElementById(rowsContainerId);
+            if (container && container.querySelectorAll('.yt-input-row').length === 0) {
+                // İlk açılışta çoklu giriş kolaylığı için 2 hazır satır aç
+                addVideoInputRow(rowsContainerId, globalPage);
+                addVideoInputRow(rowsContainerId, globalPage);
+            }
+        } else if (addExtraRow) {
+            addVideoInputRow(rowsContainerId, globalPage);
+        } else {
+            formFrame.classList.remove('open');
+        }
+    }
+
+    async function removePageYoutubeVideo(globalPage, videoId) {
+        if (!ensureWritePermission()) return;
+        if (!checkPassword()) return;
+
+        const key = String(globalPage);
+        if (pageVideos[key] && Array.isArray(pageVideos[key])) {
+            pageVideos[key] = pageVideos[key].filter(v => v.id !== videoId);
+            if (pageVideos[key].length === 0) {
+                delete pageVideos[key];
+            }
+            delete runtimeVideoBlobs[videoId];
+            await persistChanges();
+        }
+    }
+
+    // 1) FRAME İÇİNDE OYNATMA (YouTube Iframe, Yerel Video <video> veya Web Iframe)
+    function toggleWatchPageVideo(globalPage, videoId) {
+        const playerWrap = document.getElementById(`ytPlayerWrap_${globalPage}_${videoId}`);
+        const iframeBox = document.getElementById(`ytIframeBox_${globalPage}_${videoId}`);
+        const vList = getPageVideoList(globalPage);
+
+        if (!playerWrap || !iframeBox) return;
+        const vData = vList.find(v => v.id === videoId);
+        if (!vData) return;
+
+        const isOpening = !playerWrap.classList.contains('open');
+        if (!isOpening) {
+            iframeBox.innerHTML = '';
+            playerWrap.classList.remove('open');
+            return;
+        }
+
+        const rawUrl = cleanVideoInputPath(vData.url);
+        const ytEmbed = extractYouTubeEmbedUrl(rawUrl);
+        const sessionBlobUrl = runtimeVideoBlobs[videoId];
+
+        if (ytEmbed) {
+            iframeBox.innerHTML = `<iframe src="${escapeHtml(ytEmbed)}" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+        } else if (sessionBlobUrl || isWindowsLocalPath(rawUrl) || isDirectMediaFileUrl(rawUrl)) {
+            const mediaSrc = sessionBlobUrl || toBrowserOpenableUrl(rawUrl);
+            iframeBox.innerHTML = `
+                <video controls autoplay playsinline src="${escapeHtml(mediaSrc)}">
+                    Tarayıcınız bu video formatını frame içinde desteklemiyor.
+                </video>
+            `;
+        } else {
+            // Diğer web sayfaları veya harici video embed linkleri
+            const webSrc = toBrowserOpenableUrl(rawUrl);
+            iframeBox.innerHTML = `<iframe src="${escapeHtml(webSrc)}" title="Video Player" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+        }
+
+        playerWrap.classList.add('open');
+    }
+
+    // Yerel dosyayı frame içinden anında seçip oynatma (tarayıcı güvenlik kısıtlarına karşı)
+    function bindLocalFileToFramePlayer(globalPage, videoId, inputEl) {
+        const file = inputEl.files && inputEl.files[0];
+        if (!file) return;
+        const blobUrl = URL.createObjectURL(file);
+        runtimeVideoBlobs[videoId] = blobUrl;
+
+        const playerWrap = document.getElementById(`ytPlayerWrap_${globalPage}_${videoId}`);
+        const iframeBox = document.getElementById(`ytIframeBox_${globalPage}_${videoId}`);
+        if (playerWrap && iframeBox) {
+            playerWrap.classList.add('open');
+            iframeBox.innerHTML = `<video controls autoplay playsinline src="${escapeHtml(blobUrl)}"></video>`;
+        }
+    }
+
+    // 2) CHROME / TARAYICIDA DİREKT AÇMA
+    function openVideoInBrowserOrChrome(globalPage, videoId) {
+        const vData = getPageVideoList(globalPage).find(v => v.id === videoId);
+        if (!vData) return;
+
+        const sessionBlobUrl = runtimeVideoBlobs[videoId];
+        const targetUrl = sessionBlobUrl || toBrowserOpenableUrl(vData.url);
+
+        const win = window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        if (!win && isWindowsLocalPath(vData.url)) {
+            prompt("Tarayıcı güvenlik ayarı nedeniyle yerel dosya yolu kopyalanmaya hazır. Yeni sekme adres çubuğuna yapıştırarak açabilirsiniz:", targetUrl);
+        }
+    }
+
+    // 3) WINDOWS VARSAYILAN VİDEO OYNATICISINDA (Media Player / Filmler ve TV / VLC) DİREKT AÇMA
+    function openInWindowsDefaultPlayer(globalPage, videoId) {
+        const vData = getPageVideoList(globalPage).find(v => v.id === videoId);
+        if (!vData) return;
+
+        const rawPath = cleanVideoInputPath(vData.url);
+        const title = (vData.desc || `Sayfa_${globalPage}_Video`).replace(/[\r\n]+/g, ' ');
+
+        // Windows'ta .m3u çalma listesi dosyaları doğrudan varsayılan medya oynatıcısı (Windows Media Player / Filmler ve TV / VLC) ile açılır
+        let m3uTarget = rawPath;
+        if (/^file:\/\/\//i.test(m3uTarget)) {
+            m3uTarget = decodeURIComponent(m3uTarget.replace(/^file:\/\/\//i, '')).replace(/\//g, '\\');
+        }
+
+        const m3uContent = `#EXTM3U\r\n#EXTINF:-1,${title}\r\n${m3uTarget}\r\n`;
+        const blob = new Blob([m3uContent], { type: 'audio/x-mpegurl;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Sayfa_${globalPage}_Video_${videoId}.m3u`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+
+    /* ==========================================================
+       5. ARAYÜZ GÜNCELLEME VE GRAFİKSEL RENDER
+    ========================================================== */
+    function getPageRecords(globalPage) {
+        return records.filter(r => Number(r.globalPage) === Number(globalPage));
+    }
+
+    function renderAll() {
+        const memorizedSet = new Set(records.map(r => Number(r.globalPage)));
+        const totalMemorized = memorizedSet.size;
+        const overallPct = ((totalMemorized / 604) * 100).toFixed(1);
+
+        document.getElementById('qmPercent').innerText = `%${overallPct}`;
+        document.getElementById('qmSubText').innerText =
+            `${totalMemorized} / 604 Sayfa Okundu • Toplam ${records.length} Ezber/Haslama Kaydı (Detaylar için tıklayın)`;
+
+        document.getElementById('statEzberPage').innerText = totalMemorized;
+        document.getElementById('statTotalReads').innerText = records.length;
+
+        const grid = document.getElementById('cuzGridContainer');
+        grid.innerHTML = '';
+        let completedCuzCount = 0;
+
+        for (let c = 1; c <= 30; c++) {
+            const bounds = getCuzBounds(c);
+            let doneInCuz = 0;
+            let totalHaslamaInCuz = 0;
+            let totalVideosInCuz = 0;
+            let dotsHtml = '';
+
+            for (let p = bounds.start; p <= bounds.end; p++) {
+                const pRecs = getPageRecords(p);
+                if (pRecs.length > 0) {
+                    doneInCuz++;
+                    totalHaslamaInCuz += pRecs.length;
+                }
+                const vArr = getPageVideoList(p);
+                totalVideosInCuz += vArr.length;
+
+                let dotClass = pRecs.length > 1 ? 'haslama' : (pRecs.length === 1 ? 'ezber' : '');
+                dotsHtml += `<div class="mp-dot ${dotClass}" title="${p}. Sayfa (${pRecs.length} okuma, ${vArr.length} video)"></div>`;
+            }
+
+            const pct = Math.round((doneInCuz / bounds.count) * 100);
+            if (pct === 100) completedCuzCount++;
+
+            const card = document.createElement('div');
+            card.className = `cuz-card ${pct === 100 ? 'done' : (doneInCuz > 0 ? 'active' : '')}`;
+            card.onclick = () => openCuzDetailModal(c);
+            card.innerHTML = `
+                <div class="cuz-top">
+                    <span class="cuz-num">${c}. Cüz ${totalVideosInCuz > 0 ? `<span title="${totalVideosInCuz} adet video ekli" style="font-size:12px;">🎥(${totalVideosInCuz})</span>` : ''}</span>
+                    <span class="cuz-pct">%${pct}</span>
+                </div>
+                <div class="cuz-bar-bg">
+                    <div class="cuz-bar-fill" style="width: ${pct}%"></div>
+                </div>
+                <div class="cuz-meta">
+                    <span>📄 ${doneInCuz}/${bounds.count} Sayfa</span>
+                    <span>🔁 ${totalHaslamaInCuz} Okuma</span>
+                </div>
+                <div class="mini-pages">${dotsHtml}</div>
+            `;
+            grid.appendChild(card);
+        }
+
+        document.getElementById('statCompletedCuz').innerText = `${completedCuzCount}/30`;
+
+        const recentBox = document.getElementById('recentLogsContainer');
+        recentBox.innerHTML = '';
+        if (records.length === 0) {
+            recentBox.innerHTML = `<div style="font-size:13px; color:var(--text-secondary); text-align:center; padding:15px;">Henüz kayıt bulunmuyor.</div>`;
+        } else {
+            records.slice(0, 8).forEach(r => {
+                const row = document.createElement('div');
+                row.className = 'log-row';
+                row.innerHTML = `
+                    <div>
+                        <strong>S. ${r.globalPage}</strong> (${r.cuz}. Cüz ${r.cuzPage}. S) • <span style="color:var(--accent); font-weight:700;">${escapeHtml(r.type)}</span>
+                        <div style="font-size:11px; color:var(--text-secondary);">${r.dateStr} ${r.timeStr} ${r.note ? '• ' + escapeHtml(r.note) : ''}</div>
+                    </div>
+                    <div class="log-actions">
+                        <button class="btn-sm btn-edit" ${!window.isDbWriteEnabled ? 'disabled title="Önce üstten DB Kayıt anahtarını açın"' : ''} onclick="editRecord(${r.id})">Düzenle</button>
+                        <button class="btn-sm btn-del" ${!window.isDbWriteEnabled ? 'disabled title="Önce üstten DB Kayıt anahtarını açın"' : ''} onclick="deleteRecord(${r.id})">Sil</button>
+                    </div>
+                `;
+                recentBox.appendChild(row);
+            });
+        }
+    }
+
+    /* ==========================================================
+       6. CÜZ VE KUR'AN GENEL GEÇMİŞ MODALLARI (SAYFA SAYFA)
+    ========================================================== */
+    function refreshOpenModalIfAny() {
+        if (!currentOpenModalState) return;
+        if (currentOpenModalState.type === 'cuz') {
+            openCuzDetailModal(currentOpenModalState.cuzNo);
+        } else if (currentOpenModalState.type === 'quran') {
+            renderQuranMasterList();
+        }
+    }
+
+    function openCuzDetailModal(cuzNo) {
+        currentOpenModalState = { type: 'cuz', cuzNo };
+        const bounds = getCuzBounds(cuzNo);
+        document.getElementById('modalTitle').innerText =
+            `📘 ${cuzNo}. Cüz Detayları ve Sayfa Geçmişleri (Sayfa ${bounds.start} - ${bounds.end})`;
+
+        const body = document.getElementById('modalBody');
+        body.innerHTML = '';
+
+        for (let p = bounds.start; p <= bounds.end; p++) {
+            body.appendChild(buildPageAccordionItem(p));
+        }
+
+        document.getElementById('historyModal').style.display = 'flex';
+    }
+
+    function openQuranMasterModal() {
+        currentOpenModalState = { type: 'quran' };
+        document.getElementById('modalTitle').innerText =
+            `📖 Kur'an-ı Kerim Tam Geçmişi (1 - 604 Tüm Sayfalar ve Cüzler)`;
+
+        const body = document.getElementById('modalBody');
+        body.innerHTML = `
+            <div class="filter-bar">
+                <select id="qmFilterMode" onchange="renderQuranMasterList()">
+                    <option value="read">Sadece Okunan / Video Eklenen Sayfaları Göster</option>
+                    <option value="all">Tüm 604 Sayfayı Sırayla Göster (1 - 604)</option>
+                </select>
+                <input type="number" id="qmSearchPage" placeholder="Sayfa No Ara (1-604)..." oninput="renderQuranMasterList()">
+            </div>
+            <div id="qmListContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
+        `;
+
+        renderQuranMasterList();
+        document.getElementById('historyModal').style.display = 'flex';
+    }
+
+    function renderQuranMasterList() {
+        const modeEl = document.getElementById('qmFilterMode');
+        const searchEl = document.getElementById('qmSearchPage');
+        const container = document.getElementById('qmListContainer');
+        if (!modeEl || !container) return;
+
+        const mode = modeEl.value;
+        const searchVal = parseInt(searchEl.value);
+        container.innerHTML = '';
+
+        let count = 0;
+        for (let p = 1; p <= 604; p++) {
+            if (searchVal && p !== searchVal) continue;
+            const pRecs = getPageRecords(p);
+            const vArr = getPageVideoList(p);
+            const hasVideos = vArr.length > 0;
+            if (!searchVal && mode === 'read' && pRecs.length === 0 && !hasVideos) continue;
+
+            container.appendChild(buildPageAccordionItem(p));
+            count++;
+        }
+
+        if (count === 0) {
+            container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-secondary);">Kriterlere uygun sayfa kaydı bulunamadı.</div>`;
+        }
+    }
+
+    function buildPageAccordionItem(globalPage) {
+        const info = pageToCuzInfo(globalPage);
+        const pRecs = getPageRecords(globalPage);
+        const vArr = getPageVideoList(globalPage);
+        const wrap = document.createElement('div');
+        wrap.className = 'page-accordion';
+
+        let statusBadge = `<span class="badge badge-empty">Henüz Okunmadı</span>`;
+        if (pRecs.length === 1) statusBadge = `<span class="badge badge-ezber">1 Kez Okundu (Ezber)</span>`;
+        if (pRecs.length > 1) statusBadge = `<span class="badge badge-haslama">${pRecs.length} Kez Okundu (${pRecs.length - 1}. Haslama)</span>`;
+
+        const ytBadge = vArr.length > 0
+            ? `<span class="badge badge-yt" title="${vArr.length} adet video ekli">▶️ ${vArr.length} Video</span>`
+            : '';
+
+        const header = document.createElement('div');
+        header.className = 'page-acc-header';
+        header.innerHTML = `
+            <div>
+                <strong style="font-size:15px;">📄 ${globalPage}. Sayfa</strong>
+                <span style="font-size:13px; color:var(--text-secondary); margin-left:8px;">(${info.cuz}. Cüz, ${info.cuzPage}. Sayfa)</span>
+            </div>
+            <div class="page-badges">
+                ${ytBadge}
+                ${statusBadge}
+                <button class="btn-sm btn-yt-link" onclick="event.stopPropagation(); togglePageYtEditor(${globalPage}, false)" title="Bu sayfaya istenildiği kadar video linki veya yerel video ekle">🎥 Video Ekle</button>
+                <button class="btn-plus-side" style="width:28px; height:28px; font-size:16px;" onclick="event.stopPropagation(); togglePageYtEditor(${globalPage}, true)" title="Yeni Video Giriş Satırı Ekle (+)">+</button>
+                <button class="btn-sm btn-quick-haslama" ${!window.isDbWriteEnabled ? 'disabled title="Önce üstten DB Kayıt anahtarını açın"' : ''} onclick="event.stopPropagation(); quickHaslama(${globalPage})">+ Haslama Ekle</button>
+                <span style="font-size:12px; opacity:0.7;">▼</span>
+            </div>
+        `;
+
+        const accBody = document.createElement('div');
+        accBody.className = 'page-acc-body';
+        accBody.id = `accBody_${globalPage}`;
+
+        if (pRecs.length > 0 || vArr.length > 0) {
+            accBody.classList.add('open');
+        }
+
+        // 1) EN ÜSTTE LİSTE HALİNDE SABİT DURAN VİDEOLAR (SINIRSIZ SAYIDA + YANDA '+' BUTONLU)
+        if (vArr.length > 0) {
+            const ytSection = document.createElement('div');
+            ytSection.className = 'yt-section-container';
+
+            const topBar = document.createElement('div');
+            topBar.className = 'yt-section-top-bar';
+            topBar.innerHTML = `
+                <span style="font-size:12px; font-weight:800; color:var(--text-secondary);">🎬 Kayıtlı Videolar (${vArr.length} Adet) — İster Frame İçinde İzleyin, İster Linke Tıklayarak Açın:</span>
+                <button type="button" class="btn-plus-side" style="width:28px; height:28px; font-size:16px;" onclick="togglePageYtEditor(${globalPage}, true)" title="Yeni Video Ekle (+)">+</button>
+            `;
+            ytSection.appendChild(topBar);
+
+            vArr.forEach((vData, vIdx) => {
+                const openableHref = toBrowserOpenableUrl(vData.url);
+                const rebindInputId = `rebindFile_${globalPage}_${vData.id}`;
+                const ytPinned = document.createElement('div');
+                ytPinned.className = 'yt-top-pinned-card';
+                ytPinned.innerHTML = `
+                    <div class="yt-pinned-header">
+                        <div class="yt-pinned-info">
+                            <div class="yt-pinned-title">
+                                <span>▶️ VİDEO #${vIdx + 1}</span>
+                                ${vData.updatedAt ? `<span style="font-size:11px; font-weight:600; color:var(--text-secondary);">(${escapeHtml(vData.updatedAt)})</span>` : ''}
+                            </div>
+                            <div class="yt-pinned-desc">📌 ${escapeHtml(vData.desc)}</div>
+                            <a href="${escapeHtml(openableHref)}" target="_blank" rel="noopener noreferrer" class="yt-clickable-link" title="Tıklayarak Chrome / Tarayıcıda veya varsayılan uygulamada direkt aç">
+                                🔗 ${escapeHtml(vData.url)}
+                            </a>
+                        </div>
+                        <div class="yt-pinned-actions">
+                            <button type="button" class="btn-yt-watch" onclick="toggleWatchPageVideo(${globalPage}, ${vData.id})" title="Videoyu bu kutunun içindeki framede oynat / kapat">▶️ Frame'de İzle / Kapat</button>
+                            <a href="${escapeHtml(openableHref)}" target="_blank" rel="noopener noreferrer" class="btn-yt-ext" onclick="event.stopPropagation();" title="Chrome / Tarayıcı yeni sekmesinde direkt aç">🌐 Chrome / Tarayıcıda Aç</a>
+                            <button type="button" class="btn-win-player" onclick="openInWindowsDefaultPlayer(${globalPage}, ${vData.id})" title="Windows Varsayılan Video Oynatıcısında (Media Player / Filmler ve TV / VLC) direkt aç">🖥️ Windows Oynatıcıda Aç</button>
+                            <button type="button" class="btn-plus-side" style="width:30px; height:30px; font-size:16px;" onclick="togglePageYtEditor(${globalPage}, true)" title="Yanına / Altına Yeni Video Ekle (+)">+</button>
+                            <button type="button" class="btn-sm btn-del" ${!window.isDbWriteEnabled ? 'disabled' : ''} onclick="removePageYoutubeVideo(${globalPage}, ${vData.id})">Sil</button>
+                        </div>
+                    </div>
+                    <div class="yt-player-frame-wrap" id="ytPlayerWrap_${globalPage}_${vData.id}">
+                        <div class="yt-iframe-container" id="ytIframeBox_${globalPage}_${vData.id}"></div>
+                        <div class="yt-frame-helper-bar">
+                            <span>💡 Yerel bilgisayar videosu tarayıcı tarafından engellenirse dosyayı buradan seçip framede oynatabilirsiniz:</span>
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <input type="file" id="${rebindInputId}" accept="video/*,audio/*" style="display:none" onchange="bindLocalFileToFramePlayer(${globalPage}, ${vData.id}, this)">
+                                <button type="button" class="btn-file-pick" style="height:30px;" onclick="document.getElementById('${rebindInputId}').click()">📂 Dosyayı Seç & Frame'de Oynat</button>
+                                <button type="button" class="btn-win-player" onclick="openInWindowsDefaultPlayer(${globalPage}, ${vData.id})">🖥️ Windows Oynatıcı</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                ytSection.appendChild(ytPinned);
+            });
+            accBody.appendChild(ytSection);
+        }
+
+        // 2) ÇOKLU VİDEO EKLEME FRAME'İ (YANDA + BUTONU İLE İSTENİLDİĞİ KADAR EKLENEBİLİR)
+        const rowsContainerId = `ytMultiRows_${globalPage}`;
+        const ytFormFrame = document.createElement('div');
+        ytFormFrame.className = 'yt-Form-frame';
+        ytFormFrame.id = `ytFormFrame_${globalPage}`;
+        ytFormFrame.innerHTML = `
+            <div style="font-size:13px; font-weight:800; color:var(--primary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <span>🎥 ${globalPage}. Sayfa İçin Çoklu Video Ekle (Yandaki + Butonu İle İstenildiği Kadar Ekleyin)</span>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <button type="button" class="btn-plus-side" style="width:30px; height:30px; font-size:16px;" onclick="addVideoInputRow('${rowsContainerId}', ${globalPage})" title="Yeni Video Satırı Ekle (+)">+</button>
+                    <button type="button" class="btn-sm btn-del" onclick="togglePageYtEditor(${globalPage}, false)">Kapat</button>
+                </div>
+            </div>
+            <div style="font-size:12px; color:var(--text-secondary);">
+                YouTube linki, Chrome web linki, bilgisayarınızdaki video yolu (<code>C:\\...mp4</code>) yapıştırabilir veya <strong>📁 Dosya</strong> butonundan seçebilirsiniz. Sağdaki <strong>+</strong> ile istediğiniz kadar satır ekleyin:
+            </div>
+            <div id="${rowsContainerId}" class="yt-multi-rows"></div>
+            <div style="display:flex; gap:8px; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                <button type="button" class="btn-sm" style="background:var(--primary); padding:8px 12px;" onclick="addVideoInputRow('${rowsContainerId}', ${globalPage})">➕ Yeni Video Satırı Ekle (+)</button>
+                <button type="button" class="btn-sm" style="background:var(--success); padding:8px 16px;" ${!window.isDbWriteEnabled ? 'disabled title="Önce üstten DB Kayıt anahtarını açın"' : ''} onclick="saveVideosFromContainer('${rowsContainerId}', ${globalPage}, false)">💾 Girilen Tüm Videoları Sayfaya Kaydet</button>
+            </div>
+        `;
+        accBody.appendChild(ytFormFrame);
+
+        // 3) SAYFA OKUMA / HAŞLAMA GEÇMİŞİ KAYITLARI
+        if (pRecs.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.style.cssText = 'font-size:13px; color:var(--text-secondary);';
+            emptyMsg.innerText = 'Bu sayfaya ait henüz bir ezber veya haslama geçmişi bulunmuyor.';
+            accBody.appendChild(emptyMsg);
+        } else {
+            pRecs.forEach((r, idx) => {
+                const orderNum = pRecs.length - idx;
+                const item = document.createElement('div');
+                item.className = 'log-row';
+                item.innerHTML = `
+                    <div>
+                        <strong>#${orderNum} • ${escapeHtml(r.type)}</strong>
+                        <span style="margin-left:10px; font-size:12px; color:var(--text-secondary);">📅 ${r.dateStr} ⏰ ${r.timeStr}</span>
+                        ${r.note ? `<div style="font-size:12px; margin-top:3px;">💬 Not: ${escapeHtml(r.note)}</div>` : ''}
+                    </div>
+                    <div class="log-actions">
+                        <button class="btn-sm btn-edit" ${!window.isDbWriteEnabled ? 'disabled' : ''} onclick="editRecord(${r.id})">Düzenle</button>
+                        <button class="btn-sm btn-del" ${!window.isDbWriteEnabled ? 'disabled' : ''} onclick="deleteRecord(${r.id})">Sil</button>
+                    </div>
+                `;
+                accBody.appendChild(item);
+            });
+        }
+
+        header.onclick = () => accBody.classList.toggle('open');
+        wrap.appendChild(header);
+        wrap.appendChild(accBody);
+        return wrap;
+    }
+
+    async function quickHaslama(globalPage) {
+        const nextType = getSuggestedNextTypeForPage(globalPage);
+        await addRecord(globalPage, nextType);
+    }
+
+    function closeModal() {
+        currentOpenModalState = null;
+        document.getElementById('historyModal').style.display = 'none';
+    }
+
+    window.onclick = function(e) {
+        const modal = document.getElementById('historyModal');
+        if (e.target === modal) closeModal();
+    };
+
+    /* ==========================================================
+       7. TAKVİM VE SAAT
+    ========================================================== */
+    function updateClockAndCalendar() {
+        const now = new Date();
+        document.getElementById('miladiTarih').innerText =
+            now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+
+        try {
+            const hijri = new Intl.DateTimeFormat('tr-TR-u-ca-islamic', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            }).format(now);
+            document.getElementById('hicriTarih').innerText = `☪ Hicri: ${hijri}`;
+        } catch (err) {
+            document.getElementById('hicriTarih').innerText = `☪ Hicri Takvim Aktif`;
+        }
+
+        document.getElementById('canliSaat').innerText = now.toLocaleTimeString('tr-TR');
+    }
+    setInterval(updateClockAndCalendar, 1000);
+
+    /* ==========================================================
+       8. KRONOMETRE
+    ========================================================== */
+    let swRunning = false;
+    let swStartTime = 0;
+    let swElapsed = 0;
+    let swInterval = null;
+    let swLapsList = [];
+
+    function formatSw(ms) {
+        const totalCentis = Math.floor(ms / 10);
+        const mins = Math.floor(totalCentis / 6000);
+        const secs = Math.floor((totalCentis % 6000) / 100);
+        const centis = totalCentis % 100;
+        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${String(centis).padStart(2, '0')}`;
+    }
+
+    function startStopSw() {
+        const startBtn = document.getElementById('swStartBtn');
+        const lapBtn = document.getElementById('swLapBtn');
+
+        if (!swRunning) {
+            swStartTime = Date.now() - swElapsed;
+            swInterval = setInterval(() => {
+                swElapsed = Date.now() - swStartTime;
+                document.getElementById('swDisplay').innerText = formatSw(swElapsed);
+            }, 30);
+            swRunning = true;
+            startBtn.innerText = 'Durdur';
+            startBtn.className = 'sw-btn stop';
+            lapBtn.innerText = 'Tur';
+        } else {
+            clearInterval(swInterval);
+            swRunning = false;
+            startBtn.innerText = 'Başlat';
+            startBtn.className = 'sw-btn start';
+            lapBtn.innerText = 'Sıfırla';
+        }
+    }
+
+    function lapOrReset() {
+        const lapContainer = document.getElementById('swLaps');
+        if (swRunning) {
+            swLapsList.unshift(formatSw(swElapsed));
+            lapContainer.innerHTML = swLapsList.map((t, idx) =>
+                `<div class="sw-lap-row"><span>Tur ${swLapsList.length - idx}</span><span>${t}</span></div>`
+            ).join('');
+        } else {
+            swElapsed = 0;
+            swLapsList = [];
+            document.getElementById('swDisplay').innerText = '00:00.00';
+            document.getElementById('swLapBtn').innerText = 'Tur';
+            lapContainer.innerHTML = '';
+        }
+    }
+
+    /* ==========================================================
+       9. KARANLIK MOD
+    ========================================================== */
+    async function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('emre_dark_mode', isDark ? '1' : '0');
+        if (window.ezberCloudDB && window.isDbWriteEnabled) {
+            await window.ezberCloudDB.saveRecords(records, isDark, customTypes, pageVideos);
+        }
+    }
+
+    function escapeHtml(str) {
+        return String(str || '').replace(/[&<>"']/g, function (m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+        });
+    }
+
+    if (localStorage.getItem('emre_dark_mode') === '1') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('darkModeToggle').checked = true;
+    }
+    rebuildTypeOptions();
+    addVideoInputRow('leftPanelVideoRows', 1);
+    updateClockAndCalendar();
+    renderAll();
+    autoSuggestTypeForPage(1);
+    // Video rehberinden dönüşte yalnızca seçili sayfayı geri yükle; kayıt oluşturma.
+    const guideReturnPage = Number(new URLSearchParams(location.search).get('gp'));
+    if (Number.isInteger(guideReturnPage) && guideReturnPage >= 1 && guideReturnPage <= 604) {
+        document.getElementById('inpGlobalPage').value = guideReturnPage;
+        syncFromGlobalPage();
+    }
+</script>
+
+</body>
+</html>
