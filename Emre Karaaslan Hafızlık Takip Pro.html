@@ -801,6 +801,21 @@
                 font-size: 17px;
             }
         }
+    
+        /* Çalışma programına dönüş bağlantısı – yalnızca gezinme amaçlıdır. */
+        .hafizlik-study-return {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 7px; flex: 0 0 auto;
+            padding: 10px 14px; border-radius: 12px;
+            background: #fef3c7; color: #064e3b;
+            text-decoration: none; font-weight: 800; font-size: 13px;
+            border: 1px solid #fcd34d; white-space: nowrap;
+            transition: background .15s ease, transform .15s ease;
+        }
+        .hafizlik-study-return:hover { background: #fde68a; transform: translateY(-1px); }
+        .hafizlik-study-return:focus-visible { outline: 3px solid #f59e0b; outline-offset: 3px; }
+        @media (max-width: 767px) { .hafizlik-study-return { width: 100%; } }
+
     </style>
 </head>
 <body>
@@ -828,6 +843,12 @@
                 <span class="slider db-slider"></span>
             </label>
         </div>
+        <!-- Sağ üst: Hafızlık çalışma programına doğrudan dönüş -->
+        <a id="hafizlik-programina-don" class="hafizlik-study-return"
+           href="Emre Karaaslan Hafızlık Çalışma Programı Ödüllü Takip.html"
+           title="Emre'nin günlük hafızlık çalışma programına dön">
+            <span aria-hidden="true">↩</span> Çalışma Programına Dön
+        </a>
     </div>
 
     <!-- ÜST BAR -->
