@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kişisel Birikim & Taksit - KARAASLAN</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- jsPDF & AutoTable (PDF Raporlama için) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        const activeUser = (localStorage.getItem('currentUser') || '').toLowerCase();
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+        if (!isLoggedIn) window.location.replace('giris.html');
+        if (activeUser !== 'murat' && activeUser !== 'admin') {
+            alert("Yetkisiz Erişim! Bu sayfaya sadece yöneticiler girebilir.");
+            window.location.replace('index.html');
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1hbPbA81qldXCsQxSM4Ozxr9L8sdRTMk",
+            authDomain: "karaaslanhomebutcetakip.firebaseapp.com",
+            databaseURL: "https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "karaaslanhomebutcetakip"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        body { font-family: 'Roboto', sans-serif; background-color: #f3f5f9; padding: 0; margin: 0; color: #253247; }
+        .app-shell { display: flex; min-height: 100vh; width: 100%; }
+        .sidebar { width: 250px; flex: 0 0 250px; box-sizing: border-box; background: #172234; color: #e5eaf2; padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+        .sidebar-brand { font-size: 1.05rem; font-weight: 700; padding: 0 10px 22px; line-height: 1.4; }
+        .sidebar-group { margin-bottom: 14px; }
+        .sidebar-caption { color: #91a0b6; font-size: .66rem; text-transform: uppercase; letter-spacing: .12em; padding: 9px 10px 6px; }
+        .sidebar-nav { display: grid; gap: 4px; }
+        .sidebar-link { display:flex; align-items:center; gap:10px; width:100%; box-sizing:border-box; background:transparent; border:0; color:#d5ddeb; text-align:left; border-radius:8px; padding:11px 10px; font:inherit; font-size:.88rem; cursor:pointer; transition:background .15s,color .15s; }
+        .sidebar-link:hover, .sidebar-link:focus { background: #26364d; color: #fff; }
+        .sidebar-link.active { background:#d69e2e; color:#fff; font-weight:700; box-shadow:0 4px 12px rgba(0,0,0,.12); }
+        .sidebar-link .nav-icon { width:20px; text-align:center; font-size:1rem; }
+        .tab-panel[hidden] { display:none !important; }
+        .sidebar-toggle { margin-top: 20px; padding: 12px; border: 1px solid #34445c; border-radius: 10px; background: #202f44; font-size: .78rem; line-height: 1.4; }
+        .sidebar-toggle label { color: #e5eaf2; font-size: .78rem; display: inline; }
+        .sidebar-toggle input { vertical-align: middle; margin-right: 6px; }
+        .sidebar-back { display: block; margin: 18px 10px 0; color: #b8c4d6; text-decoration: none; font-size: .82rem; }
+        .history-copy-section { margin-top:24px; padding-top:18px; border-top:1px solid #e7ebf1; }
+        .history-copy-section .section-heading { margin-bottom:5px; }
+        .history-copy-section h3 { margin:0; color:#34445b; font-size:1rem; }
+        .history-copy-note { margin:0 0 10px; color:#8290a3; font-size:.78rem; }
+        .container { width: 100%; max-width: 1540px; box-sizing: border-box; padding: 28px clamp(16px, 3vw, 44px); margin: 0 auto; }
+        .topbar { margin-bottom: 24px; }
+        .topbar h1 { color: #202d40; font-size: clamp(1.55rem, 2.5vw, 2rem); margin: 0 0 6px; }
+        .topbar p { color: #718096; margin: 0; font-size: .95rem; }
+        .section-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 14px; }
+        .section-heading h2 { border: 0; padding: 0; margin: 0; font-size: 1.1rem; color: #263449; }
+        .dashboard-section { scroll-margin-top: 20px; }
+        
+        .card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        h2 { margin-top: 0; color: #2d3748; border-bottom: 2px solid #d69e2e; padding-bottom: 8px; display:flex; justify-content:space-between; align-items:center; font-size: 1.4rem; flex-wrap: wrap; gap: 10px; }
+        
+        .nav-links { font-size: 0.85rem; display: flex; gap: 12px; align-items: center; }
+        .nav-links a { text-decoration: none; font-weight: bold; padding: 4px 8px; border-radius: 4px; transition: background 0.2s; }
+        .nav-links a:hover { background: #edf2f7; }
+
+        .auto-pay-box { background: #fffaf0; border: 1px solid #d69e2e; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; color: #744210; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+        .auto-pay-box input { transform: scale(1.3); cursor: pointer; }
+
+        .balances-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 0 0 22px; }
+        .balance-card { background: white; padding: 18px; border-radius: 12px; border: 1px solid #e6eaf0; box-shadow: 0 5px 18px rgba(28,42,62,.04); text-align: left; }
+        .balance-card h3 { margin: 0 0 14px 0; color: #34445b; font-size: .9rem; text-transform: uppercase; letter-spacing: .04em; }
+        .bal-label { color:#8290a3; font-size:.75rem; }
+        .bal-val { font-size: 1.12rem; font-weight: bold; margin: 4px 0; }
+        .text-green { color: #38a169; }
+        .text-red { color: #e53e3e; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #4a5568; font-size: 0.9rem; }
+        input[type="text"], input[type="number"], input[type="date"], select { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box; }
+        .btn { background: #d69e2e; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem;}
+        .btn:hover { background: #b7791f; }
+        
+        .user-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+        .user-checkbox-group label { background: #edf2f7; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: normal; border: 1px solid #cbd5e0;}
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem;}
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f7fafc; color: #4a5568; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
+        .badge-add { background: #c6f6d5; color: #22543d; }
+        .badge-sub { background: #fed7d7; color: #9b2c2c; }
+        .badge-debt { background: #feebc8; color: #744210; }
+        .btn-mini { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size:0.8rem; }
+        .btn-edit { background: #ecc94b; color: #744210; }
+        .btn-del { background: #fc8181; color: white; }
+        .btn-pdf { background: #e53e3e; color: white; }
+        .btn-pdf:hover { background: #c53030; }
+
+        .summary-box { background: transparent; border-radius: 0; padding: 0; margin-top: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+        .summary-item { text-align: center; }
+        .summary-box .summary-item { background: #fff; padding: 17px 14px; border: 1px solid #e6eaf0; border-radius: 12px; box-shadow: 0 5px 18px rgba(28,42,62,.04); }
+        .summary-item label { font-size: 0.75rem; color: #718096; margin-bottom: 2px; }
+        .summary-item span { font-weight: bold; font-size: 1.15rem; display:inline-block; margin-top:5px; }
+        .overall-summary { margin: 0 0 26px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .summary-item small { display:block; color:#718096; margin-top:3px; }
+        .card { background: white; padding: 22px; border-radius: 14px; box-shadow: 0 5px 20px rgba(28,42,62,.045); border: 1px solid #e7ebf1; margin-bottom: 20px; }
+        .auto-pay-box { margin: 0; padding: 0; border: 0; background: transparent; color: inherit; display: block; font-size: inherit; }
+        .auto-pay-box input { transform: none; }
+        .nav-links { display: none; }
+        @media (max-width: 900px) {
+            .app-shell { display:block; }
+            .sidebar { position: relative; width: 100%; height:auto; padding: 14px 16px; }
+            .sidebar-brand { padding: 0 4px 10px; }
+            .sidebar-caption { display:block; font-size:.6rem; padding:5px 7px; }
+            .sidebar-nav { display:flex; align-items:flex-start; overflow-x:auto; gap:6px; padding-bottom:4px; }
+            .sidebar-link { white-space:nowrap; flex:0 0 auto; width:auto; padding:9px 10px; }
+            .sidebar-group { flex:0 0 auto; min-width:max-content; margin-bottom:7px; }
+            .sidebar-toggle { margin-top:10px; padding:9px 11px; display:inline-block; }
+            .sidebar-back { display:inline-block; margin:0 0 0 10px; }
+            .container { padding-top: 22px; }
+        }
+        @media (max-width: 600px) {
+            .container { padding: 18px 12px; }
+            .card { padding: 15px; }
+            .balances-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap:9px; }
+            .balance-card { padding:13px 11px; }
+            .overall-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap:9px; }
+            .summary-box { grid-template-columns: repeat(2, minmax(0, 1fr)); gap:9px; }
+            .summary-box .summary-item { padding:13px 8px; }
+            .summary-item label { font-size:.68rem; }
+            .summary-item span { font-size:.98rem; }
+            table { min-width:680px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-brand">💰 Kişisel Finans<br><span style="font-weight:400;color:#aab7ca;font-size:.82rem;">Birikim & Taksit Yönetimi</span></div>
+        <nav class="sidebar-nav" aria-label="Sayfa bölümleri">
+          <div class="sidebar-group">
+            <div class="sidebar-caption">GENEL</div>
+            <button type="button" class="sidebar-link active" data-panel="dashboard" onclick="showPanel('dashboard', this)" aria-current="page"><span class="nav-icon">▦</span>Genel Bakış</button>
+          </div>
+          <div class="sidebar-group">
+            <div class="sidebar-caption">BORÇ VE TAKİP</div>
+            <button type="button" class="sidebar-link" data-panel="payment-plan" onclick="showPanel('payment-plan', this)"><span class="nav-icon">▤</span>Ödeme Planı</button>
+            <button type="button" class="sidebar-link" data-panel="shared-expense" onclick="showPanel('shared-expense', this)"><span class="nav-icon">＋</span>Ortak Harcama</button>
+          </div>
+          <div class="sidebar-group">
+            <div class="sidebar-caption">BİRİKİM</div>
+            <button type="button" class="sidebar-link" data-panel="manual-entry" onclick="showPanel('manual-entry', this)"><span class="nav-icon">✎</span>Manuel İşlem</button>
+          </div>
+          <div class="sidebar-group">
+            <div class="sidebar-caption">RAPORLAR</div>
+            <button type="button" class="sidebar-link" data-panel="transaction-history" onclick="showPanel('transaction-history', this)"><span class="nav-icon">◷</span>İşlem Geçmişi</button>
+          </div>
+        </nav>
+        <div class="sidebar-toggle">
+          <div class="auto-pay-box">
+            <input type="checkbox" id="autoPayCheckbox" onchange="toggleAutoPay(this.checked)">
+            <label for="autoPayCheckbox" style="margin:0; cursor:pointer;">Ay başında vadesi gelen taksitleri birikimden otomatik düş</label>
+          </div>
+        </div>
+        <a class="sidebar-back" href="finans.html">← Finans Menüsü</a>
+      </aside>
+
+      <main class="container">
+        <header class="topbar">
+          <h1>Kişisel Birikim & Borç Dashboard’u</h1>
+          <p>Kişi bazında anlık birikim, toplam borç, harcama ve ödeme planı tek ekranda.</p>
+        </header>
+
+        <section class="dashboard-section tab-panel active" id="dashboard" data-title="Kişisel Finans Dashboard’u" data-description="Toplam birikim, harcama, ödeme ve kişi bakiyelerinin özeti.">
+          <div class="section-heading"><h2>Genel Bakış</h2><span style="color:#8290a3;font-size:.82rem;">Tüm kişiler · Güncel toplamlar</span></div>
+          <div class="summary-box overall-summary" id="overallSummaryBox" aria-live="polite">
+            <div class="summary-item"><label>Toplam Birikim</label><span>Veriler yükleniyor…</span></div>
+          </div>
+          <div class="section-heading"><h2>Kişilerin Anlık Bakiyeleri</h2><span style="color:#8290a3;font-size:.82rem;">Birikim ve kalan borç kişi bazında</span></div>
+          <div class="balances-grid" id="balancesContainer">
+            <div style="color:#718096;grid-column:1/-1;text-align:center;">Veriler yükleniyor...</div>
+          </div>
+        </section>
+
+        <section class="card dashboard-section tab-panel" id="payment-plan" data-title="Ödeme Planı" data-description="Döneme göre vadesi gelen ve kalan taksitleri takip edin." hidden>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                <h3 id="tableTitle" style="margin:0; color:#2d3748;">🗓️ Taksit Ödeme Tablosu</h3>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <button class="btn-mini" style="background:#4a5568; color:white;" onclick="changeDisplayMonth(-1)">⬅️ Önceki Dönem</button>
+                    <button class="btn-mini" style="background:#cbd5e0; color:#2d3748;" onclick="resetDisplayMonth()">📅 Güncel Ay</button>
+                    <button class="btn-mini" style="background:#4a5568; color:white;" onclick="changeDisplayMonth(1)">Sonraki Dönem ➡️</button>
+                </div>
+            </div>
+            
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Kullanıcı</th>
+                            <th>Mevcut Birikim</th>
+                            <th>Ödenecek Taksit (Dönem)</th>
+                            <th>Güncel Kalan Borç</th>
+                            <th>Hızlı İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthlyPayTableBody"></tbody>
+                </table>
+            </div>
+            <div class="history-copy-section">
+                <div class="section-heading"><h3>📋 Geçmiş İşlemler Tablosu</h3><button type="button" class="btn-mini" style="background:#edf2f7;color:#34445b;" onclick="showPanel('transaction-history')">Filtreleri ve tüm kayıtları aç</button></div>
+                <p class="history-copy-note">Geçmiş İşlemler sekmesindeki seçili filtre ve sayfa burada da gösterilir.</p>
+                <div style="overflow-x:auto;"><table><thead><tr><th>Tarih</th><th>Kullanıcı</th><th>İşlem</th><th>Tutar</th><th>Açıklama</th><th>Yönetim</th></tr></thead><tbody id="historyCopyPayment"></tbody></table></div>
+            </div>
+        </section>
+
+        <section class="card dashboard-section tab-panel" id="shared-expense" data-title="Ortak Harcama" data-description="Bir harcamayı seçtiğiniz kişiler arasında taksitlendirerek paylaşın." hidden>
+            <h3 style="margin-top:0; color:#2d3748;">🛒 Toplu Harcama Taksitlendir (Ortak)</h3>
+            <div class="form-group">
+                <label>Açıklama (Örn: Ev Eşyası Ortak):</label>
+                <input type="text" id="sharedDesc" placeholder="Harcama açıklaması">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="form-group">
+                    <label>Toplam Tutar (TL):</label>
+                    <input type="number" id="sharedAmount" placeholder="Toplam tutar">
+                </div>
+                <div class="form-group">
+                    <label>Taksit Sayısı (Ay):</label>
+                    <input type="number" id="sharedInstallments" value="6" min="1" placeholder="Örn: 6">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Bölüştürülecek Kişiler:</label>
+                <div class="user-checkbox-group" id="sharedUsersDiv"></div>
+            </div>
+            <button class="btn" onclick="saveSharedExpense()">Seçili Kişilere Taksit/Borç Olarak Ekle</button>
+            <div class="history-copy-section">
+                <div class="section-heading"><h3>📋 Geçmiş İşlemler Tablosu</h3><button type="button" class="btn-mini" style="background:#edf2f7;color:#34445b;" onclick="showPanel('transaction-history')">Filtreleri ve tüm kayıtları aç</button></div>
+                <p class="history-copy-note">Geçmiş İşlemler sekmesindeki seçili filtre ve sayfa burada da gösterilir.</p>
+                <div style="overflow-x:auto;"><table><thead><tr><th>Tarih</th><th>Kullanıcı</th><th>İşlem</th><th>Tutar</th><th>Açıklama</th><th>Yönetim</th></tr></thead><tbody id="historyCopyShared"></tbody></table></div>
+            </div>
+        </section>
+
+        <section class="card dashboard-section tab-panel" id="manual-entry" data-title="Manuel Birikim / Borç İşlemi" data-description="Bir kişiye birikim ekleyin, düşürün veya borç kaydı girin." hidden>
+            <h3 style="margin-top:0; color:#2d3748;">✍️ Manuel Birikim / Taksit Girişi</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="form-group">
+                    <label>Kullanıcı:</label>
+                    <select id="manualUser"></select>
+                </div>
+                <div class="form-group">
+                    <label>İşlem Türü:</label>
+                    <select id="manualType">
+                        <option value="birikim_ekle">Birikim Ekle (+)</option>
+                        <option value="birikim_dus">Birikimden Düş (-)</option>
+                        <option value="taksit_ekle">Borç / Taksit Ekle</option>
+                        <option value="taksit_odendi">Borç / Taksit Ödendi</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="form-group">
+                    <label>Tutar (TL):</label>
+                    <input type="number" id="manualAmount" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Tarih:</label>
+                    <input type="date" id="manualDate">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Açıklama:</label>
+                <input type="text" id="manualDesc" placeholder="İşlem açıklaması">
+            </div>
+            <button class="btn" style="background:#319795;" onclick="saveManualTx()">İşlemi Kaydet</button>
+            <div class="history-copy-section">
+                <div class="section-heading"><h3>📋 Geçmiş İşlemler Tablosu</h3><button type="button" class="btn-mini" style="background:#edf2f7;color:#34445b;" onclick="showPanel('transaction-history')">Filtreleri ve tüm kayıtları aç</button></div>
+                <p class="history-copy-note">Geçmiş İşlemler sekmesindeki seçili filtre ve sayfa burada da gösterilir.</p>
+                <div style="overflow-x:auto;"><table><thead><tr><th>Tarih</th><th>Kullanıcı</th><th>İşlem</th><th>Tutar</th><th>Açıklama</th><th>Yönetim</th></tr></thead><tbody id="historyCopyManual"></tbody></table></div>
+            </div>
+        </section>
+
+        <section class="card dashboard-section tab-panel" id="transaction-history" data-title="İşlem Geçmişi ve Raporlar" data-description="Kayıtları kişi, işlem türü ve tarihe göre filtreleyin; PDF raporu alın." hidden>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                <h3 style="margin:0; color:#2d3748;">📋 Geçmiş İşlemler</h3>
+                <button class="btn-mini btn-pdf" style="padding:8px 14px; font-size:0.85rem;" onclick="exportPDF()">📄 PDF Rapor Al</button>
+            </div>
+            
+            <div style="display:flex; gap:10px; margin-bottom:15px; align-items:flex-end; flex-wrap:wrap;">
+                <div style="flex:1; min-width:130px;">
+                    <label>Filtre (Kullanıcı):</label>
+                    <select id="filterUser" onchange="currentPage=1; renderHistory()">
+                        <option value="all">Tümü</option>
+                    </select>
+                </div>
+                <div style="flex:1; min-width:140px;">
+                    <label>İşlem Türü:</label>
+                    <select id="filterType" onchange="currentPage=1; renderHistory()">
+                        <option value="all">Tüm İşlemler</option>
+                        <option value="birikim_all">Tüm Birikim İşlemleri</option>
+                        <option value="birikim_ekle">Birikim Ekle (+)</option>
+                        <option value="birikim_dus">Birikim Düş (-)</option>
+                        <option value="borc_all">Tüm Borç / Taksit İşlemleri</option>
+                        <option value="taksit_ekle">Borç / Taksit Ekle (+)</option>
+                        <option value="taksit_odendi">Borç Ödendi (-)</option>
+                        <option value="borc_kalan">Kalan Borçlar (Güncel)</option>
+                    </select>
+                </div>
+                <div style="flex:1; min-width:140px;">
+                    <label>Hızlı Süre Filtresi:</label>
+                    <select id="filterRange" onchange="applyQuickDateFilter()">
+                        <option value="custom">Tüm Zamanlar / Özel</option>
+                        <option value="current_month">Güncel Ay</option>
+                        <option value="last_1_month">Son 1 Ay</option>
+                        <option value="last_3_months">Son 3 Ay</option>
+                        <option value="last_6_months">Son 6 Ay</option>
+                        <option value="last_1_year">Son 1 Yıl (Sene)</option>
+                    </select>
+                </div>
+                <div style="flex:1; min-width:120px;">
+                    <label>Başlangıç:</label>
+                    <input type="date" id="filterStart" onchange="document.getElementById('filterRange').value='custom'; currentPage=1; renderHistory()">
+                </div>
+                <div style="flex:1; min-width:120px;">
+                    <label>Bitiş:</label>
+                    <input type="date" id="filterEnd" onchange="document.getElementById('filterRange').value='custom'; currentPage=1; renderHistory()">
+                </div>
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr><th>Tarih</th><th>Kullanıcı</th><th>İşlem</th><th>Tutar</th><th>Açıklama</th><th>Yönetim</th></tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="summary-box" id="filterSummaryBox"></div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">
+                <button class="btn-mini" style="background:#cbd5e0; color:#2d3748; padding:8px 15px;" onclick="prevPage()">⬅️ Önceki</button>
+                <span id="pageInfo" style="font-weight:bold; font-size:0.85rem; color:#4a5568;">Sayfa 1 / 1</span>
+                <button class="btn-mini" style="background:#cbd5e0; color:#2d3748; padding:8px 15px;" onclick="nextPage()">Sonraki ➡️</button>
+            </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+        const PIN_CODE = "1234";
+        const FIXED_ORDER = ['murat', 'hatunum', 'melek', 'emre', 'kerem'];
+        let targetUsers = [];
+        let transactions = [];
+        let userBalances = {};
+        let userUnpaidMonths = {};
+        let userScheduledMonths = {};
+        let autoPayProcessing = false;
+
+        function getCurrentRealMonthStr() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            return `${y}-${m}`;
+        }
+
+        let selectedDisplayMonth = getCurrentRealMonthStr();
+
+        let currentPage = 1;
+        const itemsPerPage = 5;
+
+        document.getElementById('manualDate').value = formatDateYMD(new Date());
+
+        function escapeHTML(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[ch]);
+        }
+
+        function showPanel(panelId, clickedButton) {
+            const selectedPanel = document.getElementById(panelId);
+            if (!selectedPanel) return;
+
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.hidden = panel !== selectedPanel;
+                panel.classList.toggle('active', panel === selectedPanel);
+            });
+            document.querySelectorAll('.sidebar-link').forEach(button => {
+                const isActive = button === clickedButton || button.dataset.panel === panelId;
+                button.classList.toggle('active', isActive);
+                if (isActive) button.setAttribute('aria-current', 'page');
+                else button.removeAttribute('aria-current');
+            });
+
+            document.querySelector('.topbar h1').textContent = selectedPanel.dataset.title || 'Kişisel Finans';
+            document.querySelector('.topbar p').textContent = selectedPanel.dataset.description || '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function verifyPin() {
+            return prompt("Bu işlem için yetki şifresini girin:") === PIN_CODE;
+        }
+
+        function sortUsersCustom(usersArray) {
+            return usersArray.sort((a, b) => {
+                let ia = FIXED_ORDER.indexOf(a.toLowerCase());
+                let ib = FIXED_ORDER.indexOf(b.toLowerCase());
+                if (ia === -1) ia = 99;
+                if (ib === -1) ib = 99;
+                return ia - ib;
+            });
+        }
+
+        function formatDateYMD(dateObj) {
+            let year = dateObj.getFullYear();
+            let month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            let day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatMonthTitle(yearMonthStr) {
+            if (!/^\d{4}-\d{2}$/.test(yearMonthStr || '')) return yearMonthStr === 'Bilinmeyen' ? 'Tarihi bilinmiyor' : (yearMonthStr || '');
+            const parts = yearMonthStr.split('-');
+            const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+            return date.toLocaleString('tr-TR', { month: 'long', year: 'numeric' });
+        }
+
+        function getNextMonthStr(yearMonthStr) {
+            const parts = yearMonthStr.split('-');
+            let year = parseInt(parts[0]);
+            let month = parseInt(parts[1]); 
+            let d = new Date(year, month, 1);
+            let y = d.getFullYear();
+            let m = String(d.getMonth() + 1).padStart(2, '0');
+            return `${y}-${m}`;
+        }
+
+        function isWithin7DaysOfRealMonthEnd() {
+            const today = new Date();
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            const daysRemaining = lastDay - today.getDate();
+            return daysRemaining <= 7;
+        }
+
+        function changeDisplayMonth(direction) {
+            let parts = selectedDisplayMonth.split('-');
+            let year = parseInt(parts[0]);
+            let month = parseInt(parts[1]) - 1 + direction;
+
+            let d = new Date(year, month, 1);
+            let y = d.getFullYear();
+            let m = String(d.getMonth() + 1).padStart(2, '0');
+            selectedDisplayMonth = `${y}-${m}`;
+            calculateBalances();
+        }
+
+        function resetDisplayMonth() {
+            selectedDisplayMonth = getCurrentRealMonthStr();
+            calculateBalances();
+        }
+
+        function addMonthsToDate(baseDateObj, monthsToAdd) {
+            let d = new Date(baseDateObj.getTime());
+            let targetDay = d.getDate();
+            d.setMonth(d.getMonth() + monthsToAdd);
+            if (d.getDate() !== targetDay) {
+                d.setDate(0);
+            }
+            return d;
+        }
+
+        function applyQuickDateFilter() {
+            const val = document.getElementById('filterRange').value;
+            const startInput = document.getElementById('filterStart');
+            const endInput = document.getElementById('filterEnd');
+            const today = new Date();
+
+            if (val === 'custom') {
+                startInput.value = '';
+                endInput.value = '';
+            } else if (val === 'current_month') {
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                startInput.value = formatDateYMD(firstDay);
+                endInput.value = formatDateYMD(today);
+            } else if (val === 'last_1_month') {
+                const pastDate = addMonthsToDate(today, -1);
+                startInput.value = formatDateYMD(pastDate);
+                endInput.value = formatDateYMD(today);
+            } else if (val === 'last_3_months') {
+                const pastDate = addMonthsToDate(today, -3);
+                startInput.value = formatDateYMD(pastDate);
+                endInput.value = formatDateYMD(today);
+            } else if (val === 'last_6_months') {
+                const pastDate = addMonthsToDate(today, -6);
+                startInput.value = formatDateYMD(pastDate);
+                endInput.value = formatDateYMD(today);
+            } else if (val === 'last_1_year') {
+                const pastDate = addMonthsToDate(today, -12);
+                startInput.value = formatDateYMD(pastDate);
+                endInput.value = formatDateYMD(today);
+            }
+
+            currentPage = 1;
+            renderHistory();
+        }
+
+        function initData() {
+            db.ref('usersDB').once('value', snap => {
+                const allUsers = snap.val() || {};
+                let userKeys = Object.keys(allUsers).filter(u => u.toLowerCase() !== 'admin');
+                targetUsers = sortUsersCustom(userKeys);
+                
+                setupUserSelectors();
+                fetchTransactions();
+            });
+
+            db.ref('savingsSettings/autoPay').on('value', snap => {
+                document.getElementById('autoPayCheckbox').checked = snap.val() || false;
+                if (snap.val() === true && targetUsers.length) checkAutoPayProcess();
+            });
+        }
+
+        function setupUserSelectors() {
+            const sharedDiv = document.getElementById('sharedUsersDiv');
+            const manualSelect = document.getElementById('manualUser');
+            const filterSelect = document.getElementById('filterUser');
+            
+            sharedDiv.innerHTML = "";
+            manualSelect.innerHTML = "";
+            filterSelect.innerHTML = `<option value="all">Tümü</option>`;
+
+            targetUsers.forEach(u => {
+                const safeUser = escapeHTML(u);
+                sharedDiv.innerHTML += `<label><input type="checkbox" value="${safeUser}" class="shared-chk"> ${escapeHTML(u.toUpperCase())}</label>`;
+                manualSelect.innerHTML += `<option value="${safeUser}">${escapeHTML(u.toUpperCase())}</option>`;
+                filterSelect.innerHTML += `<option value="${safeUser}">${escapeHTML(u.toUpperCase())}</option>`;
+            });
+        }
+
+        function fetchTransactions() {
+            db.ref('savingsTransactions').on('value', snap => {
+                const data = snap.val() || {};
+                transactions = Object.keys(data).map(key => ({ id: key, ...data[key] })).sort((a,b) => b.timestamp - a.timestamp);
+                calculateBalances();
+                renderHistory();
+                checkAutoPayProcess();
+            });
+        }
+
+        function calculateBalances() {
+            let tempBalances = {};
+            targetUsers.forEach(u => {
+                tempBalances[u] = { savings: 0, totalDebt: 0 };
+            });
+
+            transactions.forEach(tx => {
+                if(!tempBalances[tx.userId]) return;
+                const amt = parseFloat(tx.amount) || 0;
+                
+                if(tx.type === 'birikim_ekle') tempBalances[tx.userId].savings += amt;
+                if(tx.type === 'birikim_dus') tempBalances[tx.userId].savings -= amt;
+                if(tx.type === 'taksit_ekle') tempBalances[tx.userId].totalDebt += amt;
+                if(tx.type === 'taksit_odendi') tempBalances[tx.userId].totalDebt -= amt;
+            });
+
+            targetUsers.forEach(u => {
+                tempBalances[u].debt = Math.max(0, tempBalances[u].totalDebt);
+            });
+            userBalances = tempBalances;
+
+            const totalExpenseAdded = transactions.reduce((sum, tx) => sum + (tx.type === 'taksit_ekle' ? (parseFloat(tx.amount) || 0) : 0), 0);
+            const totalDebtPaid = transactions.reduce((sum, tx) => sum + (tx.type === 'taksit_odendi' ? (parseFloat(tx.amount) || 0) : 0), 0);
+            const remainingDebt = targetUsers.reduce((sum, u) => sum + userBalances[u].debt, 0);
+            const totalSavings = targetUsers.reduce((sum, u) => sum + userBalances[u].savings, 0);
+            document.getElementById('overallSummaryBox').innerHTML = `
+                <div class="summary-item"><label>Toplam Anlık Birikim</label><span class="${totalSavings >= 0 ? 'text-green' : 'text-red'}">${totalSavings.toFixed(2)} TL</span><small>Kişilerin mevcut birikimlerinin toplamı</small></div>
+                <div class="summary-item"><label>Şimdiye Kadarki Harcama</label><span>${totalExpenseAdded.toFixed(2)} TL</span><small>Kaydedilen tüm borç/taksit eklemeleri</small></div>
+                <div class="summary-item"><label>Şimdiye Kadarki Borç Ödemesi</label><span class="text-green">${totalDebtPaid.toFixed(2)} TL</span><small>Tüm tarihler ve kişiler</small></div>
+                <div class="summary-item"><label>Güncel Kalan Borç</label><span class="${remainingDebt > 0 ? 'text-red' : 'text-green'}">${remainingDebt.toFixed(2)} TL</span><small>Ödemeler düşüldükten sonra</small></div>`;
+
+            userUnpaidMonths = {};
+            userScheduledMonths = {};
+
+            targetUsers.forEach(u => {
+                userUnpaidMonths[u] = {};
+                userScheduledMonths[u] = {};
+
+                const debts = transactions
+                    .filter(t => t.userId === u && t.type === 'taksit_ekle')
+                    .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+                let paidPool = transactions
+                    .filter(t => t.userId === u && t.type === 'taksit_odendi')
+                    .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+
+                debts.forEach(d => {
+                    const amt = parseFloat(d.amount) || 0;
+                    const monthKey = d.date ? d.date.substring(0, 7) : 'Bilinmeyen';
+
+                    userScheduledMonths[u][monthKey] = (userScheduledMonths[u][monthKey] || 0) + amt;
+
+                    if (paidPool >= amt) {
+                        paidPool -= amt;
+                        userUnpaidMonths[u][monthKey] = userUnpaidMonths[u][monthKey] || 0;
+                    } else {
+                        const unpaid = amt - paidPool;
+                        paidPool = 0;
+                        userUnpaidMonths[u][monthKey] = (userUnpaidMonths[u][monthKey] || 0) + unpaid;
+                    }
+                });
+            });
+
+            renderBalances(selectedDisplayMonth);
+        }
+
+        function renderBalances(displayMonthStr) {
+            const cont = document.getElementById('balancesContainer');
+            const payTbody = document.getElementById('monthlyPayTableBody');
+            const tableTitle = document.getElementById('tableTitle');
+            
+            const monthName = formatMonthTitle(displayMonthStr);
+            if (tableTitle) {
+                tableTitle.innerHTML = `🗓️ ${monthName} Taksit Ödeme Tablosu`;
+            }
+
+            cont.innerHTML = "";
+            payTbody.innerHTML = "";
+
+            targetUsers.forEach(u => {
+                const bal = userBalances[u];
+                const savClass = bal.savings < 0 ? 'text-red' : 'text-green';
+                const debtClass = bal.debt > 0 ? 'text-red' : 'text-green';
+                
+                cont.innerHTML += `
+                    <div class="balance-card">
+                        <h3>${escapeHTML(u)}</h3>
+                        <div style="font-size:0.75rem; color:#718096;">Birikim Fonu:</div>
+                        <div class="bal-val ${savClass}">${bal.savings.toFixed(2)} TL</div>
+                        <div style="font-size:0.75rem; color:#718096; margin-top:5px;">Kalan Borç:</div>
+                        <div class="bal-val ${debtClass}">${bal.debt.toFixed(2)} TL</div>
+                    </div>
+                `;
+            });
+
+            const currentRealMonth = getCurrentRealMonthStr();
+            const nextRealMonth = getNextMonthStr(currentRealMonth);
+            const isNearEnd = isWithin7DaysOfRealMonthEnd();
+
+            let rowsAdded = 0;
+
+            targetUsers.forEach(u => {
+                const bal = userBalances[u];
+                
+                const scheduledKeys = Object.keys(userScheduledMonths[u] || {});
+                const unpaidKeys = Object.keys(userUnpaidMonths[u] || {});
+                const allUserMonthKeys = Array.from(new Set([...scheduledKeys, ...unpaidKeys])).sort();
+
+                allUserMonthKeys.forEach(mKey => {
+                    const scheduledAmt = userScheduledMonths[u]?.[mKey] || 0;
+                    const unpaidAmt = userUnpaidMonths[u]?.[mKey] || 0;
+
+                    // Tabloda Gösterilme Koşulları:
+                    // 1) Seçilen görüntüleme dönemi ile tam eşleşen taksitler
+                    // 2) Geçmişten kalan ödenmemiş taksitler (mKey < displayMonthStr ve borç varsa)
+                    // 3) Ayın bitimine 7 gün kala, güncel aydayken bir sonraki ayın taksiti
+                    const isCurrentDisplayMonth = (mKey === displayMonthStr);
+                    const isPastUnpaid = (mKey < displayMonthStr && unpaidAmt > 0);
+                    const isUpcomingPreview = (displayMonthStr === currentRealMonth && isNearEnd && mKey === nextRealMonth);
+
+                    if (isCurrentDisplayMonth || isPastUnpaid || isUpcomingPreview) {
+                        rowsAdded++;
+
+                        const savClass = bal.savings < 0 ? 'text-red' : 'text-green';
+                        const isDue = (mKey <= currentRealMonth);
+
+                        let actionButton = "";
+                        let installmentDisplay = "";
+
+                        if (unpaidAmt <= 0 && scheduledAmt > 0) {
+                            installmentDisplay = `<span class="text-green">0.00 TL</span> <span style="font-size:0.75rem; color:#38a169;">(Ödendi)</span>`;
+                            actionButton = `<button class="btn-mini" style="background:#38a169; color:white; cursor:default;" disabled>✅ Ödendi</button>`;
+                        } else if (unpaidAmt > 0) {
+                            installmentDisplay = `<span class="text-red">${unpaidAmt.toFixed(2)} TL</span>`;
+                            
+                            if (isDue) {
+                                actionButton = `<button class="btn-mini" style="background:#319795; color:white;" onclick="payMonthlyInstallment('${u}', ${unpaidAmt}, '${mKey}')">
+                                                    💳 Taksiti Birikimden Öde
+                                                </button>`;
+                            } else {
+                                actionButton = `<button class="btn-mini" style="background:#cbd5e0; color:#4a5568; cursor:not-allowed;" disabled title="Bu dönemin henüz vadesi gelmedi">
+                                                    ⏳ Vadesi Gelmedi
+                                                </button>`;
+                            }
+                        } else {
+                            installmentDisplay = `<span style="color:#718096;">0.00 TL</span>`;
+                            actionButton = `<button class="btn-mini" style="background:#e2e8f0; color:#a0aec0; cursor:default;" disabled>—</button>`;
+                        }
+
+                        const monthLabel = formatMonthTitle(mKey);
+
+                        payTbody.innerHTML += `
+                            <tr>
+                                <td style="font-weight:bold;">${escapeHTML(u.toUpperCase())}</td>
+                                <td class="${savClass}" style="font-weight:bold;">${bal.savings.toFixed(2)} TL</td>
+                                <td style="font-weight:bold; font-size:0.95rem;">
+                                    ${installmentDisplay}
+                                    <div style="font-size:0.75rem; color:#718096; font-weight:normal;">📅 Dönem: ${monthLabel}</div>
+                                </td>
+                                <td style="color:#718096;">${bal.debt.toFixed(2)} TL</td>
+                                <td>${actionButton}</td>
+                            </tr>
+                        `;
+                    }
+                });
+            });
+
+            if (rowsAdded === 0) {
+                payTbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align:center; color:#38a169; font-weight:bold; padding:15px;">
+                            🎉 ${monthName} dönemi için ödenmesi gereken herhangi bir taksit borcu bulunmamaktadır!
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        async function payMonthlyInstallment(user, amount, monthKey) {
+            if (amount <= 0) return alert("Bu kullanıcının ödenmesi gereken vadesi gelmiş taksit borcu bulunmamaktadır.");
+            if (!verifyPin()) return;
+
+            const monthLabel = formatMonthTitle(monthKey);
+
+            if (!confirm(`${user.toUpperCase()} kullanıcısının ${monthLabel} dönemine ait ${amount.toFixed(2)} TL tutarındaki taksiti birikim fonundan düşülecek. Onaylıyor musunuz?`)) return;
+
+            const dateStr = formatDateYMD(new Date());
+
+            await writePaymentPair(user, amount, `Aylık Taksit Ödemesi (${monthLabel})`, dateStr);
+
+            alert(`✅ Başarılı! ${user.toUpperCase()} kullanıcısının ${monthLabel} dönemine ait ${amount.toFixed(2)} TL taksit ödemesi birikiminden düşüldü.`);
+        }
+
+        async function writePaymentPair(user, amount, description, date) {
+            const debtRef = db.ref('savingsTransactions').push();
+            const savingsRef = db.ref('savingsTransactions').push();
+            const timestamp = firebase.database.ServerValue.TIMESTAMP;
+            const updates = {};
+            updates[debtRef.key] = { userId: user, type: 'taksit_odendi', amount, desc: description, date, timestamp };
+            updates[savingsRef.key] = { userId: user, type: 'birikim_dus', amount, desc: `${description} - Birikimden düşüldü`, date, timestamp };
+            await db.ref('savingsTransactions').update(updates);
+        }
+
+        function getFilteredTransactions() {
+            const fUser = document.getElementById('filterUser').value;
+            const fType = document.getElementById('filterType').value;
+            const fStart = document.getElementById('filterStart').value;
+            const fEnd = document.getElementById('filterEnd').value;
+
+            if (fType === 'borc_kalan') {
+                return getRemainingDebtTransactions().filter(t => {
+                    if (fUser !== 'all' && t.userId !== fUser) return false;
+                    if (fStart && (t.date || '') < fStart) return false;
+                    if (fEnd && (t.date || '') > fEnd) return false;
+                    return true;
+                });
+            }
+
+            let filtered = transactions;
+            
+            if(fUser !== 'all') filtered = filtered.filter(t => t.userId === fUser);
+            
+            if(fType === 'birikim_all') filtered = filtered.filter(t => t.type === 'birikim_ekle' || t.type === 'birikim_dus');
+            else if(fType === 'borc_all') filtered = filtered.filter(t => t.type === 'taksit_ekle' || t.type === 'taksit_odendi');
+            else if(fType !== 'all') filtered = filtered.filter(t => t.type === fType);
+
+            if(fStart) filtered = filtered.filter(t => t.date >= fStart);
+            if(fEnd) filtered = filtered.filter(t => t.date <= fEnd);
+            
+            return filtered;
+        }
+
+        function getRemainingDebtTransactions() {
+            const result = [];
+            targetUsers.forEach(user => {
+                const debts = transactions
+                    .filter(tx => tx.userId === user && tx.type === 'taksit_ekle')
+                    .sort((a, b) => (a.date || '').localeCompare(b.date || '') || (a.timestamp || 0) - (b.timestamp || 0))
+                    .map(tx => ({ ...tx, remaining: Math.max(0, parseFloat(tx.amount) || 0) }));
+                let paid = transactions
+                    .filter(tx => tx.userId === user && tx.type === 'taksit_odendi')
+                    .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+                debts.forEach(debt => {
+                    const applied = Math.min(debt.remaining, paid);
+                    debt.remaining -= applied;
+                    paid -= applied;
+                    if (debt.remaining > 0.009) {
+                        result.push({ ...debt, type: 'borc_kalan', amount: debt.remaining, originalType: 'taksit_ekle' });
+                    }
+                });
+            });
+            return result.sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.timestamp || 0) - (a.timestamp || 0));
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = "";
+            
+            const filtered = getFilteredTransactions();
+            const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+            
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            document.getElementById('pageInfo').innerText = `Sayfa ${currentPage} / ${totalPages} (Toplam ${filtered.length} Kayıt)`;
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedItems = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+            paginatedItems.forEach(tx => {
+                let typeBadge = "";
+                if(tx.type === 'birikim_ekle') typeBadge = `<span class="badge badge-add">Birikim (+)</span>`;
+                if(tx.type === 'birikim_dus') typeBadge = `<span class="badge badge-sub">Birikim (-)</span>`;
+                if(tx.type === 'taksit_ekle') typeBadge = `<span class="badge badge-debt">Borç (+)</span>`;
+                if(tx.type === 'taksit_odendi') typeBadge = `<span class="badge badge-add">Borç Ödendi</span>`;
+                if(tx.type === 'borc_kalan') typeBadge = `<span class="badge badge-debt">Kalan Borç</span>`;
+
+                const management = tx.type === 'borc_kalan' ? '<span style="color:#718096; font-size:.8rem;">Güncel bakiye</span>' : `
+                    <button class="btn-mini btn-edit" onclick="editTx('${escapeHTML(tx.id)}')">✏️</button>
+                    <button class="btn-mini btn-del" onclick="deleteTx('${escapeHTML(tx.id)}')">🗑️</button>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-size:0.8rem;">${escapeHTML(tx.date || '')}</td>
+                        <td style="font-weight:bold;">${escapeHTML((tx.userId || '').toUpperCase())}</td>
+                        <td>${typeBadge}</td>
+                        <td style="font-weight:bold;">${(parseFloat(tx.amount) || 0).toFixed(2)} TL</td>
+                        <td style="font-size:0.8rem;">${escapeHTML(tx.desc || '')}</td>
+                        <td>${management}</td>
+                    </tr>
+                `;
+            });
+
+            const copiedRows = tbody.innerHTML || `<tr><td colspan="6" style="text-align:center;color:#718096;padding:14px;">Bu filtrede gösterilecek işlem yok.</td></tr>`;
+            ['historyCopyPayment', 'historyCopyShared', 'historyCopyManual'].forEach(id => {
+                const copyBody = document.getElementById(id);
+                if (copyBody) copyBody.innerHTML = copiedRows;
+            });
+
+            renderFilterSummary(filtered);
+        }
+
+        function renderFilterSummary(filteredList) {
+            const summaryBox = document.getElementById('filterSummaryBox');
+            
+            let totalSavingsIn = 0;
+            let totalSavingsOut = 0;
+            let totalDebtAdded = 0;
+            let totalDebtPaid = 0;
+            let remainingDebtShown = 0;
+
+            filteredList.forEach(tx => {
+                let amt = parseFloat(tx.amount) || 0;
+                if(tx.type === 'birikim_ekle') totalSavingsIn += amt;
+                if(tx.type === 'birikim_dus') totalSavingsOut += amt;
+                if(tx.type === 'taksit_ekle') totalDebtAdded += amt;
+                if(tx.type === 'taksit_odendi') totalDebtPaid += amt;
+                if(tx.type === 'borc_kalan') remainingDebtShown += amt;
+            });
+
+            let netSavings = totalSavingsIn - totalSavingsOut;
+
+            summaryBox.innerHTML = `
+                <div class="summary-item">
+                    <label>Filtrelenen Birikim (+):</label><br>
+                    <span class="text-green">+${totalSavingsIn.toFixed(2)} TL</span>
+                </div>
+                <div class="summary-item">
+                    <label>Filtrelenen Birikim Düşüşü (-):</label><br>
+                    <span class="text-red">-${totalSavingsOut.toFixed(2)} TL</span>
+                </div>
+                <div class="summary-item">
+                    <label>Net Birikim Toplamı:</label><br>
+                    <span class="${netSavings >= 0 ? 'text-green' : 'text-red'}">${netSavings.toFixed(2)} TL</span>
+                </div>
+                <div class="summary-item">
+                    <label>Filtrelenen Harcama / Borç Ekleme:</label><br>
+                    <span class="text-red">+${totalDebtAdded.toFixed(2)} TL</span>
+                </div>
+                <div class="summary-item">
+                    <label>Filtrelenen Borç Ödemesi:</label><br>
+                    <span class="text-green">-${totalDebtPaid.toFixed(2)} TL</span>
+                </div>
+                ${document.getElementById('filterType').value === 'borc_kalan' ? `<div class="summary-item"><label>Seçili Filtrede Kalan Borç:</label><br><span class="text-red">${remainingDebtShown.toFixed(2)} TL</span></div>` : ''}
+            `;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderHistory();
+            }
+        }
+
+        function nextPage() {
+            const filtered = getFilteredTransactions();
+            const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderHistory();
+            }
+        }
+
+        function trToAscii(str) {
+            if (!str) return "";
+            return str
+                .replace(/Ğ/g, 'G').replace(/ğ/g, 'g')
+                .replace(/Ü/g, 'U').replace(/ü/g, 'u')
+                .replace(/Ş/g, 'S').replace(/ş/g, 's')
+                .replace(/İ/g, 'I').replace(/ı/g, 'i')
+                .replace(/Ö/g, 'O').replace(/ö/g, 'o')
+                .replace(/Ç/g, 'C').replace(/ç/g, 'c');
+        }
+
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const filtered = getFilteredTransactions();
+            if (filtered.length === 0) {
+                return alert("Seçili kriterlere uygun raporlanacak işlem bulunamadı!");
+            }
+
+            const fUser = document.getElementById('filterUser').value;
+            const fStart = document.getElementById('filterStart').value;
+            const fEnd = document.getElementById('filterEnd').value;
+
+            let titleUser = fUser === 'all' ? 'TUM KULLANICILAR' : fUser.toUpperCase();
+            let dateRangeText = "";
+
+            if (fStart || fEnd) {
+                dateRangeText = `Tarih Araligi: ${fStart || 'Baslangic Yok'} / ${fEnd || 'Bitis Yok'}`;
+            } else {
+                dateRangeText = `Tarih Araligi: TUM ZAMANLAR (Komple Girdiler)`;
+            }
+
+            doc.setFontSize(15);
+            doc.text("KARAASLAN - GECMIS ISLEMLER RAPORU", 14, 15);
+
+            doc.setFontSize(9);
+            doc.text(trToAscii(`Kullanici Filtresi: ${titleUser}`), 14, 22);
+            doc.text(trToAscii(dateRangeText), 14, 27);
+            doc.text(trToAscii(`Rapor Alma Tarihi: ${new Date().toLocaleDateString('tr-TR')}`), 14, 32);
+
+            const tableColumns = ["Tarih", "Kullanici", "Islem Turu", "Tutar (TL)", "Aciklama"];
+            const tableRows = [];
+
+            filtered.forEach(tx => {
+                let typeStr = "";
+                if (tx.type === 'birikim_ekle') typeStr = "Birikim (+)";
+                if (tx.type === 'birikim_dus') typeStr = "Birikim (-)";
+                if (tx.type === 'taksit_ekle') typeStr = "Borc (+)";
+                if (tx.type === 'taksit_odendi') typeStr = "Borc Odendi";
+                if (tx.type === 'borc_kalan') typeStr = "Kalan Borc (Guncel)";
+
+                const row = [
+                    tx.date || "",
+                    trToAscii((tx.userId || "").toUpperCase()),
+                    trToAscii(typeStr),
+                    `${parseFloat(tx.amount || 0).toFixed(2)} TL`,
+                    trToAscii(tx.desc || "")
+                ];
+                tableRows.push(row);
+            });
+
+            doc.autoTable({
+                head: [tableColumns],
+                body: tableRows,
+                startY: 37,
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [214, 158, 46], textColor: [255, 255, 255] }
+            });
+
+            const pdfFileName = `Gecmis_Islemler_Raporu_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(pdfFileName);
+        }
+
+        async function saveSharedExpense() {
+            const desc = document.getElementById('sharedDesc').value.trim();
+            const totalAmount = parseFloat(document.getElementById('sharedAmount').value);
+            const installmentCount = parseInt(document.getElementById('sharedInstallments').value) || 1;
+            const checkboxes = document.querySelectorAll('.shared-chk:checked');
+            
+            if(!desc || !Number.isFinite(totalAmount) || totalAmount <= 0 || checkboxes.length === 0 || installmentCount < 1) {
+                return alert("Lütfen geçerli bir açıklama, tutar, taksit sayısı girin ve en az 1 kişi seçin.");
+            }
+            if(!verifyPin()) return;
+
+            const totalCents = Math.round(totalAmount * 100);
+            const basePersonCents = Math.floor(totalCents / checkboxes.length);
+            const extraPersonCents = totalCents % checkboxes.length;
+            const baseDate = new Date();
+
+            for(let personIndex = 0; personIndex < checkboxes.length; personIndex++) {
+                const chk = checkboxes[personIndex];
+                const personCents = basePersonCents + (personIndex < extraPersonCents ? 1 : 0);
+                const baseInstallmentCents = Math.floor(personCents / installmentCount);
+                const extraInstallmentCents = personCents % installmentCount;
+                for(let i = 0; i < installmentCount; i++) {
+                    const txDate = addMonthsToDate(baseDate, i);
+                    const dateStr = formatDateYMD(txDate);
+                    const installmentCents = baseInstallmentCents + (i < extraInstallmentCents ? 1 : 0);
+                    await db.ref('savingsTransactions').push({
+                        userId: chk.value,
+                        type: 'taksit_ekle',
+                        amount: installmentCents / 100,
+                        desc: `Ortak: ${desc} (${i + 1}/${installmentCount} Taksit)`,
+                        date: dateStr,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+            }
+            
+            document.getElementById('sharedDesc').value = "";
+            document.getElementById('sharedAmount').value = "";
+            document.getElementById('sharedInstallments').value = "6";
+            alert(`Başarılı! ${checkboxes.length} kişiye toplam ${totalAmount.toFixed(2)} TL ortak harcama, ${installmentCount} aya kuruş farkı kaybolmayacak şekilde bölüştürüldü.`);
+        }
+
+        async function saveManualTx() {
+            const user = document.getElementById('manualUser').value;
+            const type = document.getElementById('manualType').value;
+            const amount = parseFloat(document.getElementById('manualAmount').value);
+            const date = document.getElementById('manualDate').value;
+            const desc = document.getElementById('manualDesc').value.trim();
+
+            if(!amount || amount <= 0 || !desc || !date) return alert("Tüm alanları geçerli doldurun!");
+            if(!verifyPin()) return;
+
+            await db.ref('savingsTransactions').push({
+                userId: user, type: type, amount: amount, desc: desc, date: date,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            document.getElementById('manualAmount').value = "";
+            document.getElementById('manualDesc').value = "";
+        }
+
+        async function editTx(id) {
+            const tx = transactions.find(item => item.id === id);
+            if (!tx) return alert("İşlem bulunamadı. Listeyi yenileyip tekrar deneyin.");
+            if(!verifyPin()) return;
+            let newAmount = prompt("Yeni Tutarı Girin (İptal için boş bırakın):", tx.amount);
+            let newDesc = prompt("Yeni Açıklamayı Girin:", tx.desc || '');
+
+            if(newAmount !== null && newAmount !== "" && newDesc !== null) {
+                const parsedAmount = Number(newAmount);
+                if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) return alert("Tutar sıfırdan büyük geçerli bir sayı olmalıdır.");
+                await db.ref('savingsTransactions/' + id).update({
+                    amount: parsedAmount, desc: newDesc.trim()
+                });
+            }
+        }
+
+        async function deleteTx(id) {
+            if(!verifyPin()) return;
+            if(confirm("Bu işlemi kalıcı olarak silmek istediğinize emin misiniz?")) {
+                await db.ref('savingsTransactions/' + id).remove();
+            }
+        }
+
+        async function toggleAutoPay(isChecked) {
+            if(verifyPin()) {
+                await db.ref('savingsSettings/autoPay').set(isChecked);
+                if(isChecked) checkAutoPayProcess(); 
+            } else {
+                document.getElementById('autoPayCheckbox').checked = !isChecked; 
+            }
+        }
+
+        async function checkAutoPayProcess() {
+            if (autoPayProcessing || !targetUsers.length) return;
+            autoPayProcessing = true;
+            try {
+            const snap = await db.ref('savingsSettings').once('value');
+            const settings = snap.val() || {};
+            
+            if(!settings.autoPay) return;
+
+            const currentMonthStr = getCurrentRealMonthStr();
+            
+            if(settings.lastProcessedMonth !== currentMonthStr) {
+                let hasProcessed = false;
+                const todayStr = formatDateYMD(new Date());
+                
+                for(let u of targetUsers) {
+                    const unpaidMap = userUnpaidMonths[u] || {};
+                    let totalDue = 0;
+                    Object.keys(unpaidMap).forEach(mKey => {
+                        if (mKey <= currentMonthStr) {
+                            totalDue += unpaidMap[mKey];
+                        }
+                    });
+
+                    if(totalDue > 0) {
+                        await writePaymentPair(u, totalDue, `Otomatik Sistem Tahsilatı (${currentMonthStr})`, todayStr);
+                        hasProcessed = true;
+                    }
+                }
+                
+                await db.ref('savingsSettings/lastProcessedMonth').set(currentMonthStr);
+                
+                if(hasProcessed) {
+                    alert(`✅ Yeni ay (${currentMonthStr}) tespit edildi. Kullanıcıların taksit borçları otomatik olarak birikimlerinden düşüldü.`);
+                }
+            }
+            } finally {
+                autoPayProcessing = false;
+            }
+        }
+
+        initData();
+    </script>
+</body>
+</html>
