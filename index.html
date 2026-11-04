@@ -1,279 +1,2788 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uygulama Portalı</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #070a13;
-            --bg-card: rgba(30, 41, 59, 0.4);
-            --border-light: rgba(255, 255, 255, 0.08);
-            --accent-primary: #38bdf8;
-            --accent-secondary: #818cf8;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workspace Hub - Yerel Uygulama Portalı & Akıllı Asistan</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+          }
         }
+      }
+    }
+  </script>
+  <style>
+    /* Akıcı tema ve element geçişleri */
+    * {
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    
+    /* İnce kaydırma çubukları */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.4);
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.7);
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
+    /* Arka plan ızgara deseni */
+    .bg-grid-pattern {
+      background-size: 32px 32px;
+      background-image: linear-gradient(to right, rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+    }
+    .dark .bg-grid-pattern {
+      background-size: 32px 32px;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: 60px 20px 30px;
-            position: relative;
-            overflow-x: hidden;
-        }
+    /* Sağ Alt Köşe: Ayarlanabilir Canlı Saat Widget Stili */
+    #liveClockWidget {
+      --clock-scale: 2;
+      transform: scale(var(--clock-scale, 2));
+      transform-origin: bottom right;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    }
+    #liveClockWidget:hover {
+      filter: brightness(1.03);
+    }
 
-        /* Arka Plan Ortam Işığı Efekti */
-        body::before {
-            content: '';
-            position: absolute;
-            top: -10%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(7, 10, 19, 0) 70%);
-            border-radius: 50%;
-            z-index: -1;
-            pointer-events: none;
-        }
+    /* Takvim Hücreleri */
+    .calendar-cell {
+      aspect-ratio: 1 / 1;
+      min-height: 44px;
+    }
 
-        .container {
-            width: 100%;
-            max-width: 540px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 1;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 45px;
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        header h1 {
-            font-size: 2.4rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 20%, var(--accent-primary) 80%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            letter-spacing: -0.8px;
-        }
-
-        header p {
-            color: var(--text-muted);
-            font-size: 1rem;
-            font-weight: 400;
-            letter-spacing: 0.3px;
-        }
-
-        .app-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            width: 100%;
-        }
-
-        /* Premium Cam Efektli Kartlar */
-        .app-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 24px;
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-light);
-            border-radius: 16px;
-            color: var(--text-main);
-            text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
-            animation: fadeInUp 0.6s ease-out forwards;
-            opacity: 0;
-        }
-
-        /* Kartların sırayla gelme efekti */
-        .app-card:nth-child(1) { animation-delay: 0.1s; }
-        .app-card:nth-child(2) { animation-delay: 0.2s; }
-        .app-card:nth-child(3) { animation-delay: 0.3s; }
-        .app-card:nth-child(4) { animation-delay: 0.4s; }
-        .app-card:nth-child(5) { animation-delay: 0.5s; }
-
-        .app-card:hover {
-            background: rgba(45, 55, 72, 0.6);
-            border-color: rgba(56, 189, 248, 0.4);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px -5px rgba(56, 189, 248, 0.15);
-        }
-
-        .app-info {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
-
-        /* İkon Tasarımı */
-        .icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
-            border: 1px solid rgba(255,255,255,0.05);
-            font-size: 1.5rem;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
-        }
-
-        .app-card:hover .icon {
-            transform: scale(1.08) rotate(3deg);
-        }
-
-        .text-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .app-title {
-            font-weight: 600;
-            font-size: 1.05rem;
-            letter-spacing: -0.2px;
-        }
-
-        .app-desc {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .arrow {
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            transition: transform 0.3s ease, color 0.3s ease;
-        }
-
-        .app-card:hover .arrow {
-            transform: translateX(6px);
-            color: var(--accent-primary);
-        }
-
-        footer {
-            margin-top: 60px;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            text-align: center;
-            padding-top: 25px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            width: 100%;
-            max-width: 540px;
-            animation: fadeIn 1s ease-out 0.8s forwards;
-            opacity: 0;
-        }
-
-        /* Animasyonlar */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
+    /* Kart Tooltip Popover Efekti */
+    .card-tooltip {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      transform: translateY(6px);
+      pointer-events: none;
+    }
+    .group-tooltip-trigger:hover .card-tooltip,
+    .group-tooltip-trigger:focus-within .card-tooltip {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+  </style>
 </head>
-<body>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans bg-grid-pattern antialiased selection:bg-blue-500 selection:text-white pb-32">
 
-    <div class="container">
-        <header>
-            <h1>Uygulama Portalı</h1>
-            <p>Tüm araçlarınıza tek noktadan hızlı erişim</p>
-        </header>
-
-        <div class="app-grid">
-            <a href="Ev otomasyonu market pazar harcama takip.html" class="app-card" target="_self">
-                <div class="app-info">
-                    <div class="icon">🏠</div>
-                    <div class="text-group">
-                        <span class="app-title">Ev Otomasyonu & Harcama</span>
-                        <span class="app-desc">Günlük bütçe ve pazar takibi</span>
-                    </div>
-                </div>
-                <span class="arrow">&rarr;</span>
-            </a>
-
-            <a href="kasa_pratik_bozuk_para_sayaci.html" class="app-card" target="_self">
-                <div class="app-info">
-                    <div class="icon">🪙</div>
-                    <div class="text-group">
-                        <span class="app-title">Bozuk Para Sayacı</span>
-                        <span class="app-desc">Kasa sayım ve bakiye hesaplama</span>
-                    </div>
-                </div>
-                <span class="arrow">&rarr;</span>
-            </a>
-
-            <a href="sayac.html" class="app-card" target="_self">
-                <div class="app-info">
-                    <div class="icon">⏱️</div>
-                    <div class="text-group">
-                        <span class="app-title">Sayaç Sistemi</span>
-                        <span class="app-desc">Genel amaçlı zaman ve tur sayacı</span>
-                    </div>
-                </div>
-                <span class="arrow">&rarr;</span>
-            </a>
-
-            <a href="zikirmatik.html" class="app-card" target="_self">
-                <div class="app-info">
-                    <div class="icon">📿</div>
-                    <div class="text-group">
-                        <span class="app-title">Zikirmatik</span>
-                        <span class="app-desc">Kişisel tesbihat ve zikir takibi</span>
-                    </div>
-                </div>
-                <span class="arrow">&rarr;</span>
-            </a>
-
-            <a href="kaza_takip.html" class="app-card" target="_self">
-                <div class="app-info">
-                    <div class="icon">🕋</div>
-                    <div class="text-group">
-                        <span class="app-title">Eda & Kaza Portalı</span>
-                        <span class="app-desc">Günlük eda ve kaza namazı takibi</span>
-                    </div>
-                </div>
-                <span class="arrow">&rarr;</span>
-            </a>
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Logo ve Başlık -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 ring-1 ring-white/20 shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
         </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-lg tracking-tight text-slate-900 dark:text-white">Workspace Hub</h1>
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60">
+              v2.1 • Canlı Portal
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Özelleştirilebilir Uygulamalar, Canlı Saat & Hicri/Miladi Takvim</p>
+        </div>
+      </div>
+
+      <!-- Sağ Kontroller: Yönetici Kilidi, Grup Yönetimi, Bulut Senkronizasyonu, Link Rehberi & Tema -->
+      <div class="flex items-center gap-2">
+        <!-- Yönetici Düzenleme Kilidi Butonu -->
+        <button 
+          onclick="toggleAdminLockModal()"
+          id="adminLockBtn"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-xs font-semibold border border-amber-300/40 dark:border-amber-700/50 transition shadow-sm"
+          title="Yönetici Düzenleme Kilidi Ayarları">
+          <span id="adminLockIcon" class="text-sm">🔒</span>
+          <span id="adminLockText" class="hidden sm:inline">Kilitli</span>
+        </button>
+
+        <!-- Bulut Senkronizasyonu Butonu & Durum Göstergesi -->
+        <button 
+          onclick="openCloudSyncModal()"
+          id="cloudSyncNavBtn"
+          class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition shadow-sm"
+          title="Firebase Bulut Senkronizasyon Ayarları">
+          <span id="cloudStatusDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+          <span id="cloudStatusText" class="hidden sm:inline">Bulut: Bağlanıyor</span>
+          <svg class="w-3.5 h-3.5 text-blue-500 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+        </button>
+
+        <!-- Grup & Kart Yönetimi Butonu -->
+        <button 
+          onclick="openGroupModal()"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition shadow-sm"
+          title="Grupları ve Uygulamaları Yönet">
+          <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+          <span class="hidden sm:inline">Grupları & Araçları Yönet</span>
+        </button>
+
+        <!-- Rehber Modal Açma Butonu -->
+        <button onclick="openInfoModal()" class="p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Nasıl Linklenir?">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
+
+        <!-- Tema Değiştirici -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Temayı Değiştir">
+          <svg id="moonIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+          <svg id="sunIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </button>
+      </div>
+
     </div>
+  </header>
 
-    <footer>
-        Karaaslan Copyright © 2026
-    </footer>
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
 
+    <!-- 1. İSTATİSTİK & BİLGİ ŞERİDİ -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3.5">
+        <div class="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Toplam Araç</div>
+          <div id="statTotalApps" class="text-xl font-bold text-slate-900 dark:text-white">0</div>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3.5">
+        <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Sistem Modu</div>
+          <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400">Kişiselleştirilebilir</div>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3.5">
+        <div class="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Aktif Gruplar</div>
+          <div id="statCategories" class="text-xl font-bold text-slate-900 dark:text-white">0 Grup</div>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3.5">
+        <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Hicri Motor</div>
+          <div class="text-xl font-bold text-amber-600 dark:text-amber-400">Çevrimdışı Intl</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. ARAMA VE DİNAMİK KATEGORİ FİLTRE PANELİ -->
+    <section class="space-y-4">
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        
+        <!-- Canlı Arama Inputu -->
+        <div class="relative flex-1 max-w-xl">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            id="searchInput"
+            placeholder="Uygulama adı, grup veya anahtar kelime ara..."
+            class="w-full pl-10 pr-10 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+            oninput="handleSearch(this.value)"
+          >
+          <button 
+            id="clearSearchBtn" 
+            onclick="clearSearch()"
+            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden"
+            title="Aramayı Temizle">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-slate-500 dark:text-slate-400" id="resultCountBadge">Yükleniyor...</span>
+          <button 
+            onclick="requireAdminAuth(openNewAppModal)"
+            class="px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm shadow-blue-500/30 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Yeni Uygulama Kartı</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Kategori Hapları (Pills) -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar" id="categoryPillContainer">
+        <!-- JS ile dinamik oluşturulur -->
+      </div>
+    </section>
+
+    <!-- 3. UYGULAMA KARTLARI IZGARASI -->
+    <section>
+      <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Dinamik Kartlar -->
+      </div>
+
+      <!-- Sonuç Bulunamadı Görünümü -->
+      <div id="noResultsState" class="hidden py-16 text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-base font-semibold text-slate-800 dark:text-slate-200">Aramanıza Uygun Araç Bulunamadı</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">Lütfen arama terimini kontrol edin veya filtreleri temizleyin.</p>
+        <button onclick="resetFilters()" class="mt-4 px-4 py-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+          Filtreleri Sıfırla
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= SOL ALT KÖŞE: ESNEK HİCRİ / MİLADİ TAKVİM TETİKLEYİCİ PİLL ================= -->
+  <div class="fixed bottom-4 left-4 z-[60]">
+    <button 
+      id="calendarTriggerPill"
+      onclick="openCalendarModal()"
+      class="calendar-pill group px-3.5 py-2.5 rounded-2xl bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800/90 shadow-xl shadow-slate-900/10 dark:shadow-black/40 backdrop-blur-md flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-200 hover:border-blue-500 dark:hover:border-blue-500 transition-all hover:scale-[1.02] active:scale-[0.98] w-auto max-w-[calc(100vw-13rem)] sm:max-w-md"
+      title="Hicri & Miladi Takvim ve Özel Günler Penceresini Aç"
+    >
+      <!-- Takvim İkonu -->
+      <div class="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+
+      <!-- Dinamik Tarihler -->
+      <div class="flex items-center gap-2 truncate">
+        <!-- Miladi -->
+        <span id="pillGregorianDate" class="font-semibold text-slate-900 dark:text-white truncate">-- --- ----</span>
+        <span class="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
+        <!-- Hicri -->
+        <span id="pillHijriDate" class="text-slate-500 dark:text-slate-400 text-[11px] truncate hidden sm:inline">-- --- ----</span>
+      </div>
+
+      <!-- Varsa Yaklaşan Özel Gün Rozeti -->
+      <div id="pillUpcomingBadge" class="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 text-[10px] font-semibold border border-amber-200 dark:border-amber-800/50 shrink-0">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+        <span id="pillUpcomingText">Özel Gün</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- ================= SAĞ ALT KÖŞE: AYARLANABİLİR CANLI SAAT WİDGET'I ================= -->
+  <div class="fixed bottom-4 right-4 z-[70]">
+    <div 
+      id="liveClockWidget" 
+      onclick="openClockSettingsModal()"
+      role="button"
+      tabindex="0"
+      class="cursor-pointer select-none rounded-2xl bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800/90 shadow-2xl shadow-slate-900/15 dark:shadow-black/60 backdrop-blur-md px-3.5 py-2 text-slate-800 dark:text-slate-100"
+      title="Saat Ayarlarını Değiştirmek İçin Tıklayın"
+    >
+      <!-- Saat İçeriği (JS ile 4 modda dinamik render edilir) -->
+      <div id="clockContent" class="flex items-center gap-2">
+        <!-- Dinamik Render -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP: SAAT AYARLARI MODALI ================= -->
+  <div id="clockSettingsModal" class="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-blue-100 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-base">Canlı Saat Ayarları</h3>
+        </div>
+        <button onclick="closeClockSettingsModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Boyut Slider'ı (1.0x - 3.0x) -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <span>Ölçek / Boyut</span>
+          <span id="clockScaleLabel" class="font-mono text-blue-600 dark:text-blue-400 text-sm">2.0x</span>
+        </div>
+        <input 
+          type="range" 
+          id="clockScaleInput" 
+          min="1.0" 
+          max="3.0" 
+          step="0.1" 
+          value="2.0"
+          oninput="handleClockScaleChange(this.value)"
+          class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+        >
+        <div class="flex justify-between text-[10px] text-slate-400">
+          <span>1.0x (Kompakt)</span>
+          <span>2.0x (Varsayılan)</span>
+          <span>3.0x (Büyük)</span>
+        </div>
+      </div>
+
+      <!-- Görünüm Modu Seçimi (4 Tip) -->
+      <div class="space-y-2">
+        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Saat Görünüm Modu</label>
+        <select 
+          id="clockModeSelect"
+          onchange="handleClockModeChange(this.value)"
+          class="w-full py-2.5 px-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+        >
+          <option value="digital-sec">1. Dijital Saniyeli (SS:DD:sn)</option>
+          <option value="digital-short">2. Dijital Kısa (SS:DD)</option>
+          <option value="analog-digital">3. Analog Kadranlı + Dijital</option>
+          <option value="full-date-digital">4. Tam Tarih + Dijital</option>
+        </select>
+      </div>
+
+      <div class="pt-2 flex justify-end">
+        <button onclick="closeClockSettingsModal()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs shadow-md transition">
+          Tamam
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP: AÇILIR 2 SÜTUNLU HİCRİ / MİLADİ TAKVİM PENCERESİ ================= -->
+  <div id="calendarModal" class="fixed inset-0 z-[85] bg-black/60 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-5 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-2xl space-y-6 my-auto custom-scrollbar max-h-[90vh] overflow-y-auto">
+      
+      <!-- Modal Üst Başlık -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="font-bold text-slate-900 dark:text-white text-lg">Hicri & Miladi Takvim ve Özel Günler</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Çevrimdışı İslam-i Ümmü'l-Kura Motoru & Kültürel Gün Analizi</p>
+          </div>
+        </div>
+        <button onclick="closeCalendarModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- 2 Sütunlu Gövde -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- SOL SÜTUN (Takvim Izgarası + Günün/Ayın Anlamı) (7 Kolon) -->
+        <div class="lg:col-span-7 space-y-5">
+          
+          <!-- Takvim Gezinme ve Başlık -->
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 id="calCurrentMonthYear" class="text-base font-bold text-slate-900 dark:text-white">Kasım 2026</h3>
+              <p id="calCurrentHijriHeader" class="text-xs font-medium text-emerald-600 dark:text-emerald-400">Cemaziyelevvel / Cemaziyelahir 1448</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="changeCalMonth(-1)" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" title="Önceki Ay">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+              </button>
+              <button onclick="goCalToday()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition">
+                Bugün
+              </button>
+              <button onclick="changeCalMonth(1)" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" title="Sonraki Ay">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Haftanın Günleri (Pazartesi Başlangıçlı) -->
+          <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 dark:text-slate-500">
+            <div>Pzt</div>
+            <div>Sal</div>
+            <div>Çar</div>
+            <div>Per</div>
+            <div>Cum</div>
+            <div class="text-rose-500 dark:text-rose-400">Cmt</div>
+            <div class="text-rose-500 dark:text-rose-400">Paz</div>
+          </div>
+
+          <!-- Takvim Gün Hücreleri Izgarası -->
+          <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 text-center">
+            <!-- JS ile dinamik doldurulur -->
+          </div>
+
+          <!-- Günün ve Ayın Anlamı Kutusu -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-800 space-y-3">
+            <div class="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span id="meaningBoxTitle">Günün ve Ayın Anlamı</span>
+            </div>
+
+            <!-- Ayın Anlamı ve Kültürel Kökeni -->
+            <div class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed" id="meaningMonthDesc">
+              Yükleniyor...
+            </div>
+
+            <!-- Seçili Gün / Özel Gün Açıklaması -->
+            <div id="meaningDayDescContainer" class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-700 dark:text-slate-300">
+              <span id="meaningDayDesc">Bir güne tıklayarak o günün detaylarını inceleyebilirsiniz.</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SAĞ SÜTUN (Dini Günler & Ulusal Tatiller Listesi) (5 Kolon) -->
+        <div class="lg:col-span-5 space-y-4 flex flex-col">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <span>Özel Günler & Tatiller</span>
+            </h3>
+            <span class="text-[11px] text-slate-400 font-medium" id="specialDaysYearLabel">2026</span>
+          </div>
+
+          <!-- Filtreleme Butonları: [Tümü], [Dini Günler], [Ulusal Tatiller] -->
+          <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs">
+            <button onclick="setSpecialDaysFilter('all')" id="filterBtn-all" class="flex-1 py-1.5 rounded-lg font-semibold bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition">
+              Tümü
+            </button>
+            <button onclick="setSpecialDaysFilter('religious')" id="filterBtn-religious" class="flex-1 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+              Dini Günler
+            </button>
+            <button onclick="setSpecialDaysFilter('national')" id="filterBtn-national" class="flex-1 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+              Ulusal Tatiller
+            </button>
+          </div>
+
+          <!-- Kaydırılabilir Özel Günler Listesi -->
+          <div id="specialDaysList" class="flex-1 overflow-y-auto max-h-[380px] custom-scrollbar space-y-2 pr-1">
+            <!-- JS ile doldurulur -->
+          </div>
+
+          <p class="text-[11px] text-slate-400 italic">
+            * Listedeki bir özel güne tıkladığınızda takvim anında o tarihe zıplar ve detay kutusunda anlamı gösterilir.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= POPUP: GRUP & KATEGORİ YÖNETİM MODALI ================= -->
+  <div id="groupManagementModal" class="fixed inset-0 z-[85] bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
+      
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/70 text-purple-600 dark:text-purple-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white text-base">Grup & Kategori Yönetimi</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Kategorileri yeniden adlandırın, yeni grup ekleyin</p>
+          </div>
+        </div>
+        <button onclick="closeGroupModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Yeni Grup Ekleme Formu -->
+      <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-3">
+        <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Yeni Grup / Kategori Ekle</span>
+        <div class="flex gap-2">
+          <input 
+            type="text" 
+            id="newCategoryInput"
+            placeholder="Grup adı (örn: Yapay Zeka & Otomasyon)"
+            class="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+          >
+          <button 
+            onclick="addNewCategory()"
+            class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow transition shrink-0">
+            Ekle
+          </button>
+        </div>
+      </div>
+
+      <!-- Var Olan Kategoriler Listesi & İsim Değiştirme -->
+      <div class="space-y-2">
+        <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Mevcut Gruplar (İsmi değiştirmek için tıklayın)</span>
+        <div id="categoryManagerList" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+          <!-- JS ile doldurulur -->
+        </div>
+      </div>
+
+      <!-- Verileri Varsayılana Sıfırla Butonu -->
+      <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <button 
+          onclick="resetAllDataToDefaults()"
+          class="text-xs text-rose-600 hover:text-rose-700 dark:text-rose-400 font-semibold underline">
+          Tüm Grupları & Kartları Sıfırla
+        </button>
+        <button onclick="closeGroupModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-medium transition">
+          Kapat
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= POPUP: YENİ UYGULAMA KARTI EKLEME MODALI ================= -->
+  <div id="newAppModal" class="fixed inset-0 z-[85] bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 my-auto">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="p-2 rounded-xl bg-blue-100 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-base">Yeni Uygulama Kartı Ekle</h3>
+        </div>
+        <button onclick="closeNewAppModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Uygulama Adı *</label>
+          <input type="text" id="appInputTitle" placeholder="örn: Pomodoro Çalışma Asistanı" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Kategori / Grup *</label>
+          <select id="appInputCategory" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
+            <!-- JS ile doldurulur -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Açıklama *</label>
+          <textarea id="appInputDesc" rows="3" placeholder="Uygulamanın yaptığı işi özetleyin..." class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Rozet Metni</label>
+            <input type="text" id="appInputBadge" placeholder="örn: v1.0 • Offline" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Dosya Yolu (Opsiyonel)</label>
+            <input type="text" id="appInputPath" placeholder="örn: ./araclar/pomodoro.html" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none">
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex justify-end gap-2">
+        <button onclick="closeNewAppModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold">
+          İptal
+        </button>
+        <button onclick="saveNewApp()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow">
+          Kartı Ekle
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP: UYGULAMA KARTI DÜZENLEME MODALI ================= -->
+  <div id="editAppModal" class="fixed inset-0 z-[86] bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 my-auto">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="p-2 rounded-xl bg-amber-100 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-base">Uygulama Kartını Düzenle</h3>
+        </div>
+        <button onclick="closeEditAppModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <input type="hidden" id="editAppId">
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Uygulama Adı *</label>
+          <input type="text" id="editAppTitle" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Kategori / Grup *</label>
+          <select id="editAppCategory" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
+            <!-- Dinamik doldurulur -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Açıklama *</label>
+          <textarea id="editAppDesc" rows="4" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 custom-scrollbar"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Rozet Metni</label>
+            <input type="text" id="editAppBadge" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Dosya Yolu / URL</label>
+            <input type="text" id="editAppPath" placeholder="örn: ./araclar/app.html" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none">
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex justify-end gap-2">
+        <button onclick="closeEditAppModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold">
+          İptal
+        </button>
+        <button onclick="saveEditedApp()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow">
+          Değişiklikleri Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP: YÖNETİCİ KİLİDİ & ŞİFRE GİRİŞ MODALI ================= -->
+  <div id="adminAuthModal" class="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div id="adminAuthModalIconWrap" class="p-2 rounded-xl bg-amber-100 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <div>
+            <h3 id="adminAuthModalTitle" class="font-bold text-slate-900 dark:text-white text-base">Yönetici Girişi</h3>
+            <p id="adminAuthModalSubtitle" class="text-[11px] text-slate-500 dark:text-slate-400">Düzenleme yapmak için şifrenizi girin</p>
+          </div>
+        </div>
+        <button onclick="closeAdminAuthModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Durum 1: Kilitli İken Şifre Doğrulama -->
+      <div id="adminUnlockView" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Yönetici Şifresi</label>
+          <input 
+            type="password" 
+            id="adminUnlockInput" 
+            placeholder="••••••••" 
+            class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 text-center tracking-widest text-base"
+            onkeydown="if(event.key === 'Enter') submitAdminUnlock()"
+          >
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button onclick="closeAdminAuthModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold">
+            İptal
+          </button>
+          <button onclick="submitAdminUnlock()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow">
+            Kilidi Aç
+          </button>
+        </div>
+      </div>
+
+      <!-- Durum 2: Yönetici Oturumu Açıkken Kilit Yönetimi -->
+      <div id="adminManageView" class="hidden space-y-4">
+        <div class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="font-semibold">Yönetici modu etkin. Düzenleme yapabilirsiniz.</span>
+        </div>
+        <div class="space-y-2">
+          <button 
+            onclick="lockAdminSession()"
+            class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition">
+            <span>🔒 Şimdi Tekrar Kilitle</span>
+          </button>
+          <button 
+            onclick="showAdminSetPasswordView()"
+            class="w-full py-2.5 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-400 text-xs font-semibold border border-blue-200 dark:border-blue-800/50 transition">
+            <span>🔑 Şifreyi Değiştir</span>
+          </button>
+          <button 
+            onclick="removeAdminPassword()"
+            class="w-full py-2 px-3 text-[11px] font-semibold text-rose-600 dark:text-rose-400 hover:underline text-center block">
+            Şifreyi ve Korumayı Tamamen Kaldır
+          </button>
+        </div>
+      </div>
+
+      <!-- Durum 3: Yeni Şifre Belirleme / Değiştirme -->
+      <div id="adminSetPasswordView" class="hidden space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Yeni Şifre / PIN</label>
+          <input 
+            type="password" 
+            id="adminNewPasswordInput" 
+            placeholder="En az 4 karakter" 
+            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+          >
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Yeni Şifre (Tekrar)</label>
+          <input 
+            type="password" 
+            id="adminNewPasswordConfirmInput" 
+            placeholder="Şifreyi tekrar yazın" 
+            class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+            onkeydown="if(event.key === 'Enter') saveNewAdminPassword()"
+          >
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button onclick="cancelSetAdminPassword()" class="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold">
+            Geri
+          </button>
+          <button onclick="saveNewAdminPassword()" class="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow">
+            Şifreyi Kaydet
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP: BİLGİLENDİRME & LİNK REHBERİ MODALI ================= -->
+  <div id="infoModal" class="fixed inset-0 z-[85] bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2 rounded-xl bg-blue-100 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <h3 class="font-bold text-slate-900 dark:text-white text-base">Uygulamaları Bağlama Rehberi</h3>
+        </div>
+        <button onclick="closeInfoModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+        Uygulama kartlarını yerel HTML dosyalarınıza bağlamak için iki yöntem kullanabilirsiniz:
+      </p>
+      <ol class="text-xs text-slate-600 dark:text-slate-300 list-decimal list-inside space-y-1.5 leading-relaxed bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/60">
+        <li><strong>Arayüzden:</strong> "Yeni Uygulama Kartı" eklerken veya düzenlerken dosya yolunu (örn: <code class="font-mono text-blue-500">./pid-mto/index.html</code>) girin.</li>
+        <li><strong>Kod Üzerinden:</strong> Bu dosyadaki <code class="font-mono text-blue-500">DEFAULT_APPLICATIONS</code> dizisindeki <code class="font-mono text-emerald-500">filePath</code> değerini güncelleyip <code class="font-mono text-emerald-500">isLinked: true</code> yapın.</li>
+      </ol>
+      <div class="flex justify-end">
+        <button onclick="closeInfoModal()" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs">
+          Anladım
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP: FİREBASE BULUT SENKRONİZASYON MODALI ================= -->
+  <div id="cloudSyncModal" class="fixed inset-0 z-[85] bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 my-auto max-h-[92vh] overflow-y-auto custom-scrollbar">
+      
+      <!-- Başlık & Kapatma -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white text-base">Firebase Bulut Senkronizasyonu</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Realtime Database & Firestore Çift Motorlu Canlı Eşitleme</p>
+          </div>
+        </div>
+        <button onclick="closeCloudSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Bağlantı Durum Özeti Kartı -->
+      <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Bağlantı Durumu</span>
+          <span id="modalCloudStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+            <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+            <span>Bağlantı Aranıyor</span>
+          </span>
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+          <span>Aktif Veritabanı Türü:</span>
+          <span id="modalDbTypeDisplay" class="font-semibold text-blue-600 dark:text-blue-400">Belirlenmedi</span>
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+          <span>Son Eşitleme Zamanı:</span>
+          <span id="modalLastSyncTime" class="font-mono font-medium text-slate-900 dark:text-white">Henüz Eşitlenmedi</span>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-200/60 dark:border-slate-700/40 pt-2">
+          <span>Kullanıcı Kimliği (UID):</span>
+          <span id="modalUserIdDisplay" class="font-mono text-slate-700 dark:text-slate-300 truncate max-w-[220px]">--</span>
+        </div>
+      </div>
+
+      <!-- Akıllı Hata & Teşhis Kutusu (Dinamik) -->
+      <div id="cloudDiagnosticBox" class="hidden p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/70 text-xs text-amber-900 dark:text-amber-200 space-y-1">
+        <div class="flex items-center gap-2 font-bold text-amber-700 dark:text-amber-400">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <span id="cloudDiagnosticTitle">Sistem Teşhis Uyarısı</span>
+        </div>
+        <p id="cloudDiagnosticText" class="leading-relaxed text-[11px] text-amber-800 dark:text-amber-300 font-medium"></p>
+      </div>
+
+      <!-- Otomatik Senkronizasyon Seçeneği -->
+      <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60">
+        <div>
+          <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Otomatik Senkronizasyon</div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400">Grup veya kart değiştiğinde anında buluta yaz ve dinle</div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="autoSyncCheckbox" onchange="toggleAutoSyncSetting(this.checked)" class="sr-only peer" checked>
+          <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+        </label>
+      </div>
+
+      <!-- Manuel Eşitleme ve Yedekleme Butonları -->
+      <div class="grid grid-cols-2 gap-3">
+        <button 
+          onclick="triggerManualPushToCloud()"
+          class="flex items-center justify-center gap-2 p-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition active:scale-[0.98]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          <span>Buluta Yükle (Yedekle)</span>
+        </button>
+
+        <button 
+          onclick="triggerManualPullFromCloud()"
+          class="flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition active:scale-[0.98]">
+          <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+          </svg>
+          <span>Buluttan İndir (Eşitle)</span>
+        </button>
+      </div>
+
+      <!-- Firebase Yapılandırması Giriş Alanı (Akıllı Ayrıştırıcı ile) -->
+      <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-bold text-slate-800 dark:text-slate-200">Firebase Yapılandırması</label>
+          <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md">
+            Akıllı Otomatik Ayrıştırıcı Aktif
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+          Firebase konsolundaki kodu olduğu gibi yapıştırabilirsiniz (<code class="font-mono text-blue-500">const firebaseConfig = { ... };</code> veya saf JSON). Sistem anahtarları ve databaseURL adresini otomatik tespit eder:
+        </p>
+        <textarea 
+          id="firebaseConfigTextarea" 
+          rows="5" 
+          placeholder='const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  databaseURL: "https://...",
+  projectId: "...",
+  ...
+};'
+          class="w-full p-2.5 rounded-xl font-mono text-[11px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 custom-scrollbar"
+        ></textarea>
+        
+        <div class="flex items-center justify-between pt-1">
+          <button 
+            onclick="resetFirebaseCustomConfig()"
+            class="text-[11px] font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 hover:underline">
+            Yapılandırmayı Sıfırla
+          </button>
+
+          <button 
+            onclick="saveFirebaseCustomConfig()"
+            class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-semibold shadow transition">
+            Kaydet & Yeniden Bağlan
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= TOAST BİLDİRİMİ ================= -->
+  <div id="toastNotification" class="fixed top-5 right-5 z-[95] transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none max-w-sm w-full px-4">
+    <div class="p-4 rounded-2xl bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/80 shadow-2xl backdrop-blur-md flex items-start gap-3">
+      <div class="p-2 rounded-xl bg-blue-500/20 text-blue-400 shrink-0">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="flex-1 pr-2">
+        <div id="toastTitle" class="text-xs font-bold text-slate-100">Bilgi</div>
+        <div id="toastMsg" class="text-xs text-slate-300 mt-0.5 leading-relaxed">İşlem tamamlandı.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT APPLICATION CORE (FIREBASE REALTIME & FIRESTORE MODÜLLERİ) ================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getDatabase, ref as rtdbRef, set as rtdbSet, get as rtdbGet, onValue as rtdbOnValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+    import { getFirestore, doc as fsDoc, getDoc as fsGetDoc, setDoc as fsSetDoc, onSnapshot as fsOnSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    /* =========================================================================
+       1. VARSAYILAN VERİLER VE TEMEL AYARLAR
+       ========================================================================= */
+    // Varsayılan gömülü Firebase yapılandırması (muratilactakip)
+    const DEFAULT_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyAhjq7KL_e80LiW8fC-wttmn8gba5UvhVE",
+      authDomain: "muratilactakip.firebaseapp.com",
+      databaseURL: "https://muratilactakip-default-rtdb.firebaseio.com",
+      projectId: "muratilactakip",
+      storageBucket: "muratilactakip.firebasestorage.app",
+      messagingSenderId: "1029760039126",
+      appId: "1:1029760039126:web:08dc48a945e8e7e19df177",
+      measurementId: "G-9BFSZDBTQY"
+    };
+
+    const DEFAULT_CATEGORIES = [
+      { key: "all", label: "Tümü", isPermanent: true },
+      { key: "engineering", label: "Mühendislik & CAD", isPermanent: false },
+      { key: "system", label: "Sistem & Araçlar", isPermanent: false },
+      { key: "finance", label: "Finans", isPermanent: false },
+      { key: "family", label: "Aile & Eğitim", isPermanent: false }
+    ];
+
+    const DEFAULT_APPLICATIONS = [
+      {
+        id: "mto-parser",
+        title: "P&ID MTO Ayrıştırıcı & Malzeme Listesi",
+        categoryKey: "engineering",
+        description: "P&ID borulama izometriklerinden vana, boru ve enstrüman MTO listelerini regex ile ayrıştıran ve Excel'e aktaran mühendislik aracı.",
+        badge: "v2.4 Yerel",
+        iconType: "engineering",
+        filePath: null,
+        isLinked: false
+      },
+      {
+        id: "vault-manager",
+        title: "Şifre & Kimlik Yöneticisi (Vault)",
+        categoryKey: "system",
+        description: "Kriptografik WebCrypto API ile istemci tarafında AES-256 şifreli, internet gerektirmeyen güvenli parola kasası ve güçlü şifre üretici.",
+        badge: "AES-256",
+        iconType: "security",
+        filePath: null,
+        isLinked: false
+      },
+      {
+        id: "finance-tracker",
+        title: "Kasa & Finans Takip Sistemi",
+        categoryKey: "finance",
+        description: "Gelir-gider tabloları, aylık bütçe simülasyonları ve görsel analizlerle kişisel nakit akışı ve tasarruf analiz panosu.",
+        badge: "Offline DB",
+        iconType: "finance",
+        filePath: null,
+        isLinked: false
+      },
+      {
+        id: "habit-study",
+        title: "Ders & Alışkanlık Takipçisi",
+        categoryKey: "family",
+        description: "Pomodoro çalışma seansları, haftalık konu takip çizelgeleri ve puan mekanizmalı alışkanlık ve başarı panosu.",
+        badge: "Pomodoro",
+        iconType: "education",
+        filePath: null,
+        isLinked: false
+      },
+      {
+        id: "file-cleaner",
+        title: "Çift Dosya & Depolama Temizleyici",
+        categoryKey: "system",
+        description: "Seçilen dizindeki mükerrer dosyaları hash karşılaştırmasıyla tespit eden yerel disk temizleme asistanı.",
+        badge: "Web File API",
+        iconType: "storage",
+        filePath: null,
+        isLinked: false
+      },
+      {
+        id: "edu-video",
+        title: "Eğitim Video & Arşiv Portalı",
+        categoryKey: "family",
+        description: "Yerel diskteki eğitim videolarını, ders anlatımlarını ve belgeselleri güvenli, reklamsız ve kategorize bir oynatıcıda toplayan arşiv arayüzü.",
+        badge: "Yerel Medya",
+        iconType: "media",
+        filePath: null,
+        isLinked: false
+      }
+    ];
+
+    let categories = [];
+    let applications = [];
+    let currentCategory = "all";
+    let searchQuery = "";
+    let toastTimeout = null;
+
+    // Yönetici Düzenleme Kilidi Durumu
+    let adminPasswordHash = localStorage.getItem('hub_admin_pwd_hash') || '';
+    let isAdminUnlocked = !adminPasswordHash; // Şifre yoksa serbest mod
+    let pendingAdminAction = null;
+
+    // Firebase Bağlantı Durumu & Servisleri
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    let firebaseApp = null;
+    let auth = null;
+    let rtdbInstance = null;
+    let firestoreInstance = null;
+    let activeDbType = 'none'; // 'rtdb' | 'firestore' | 'none'
+    let currentUser = null;
+    let isSyncing = false;
+    let autoSyncEnabled = localStorage.getItem('hub_auto_sync') !== 'false';
+    let unsubscribeSnapshot = null;
+
+    function initData() {
+      const savedCats = localStorage.getItem('hub_categories_v2');
+      const savedApps = localStorage.getItem('hub_applications_v2');
+
+      if (savedCats) {
+        try { categories = JSON.parse(savedCats); } catch(e) { categories = [...DEFAULT_CATEGORIES]; }
+      } else {
+        categories = [...DEFAULT_CATEGORIES];
+      }
+
+      if (savedApps) {
+        try { applications = JSON.parse(savedApps); } catch(e) { applications = [...DEFAULT_APPLICATIONS]; }
+      } else {
+        applications = [...DEFAULT_APPLICATIONS];
+      }
+      saveLocalDataOnly();
+    }
+
+    function saveLocalDataOnly() {
+      localStorage.setItem('hub_categories_v2', JSON.stringify(categories));
+      localStorage.setItem('hub_applications_v2', JSON.stringify(applications));
+      updateStats();
+    }
+
+    function saveData() {
+      saveLocalDataOnly();
+      if (autoSyncEnabled && activeDbType !== 'none' && !isSyncing) {
+        pushDataToCloud(false);
+      }
+    }
+
+    /* =========================================================================
+       1.5. YÖNETİCİ DÜZENLEME KİLİDİ & ŞİFRE GÜVENLİK MOTORU
+       ========================================================================= */
+    async function hashPassword(str) {
+      if (!str) return '';
+      const enc = new TextEncoder();
+      const buf = await crypto.subtle.digest('SHA-256', enc.encode(str));
+      const arr = Array.from(new Uint8Array(buf));
+      return arr.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function updateAdminLockUI() {
+      const btn = document.getElementById('adminLockBtn');
+      const icon = document.getElementById('adminLockIcon');
+      const text = document.getElementById('adminLockText');
+
+      if (!adminPasswordHash) {
+        btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition shadow-sm";
+        icon.innerText = "🔓";
+        text.innerText = "Korumasız (Şifre Koy)";
+      } else if (isAdminUnlocked) {
+        btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-xs font-semibold border border-emerald-300/50 dark:border-emerald-700/60 transition shadow-sm";
+        icon.innerText = "🔓";
+        text.innerText = "Yönetici";
+      } else {
+        btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-400 text-xs font-semibold border border-amber-300/50 dark:border-amber-700/60 transition shadow-sm";
+        icon.innerText = "🔒";
+        text.innerText = "Kilitli";
+      }
+    }
+
+    function requireAdminAuth(callback) {
+      if (!adminPasswordHash || isAdminUnlocked) {
+        if (typeof callback === 'function') callback();
+        return;
+      }
+      pendingAdminAction = callback;
+      openAdminAuthModal('unlock');
+    }
+
+    function toggleAdminLockModal() {
+      if (!adminPasswordHash) {
+        openAdminAuthModal('set');
+      } else if (isAdminUnlocked) {
+        openAdminAuthModal('manage');
+      } else {
+        openAdminAuthModal('unlock');
+      }
+    }
+
+    function openAdminAuthModal(viewMode = 'unlock') {
+      const modal = document.getElementById('adminAuthModal');
+      const unlockView = document.getElementById('adminUnlockView');
+      const manageView = document.getElementById('adminManageView');
+      const setPassView = document.getElementById('adminSetPasswordView');
+      const title = document.getElementById('adminAuthModalTitle');
+      const subtitle = document.getElementById('adminAuthModalSubtitle');
+
+      unlockView.classList.add('hidden');
+      manageView.classList.add('hidden');
+      setPassView.classList.add('hidden');
+
+      if (viewMode === 'set') {
+        setPassView.classList.remove('hidden');
+        title.innerText = adminPasswordHash ? "Yönetici Şifresini Değiştir" : "Yönetici Şifresi Belirle";
+        subtitle.innerText = "Düzenlemeleri yetkisiz kişilere karşı kilitleyin";
+        document.getElementById('adminNewPasswordInput').value = "";
+        document.getElementById('adminNewPasswordConfirmInput').value = "";
+        setTimeout(() => document.getElementById('adminNewPasswordInput').focus(), 150);
+      } else if (viewMode === 'manage') {
+        manageView.classList.remove('hidden');
+        title.innerText = "Yönetici Paneli";
+        subtitle.innerText = "Kilit durumunu ve şifre tercihlerini yönetin";
+      } else {
+        unlockView.classList.remove('hidden');
+        title.innerText = "Yönetici Girişi";
+        subtitle.innerText = "Bu işlemi gerçekleştirmek için şifrenizi girin";
+        const input = document.getElementById('adminUnlockInput');
+        input.value = "";
+        setTimeout(() => input.focus(), 150);
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeAdminAuthModal() {
+      document.getElementById('adminAuthModal').classList.add('hidden');
+      document.getElementById('adminAuthModal').classList.remove('flex');
+      pendingAdminAction = null;
+    }
+
+    async function submitAdminUnlock() {
+      const input = document.getElementById('adminUnlockInput');
+      const val = input.value.trim();
+      if (!val) {
+        showToast("Hata", "Lütfen şifrenizi girin.");
+        return;
+      }
+
+      const inputHash = await hashPassword(val);
+      if (inputHash === adminPasswordHash) {
+        isAdminUnlocked = true;
+        updateAdminLockUI();
+        closeAdminAuthModal();
+        showToast("Kilit Açıldı", "Yönetici modu etkinleştirildi.");
+        if (typeof pendingAdminAction === 'function') {
+          const act = pendingAdminAction;
+          pendingAdminAction = null;
+          act();
+        }
+      } else {
+        input.value = "";
+        showToast("Hatalı Şifre", "Girdiğiniz yönetici şifresi geçersiz.");
+      }
+    }
+
+    function lockAdminSession() {
+      if (!adminPasswordHash) {
+        showToast("Uyarı", "Henüz bir şifre belirlenmedi.");
+        return;
+      }
+      isAdminUnlocked = false;
+      updateAdminLockUI();
+      closeAdminAuthModal();
+      showToast("Kilitlendi", "Düzenleme modu kilitlendi. Güvenle paylaşabilirsiniz.");
+    }
+
+    function showAdminSetPasswordView() {
+      openAdminAuthModal('set');
+    }
+
+    function cancelSetAdminPassword() {
+      if (isAdminUnlocked) {
+        openAdminAuthModal('manage');
+      } else {
+        closeAdminAuthModal();
+      }
+    }
+
+    async function saveNewAdminPassword() {
+      const p1 = document.getElementById('adminNewPasswordInput').value.trim();
+      const p2 = document.getElementById('adminNewPasswordConfirmInput').value.trim();
+
+      if (!p1 || p1.length < 4) {
+        showToast("Geçersiz Şifre", "Şifre en az 4 karakterden oluşmalıdır.");
+        return;
+      }
+      if (p1 !== p2) {
+        showToast("Eşleşme Hatası", "Girdiğiniz şifreler birbiriyle uyuşmuyor.");
+        return;
+      }
+
+      adminPasswordHash = await hashPassword(p1);
+      localStorage.setItem('hub_admin_pwd_hash', adminPasswordHash);
+      isAdminUnlocked = true;
+      updateAdminLockUI();
+      saveData();
+      closeAdminAuthModal();
+      showToast("Şifre Belirlendi", "Yönetici şifresi kaydedildi ve bulutla eşitlendi.");
+    }
+
+    function removeAdminPassword() {
+      adminPasswordHash = '';
+      localStorage.removeItem('hub_admin_pwd_hash');
+      isAdminUnlocked = true;
+      updateAdminLockUI();
+      saveData();
+      closeAdminAuthModal();
+      showToast("Kilit Kaldırıldı", "Yönetici şifresi ve koruma kaldırıldı.");
+    }
+
+    function updateStats() {
+      document.getElementById('statTotalApps').innerText = applications.length;
+      document.getElementById('statCategories').innerText = `${categories.filter(c => c.key !== 'all').length} Grup`;
+    }
+
+    /* =========================================================================
+       2. AKILLI YAPILANDIRMA AYRIŞTIRICI & HATA TEŞHİS MOTORU
+       ========================================================================= */
+    // Kullanıcının yapıştırdığı JS kodunu veya JSON nesnesini güvenle ayıklar (URL'yi bozmaz)
+    function smartParseFirebaseConfig(rawInput) {
+      if (!rawInput) return { ...DEFAULT_FIREBASE_CONFIG };
+      let text = typeof rawInput === 'string' ? rawInput.trim() : JSON.stringify(rawInput);
+
+      // Yalnızca satır başındaki // yorumlarını temizle; https:// adresindeki // karakterlerine ASLA dokunma!
+      text = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').trim();
+
+      let parsedObj = null;
+
+      // Doğrudan JSON ise ayrıştır
+      try {
+        const directJson = JSON.parse(text);
+        if (directJson && typeof directJson === 'object') {
+          parsedObj = { ...directJson };
+        }
+      } catch(e) {}
+
+      // Regex ile anahtarları güvenli şekilde çıkar
+      if (!parsedObj) {
+        const keys = ['apiKey', 'authDomain', 'databaseURL', 'projectId', 'storageBucket', 'messagingSenderId', 'appId', 'measurementId'];
+        const extracted = {};
+        let hitCount = 0;
+
+        keys.forEach(key => {
+          // Değer satır sonuna veya tırnağa kadar güvenle alınır (URL içindeki // korunur)
+          const pattern = new RegExp(`["']?${key}["']?\\s*:\\s*["']([^"'\r\n]+)["']`, 'i');
+          const match = text.match(pattern);
+          if (match && match[1]) {
+            extracted[key] = match[1].trim();
+            hitCount++;
+          }
+        });
+
+        if (hitCount > 0 && extracted.apiKey) {
+          parsedObj = extracted;
+        }
+      }
+
+      // Parantezler arasını ({ ... }) alarak anahtarları tırnak içine almayı dene
+      if (!parsedObj) {
+        const start = text.indexOf('{');
+        const end = text.lastIndexOf('}');
+        if (start !== -1 && end !== -1 && end > start) {
+          let block = text.substring(start, end + 1);
+          let validJsonStr = block
+            .replace(/([{,]\s*)([a-zA-Z0-9_$]+)\s*:/g, '$1"$2":')
+            .replace(/:\s*'([^']*)'/g, ':"$1"')
+            .replace(/,\s*([}\]])/g, '$1');
+          try {
+            parsedObj = JSON.parse(validJsonStr);
+          } catch (e2) {}
+        }
+      }
+
+      if (!parsedObj) {
+        parsedObj = { ...DEFAULT_FIREBASE_CONFIG };
+      }
+
+      // OTOMATİK URL ONARIM MOTORU:
+      // databaseURL bozulmuşsa (örn: "https:" veya yarım kaldıysa), projectId ile anında onar
+      const prjId = parsedObj.projectId || "muratilactakip";
+      if (!parsedObj.databaseURL || parsedObj.databaseURL.length < 15 || !parsedObj.databaseURL.includes('firebaseio.com')) {
+        parsedObj.databaseURL = `https://${prjId}-default-rtdb.firebaseio.com`;
+      }
+
+      return parsedObj;
+    }
+
+    // Firebase hata kodlarını Türkçe ve eyleme dönüştürülebilir rehber mesaja çevirir
+    function diagnoseFirebaseError(error) {
+      if (!error) return "Bilinmeyen bir hata oluştu.";
+      const code = (error.code || '').toLowerCase();
+      const message = (error.message || '').toLowerCase();
+
+      if (code.includes('auth/operation-not-allowed') || message.includes('operation-not-allowed')) {
+        return "Firebase Konsolu > Authentication > Sign-in method bölümünden 'Anonim (Anonymous)' girişi etkinleştirin.";
+      }
+      if (code.includes('permission-denied') || message.includes('permission_denied') || message.includes('permission denied')) {
+        const targetDb = activeDbType === 'rtdb' ? "Realtime Database" : "Firestore Database";
+        return `Veritabanı kuralları erişimi engelliyor. Firebase Konsolu > ${targetDb} > Kurallar (Rules) sekmesinden okuma/yazma (read: true, write: true) iznini kontrol edin.`;
+      }
+      if (code.includes('auth/configuration-not-found') || message.includes('identitytoolkit')) {
+        return "Firebase Authentication projenizde henüz başlatılmamış. Firebase Konsolunda Authentication menüsüne girip 'Başlayın' butonuna tıklayın.";
+      }
+      if (code.includes('network') || message.includes('failed to fetch') || message.includes('network-request-failed')) {
+        return "Firebase sunucularına veya CDN bağlantısına ulaşılamadı. İnternet veya şirket güvenlik duvarınızı kontrol edin.";
+      }
+      if (code.includes('unavailable') || message.includes('database not found')) {
+        return "Belirtilen Realtime Database veya Firestore veritabanı bulunamadı. Konsoldan veritabanının oluşturulduğundan emin olun.";
+      }
+      return error.message || "Bilinmeyen Firebase hatası.";
+    }
+
+    function showDiagnosticAlert(text, title = "Bağlantı / İzin Uyarısı") {
+      const box = document.getElementById('cloudDiagnosticBox');
+      const titleEl = document.getElementById('cloudDiagnosticTitle');
+      const textEl = document.getElementById('cloudDiagnosticText');
+      if (box && textEl) {
+        titleEl.innerText = title;
+        textEl.innerText = text;
+        box.classList.remove('hidden');
+      }
+    }
+
+    function hideDiagnosticAlert() {
+      const box = document.getElementById('cloudDiagnosticBox');
+      if (box) box.classList.add('hidden');
+    }
+
+    /* =========================================================================
+       3. REALTIME DATABASE & FIRESTORE ÇİFT DESTEKLİ BULUT MOTORU
+       ========================================================================= */
+    async function initFirebaseConnection() {
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+      hideDiagnosticAlert();
+
+      let configToUse = null;
+      const userSavedConfig = localStorage.getItem('hub_custom_firebase_config');
+
+      if (userSavedConfig) {
+        try {
+          configToUse = smartParseFirebaseConfig(userSavedConfig);
+        } catch(e) {
+          console.warn("Kayıtlı config parse hatası, varsayılana dönülüyor", e);
+        }
+      }
+
+      // Yapılandırma yoksa veya bozuksa gömülü varsayılan projeyi kullan
+      if (!configToUse || !configToUse.apiKey) {
+        configToUse = { ...DEFAULT_FIREBASE_CONFIG };
+      }
+
+      try {
+        updateSyncStatus('syncing', 'Bağlanıyor...');
+
+        // 1. Firebase Uygulamasını Başlat
+        firebaseApp = initializeApp(configToUse, 'hub-app-' + Date.now());
+        auth = getAuth(firebaseApp);
+
+        // 2. Veritabanı Türünü Otomatik Seç: databaseURL varsa Realtime Database, yoksa Firestore
+        if (configToUse.databaseURL && configToUse.databaseURL.includes('firebaseio.com')) {
+          activeDbType = 'rtdb';
+          rtdbInstance = getDatabase(firebaseApp, configToUse.databaseURL);
+          document.getElementById('modalDbTypeDisplay').innerText = 'Realtime Database (RTDB)';
+        } else {
+          activeDbType = 'firestore';
+          firestoreInstance = getFirestore(firebaseApp);
+          document.getElementById('modalDbTypeDisplay').innerText = 'Cloud Firestore';
+        }
+
+        // 3. Anonim Kimlik Doğrulama Denemesi (Esnek Fallback ile)
+        try {
+          let userCredential;
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            try {
+              userCredential = await signInWithCustomToken(auth, __initial_auth_token);
+            } catch(tokenErr) {
+              userCredential = await signInAnonymously(auth);
+            }
+          } else {
+            userCredential = await signInAnonymously(auth);
+          }
+          currentUser = userCredential.user;
+          document.getElementById('modalUserIdDisplay').innerText = currentUser.uid;
+        } catch (authError) {
+          console.warn("Anonim oturum hatası:", authError);
+          const authDiag = diagnoseFirebaseError(authError);
+          // Anonim giriş kapalıysa teşhis kutusunda göster ama işlemi durdurma; açık kural varsa RTDB doğrudan çalışabilir!
+          showDiagnosticAlert(authDiag, "Kimlik Doğrulama Bilgisi");
+          document.getElementById('modalUserIdDisplay').innerText = 'Anonim Giriş Kapalı (Doğrudan Erişim Modu)';
+        }
+
+        const lastSync = localStorage.getItem('hub_last_sync_time');
+        if (lastSync) updateLastSyncTimeDisplay(parseInt(lastSync, 10));
+
+        // 4. Canlı Dinleyiciyi Başlat
+        setupRealtimeListener();
+
+      } catch (fatalError) {
+        console.error("Firebase genel başlatma hatası:", fatalError);
+        const diag = diagnoseFirebaseError(fatalError);
+        updateSyncStatus('offline', 'Bağlantı Hatası');
+        showDiagnosticAlert(diag);
+        showToast("Bağlantı Hatası", diag);
+      }
+    }
+
+    function setupRealtimeListener() {
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+
+      // A) Realtime Database Dinleyicisi
+      if (activeDbType === 'rtdb' && rtdbInstance) {
+        const dbRef = rtdbRef(rtdbInstance, 'workspace_hub_data');
+        const unsub = rtdbOnValue(dbRef, (snapshot) => {
+          const cloudData = snapshot.val();
+          if (!cloudData) {
+            if (!isSyncing) pushDataToCloud(false);
+            updateSyncStatus('connected', 'RTDB: Bağlı');
+            return;
+          }
+          handleIncomingCloudData(cloudData);
+        }, (error) => {
+          console.error("RTDB dinleme hatası:", error);
+          const diag = diagnoseFirebaseError(error);
+          updateSyncStatus('offline', 'RTDB Kural Hatası');
+          showDiagnosticAlert(diag);
+        });
+
+        unsubscribeSnapshot = () => unsub();
+        updateSyncStatus('connected', 'RTDB: Bağlı');
+      }
+      
+      // B) Cloud Firestore Dinleyicisi
+      else if (activeDbType === 'firestore' && firestoreInstance) {
+        const docRef = fsDoc(firestoreInstance, 'artifacts', appId, 'public', 'data', 'portal_config', 'main');
+        unsubscribeSnapshot = fsOnSnapshot(docRef, (snapshot) => {
+          if (!snapshot.exists()) {
+            if (!isSyncing) pushDataToCloud(false);
+            updateSyncStatus('connected', 'Firestore: Bağlı');
+            return;
+          }
+          const cloudData = snapshot.data();
+          handleIncomingCloudData(cloudData);
+        }, (error) => {
+          console.error("Firestore dinleme hatası:", error);
+          const diag = diagnoseFirebaseError(error);
+          updateSyncStatus('offline', 'Firestore Kural Hatası');
+          showDiagnosticAlert(diag);
+        });
+        updateSyncStatus('connected', 'Firestore: Bağlı');
+      }
+    }
+
+    function handleIncomingCloudData(cloudData) {
+      if (!cloudData || isSyncing) return;
+      const localUpdatedAt = parseInt(localStorage.getItem('hub_last_sync_time') || '0', 10);
+      if (cloudData.updatedAt && cloudData.updatedAt > localUpdatedAt) {
+        const applied = applyCloudData(cloudData);
+        if (applied) {
+          localStorage.setItem('hub_last_sync_time', cloudData.updatedAt.toString());
+          updateLastSyncTimeDisplay(cloudData.updatedAt);
+          updateSyncStatus('connected', activeDbType === 'rtdb' ? 'RTDB: Bağlı' : 'Firestore: Bağlı');
+          hideDiagnosticAlert();
+        }
+      }
+    }
+
+    async function pushDataToCloud(notify = true) {
+      if (activeDbType === 'none') {
+        if (notify) showToast("Bulut Uyarısı", "Firebase yapılandırması bulunamadı. Lütfen ayarları kontrol edin.");
+        return;
+      }
+
+      try {
+        isSyncing = true;
+        updateSyncStatus('syncing', 'Yükleniyor...');
+        const timestamp = Date.now();
+        const payload = {
+          categories: categories,
+          applications: applications,
+          adminPasswordHash: adminPasswordHash || "",
+          updatedAt: timestamp,
+          appId: appId,
+          version: "2.1"
+        };
+
+        if (activeDbType === 'rtdb') {
+          const dbRef = rtdbRef(rtdbInstance, 'workspace_hub_data');
+          await rtdbSet(dbRef, payload);
+        } else {
+          const docRef = fsDoc(firestoreInstance, 'artifacts', appId, 'public', 'data', 'portal_config', 'main');
+          await fsSetDoc(docRef, payload);
+        }
+
+        localStorage.setItem('hub_last_sync_time', timestamp.toString());
+        updateLastSyncTimeDisplay(timestamp);
+        updateSyncStatus('connected', activeDbType === 'rtdb' ? 'RTDB: Bağlı' : 'Firestore: Bağlı');
+        hideDiagnosticAlert();
+
+        if (notify) {
+          showToast("Buluta Yüklendi", `Tüm veriler ${activeDbType === 'rtdb' ? 'Realtime Database' : 'Firestore'}'a başarıyla kaydedildi.`);
+        }
+      } catch (err) {
+        console.error("Bulut yazma hatası:", err);
+        const diag = diagnoseFirebaseError(err);
+        updateSyncStatus('offline', 'Yazma Hatası');
+        showDiagnosticAlert(diag);
+        if (notify) showToast("Yükleme Başarısız", diag);
+      } finally {
+        isSyncing = false;
+      }
+    }
+
+    async function pullDataFromCloud(notify = true) {
+      if (activeDbType === 'none') {
+        if (notify) showToast("Bulut Uyarısı", "Firebase yapılandırması aktif değil.");
+        return;
+      }
+
+      try {
+        isSyncing = true;
+        updateSyncStatus('syncing', 'İndiriliyor...');
+        let cloudData = null;
+
+        if (activeDbType === 'rtdb') {
+          const dbRef = rtdbRef(rtdbInstance, 'workspace_hub_data');
+          const snap = await rtdbGet(dbRef);
+          if (snap.exists()) cloudData = snap.val();
+        } else {
+          const docRef = fsDoc(firestoreInstance, 'artifacts', appId, 'public', 'data', 'portal_config', 'main');
+          const snap = await fsGetDoc(docRef);
+          if (snap.exists()) cloudData = snap.data();
+        }
+
+        if (cloudData) {
+          const applied = applyCloudData(cloudData);
+          if (applied) {
+            const time = cloudData.updatedAt || Date.now();
+            localStorage.setItem('hub_last_sync_time', time.toString());
+            updateLastSyncTimeDisplay(time);
+            updateSyncStatus('connected', activeDbType === 'rtdb' ? 'RTDB: Bağlı' : 'Firestore: Bağlı');
+            hideDiagnosticAlert();
+            if (notify) showToast("Buluttan Alındı", `Veriler ${activeDbType === 'rtdb' ? 'Realtime Database' : 'Firestore'}'dan güncellendi.`);
+          }
+        } else {
+          updateSyncStatus('connected', activeDbType === 'rtdb' ? 'RTDB: Bağlı' : 'Firestore: Bağlı');
+          if (notify) showToast("Bulutta Veri Yok", "Veritabanında kayıtlı veri bulunamadı.");
+        }
+      } catch (err) {
+        console.error("Bulut okuma hatası:", err);
+        const diag = diagnoseFirebaseError(err);
+        updateSyncStatus('offline', 'İndirme Hatası');
+        showDiagnosticAlert(diag);
+        if (notify) showToast("İndirme Başarısız", diag);
+      } finally {
+        isSyncing = false;
+      }
+    }
+
+    function applyCloudData(cloudData) {
+      if (!cloudData || typeof cloudData !== 'object') return false;
+      let changed = false;
+
+      if (Array.isArray(cloudData.categories) && cloudData.categories.length > 0) {
+        const validCats = cloudData.categories.filter(c => c && typeof c.key === 'string' && typeof c.label === 'string');
+        if (validCats.length > 0) {
+          categories = validCats;
+          changed = true;
+        }
+      }
+
+      if (Array.isArray(cloudData.applications)) {
+        const validApps = cloudData.applications.filter(a => a && typeof a.id === 'string' && typeof a.title === 'string');
+        applications = validApps;
+        changed = true;
+      }
+
+      // Buluttaki şifre hash'ini eşitle
+      if (typeof cloudData.adminPasswordHash === 'string' && cloudData.adminPasswordHash !== adminPasswordHash) {
+        adminPasswordHash = cloudData.adminPasswordHash;
+        localStorage.setItem('hub_admin_pwd_hash', adminPasswordHash);
+        isAdminUnlocked = !adminPasswordHash;
+        updateAdminLockUI();
+      }
+
+      if (changed) {
+        saveLocalDataOnly();
+        renderCategoryPills();
+        renderAppCards();
+        return true;
+      }
+      return false;
+    }
+
+    function updateSyncStatus(status, text) {
+      const dot = document.getElementById('cloudStatusDot');
+      const label = document.getElementById('cloudStatusText');
+      const badge = document.getElementById('modalCloudStatusBadge');
+
+      if (status === 'connected') {
+        dot.className = "w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50";
+        label.innerText = text || "Bulut: Bağlı";
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>${escapeHtml(text || 'Bağlı')}</span>`;
+      } else if (status === 'syncing') {
+        dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+        label.innerText = text || "Bulut: Eşitleniyor...";
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span><span>${escapeHtml(text || 'Eşitleniyor...')}</span>`;
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-slate-400";
+        label.innerText = text || "Bulut: Çevrimdışı";
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span><span>${escapeHtml(text || 'Çevrimdışı')}</span>`;
+      }
+    }
+
+    function updateLastSyncTimeDisplay(timestamp) {
+      const el = document.getElementById('modalLastSyncTime');
+      if (!el) return;
+      if (!timestamp) {
+        el.innerText = "Henüz Eşitlenmedi";
+        return;
+      }
+      const d = new Date(timestamp);
+      el.innerText = d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function openCloudSyncModal() {
+      const textarea = document.getElementById('firebaseConfigTextarea');
+      const saved = localStorage.getItem('hub_custom_firebase_config');
+      try {
+        if (saved) {
+          const parsed = smartParseFirebaseConfig(saved);
+          textarea.value = JSON.stringify(parsed, null, 2);
+        } else {
+          textarea.value = JSON.stringify(DEFAULT_FIREBASE_CONFIG, null, 2);
+        }
+      } catch(e) {
+        textarea.value = JSON.stringify(DEFAULT_FIREBASE_CONFIG, null, 2);
+      }
+      document.getElementById('autoSyncCheckbox').checked = autoSyncEnabled;
+      document.getElementById('cloudSyncModal').classList.remove('hidden');
+      document.getElementById('cloudSyncModal').classList.add('flex');
+    }
+
+    function closeCloudSyncModal() {
+      document.getElementById('cloudSyncModal').classList.add('hidden');
+      document.getElementById('cloudSyncModal').classList.remove('flex');
+    }
+
+    function toggleAutoSyncSetting(enabled) {
+      autoSyncEnabled = enabled;
+      localStorage.setItem('hub_auto_sync', enabled ? 'true' : 'false');
+      if (enabled && activeDbType !== 'none') {
+        setupRealtimeListener();
+        pushDataToCloud(false);
+      } else if (!enabled && unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+      showToast("Ayarlar Güncellendi", `Otomatik senkronizasyon ${enabled ? 'açıldı' : 'kapatıldı'}.`);
+    }
+
+    function triggerManualPushToCloud() {
+      pushDataToCloud(true);
+    }
+
+    function triggerManualPullFromCloud() {
+      pullDataFromCloud(true);
+    }
+
+    function saveFirebaseCustomConfig() {
+      const raw = document.getElementById('firebaseConfigTextarea').value.trim();
+      try {
+        const parsed = smartParseFirebaseConfig(raw);
+        if (!parsed || !parsed.apiKey) {
+          showToast("Eksik Bilgi", "Yapılandırmada en az 'apiKey' ve 'projectId' bulunmalıdır.");
+          return;
+        }
+
+        // Temizlenmiş ve eksiksiz URL içeren JSON'u kutuda göster ve hafızaya al
+        document.getElementById('firebaseConfigTextarea').value = JSON.stringify(parsed, null, 2);
+        localStorage.setItem('hub_custom_firebase_config', JSON.stringify(parsed));
+        showToast("Yapılandırma Onarıldı & Kaydedildi", "Veritabanı URL'si korundu ve Firebase'e bağlanılıyor...");
+        initFirebaseConnection();
+      } catch (err) {
+        console.error("Config parse hatası:", err);
+        showToast("Ayrıştırma Hatası", err.message || "Geçersiz yapılandırma kodu.");
+        showDiagnosticAlert(err.message, "Ayrıştırma Hatası");
+      }
+    }
+
+    function resetFirebaseCustomConfig() {
+      localStorage.removeItem('hub_custom_firebase_config');
+      document.getElementById('firebaseConfigTextarea').value = JSON.stringify(DEFAULT_FIREBASE_CONFIG, null, 2);
+      hideDiagnosticAlert();
+      showToast("Varsayılana Döndü", "Özel yapılandırma silindi, gömülü projeye bağlanılıyor.");
+      initFirebaseConnection();
+    }
+
+    /* =========================================================================
+       4. KATEGORİ & UYGULAMA KARTLARI İŞLEYİŞİ
+       ========================================================================= */
+    function renderCategoryPills() {
+      const container = document.getElementById('categoryPillContainer');
+      container.innerHTML = categories.map(cat => {
+        const count = cat.key === 'all' 
+          ? applications.length 
+          : applications.filter(a => a.categoryKey === cat.key).length;
+        
+        const isActive = currentCategory === cat.key;
+        return `
+          <button 
+            onclick="setCategory('${cat.key}')"
+            class="whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border transition duration-150 ${
+              isActive 
+                ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/30' 
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+            }"
+          >
+            <span>${escapeHtml(cat.label)}</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
+              isActive 
+                ? 'bg-white/20 text-white' 
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+            }">
+              ${count}
+            </span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function setCategory(catKey) {
+      currentCategory = catKey;
+      renderCategoryPills();
+      renderAppCards();
+    }
+
+    function handleSearch(val) {
+      searchQuery = val.trim().toLowerCase();
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (searchQuery.length > 0) clearBtn.classList.remove('hidden');
+      else clearBtn.classList.add('hidden');
+      renderAppCards();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('searchInput');
+      input.value = "";
+      handleSearch("");
+      input.focus();
+    }
+
+    function resetFilters() {
+      clearSearch();
+      setCategory('all');
+    }
+
+    function renderAppCards() {
+      const container = document.getElementById('cardsGrid');
+      const noResults = document.getElementById('noResultsState');
+      const badge = document.getElementById('resultCountBadge');
+
+      const filtered = applications.filter(app => {
+        const matchCategory = currentCategory === 'all' || app.categoryKey === currentCategory;
+        const catObj = categories.find(c => c.key === app.categoryKey);
+        const catLabel = catObj ? catObj.label.toLowerCase() : '';
+        const matchSearch = !searchQuery || 
+          app.title.toLowerCase().includes(searchQuery) ||
+          app.description.toLowerCase().includes(searchQuery) ||
+          catLabel.includes(searchQuery);
+        return matchCategory && matchSearch;
+      });
+
+      badge.innerText = `${filtered.length} / ${applications.length} araç listeleniyor`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = "";
+        noResults.classList.remove('hidden');
+        return;
+      }
+
+      noResults.classList.add('hidden');
+
+      container.innerHTML = filtered.map(app => {
+        const catObj = categories.find(c => c.key === app.categoryKey);
+        const catName = catObj ? catObj.label : 'Genel';
+        const hasLink = !!(app.filePath && app.isLinked);
+
+        return `
+          <div class="group/card relative rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800/90 p-6 flex flex-col justify-between hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/50 hover:border-slate-300 dark:hover:border-slate-700 transition duration-200 transform hover:-translate-y-1">
+            
+            <div>
+              <div class="flex items-start justify-between gap-3 mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-900/40 flex items-center justify-center shrink-0 group-hover/card:scale-105 transition">
+                  ${getAppSvgIcon(app.iconType)}
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[11px] font-medium px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60">
+                    ${escapeHtml(app.badge || 'Hazır')}
+                  </span>
+                </div>
+              </div>
+
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                ${escapeHtml(catName)}
+              </span>
+
+              <h3 class="text-base font-bold text-slate-900 dark:text-white mt-1 group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition leading-snug">
+                ${escapeHtml(app.title)}
+              </h3>
+
+              <!-- Zengin Tooltip (Tips) Tetikleyici Alanı -->
+              <div class="group-tooltip-trigger relative mt-2.5">
+                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2 cursor-help">
+                  ${escapeHtml(app.description)}
+                </p>
+                
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-500 hover:text-blue-600 mt-1 cursor-pointer">
+                  <span>Detaylı Açıklama</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </span>
+
+<!-- Zengin Floating Tooltip (Popover Tips) -->
+                <div class="card-tooltip absolute left-0 right-0 bottom-full mb-0 pb-2 z-50">
+                  <div class="p-4 rounded-2xl bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/80 shadow-2xl backdrop-blur-md space-y-2 text-xs max-h-56 overflow-y-auto">
+                    <div class="flex items-center justify-between border-b border-slate-700/60 pb-1.5">
+                      <span class="font-bold text-blue-400">${escapeHtml(app.title)}</span>
+                      <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">${escapeHtml(app.badge || 'Hazır')}</span>
+                    </div>
+                    <p class="text-slate-200 leading-relaxed font-normal whitespace-pre-line">${escapeHtml(app.description)}</p>
+                    <div class="pt-1 border-t border-slate-700/60 flex items-center justify-between text-[11px] text-slate-400">
+                      <span>Grup: <strong class="text-slate-200">${escapeHtml(catName)}</strong></span>
+                      <span class="font-mono text-[10px] ${hasLink ? 'text-emerald-400' : 'text-amber-400'}">
+                        ${hasLink ? '🔗 ' + escapeHtml(app.filePath) : '⚠️ Linklenmemiş'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2">
+              <button 
+                onclick="handleLaunchApp('${app.id}')"
+                class="flex-1 py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-medium text-xs flex items-center justify-center gap-1.5 shadow-sm transition active:scale-[0.98]"
+              >
+                <span>Uygulamayı Aç</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </button>
+
+              <!-- Kart Düzenleme Butonu (Yönetici Korumalı) -->
+              <button 
+                onclick="requireAdminAuth(() => openEditAppModal('${app.id}'))"
+                class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition"
+                title="Kartı Düzenle"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+
+              <!-- Kart Silme Butonu (Yönetici Korumalı) -->
+              <button 
+                onclick="requireAdminAuth(() => deleteApp('${app.id}'))"
+                class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition"
+                title="Kartı Sil"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </button>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleLaunchApp(id) {
+      const app = applications.find(a => a.id === id);
+      if (!app) return;
+      if (app.filePath && app.isLinked) {
+        window.open(app.filePath, '_blank');
+      } else {
+        showToast(
+          "Uygulama Vitrin Modunda",
+          `"${app.title}" uygulaması için yerel dosya yolu atanmamış. Bağlamak için üst menüdeki rehbere bakabilir veya kartı düzenleyebilirsiniz.`
+        );
+      }
+    }
+
+    function deleteApp(id) {
+      const app = applications.find(a => a.id === id);
+      if (!app) return;
+      applications = applications.filter(a => a.id !== id);
+      saveData();
+      renderCategoryPills();
+      renderAppCards();
+      showToast("Kart Kaldırıldı", `"${app.title}" portal listenizden silindi.`);
+    }
+
+    /* =========================================================================
+       5. GRUP & KATEGORİ YÖNETİMİ
+       ========================================================================= */
+    function openGroupModal() {
+      renderCategoryManagerList();
+      document.getElementById('groupManagementModal').classList.remove('hidden');
+      document.getElementById('groupManagementModal').classList.add('flex');
+    }
+
+    function closeGroupModal() {
+      document.getElementById('groupManagementModal').classList.add('hidden');
+      document.getElementById('groupManagementModal').classList.remove('flex');
+    }
+
+    function renderCategoryManagerList() {
+      const listContainer = document.getElementById('categoryManagerList');
+      const editableCats = categories.filter(c => c.key !== 'all');
+
+      listContainer.innerHTML = editableCats.map(cat => {
+        const count = applications.filter(a => a.categoryKey === cat.key).length;
+        return `
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between gap-2">
+            <div class="flex-1">
+              <input 
+                type="text" 
+                value="${escapeHtml(cat.label)}" 
+                id="catInput-${cat.key}"
+                class="w-full bg-transparent font-semibold text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-1 focus:ring-blue-500 rounded px-1"
+                onchange="renameCategory('${cat.key}', this.value)"
+              >
+              <div class="text-[10px] text-slate-400 mt-0.5 px-1">${count} uygulama bu grupta</div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button 
+                onclick="document.getElementById('catInput-${cat.key}').focus()" 
+                class="p-1.5 text-slate-400 hover:text-blue-500 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                title="İsmi Düzenle"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+              </button>
+              <button 
+                onclick="deleteCategory('${cat.key}')" 
+                class="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                title="Grubu Sil"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addNewCategory() {
+      const input = document.getElementById('newCategoryInput');
+      const val = input.value.trim();
+      if (!val) return;
+
+      const key = 'grp_' + Date.now();
+      categories.push({ key, label: val, isPermanent: false });
+      input.value = "";
+      saveData();
+      renderCategoryManagerList();
+      renderCategoryPills();
+      showToast("Grup Eklendi", `"${val}" kategorisi başarıyla oluşturuldu.`);
+    }
+
+    function renameCategory(key, newName) {
+      const cat = categories.find(c => c.key === key);
+      if (cat && newName.trim()) {
+        cat.label = newName.trim();
+        saveData();
+        renderCategoryPills();
+        renderAppCards();
+        showToast("Grup Güncellendi", `Grup ismi "${cat.label}" olarak değiştirildi.`);
+      }
+    }
+
+    function deleteCategory(key) {
+      const cat = categories.find(c => c.key === key);
+      if (!cat) return;
+      
+      categories = categories.filter(c => c.key !== key);
+      applications.forEach(app => {
+        if (app.categoryKey === key) {
+          app.categoryKey = categories[1] ? categories[1].key : 'all';
+        }
+      });
+
+      if (currentCategory === key) currentCategory = 'all';
+      saveData();
+      renderCategoryManagerList();
+      renderCategoryPills();
+      renderAppCards();
+      showToast("Grup Silindi", `"${cat.label}" grubu silindi, araçlar diğer gruplara aktarıldı.`);
+    }
+
+    function resetAllDataToDefaults() {
+      categories = [...DEFAULT_CATEGORIES];
+      applications = [...DEFAULT_APPLICATIONS];
+      currentCategory = 'all';
+      saveData();
+      renderCategoryManagerList();
+      renderCategoryPills();
+      renderAppCards();
+      showToast("Sıfırlandı", "Tüm gruplar ve uygulama kartları fabrika ayarlarına döndürüldü.");
+    }
+
+    /* =========================================================================
+       6. YENİ UYGULAMA KARTI EKLEME MODALI
+       ========================================================================= */
+    function openNewAppModal() {
+      const catSelect = document.getElementById('appInputCategory');
+      const validCats = categories.filter(c => c.key !== 'all');
+      catSelect.innerHTML = validCats.map(c => `<option value="${c.key}">${escapeHtml(c.label)}</option>`).join('');
+
+      document.getElementById('appInputTitle').value = "";
+      document.getElementById('appInputDesc').value = "";
+      document.getElementById('appInputBadge').value = "Yerel Araç";
+      document.getElementById('appInputPath').value = "";
+
+      document.getElementById('newAppModal').classList.remove('hidden');
+      document.getElementById('newAppModal').classList.add('flex');
+    }
+
+    function closeNewAppModal() {
+      document.getElementById('newAppModal').classList.add('hidden');
+      document.getElementById('newAppModal').classList.remove('flex');
+    }
+
+    function saveNewApp() {
+      const title = document.getElementById('appInputTitle').value.trim();
+      const catKey = document.getElementById('appInputCategory').value;
+      const desc = document.getElementById('appInputDesc').value.trim();
+      const badge = document.getElementById('appInputBadge').value.trim() || 'Hazır';
+      const path = document.getElementById('appInputPath').value.trim();
+
+      if (!title || !desc) {
+        showToast("Eksik Bilgi", "Lütfen en azından uygulama adını ve açıklamasını girin.");
+        return;
+      }
+
+      const newApp = {
+        id: 'app_' + Date.now(),
+        title: title,
+        categoryKey: catKey,
+        description: desc,
+        badge: badge,
+        iconType: "custom",
+        filePath: path || null,
+        isLinked: !!path
+      };
+
+      applications.unshift(newApp);
+      saveData();
+      renderCategoryPills();
+      renderAppCards();
+      closeNewAppModal();
+      showToast("Uygulama Eklendi", `"${title}" kartı portalınıza eklendi.`);
+    }
+
+    /* =========================================================================
+       6.5. KART DÜZENLEME (EDIT) MOTORU
+       ========================================================================= */
+    function openEditAppModal(id) {
+      const app = applications.find(a => a.id === id);
+      if (!app) return;
+
+      const catSelect = document.getElementById('editAppCategory');
+      const validCats = categories.filter(c => c.key !== 'all');
+      catSelect.innerHTML = validCats.map(c => `<option value="${c.key}">${escapeHtml(c.label)}</option>`).join('');
+
+      document.getElementById('editAppId').value = app.id;
+      document.getElementById('editAppTitle').value = app.title || '';
+      document.getElementById('editAppCategory').value = app.categoryKey || validCats[0]?.key;
+      document.getElementById('editAppDesc').value = app.description || '';
+      document.getElementById('editAppBadge').value = app.badge || '';
+      document.getElementById('editAppPath').value = app.filePath || '';
+
+      document.getElementById('editAppModal').classList.remove('hidden');
+      document.getElementById('editAppModal').classList.add('flex');
+    }
+
+    function closeEditAppModal() {
+      document.getElementById('editAppModal').classList.add('hidden');
+      document.getElementById('editAppModal').classList.remove('flex');
+    }
+
+    function saveEditedApp() {
+      const id = document.getElementById('editAppId').value;
+      const app = applications.find(a => a.id === id);
+      if (!app) return;
+
+      const title = document.getElementById('editAppTitle').value.trim();
+      const catKey = document.getElementById('editAppCategory').value;
+      const desc = document.getElementById('editAppDesc').value.trim();
+      const badge = document.getElementById('editAppBadge').value.trim();
+      const path = document.getElementById('editAppPath').value.trim();
+
+      if (!title || !desc) {
+        showToast("Eksik Bilgi", "Başlık ve açıklama boş bırakılamaz.");
+        return;
+      }
+
+      app.title = title;
+      app.categoryKey = catKey;
+      app.description = desc;
+      app.badge = badge || 'Hazır';
+      app.filePath = path || null;
+      app.isLinked = !!path;
+
+      saveData();
+      renderCategoryPills();
+      renderAppCards();
+      closeEditAppModal();
+      showToast("Güncellendi", `"${title}" kartı başarıyla güncellendi.`);
+    }
+
+    /* =========================================================================
+       7. SAĞ ALT KÖŞE: AYARLANABİLİR CANLI SAAT WİDGET'I MOTORU
+       ========================================================================= */
+    let clockMode = localStorage.getItem('hub_clock_mode') || 'digital-sec';
+    let clockScale = parseFloat(localStorage.getItem('hub_clock_scale')) || 2.0;
+
+    function initClockWidget() {
+      applyClockScale(clockScale);
+      document.getElementById('clockModeSelect').value = clockMode;
+      updateClockDisplay();
+      setInterval(updateClockDisplay, 1000);
+    }
+
+    function applyClockScale(scale) {
+      clockScale = scale;
+      const widget = document.getElementById('liveClockWidget');
+      widget.style.setProperty('--clock-scale', scale);
+      document.getElementById('clockScaleLabel').innerText = `${parseFloat(scale).toFixed(1)}x`;
+      document.getElementById('clockScaleInput').value = scale;
+      localStorage.setItem('hub_clock_scale', scale);
+    }
+
+    function handleClockScaleChange(val) {
+      applyClockScale(val);
+    }
+
+    function handleClockModeChange(mode) {
+      clockMode = mode;
+      localStorage.setItem('hub_clock_mode', mode);
+      updateClockDisplay();
+    }
+
+    function updateClockDisplay() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      const container = document.getElementById('clockContent');
+      if (!container) return;
+
+      switch(clockMode) {
+        case 'digital-sec':
+          container.innerHTML = `
+            <div class="flex items-baseline font-mono tracking-tight font-bold">
+              <span class="text-base text-slate-900 dark:text-white">${hours}:${minutes}</span>
+              <span class="text-[10px] text-blue-600 dark:text-blue-400 font-semibold ml-1">:${seconds}</span>
+            </div>
+          `;
+          break;
+
+        case 'digital-short':
+          container.innerHTML = `
+            <div class="flex items-center font-mono tracking-tight font-bold text-base text-slate-900 dark:text-white">
+              <span>${hours}:${minutes}</span>
+            </div>
+          `;
+          break;
+
+        case 'analog-digital':
+          const secAngle = (now.getSeconds() / 60) * 360;
+          const minAngle = ((now.getMinutes() + now.getSeconds() / 60) / 60) * 360;
+          const hourAngle = (((now.getHours() % 12) + now.getMinutes() / 60) / 12) * 360;
+
+          container.innerHTML = `
+            <div class="flex items-center gap-2">
+              <svg class="w-6 h-6 shrink-0" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" class="text-slate-300 dark:text-slate-700" stroke-width="2"/>
+                <line x1="20" y1="20" x2="20" y2="10" stroke="currentColor" class="text-slate-800 dark:text-slate-100" stroke-width="2.2" stroke-linecap="round" transform="rotate(${hourAngle} 20 20)"/>
+                <line x1="20" y1="20" x2="20" y2="7" stroke="currentColor" class="text-blue-600 dark:text-blue-400" stroke-width="1.8" stroke-linecap="round" transform="rotate(${minAngle} 20 20)"/>
+                <line x1="20" y1="20" x2="20" y2="5" stroke="#ef4444" stroke-width="1" stroke-linecap="round" transform="rotate(${secAngle} 20 20)"/>
+                <circle cx="20" cy="20" r="1.5" fill="#ef4444" />
+              </svg>
+              <div class="font-mono font-bold text-xs text-slate-900 dark:text-white">
+                ${hours}:${minutes}<span class="text-[9px] text-blue-500 font-normal">:${seconds}</span>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'full-date-digital':
+          const dateStr = now.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', weekday: 'short' });
+          container.innerHTML = `
+            <div class="flex flex-col text-right leading-none">
+              <span class="text-[9px] font-medium text-slate-500 dark:text-slate-400 mb-0.5">${dateStr}</span>
+              <span class="font-mono font-bold text-sm text-slate-900 dark:text-white">${hours}:${minutes}:${seconds}</span>
+            </div>
+          `;
+          break;
+      }
+    }
+
+    function openClockSettingsModal() {
+      document.getElementById('clockSettingsModal').classList.remove('hidden');
+      document.getElementById('clockSettingsModal').classList.add('flex');
+    }
+
+    function closeClockSettingsModal() {
+      document.getElementById('clockSettingsModal').classList.add('hidden');
+      document.getElementById('clockSettingsModal').classList.remove('flex');
+    }
+
+    /* =========================================================================
+       8. SOL ALT KÖŞE: HİCRİ/MİLADİ TAKVİM & ÖZEL GÜNLER MOTORU
+       ========================================================================= */
+    function getHijriDate(date) {
+      try {
+        const formatter = new Intl.DateTimeFormat('tr-TR-u-ca-islamic-umalqura', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+        const parts = formatter.formatToParts(date);
+        let day = '', month = '', year = '';
+        for (const p of parts) {
+          if (p.type === 'day') day = p.value;
+          if (p.type === 'month') month = p.value;
+          if (p.type === 'year') year = p.value;
+        }
+        return { day, month, year, text: `${day} ${month} ${year}` };
+      } catch (e) {
+        return { day: '1', month: 'Hicri', year: '1448', text: 'Hicri Takvim' };
+      }
+    }
+
+    const SPECIAL_DAYS_DATABASE = [
+      { type: 'national', day: 1, month: 1, title: 'Yılbaşı Tatili', desc: 'Yeni takvim yılının ilk resmi tatil günü.' },
+      { type: 'national', day: 23, month: 4, title: '23 Nisan Ulusal Egemenlik ve Çocuk Bayramı', desc: 'TBMM’nin açılışı ve çocuklara armağan edilen milli bayram.' },
+      { type: 'national', day: 1, month: 5, title: '1 Mayıs Emek ve Dayanışma Günü', desc: 'İşçi ve emekçilerin bayramı, resmi tatil.' },
+      { type: 'national', day: 19, month: 5, title: '19 Mayıs Atatürk’ü Anma, Gençlik ve Spor Bayramı', desc: 'Gazi Mustafa Kemal Atatürk’ün Samsun’a çıkışı ve milli mücadelenin başlangıcı.' },
+      { type: 'national', day: 15, month: 7, title: '15 Temmuz Demokrasi ve Milli Birlik Günü', desc: 'Milletin milli iradeyi koruma zaferi ve şehitleri anma günü.' },
+      { type: 'national', day: 30, month: 8, title: '30 Ağustos Zafer Bayramı', desc: 'Kurtuluş Savaşı’nın nihai zaferi, Büyük Taarruz anması.' },
+      { type: 'national', day: 29, month: 10, title: '29 Ekim Cumhuriyet Bayramı', desc: 'Türkiye Cumhuriyeti’nin kuruluşunun ilan edildiği en büyük milli bayram.' },
+      { type: 'national', day: 10, month: 11, title: '10 Kasım Atatürk’ü Anma Günü', desc: 'Cumhuriyetimizin kurucusu Ulu Önder Gazi Mustafa Kemal Atatürk’ün vefat yıl dönümü ve anma günü.' },
+
+      // 2025 Dini Günler
+      { type: 'religious', year: 2025, day: 2, month: 1, title: 'Regaib Kandili', desc: 'Üç ayların başlangıcı ve rahmet gecesi.' },
+      { type: 'religious', year: 2025, day: 26, month: 1, title: 'Miraç Kandili', desc: 'Peygamber Efendimiz’in ilahi huzura yükseldiği mübarek gece.' },
+      { type: 'religious', year: 2025, day: 13, month: 2, title: 'Berat Kandili', desc: 'Günahlardan arınma ve kurtuluş gecesi.' },
+      { type: 'religious', year: 2025, day: 1, month: 3, title: 'Ramazan Başlangıcı', desc: 'On bir ayın sultanı Ramazan-ı Şerif’in ilk oruç günü.' },
+      { type: 'religious', year: 2025, day: 26, month: 3, title: 'Kadir Gecesi', desc: 'Bin aydan daha hayırlı olan Kur’an-ı Kerim’in indirildiği gece.' },
+      { type: 'religious', year: 2025, day: 30, month: 3, title: 'Ramazan Bayramı (1. Gün)', desc: 'Ramazan orucunun tamamlanmasıyla kutlanan sevinç ve yardımlaşma bayramı.' },
+      { type: 'religious', year: 2025, day: 6, month: 6, title: 'Kurban Bayramı (1. Gün)', desc: 'Hz. İbrahim’in sadakatini ve kurban ibadetini anma bayramı.' },
+      { type: 'religious', year: 2025, day: 26, month: 6, title: 'Hicri Yılbaşı (1 Muharrem 1447)', desc: 'Hicret esasına dayanan yeni Hicri yılın ilk günü.' },
+      { type: 'religious', year: 2025, day: 5, month: 7, title: 'Aşure Günü', desc: 'Muharrem ayının 10. günü, paylaşmanın ve bereketi simgeleyen gün.' },
+      { type: 'religious', year: 2025, day: 3, month: 9, title: 'Mevlid Kandili', desc: 'Peygamberimiz Hz. Muhammed’in (s.a.v) dünyayı teşrif ettiği gece.' },
+
+      // 2026 Dini Günler
+      { type: 'religious', year: 2026, day: 15, month: 1, title: 'Miraç Kandili', desc: 'Müminlerin miracı namazın hediye edildiği mübarek gece.' },
+      { type: 'religious', year: 2026, day: 2, month: 2, title: 'Berat Kandili', desc: 'Ramazan-ı Şerif’in müjdecisi ve affolunma gecesi.' },
+      { type: 'religious', year: 2026, day: 18, month: 2, title: 'Ramazan Başlangıcı', desc: 'Ramazan ayının ilk oruç günü, sahur ve iftar bereketi.' },
+      { type: 'religious', year: 2026, day: 16, month: 3, title: 'Kadir Gecesi', desc: 'Kur’an-ı Kerim’in inmeye başladığı bin aydan hayırlı gece.' },
+      { type: 'religious', year: 2026, day: 20, month: 3, title: 'Ramazan Bayramı (1. Gün)', desc: 'Mübarek Ramazan Bayramı’nın ilk günü.' },
+      { type: 'religious', year: 2026, day: 27, month: 5, title: 'Kurban Bayramı (1. Gün)', desc: 'Kurban Bayramı’nın ilk günü ve kurban ibadeti.' },
+      { type: 'religious', year: 2026, day: 16, month: 6, title: 'Hicri Yılbaşı (1 Muharrem 1448)', desc: 'Yeni Hicri yılın (1448) başlangıç günü.' },
+      { type: 'religious', year: 2026, day: 25, month: 6, title: 'Aşure Günü', desc: 'Peygamberlerin pek çok mucizesinin gerçekleştiği Aşure günü.' },
+      { type: 'religious', year: 2026, day: 24, month: 8, title: 'Mevlid Kandili', desc: 'Alemlere rahmet Peygamberimiz’in veladet gecesi.' },
+      { type: 'religious', year: 2026, day: 24, month: 12, title: 'Regaib Kandili', desc: 'Recep ayının ilk cuma gecesi idrak edilen Regaib Kandili.' },
+
+      // 2027 Dini Günler
+      { type: 'religious', year: 2027, day: 7, month: 1, title: 'Regaib Kandili', desc: 'Üç ayların ilk kandili, rağbet edilen ilahi lütuflar gecesi.' },
+      { type: 'religious', year: 2027, day: 3, month: 2, title: 'Miraç Kandili', desc: 'Peygamber Efendimiz’in göğe yükselişi ve ilahi ikramlar gecesi.' },
+      { type: 'religious', year: 2027, day: 8, month: 2, title: 'Ramazan Başlangıcı', desc: '2027 yılı Ramazan orucunun başlangıç günü.' },
+      { type: 'religious', year: 2027, day: 22, month: 2, title: 'Berat Kandili', desc: 'Kulların günahlardan beri kılındığı af gecesi.' },
+      { type: 'religious', year: 2027, day: 6, month: 3, title: 'Kadir Gecesi', desc: 'Yüce kitabımız Kur’an-ı Kerim’in indirildiği gece.' },
+      { type: 'religious', year: 2027, day: 10, month: 3, title: 'Ramazan Bayramı (1. Gün)', desc: 'Ramazan Bayramı ilk günü.' },
+      { type: 'religious', year: 2027, day: 17, month: 5, title: 'Kurban Bayramı (1. Gün)', desc: 'Kurban ibadeti ve bayram sevinci.' },
+      { type: 'religious', year: 2027, day: 6, month: 6, title: 'Hicri Yılbaşı (1 Muharrem 1449)', desc: '1449 Hicri yılının ilk günü.' },
+      { type: 'religious', year: 2027, day: 15, month: 6, title: 'Aşure Günü', desc: 'Bereket, şükür ve aşure ikramları günü.' },
+      { type: 'religious', year: 2027, day: 13, month: 8, title: 'Mevlid Kandili', desc: 'Peygamber Efendimiz’in kutlu doğumu.' }
+    ];
+
+    const MONTH_CULTURAL_INFO = {
+      gregorian: [
+        "Ocak: Roma kapı ve başlangıçlar tanrısı Janus'tan esinlenilmiştir; Türkçede kış ocaklarının yakıldığı ayı simgeler.",
+        "Şubat: Süryanice 'şabat' (dinlenme/fırtına) kökenlidir; yılın en kısa kış ve tefekkür ayıdır.",
+        "Mart: Roma savaş ve tarım tanrısı Mars'tan gelir; karların eridiği ve tabiatın uyandığı ilkbahar müjdecisidir.",
+        "Nisan: Mezopotamya kökenli Akadca 'nisanu' (ilk meyve/tohum) sözcüğünden gelir; çiçeklenme dönemidir.",
+        "Mayıs: Büyüme ve bereket tanrıçası Maia'dan adını alır; ilkbaharın en yeşil ve canlı zamanıdır.",
+        "Haziran: Süryanice 'sıcak/köz' manasındaki hazirandan türemiştir; yaz mevsiminin resmen başladığı aydır.",
+        "Temmuz: Mezopotamya bereket tanrısı Dumuzi (Tammuz) onuruna anılır; güneşin ve hasadın en cömert olduğu aydır.",
+        "Ağustos: Roma İmparatoru Augustus onuruna adlandırılmıştır; meyve ve ekinlerin tam olgunlaştığı dönemdir.",
+        "Eylül: Süryanice 'elul' (üzüm ve hasat sevinci) kökenlidir; hazan mevsimi ve sonbaharın zarafetidir.",
+        "Ekim: Türkçede toprağa tohumların ekildiği ayı ifade eder; doğanın kış dinlenmesine çekilme başlangıcıdır.",
+        "Kasım: Arapça 'kısmet eden / bölen' (yılı yaz ve kış diye ikiye ayıran) kökünden gelir; pastırma yazı ve kış başlangıcıdır.",
+        "Aralık: Eski yıl ile yeni yıl arasındaki ara zamanı niteleyen Türkçe kökenli yılın son ayıdır."
+      ],
+      hijriGeneral: "Hicri takvim, Hz. Muhammed'in Mekke'den Medine'ye hicretini (M.S. 622) başlangıç kabul eden ay takvimidir. Aylar hilalin gökyüzündeki evrelerine göre belirlenir ve her yıl Miladi takvimden yaklaşık 10-11 gün önce gelir."
+    };
+
+    let calDate = new Date();
+    let selectedDate = new Date();
+    let specialDaysFilter = 'all';
+
+    function initCalendarEngine() {
+      updateCalendarPill();
+      setInterval(updateCalendarPill, 60000);
+    }
+
+    function updateCalendarPill() {
+      const today = new Date();
+      const gregStr = today.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+      const hijri = getHijriDate(today);
+
+      document.getElementById('pillGregorianDate').innerText = gregStr;
+      document.getElementById('pillHijriDate').innerText = hijri.text;
+
+      const todaySpecial = SPECIAL_DAYS_DATABASE.find(d => {
+        const matchYear = !d.year || d.year === today.getFullYear();
+        return matchYear && d.month === (today.getMonth() + 1) && d.day === today.getDate();
+      });
+
+      const badge = document.getElementById('pillUpcomingBadge');
+      const badgeText = document.getElementById('pillUpcomingText');
+
+      if (todaySpecial) {
+        badge.classList.remove('hidden');
+        badgeText.innerText = todaySpecial.title;
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function openCalendarModal() {
+      calDate = new Date(selectedDate);
+      renderCalendar();
+      renderSpecialDaysList();
+      document.getElementById('calendarModal').classList.remove('hidden');
+      document.getElementById('calendarModal').classList.add('flex');
+    }
+
+    function closeCalendarModal() {
+      document.getElementById('calendarModal').classList.add('hidden');
+      document.getElementById('calendarModal').classList.remove('flex');
+    }
+
+    function changeCalMonth(delta) {
+      calDate.setMonth(calDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function goCalToday() {
+      calDate = new Date();
+      selectedDate = new Date();
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const year = calDate.getFullYear();
+      const month = calDate.getMonth();
+
+      const monthName = calDate.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+      document.getElementById('calCurrentMonthYear').innerText = monthName;
+
+      const firstHijri = getHijriDate(new Date(year, month, 1));
+      const lastHijri = getHijriDate(new Date(year, month + 1, 0));
+      document.getElementById('calCurrentHijriHeader').innerText = `${firstHijri.month} / ${lastHijri.month} ${lastHijri.year}`;
+
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = "";
+
+      const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+      const today = new Date();
+
+      for (let i = firstDayIndex - 1; i >= 0; i--) {
+        const dayNum = daysInPrevMonth - i;
+        grid.innerHTML += `
+          <div class="calendar-cell p-1 rounded-xl text-slate-300 dark:text-slate-700 text-xs flex flex-col items-center justify-center opacity-40 select-none">
+            <span>${dayNum}</span>
+          </div>
+        `;
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cellDate = new Date(year, month, day);
+        const hijri = getHijriDate(cellDate);
+        
+        const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+        const isSelected = selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year;
+
+        const special = SPECIAL_DAYS_DATABASE.find(d => {
+          const matchYear = !d.year || d.year === year;
+          return matchYear && d.month === (month + 1) && d.day === day;
+        });
+
+        let dotHtml = '';
+        if (special) {
+          dotHtml = `<span class="w-1.5 h-1.5 rounded-full ${special.type === 'religious' ? 'bg-emerald-500' : 'bg-rose-500'} mt-0.5" title="${escapeHtml(special.title)}"></span>`;
+        }
+
+        let bgClass = "bg-slate-50 dark:bg-slate-800/40 text-slate-800 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-700/60";
+        if (isSelected) {
+          bgClass = "bg-blue-600 text-white shadow-md shadow-blue-500/30 font-bold";
+        } else if (isToday) {
+          bgClass = "ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 font-bold";
+        }
+
+        grid.innerHTML += `
+          <button 
+            onclick="selectCalendarDay(${year}, ${month}, ${day})"
+            class="calendar-cell p-1 rounded-xl flex flex-col items-center justify-between text-xs transition duration-150 ${bgClass}"
+          >
+            <span class="text-xs font-semibold leading-none">${day}</span>
+            <span class="text-[9px] ${isSelected ? 'text-white/80' : 'text-slate-400 dark:text-slate-500'} leading-none font-mono">${hijri.day}</span>
+            <div class="h-1.5 flex items-center justify-center">${dotHtml}</div>
+          </button>
+        `;
+      }
+
+      updateMeaningBox();
+    }
+
+    function selectCalendarDay(year, month, day) {
+      selectedDate = new Date(year, month, day);
+      renderCalendar();
+    }
+
+    function updateMeaningBox() {
+      const monthIdx = selectedDate.getMonth();
+      const gregDesc = MONTH_CULTURAL_INFO.gregorian[monthIdx] || "";
+      const hijri = getHijriDate(selectedDate);
+
+      document.getElementById('meaningBoxTitle').innerText = `${selectedDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })} (${hijri.text})`;
+      document.getElementById('meaningMonthDesc').innerHTML = `
+        <p class="font-medium text-slate-800 dark:text-slate-200 mb-1">📅 ${gregDesc}</p>
+        <p class="text-slate-500 dark:text-slate-400 text-[11px]">🌙 <strong>Hicri Ay:</strong> ${hijri.month} ayı manevi ikliminde bulunulmaktadır. ${MONTH_CULTURAL_INFO.hijriGeneral}</p>
+      `;
+
+      const special = SPECIAL_DAYS_DATABASE.find(d => {
+        const matchYear = !d.year || d.year === selectedDate.getFullYear();
+        return matchYear && d.month === (selectedDate.getMonth() + 1) && d.day === selectedDate.getDate();
+      });
+
+      const dayDescBox = document.getElementById('meaningDayDesc');
+      if (special) {
+        dayDescBox.innerHTML = `
+          <div class="flex items-center gap-2 font-bold ${special.type === 'religious' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'} mb-1">
+            <span class="w-2 h-2 rounded-full ${special.type === 'religious' ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+            <span>${escapeHtml(special.title)}</span>
+          </div>
+          <p class="text-slate-600 dark:text-slate-300 text-xs">${escapeHtml(special.desc)}</p>
+        `;
+      } else {
+        dayDescBox.innerHTML = `
+          <span class="text-slate-500 dark:text-slate-400 text-xs">
+            Seçilen bu gün resmi tatil veya dini kandil takviminde yer almamaktadır. Rutin çalışma ve planlama günüdür.
+          </span>
+        `;
+      }
+    }
+
+    function setSpecialDaysFilter(filter) {
+      specialDaysFilter = filter;
+      ['all', 'religious', 'national'].forEach(f => {
+        const btn = document.getElementById(`filterBtn-${f}`);
+        if (f === filter) {
+          btn.className = "flex-1 py-1.5 rounded-lg font-semibold bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition";
+        } else {
+          btn.className = "flex-1 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition";
+        }
+      });
+      renderSpecialDaysList();
+    }
+
+    function renderSpecialDaysList() {
+      const container = document.getElementById('specialDaysList');
+      const activeYear = calDate.getFullYear();
+      document.getElementById('specialDaysYearLabel').innerText = `${activeYear} Yılı`;
+
+      const filtered = SPECIAL_DAYS_DATABASE.filter(item => {
+        const matchYear = !item.year || item.year === activeYear;
+        const matchType = specialDaysFilter === 'all' || item.type === specialDaysFilter;
+        return matchYear && matchType;
+      });
+
+      filtered.sort((a, b) => (a.month * 100 + a.day) - (b.month * 100 + b.day));
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 py-6 text-center">Bu kategoride özel gün bulunamadı.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        const dateObj = new Date(activeYear, item.month - 1, item.day);
+        const dateStr = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
+        const isRel = item.type === 'religious';
+
+        return `
+          <div 
+            onclick="jumpToSpecialDay(${activeYear}, ${item.month - 1}, ${item.day})"
+            class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-blue-50 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 flex items-start justify-between gap-2.5 cursor-pointer transition group"
+          >
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full ${isRel ? 'bg-emerald-500' : 'bg-rose-500'} shrink-0"></span>
+                <span class="font-bold text-xs text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">${escapeHtml(item.title)}</span>
+              </div>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">${escapeHtml(item.desc)}</p>
+            </div>
+            <span class="text-[11px] font-semibold text-slate-400 dark:text-slate-400 shrink-0 whitespace-nowrap bg-white dark:bg-slate-900 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-800">
+              ${dateStr}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function jumpToSpecialDay(year, monthIdx, day) {
+      calDate = new Date(year, monthIdx, 1);
+      selectedDate = new Date(year, monthIdx, day);
+      renderCalendar();
+      showToast("Tarihe Odaklanıldı", `${day} ${new Date(year, monthIdx, 1).toLocaleDateString('tr-TR', { month: 'long' })} ${year} seçildi.`);
+    }
+
+    /* =========================================================================
+       9. GENEL YARDIMCI FONKSİYONLAR
+       ========================================================================= */
+    function showToast(title, message) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastTitle').innerText = title;
+      document.getElementById('toastMsg').innerText = message;
+
+      toast.classList.remove('-translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('-translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 4500);
+    }
+
+    function openInfoModal() {
+      document.getElementById('infoModal').classList.remove('hidden');
+      document.getElementById('infoModal').classList.add('flex');
+    }
+
+    function closeInfoModal() {
+      document.getElementById('infoModal').classList.add('hidden');
+      document.getElementById('infoModal').classList.remove('flex');
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('hub_theme');
+      if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.getElementById('moonIcon').classList.remove('hidden');
+        document.getElementById('sunIcon').classList.add('hidden');
+      } else {
+        document.documentElement.classList.add('dark');
+        document.getElementById('moonIcon').classList.add('hidden');
+        document.getElementById('sunIcon').classList.remove('hidden');
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('hub_theme', isDark ? 'dark' : 'light');
+      const moon = document.getElementById('moonIcon');
+      const sun = document.getElementById('sunIcon');
+      if (isDark) {
+        moon.classList.add('hidden');
+        sun.classList.remove('hidden');
+      } else {
+        moon.classList.remove('hidden');
+        sun.classList.add('hidden');
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function getAppSvgIcon(type) {
+      switch (type) {
+        case "engineering":
+          return `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" /></svg>`;
+        case "security":
+          return `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>`;
+        case "finance":
+          return `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+        case "education":
+          return `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /></svg>`;
+        case "storage":
+          return `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7c-2 0-3 1-3 3z" /></svg>`;
+        case "media":
+          return `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+        default:
+          return `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>`;
+      }
+    }
+
+    // HTML onclick olayları için global window kaydı
+    Object.assign(window, {
+      toggleTheme,
+      openGroupModal: () => requireAdminAuth(openGroupModal),
+      closeGroupModal,
+      addNewCategory: () => requireAdminAuth(addNewCategory),
+      renameCategory: (k, v) => requireAdminAuth(() => renameCategory(k, v)),
+      deleteCategory: (k) => requireAdminAuth(() => deleteCategory(k)),
+      resetAllDataToDefaults: () => requireAdminAuth(resetAllDataToDefaults),
+      openNewAppModal: () => requireAdminAuth(openNewAppModal),
+      closeNewAppModal,
+      saveNewApp,
+      openEditAppModal,
+      closeEditAppModal,
+      saveEditedApp,
+      handleLaunchApp,
+      deleteApp,
+      handleSearch,
+      clearSearch,
+      resetFilters,
+      setCategory,
+      openClockSettingsModal,
+      closeClockSettingsModal,
+      handleClockScaleChange,
+      handleClockModeChange,
+      openCalendarModal,
+      closeCalendarModal,
+      changeCalMonth,
+      goCalToday,
+      selectCalendarDay,
+      setSpecialDaysFilter,
+      jumpToSpecialDay,
+      openInfoModal,
+      closeInfoModal,
+      openCloudSyncModal,
+      closeCloudSyncModal,
+      toggleAutoSyncSetting,
+      triggerManualPushToCloud,
+      triggerManualPullFromCloud,
+      saveFirebaseCustomConfig,
+      resetFirebaseCustomConfig,
+      toggleAdminLockModal,
+      submitAdminUnlock,
+      lockAdminSession,
+      showAdminSetPasswordView,
+      cancelSetAdminPassword,
+      saveNewAdminPassword,
+      removeAdminPassword,
+      requireAdminAuth
+    });
+
+    window.onload = function() {
+      initTheme();
+      initData();
+      updateAdminLockUI();
+      renderCategoryPills();
+      renderAppCards();
+      initClockWidget();
+      initCalendarEngine();
+      initFirebaseConnection();
+    };
+  </script>
 </body>
 </html>

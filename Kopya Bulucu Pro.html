@@ -1,0 +1,4208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hızlı Kopya Bulucu & Disk Analizörü Pro</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --primary-light: rgba(79, 70, 229, 0.1);
+            --success: #10B981;
+            --success-hover: #059669;
+            --success-light: rgba(16, 185, 129, 0.12);
+            --danger: #EF4444;
+            --danger-hover: #DC2626;
+            --danger-light: rgba(239, 68, 68, 0.1);
+            --warning: #F59E0B;
+            --warning-hover: #D97706;
+            --warning-light: rgba(245, 158, 11, 0.12);
+            --info: #0EA5E9;
+            --bg: #F3F4F6;
+            --sidebar-bg: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --text: #1F2937;
+            --text-secondary: #4B5563;
+            --border: #E5E7EB;
+            --muted: #6B7280;
+            --info-bg: #EFF6FF;
+            --info-text: #1E40AF;
+            --tree-line: #D1D5DB;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+        }
+
+        body.dark-mode {
+            --primary: #6366F1;
+            --primary-hover: #818CF8;
+            --primary-light: rgba(99, 102, 241, 0.18);
+            --bg: #0F172A;
+            --sidebar-bg: #1E293B;
+            --card-bg: #1E293B;
+            --text: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --border: #334155;
+            --muted: #94A3B8;
+            --info-bg: #1E293B;
+            --info-text: #93C5FD;
+            --tree-line: #475569;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        /* YAN PANEL (SIDEBAR) */
+        .app-sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            flex-shrink: 0;
+            z-index: 50;
+            transition: all 0.25s ease;
+        }
+
+        .brand-box {
+            padding: 20px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), #7C3AED);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .brand-title {
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .nav-menu {
+            padding: 14px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            padding: 8px 10px 4px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            padding: 11px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            box-shadow: none;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            transform: none;
+        }
+
+        .nav-btn.active {
+            background-color: var(--primary);
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+        }
+
+        .nav-btn-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-badge {
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 99px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .nav-btn.active .nav-badge {
+            background: rgba(255, 255, 255, 0.22);
+            color: #FFFFFF;
+        }
+
+        .sidebar-memory-card {
+            margin: 10px 12px;
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            font-size: 12px;
+        }
+
+        .memory-title {
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .memory-folder-name {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 700;
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-footer {
+            padding: 12px 14px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* ANA İÇERİK ALANI */
+        .app-main {
+            flex-grow: 1;
+            min-width: 0;
+            padding: 24px 28px 80px;
+            max-width: 1360px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .page-title-wrap h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .page-title-wrap p {
+            margin: 4px 0 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* BUTONLAR */
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background-color: var(--muted);
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background-color: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: var(--success-hover); }
+
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: var(--danger-hover); }
+
+        .btn-warning { background-color: var(--warning); color: #fff; }
+        .btn-warning:hover { background-color: var(--warning-hover); }
+
+        .btn-sm {
+            padding: 6px 11px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        /* SEKME GÖRÜNÜMLERİ */
+        .tab-view { display: none; }
+        .tab-view.active { display: block; }
+
+        /* KARTLAR VE PANELLER */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .info-banner {
+            background: var(--info-bg);
+            color: var(--info-text);
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            font-size: 13.5px;
+            border-left: 4px solid var(--primary);
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-group label {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .filter-group input, .filter-group select, .filter-group textarea {
+            padding: 9px 11px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            font-size: 13.5px;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+        }
+
+        .filter-group input:focus, .filter-group select:focus {
+            border-color: var(--primary);
+        }
+
+        .folder-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 15px;
+            background: var(--bg);
+            border: 1px dashed var(--primary);
+            border-radius: 9px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .folder-bar-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            flex-wrap: wrap;
+        }
+
+        .folder-pill {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: 700;
+        }
+
+        /* DURUM VE İLERLEME ÇUBUĞU */
+        .status-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 14px 0;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 3px solid var(--primary-light);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 0.9s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ÖZET İSTATİSTİK KARTLARI */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card.highlight {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            border: none;
+        }
+
+        .stat-card.selected-highlight {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            border: none;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.85;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        /* ESNEK SEÇİM ARAÇ ÇUBUĞU */
+        .selection-toolbar {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .toolbar-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-btn-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* KOPYA GRUP KARTLARI */
+        .group-card {
+            background: var(--card-bg);
+            border-radius: 11px;
+            padding: 15px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .group-title {
+            font-weight: 700;
+            font-size: 14.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hash-tag {
+            font-family: monospace;
+            font-size: 11px;
+            background: var(--bg);
+            color: var(--muted);
+            padding: 2px 7px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+        }
+
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.15s;
+        }
+
+        .file-main-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .file-keep {
+            background-color: var(--success-light);
+            border-color: var(--success);
+        }
+
+        .file-delete {
+            background-color: var(--danger-light);
+            border-color: var(--danger);
+        }
+
+        .file-unselected {
+            background-color: var(--bg);
+            border-color: var(--border);
+        }
+
+        .file-details {
+            flex-grow: 1;
+            min-width: 200px;
+            word-break: break-all;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 6px;
+        }
+
+        .file-details:hover {
+            background-color: rgba(79, 70, 229, 0.06);
+        }
+
+        .file-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+        .file-meta {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 3px;
+            font-family: monospace;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 4px 9px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .badge-keep { background-color: var(--success); }
+        .badge-delete { background-color: var(--danger); }
+        .badge-neutral { background-color: var(--muted); }
+
+        input[type="checkbox"] {
+            width: 19px;
+            height: 19px;
+            cursor: pointer;
+            accent-color: var(--danger);
+            flex-shrink: 0;
+        }
+
+        .preview-container {
+            display: none;
+            margin-top: 10px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 1px dashed var(--muted);
+            text-align: center;
+        }
+
+        .preview-container img, .preview-container video {
+            max-width: 100%;
+            max-height: 260px;
+            border-radius: 6px;
+        }
+
+        /* ALT SABİT İŞLEM ÇUBUĞU */
+        #bottomActions {
+            display: none;
+            background: var(--card-bg);
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 2px solid var(--primary);
+            position: sticky;
+            bottom: 16px;
+            box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.15);
+            z-index: 90;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .action-options {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-weight: 700;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+
+        /* KLASÖR & BOYUT ANALİZİ AĞAÇ GÖRÜNÜMÜ (TREE VIEW) */
+        .tree-container {
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        .tree-node {
+            margin-left: 0;
+            position: relative;
+        }
+
+        .tree-children {
+            margin-left: 24px;
+            padding-left: 12px;
+            border-left: 2px solid var(--tree-line);
+            display: block; /* Varsayılan olarak AÇIK (-) gelir */
+        }
+
+        .tree-children.collapsed {
+            display: none;
+        }
+
+        .tree-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 10px;
+            margin: 4px 0;
+            border-radius: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            transition: background 0.15s;
+            flex-wrap: wrap;
+        }
+
+        .tree-row:hover {
+            border-color: var(--primary);
+        }
+
+        .tree-row.root-row {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            font-weight: 700;
+        }
+
+        .tree-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 220px;
+            flex-grow: 1;
+        }
+
+        .tree-toggle-btn {
+            width: 26px;
+            height: 26px;
+            padding: 0;
+            border-radius: 6px;
+            background: var(--card-bg);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            font-family: monospace;
+            font-size: 15px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .tree-toggle-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: none;
+        }
+
+        .tree-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .size-bar-wrap {
+            width: 110px;
+            height: 8px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .size-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #EC4899);
+            border-radius: 99px;
+        }
+
+        .size-pill {
+            font-family: monospace;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+        }
+
+        .tree-file-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            margin: 3px 0;
+            border-radius: 6px;
+            background: var(--card-bg);
+            border: 1px dashed var(--warning);
+            font-size: 12.5px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tree-file-name {
+            font-family: monospace;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tree-file-size {
+            font-family: monospace;
+            font-weight: 700;
+            color: var(--warning-hover);
+            background: var(--warning-light);
+            padding: 2px 7px;
+            border-radius: 5px;
+        }
+
+        /* GEÇMİŞ TABLOSU */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg);
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        tr:hover td {
+            background: rgba(79, 70, 229, 0.03);
+        }
+
+        /* MODAL VE TOAST BİLDİRİM SİSTEMİ */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            max-width: 480px;
+            width: 100%;
+            padding: 22px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+        .modal-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 14px;
+            white-space: pre-line;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            background: var(--bg);
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        #toastContainer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 360px;
+        }
+
+        .toast-item {
+            background: var(--card-bg);
+            color: var(--text);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 12px 15px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            font-size: 13.5px;
+            font-weight: 600;
+            border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* MOBİL UYUMLULUK */
+        @media (max-width: 860px) {
+            body { flex-direction: column; }
+            .app-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .app-main { padding: 16px; }
+        }
+    
+        :root {
+            --clock-scale: 2;
+        }
+
+        .app-sidebar {
+            padding-bottom: 76px;
+        }
+
+        .app-main {
+            padding-bottom: 120px;
+        }
+
+        #toastContainer {
+            top: 20px;
+            bottom: auto;
+            right: 20px;
+        }
+
+        /* ========================================================= */
+        /* 1. SAĞ ALT KÖŞE: AYARLANABİLİR CANLI SAAT WİDGET'I        */
+        /* ========================================================= */
+        .fixed { position: fixed; }
+        .bottom-4 { bottom: 16px; }
+        .right-4 { right: 16px; }
+        .left-4 { left: 16px; }
+        .z-\[70\] { z-index: 70; }
+        .z-\[60\] { z-index: 60; }
+
+        .smart-clock-wrapper {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            z-index: 70;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+
+        #smartClockWidget {
+            pointer-events: auto;
+            transform: scale(var(--clock-scale, 2));
+            transform-origin: bottom right;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1.5px solid var(--primary);
+            border-radius: 12px;
+            padding: 7px 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        #smartClockWidget:hover {
+            border-color: var(--primary-hover);
+            box-shadow: 0 10px 28px rgba(79, 70, 229, 0.28);
+        }
+
+        .clock-digital-main {
+            font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            line-height: 1.1;
+            color: var(--text);
+            display: inline-flex;
+            align-items: baseline;
+        }
+
+        .clock-digital-sec {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-left: 2px;
+        }
+
+        body.dark-mode .clock-digital-sec {
+            color: #38BDF8;
+        }
+
+        .clock-date-line {
+            font-size: 8.5px;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 0.02em;
+            margin-bottom: 2px;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .clock-analog-svg {
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        /* SAAT AYAR ÇEKMECESİ / POPOVER */
+        .clock-settings-drawer {
+            pointer-events: auto;
+            position: fixed;
+            bottom: 96px;
+            right: 16px;
+            z-index: 75;
+            width: 290px;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.28);
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .clock-settings-drawer.open {
+            display: flex;
+        }
+
+        .clock-drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .clock-close-btn {
+            background: transparent;
+            color: var(--muted);
+            border: none;
+            padding: 4px 8px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .clock-close-btn:hover {
+            background: var(--bg);
+            color: var(--danger);
+            transform: none;
+        }
+
+        /* ========================================================= */
+        /* 2. SOL ALT KÖŞE: ESNEK HİCRİ / MİLADİ TAKVİM PILL & MODAL */
+        /* ========================================================= */
+        .calendar-pill {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            z-index: 60;
+            width: auto;
+            max-width: calc(100vw - 32px);
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1.5px solid var(--primary);
+            border-radius: 999px;
+            padding: 8px 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12.5px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            flex-wrap: wrap;
+        }
+
+        .calendar-pill:hover {
+            background: var(--card-bg);
+            border-color: var(--primary-hover);
+            box-shadow: 0 10px 28px rgba(79, 70, 229, 0.26);
+            transform: translateY(-1px);
+        }
+
+        .cal-pill-miladi {
+            font-weight: 800;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .cal-pill-divider {
+            color: var(--border);
+            font-weight: 400;
+        }
+
+        .cal-pill-hijri {
+            color: var(--primary);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        body.dark-mode .cal-pill-hijri {
+            color: #A5B4FC;
+        }
+
+        .cal-pill-upcoming {
+            background: var(--warning-light);
+            color: var(--warning-hover);
+            padding: 2px 9px;
+            border-radius: 999px;
+            font-size: 11.5px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        body.dark-mode .cal-pill-upcoming {
+            color: #FCD34D;
+        }
+
+        /* 2 SÜTUNLU GENİŞ TAKVİM PENCERESİ (MODAL / POPOVER) */
+        .calendar-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 950;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            backdrop-filter: blur(4px);
+        }
+
+        .calendar-modal-backdrop.open {
+            display: flex;
+        }
+
+        .calendar-modal-window {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            max-width: 1080px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+
+        .calendar-modal-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: var(--bg);
+        }
+
+        .calendar-modal-body {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 20px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 860px) {
+            .calendar-modal-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cal-col-left, .cal-col-right {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .cal-nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background: var(--bg);
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .cal-month-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .cal-hijri-subtitle {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .cal-grid-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            padding-bottom: 4px;
+        }
+
+        .cal-grid-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .cal-day-cell {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            min-height: 58px;
+            padding: 6px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+            user-select: none;
+        }
+
+        .cal-day-cell:hover {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .cal-day-cell.other-month {
+            opacity: 0.38;
+        }
+
+        .cal-day-cell.is-today {
+            border: 2px solid var(--primary);
+            background: var(--primary-light);
+        }
+
+        .cal-day-cell.is-selected {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+        }
+
+        .cal-day-cell.is-selected .cal-day-hijri,
+        .cal-day-cell.is-selected .cal-day-miladi {
+            color: #FFFFFF;
+        }
+
+        .cal-day-miladi {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+        }
+
+        .cal-day-hijri {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--muted);
+            line-height: 1.1;
+            text-align: center;
+        }
+
+        .cal-dots-row {
+            display: flex;
+            gap: 3px;
+            height: 6px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cal-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .cal-dot.religious { background-color: #10B981; }
+        .cal-dot.national { background-color: #EF4444; }
+
+        /* GÜNÜN VE AYIN ANLAMI KUTUSU */
+        .cal-meaning-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 12.5px;
+            line-height: 1.55;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cal-meaning-item strong {
+            color: var(--primary);
+        }
+
+        body.dark-mode .cal-meaning-item strong {
+            color: #93C5FD;
+        }
+
+        /* SAĞ SÜTUN: ÖZEL GÜNLER LİSTESİ */
+        .cal-filter-tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .cal-filter-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .cal-filter-btn.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+        }
+
+        .cal-events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 430px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .cal-event-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .cal-event-card:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .cal-event-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .cal-event-title {
+            font-weight: 800;
+            font-size: 13.5px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cal-event-badge {
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .cal-event-badge.religious {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .cal-event-badge.national {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .cal-event-dates {
+            font-size: 11.5px;
+            color: var(--muted);
+            font-family: monospace;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- SOL YAN PANEL (SIDEBAR) -->
+    <aside class="app-sidebar">
+        <div class="brand-box">
+            <div class="brand-logo">⚡</div>
+            <div>
+                <div class="brand-title">Kopya Bulucu Pro</div>
+                <div class="brand-sub">Disk & Kopya Yönetim Merkezi</div>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-section-title">Araçlar</div>
+            <button class="nav-btn active" id="navDuplicate" onclick="switchTab('duplicate')">
+                <span class="nav-btn-left">🔍 Kopya Tarayıcı</span>
+                <span class="nav-badge" id="badgeGroups">0 Grup</span>
+            </button>
+            <button class="nav-btn" id="navTree" onclick="switchTab('tree')">
+                <span class="nav-btn-left">🌳 Klasör & Boyut Ağacı</span>
+                <span class="nav-badge" id="badgeTree">[-/+]</span>
+            </button>
+            <button class="nav-btn" id="navHistory" onclick="switchTab('history')">
+                <span class="nav-btn-left">📜 Silinme Geçmişi</span>
+                <span class="nav-badge" id="badgeHistory">0</span>
+            </button>
+
+            <div class="nav-section-title">Sistem & Güvenlik</div>
+            <button class="nav-btn" id="navSecurity" onclick="switchTab('security')">
+                <span class="nav-btn-left">🛡️ Güvenlik Denetimi</span>
+            </button>
+            <button class="nav-btn" id="navSettings" onclick="switchTab('settings')">
+                <span class="nav-btn-left">⚙️ Ayarlar & Tema</span>
+            </button>
+        </nav>
+
+        <!-- SON SEÇİLEN KLASÖR HAFIZASI KARTI -->
+        <div class="sidebar-memory-card">
+            <div class="memory-title">
+                <span>📌 Klasör Hafızası</span>
+                <span id="memoryStatusDot" style="color: var(--muted);">●</span>
+            </div>
+            <div class="memory-folder-name" id="sidebarLastFolderText">Henüz klasör seçilmedi</div>
+            <button class="btn-secondary btn-sm" id="sidebarRescanBtn" onclick="rescanRememberedFolder()" style="width: 100%; justify-content: center;" disabled>
+                🔄 Son Klasörü Tekrar Tara
+            </button>
+        </div>
+
+        <div class="sidebar-footer">
+            <span>Güvenli Yerel Çalışma</span>
+            <button class="btn-secondary btn-sm" id="quickThemeBtn" onclick="toggleDarkMode()" title="Karanlık / Açık Tema">🌙</button>
+        </div>
+    </aside>
+
+    <!-- ANA İÇERİK -->
+    <main class="app-main">
+
+        <div class="top-header">
+            <div class="page-title-wrap">
+                <h1 id="pageMainTitle">🔍 Hızlı Kopya Tarayıcı & Esnek Temizlik</h1>
+                <p id="pageSubTitle">Seçilen klasör yolunu hatırlar, esnek tümünü seç/kaldır ve SHA-256 doğrulama desteği sunar.</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary" id="loadDemoBtn" onclick="loadDemoWorkspace()">🧪 Örnek Veri ile Test Et (Demo)</button>
+                <button id="headerPickFolderBtn" onclick="pickAndScanFolder()">📂 Klasör Seç ve Tara</button>
+            </div>
+        </div>
+
+        <!-- DURUM ÇUBUĞU -->
+        <div id="status" class="status-box">
+            <div id="spinner" class="spinner"></div>
+            <span id="statusText">Hazır. Klasör seçerek veya "Örnek Veri ile Test Et" butonuyla hemen başlayabilirsiniz.</span>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- SEKME 1: KOPYA TARAYICI                                   -->
+        <!-- ========================================================= -->
+        <section id="tab-duplicate" class="tab-view active">
+
+            <div class="card">
+                <div class="controls-grid">
+                    <div class="filter-group">
+                        <label for="minSize">Minimum Dosya Boyutu (MB):</label>
+                        <input type="number" id="minSize" value="0" min="0" step="0.5" title="0 yazarsanız tüm boyutları tarar">
+                    </div>
+                    <div class="filter-group">
+                        <label for="typeFilter">Dosya Türü (Uzantı):</label>
+                        <select id="typeFilter">
+                            <option value="all">Tümü (Tüm Dosyalar)</option>
+                            <option value="image">Sadece Fotoğraflar (jpg, png, webp, raw...)</option>
+                            <option value="video">Sadece Videolar (mp4, mkv, avi, mov...)</option>
+                            <option value="doc">Sadece Belgeler (pdf, docx, xlsx, txt...)</option>
+                            <option value="archive">Sadece Arşivler (zip, rar, 7z, tar...)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="dateFilter">Tarih Aralığı:</label>
+                        <select id="dateFilter">
+                            <option value="all">Tüm Zamanlar</option>
+                            <option value="30">Son 1 Ayda Değiştirilenler</option>
+                            <option value="180">Son 6 Ayda Değiştirilenler</option>
+                            <option value="365">Son 1 Yılda Değiştirilenler</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="matchModeSelect">Eşleştirme & Güvenlik Modu:</label>
+                        <select id="matchModeSelect" onchange="syncMatchModeSetting()">
+                            <option value="name_size">⚡ Ultra Hızlı (Ad + Boyut Aynı)</option>
+                            <option value="name_size_hash" selected>🛡️ Güvenli (Ad + Boyut + SHA-256 İçerik Özeti)</option>
+                            <option value="size_hash">🔬 Derin Analiz (Farklı İsimde Olsa Bile Boyut + SHA-256 Aynı)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SON SEÇİLEN KLASÖR HATIRLAMA ÇUBUĞU -->
+                <div class="folder-bar">
+                    <div class="folder-bar-info">
+                        <span>📂 <strong>Aktif / Son Seçilen Klasör:</strong></span>
+                        <span class="folder-pill" id="activeFolderBadge">Henüz seçilmedi (İlk seçimden sonra otomatik hatırlanır)</span>
+                    </div>
+                    <div class="toolbar-btn-group">
+                        <button id="rescanLastBtn" class="btn-success btn-sm" onclick="rescanRememberedFolder()" disabled>⚡ Son Klasörü Tekrar Tara</button>
+                        <button id="startBtn" onclick="pickAndScanFolder()">📂 Klasör Seç / Değiştir ve Tara</button>
+                        <button id="pauseBtn" class="btn-warning" onclick="togglePause()" style="display: none;">⏸️ Duraklat</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- İSTATİSTİK ÖZET KARTLARI -->
+            <div class="stats-grid" id="summaryPanel" style="display: none;">
+                <div class="stat-card highlight">
+                    <div class="stat-label">Toplam Kopya İsrafı</div>
+                    <div class="stat-value" id="savedSpaceText">0 MB</div>
+                </div>
+                <div class="stat-card selected-highlight">
+                    <div class="stat-label">Seçili Silinecek / Taşınacak Alan</div>
+                    <div class="stat-value" id="selectedSpaceText">0 MB (0 Dosya)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Bulunan Kopya Grubu</div>
+                    <div class="stat-value" id="groupCountText">0 Grup</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Korunan Orijinal Dosyalar</div>
+                    <div class="stat-value" id="keptCountText">0 Dosya</div>
+                </div>
+            </div>
+
+            <!-- ESNEK SEÇİM VE FİLTRELEME ARAÇ ÇUBUĞU -->
+            <div class="selection-toolbar" id="selectionToolbar">
+                <div class="toolbar-row">
+                    <div class="toolbar-btn-group">
+                        <strong>☑️ Esnek Seçim:</strong>
+                        <button class="btn-secondary btn-sm" onclick="selectAllDuplicates()">☑️ Tüm Kopyaları Seç</button>
+                        <button class="btn-secondary btn-sm" onclick="deselectAllDuplicates()">☐ Seçimleri Kaldır</button>
+                        <button class="btn-secondary btn-sm" onclick="invertDuplicateSelection()">🔄 Seçimi Tersine Çevir</button>
+                    </div>
+                    <div class="toolbar-btn-group">
+                        <strong>⭐ Orijinal (Korunacak) Kriteri:</strong>
+                        <button class="btn-secondary btn-sm" onclick="applyKeepCriteria('oldest')">⏳ En Eskiyi Koru</button>
+                        <button class="btn-secondary btn-sm" onclick="applyKeepCriteria('newest')">🆕 En Yeniyi Koru</button>
+                        <button class="btn-secondary btn-sm" onclick="applyKeepCriteria('shortestPath')">📁 Kısa Yolu Koru</button>
+                    </div>
+                </div>
+
+                <div class="toolbar-row" style="border-top: 1px solid var(--border); padding-top: 10px;">
+                    <div class="toolbar-btn-group" style="flex-grow: 1;">
+                        <input type="text" id="pathSelectFilter" placeholder="Klasör veya dosya adına göre filtrele (Örn: Yedek, İndirilenler, kopya)..." style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); min-width: 260px; flex-grow: 1;">
+                        <button class="btn-secondary btn-sm" onclick="selectByPathKeyword(true)">➕ Eşleşenleri Seç</button>
+                        <button class="btn-secondary btn-sm" onclick="selectByPathKeyword(false)">➖ Eşleşenlerin Seçimini Kaldır</button>
+                    </div>
+                    <div class="toolbar-btn-group">
+                        <label for="sortSelect" style="font-size: 13px; font-weight: 700;">Sırala:</label>
+                        <select id="sortSelect" onchange="applySorting()" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text);">
+                            <option value="sizeDesc">En Çok Yer Kaplayan Üstte</option>
+                            <option value="sizeAsc">En Az Yer Kaplayan Üstte</option>
+                            <option value="countDesc">En Çok Kopyası Olan Üstte</option>
+                            <option value="default">Bulunma Sırası</option>
+                        </select>
+                        <button class="btn-success btn-sm" onclick="exportCSV()">📊 CSV Rapor İndir</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KOPYA SONUÇ LİSTESİ -->
+            <div id="results"></div>
+
+            <!-- ALT AKSİYON ÇUBUĞU -->
+            <div id="bottomActions">
+                <div class="action-options">
+                    <label style="cursor: pointer;">
+                        <input type="radio" name="actionType" value="quarantine" checked> 🛡️ Karantinaya Taşı (`Kopya_Coplugu` - Güvenli)
+                    </label>
+                    <label style="cursor: pointer;">
+                        <input type="radio" name="actionType" value="delete"> 🗑️ Kalıcı Olarak Sil (Hızlı)
+                    </label>
+                </div>
+                <button id="deleteBtn" class="btn-danger" onclick="openActionConfirmModal()">
+                    ⚡ Seçili Dosyalara İşlemi Uygula (<span id="actionBtnCount">0</span>)
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SEKME 2: KLASÖR & BOYUT ANALİZİ AĞACI ([-/+] AÇIK GÖRSEL) -->
+        <!-- ========================================================= -->
+        <section id="tab-tree" class="tab-view">
+            <div class="info-banner">
+                <div>
+                    <strong>🌳 Klasör Boyutu & Büyük Dosya Keşif Ağacı:</strong> Kopya taraması yapmadan önce hangi klasörün ve alt klasörlerin ne kadar yer kapladığını inceleyin. Tüm klasörler varsayılan olarak <strong><code>[-]</code> açık</strong> gelir; yanlarındaki <strong><code>[-]</code> / <code>[+]</code></strong> butonlarıyla açıp kapatabilir, istediğiniz alt klasörü doğrudan kopya taramasına gönderebilirsiniz.
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="controls-grid">
+                    <div class="filter-group">
+                        <label for="treeMinFileMB">Belli MB Üstü Dosyaları Göster (Sınır MB):</label>
+                        <input type="number" id="treeMinFileMB" value="10" min="0" step="1" onchange="renderFolderTree()" oninput="renderFolderTree()">
+                    </div>
+                    <div class="filter-group">
+                        <label for="treeShowFilesToggle">Klasör İçindeki Büyük Dosyaları Listele:</label>
+                        <select id="treeShowFilesToggle" onchange="renderFolderTree()">
+                            <option value="yes" selected>✅ Evet, Sınırı Aşan Dosyaları Klasör Altında Göster</option>
+                            <option value="no">📁 Hayır, Sadece Klasör ve Alt Klasör Boyutlarını Göster</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="treeSortMode">Ağaç Sıralaması:</label>
+                        <select id="treeSortMode" onchange="renderFolderTree()">
+                            <option value="sizeDesc" selected>Boyuta Göre (En Büyük Klasör Üstte)</option>
+                            <option value="nameAsc">Klasör Adına Göre (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="folder-bar">
+                    <div class="toolbar-btn-group">
+                        <button onclick="pickAndAnalyzeTreeFolder()">📂 Klasör Seç ve Boyut Analizi Yap</button>
+                        <button class="btn-success btn-sm" id="treeRescanBtn" onclick="analyzeRememberedFolderTree()" disabled>⚡ Son Klasörü Analiz Et</button>
+                    </div>
+                    <div class="toolbar-btn-group">
+                        <button class="btn-secondary btn-sm" onclick="expandOrCollapseAllTree(false)">[-] Tüm Klasörleri Aç</button>
+                        <button class="btn-secondary btn-sm" onclick="expandOrCollapseAllTree(true)">[+] Tüm Klasörleri Kapat</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KÖK KLASÖR ÖZET KARTLARI -->
+            <div class="stats-grid" id="treeStatsPanel" style="display: none;">
+                <div class="stat-card selected-highlight">
+                    <div class="stat-label">En Üst (Kök) Klasör Boyutu</div>
+                    <div class="stat-value" id="treeRootSizeText">0 MB</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Toplam Alt Klasör Sayısı</div>
+                    <div class="stat-value" id="treeFolderCountText">0 Klasör</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Toplam Dosya Sayısı</div>
+                    <div class="stat-value" id="treeFileCountText">0 Dosya</div>
+                </div>
+                <div class="stat-card highlight">
+                    <div class="stat-label">MB Sınırını Aşan Büyük Dosya</div>
+                    <div class="stat-value" id="treeLargeFileCountText">0 Dosya</div>
+                </div>
+            </div>
+
+            <!-- AĞAÇ GÖRÜNÜMÜ KAPSAYICISI -->
+            <div class="card">
+                <div id="folderTreeContainer" class="tree-container">
+                    <p style="color: var(--muted); text-align: center; padding: 20px;">
+                        Henüz klasör analizi yapılmadı. Yukarıdan <strong>"📂 Klasör Seç ve Boyut Analizi Yap"</strong> veya sağ üstten <strong>"🧪 Örnek Veri ile Test Et"</strong> butonuna tıklayın.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SEKME 3: SİLİNME VE KARANTİNA GEÇMİŞİ                     -->
+        <!-- ========================================================= -->
+        <section id="tab-history" class="tab-view">
+            <div class="card">
+                <div class="toolbar-row" style="margin-bottom: 14px;">
+                    <div class="toolbar-btn-group">
+                        <button class="btn-secondary btn-sm" onclick="toggleSelectAllHistory(true)">☑️ Tümünü Seç</button>
+                        <button class="btn-secondary btn-sm" onclick="toggleSelectAllHistory(false)">☐ Seçimi Kaldır</button>
+                        <button class="btn-danger btn-sm" onclick="deleteSelectedHistoryItems()">🗑️ Seçili Kayıtları Geçmişten Sil</button>
+                        <button class="btn-warning btn-sm" onclick="clearAllHistoryItems()">🧹 Tüm Geçmişi Temizle</button>
+                    </div>
+                    <div class="toolbar-btn-group">
+                        <input type="text" id="historySearchInput" placeholder="Geçmişte dosya veya klasör ara..." oninput="renderHistoryTable()" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text);">
+                        <button class="btn-success btn-sm" onclick="exportHistoryCSV()">📊 Geçmişi CSV İndir</button>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 38px;"><input type="checkbox" id="historyMasterCb" onchange="toggleSelectAllHistory(this.checked)"></th>
+                                <th>Tarih & Saat</th>
+                                <th>İşlem Türü</th>
+                                <th>Dosya Adı</th>
+                                <th>Eski Klasör Yolu</th>
+                                <th>Boyut</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SEKME 4: GÜVENLİK DENETİMİ VE UZMAN PANELİ                -->
+        <!-- ========================================================= -->
+        <section id="tab-security" class="tab-view">
+            <div class="card">
+                <h2 style="margin-top: 0;">🛡️ Uygulama Güvenlik Mimarisi ve İyileştirmeler</h2>
+                <p style="color: var(--text-secondary); line-height: 1.6;">
+                    Tarayıcı tabanlı yerel dosya yöneticisi (`File System Access API`) sunucuya hiçbir veri göndermez; tüm işlemler %100 bilgisayarınızın içinde gerçekleşir. Bu Pro sürümde veri kaybı riskini sıfıra indirmek için 5 katmanlı güvenlik koruması eklenmiştir:
+                </p>
+                <div class="controls-grid" style="margin-top: 16px;">
+                    <div class="stat-card">
+                        <div class="stat-label" style="color: var(--primary);">1. Kriptografik İçerik Kontrolü</div>
+                        <div style="font-weight: 700; margin-bottom: 6px;">SHA-256 Hash Doğrulaması</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">Sadece isim ve boyuta bakmak yerine dosya içeriğinin SHA-256 özetini hesaplayarak farklı içerikli dosyaların yanlışlıkla silinmesini önler.</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" style="color: var(--success);">2. Son Kopya Koruması</div>
+                        <div style="font-weight: 700; margin-bottom: 6px;">Grup Güvenlik Kilidi</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">Bir kopya grubundaki tüm dosyaların aynı anda seçilip silinmesini otomatik engeller. Her grupta en az 1 orijinal dosya mutlaka korunur.</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" style="color: var(--warning);">3. Doğrulanmış Karantina</div>
+                        <div style="font-weight: 700; margin-bottom: 6px;">Boyut Kontrollü Taşıma</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">Dosya karantinaya (`Kopya_Coplugu`) kopyalandığında yeni dosyanın bayt boyutu doğrulanmadan kaynak dosya asla silinmez.</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" style="color: var(--info);">4. Klasör Yolu Hafızası</div>
+                        <div style="font-weight: 700; margin-bottom: 6px;">IndexedDB + `startIn` Kaydı</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">Seçtiğiniz son klasör referansı IndexedDB'de saklanır. Yeni taramada pencere varsayılan dizin yerine son seçtiğiniz klasörde açılır.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SEKME 5: AYARLAR (KARANLIK TEMA & KARA LİSTE)             -->
+        <!-- ========================================================= -->
+        <section id="tab-settings" class="tab-view">
+            <div class="card">
+                <h2 style="margin-top: 0;">⚙️ Uygulama Ayarları</h2>
+                <div class="controls-grid">
+                    <div class="filter-group">
+                        <label>Görünüm Teması (Karanlık / Açık Mod):</label>
+                        <button type="button" class="btn-secondary" id="settingsThemeBtn" onclick="toggleDarkMode()" style="justify-content: center; padding: 11px;">
+                            🌙 Karanlık Temaya Geç
+                        </button>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="settingsGroupLock">Grup Güvenlik Kilidi (Son Kopya Koruması):</label>
+                        <select id="settingsGroupLock" onchange="saveSettingsToStorage()">
+                            <option value="strict" selected>🔒 Aktif (Her grupta en az 1 dosya mutlaka korunsun)</option>
+                            <option value="free">🔓 Esnek (Gruptaki tüm dosyaların seçilmesine izin ver)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="settingsDefaultMatch">Varsayılan Eşleştirme Algoritması:</label>
+                        <select id="settingsDefaultMatch" onchange="syncSettingsMatchToScanner()">
+                            <option value="name_size">⚡ Ultra Hızlı (Ad + Boyut Aynı)</option>
+                            <option value="name_size_hash" selected>🛡️ Güvenli (Ad + Boyut + SHA-256 Hash)</option>
+                            <option value="size_hash">🔬 Derin Analiz (Boyut + SHA-256 Hash)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group" style="grid-column: 1 / -1;">
+                        <label for="blacklist">Atlanacak (Kara Liste) Klasörler (Virgülle ayırın):</label>
+                        <input type="text" id="blacklist" value="Windows, Program Files, Program Files (x86), AppData, $RECYCLE.BIN, System Volume Information, node_modules, .git, Kopya_Coplugu" onchange="saveSettingsToStorage()">
+                    </div>
+                </div>
+
+                <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <span style="font-size: 13px; color: var(--muted);">Kayıtlı klasör hafızasını veya uygulama tercihlerini sıfırlayabilirsiniz.</span>
+                    <button class="btn-danger btn-sm" onclick="clearSavedFolderMemory()">🗑️ Kayıtlı Klasör Hafızasını Sıfırla</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- GÜVENLİK ONAY MODALI (alert/prompt YERİNE CANVAS UYUMLU MODAL) -->
+    <div class="modal-backdrop" id="confirmModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="modalTitle">İşlem Onayı</h3>
+            <div class="modal-desc" id="modalDesc"></div>
+            <div id="modalInputWrap">
+                <input type="text" class="modal-input" id="modalConfirmInput" placeholder="Onay kelimesini yazın...">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeConfirmModal()">İptal</button>
+                <button class="btn-danger" id="modalConfirmBtn" onclick="handleModalConfirm()">Onayla ve Uygula</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST BİLDİRİM ALANI -->
+    <div id="toastContainer"></div>
+
+    <!-- ========================================================= -->
+    <!-- SAĞ ALT KÖŞE: AYARLANABİLİR CANLI SAAT WİDGET'I           -->
+    <!-- ========================================================= -->
+    <div class="smart-clock-wrapper fixed bottom-4 right-4 z-[70]">
+        <div id="smartClockWidget" onclick="toggleClockSettingsDrawer()" title="Saat ayarlarını ve ölçeğini değiştirmek için tıklayın">
+            <div id="smartClockContent"></div>
+        </div>
+    </div>
+
+    <!-- SAAT AYAR ÇEKMECESİ / POPOVER -->
+    <div class="clock-settings-drawer" id="clockSettingsDrawer">
+        <div class="clock-drawer-header">
+            <span>🕒 Akıllı Canlı Saat Ayarları</span>
+            <button type="button" class="clock-close-btn" onclick="toggleClockSettingsDrawer()" title="Kapat">✖</button>
+        </div>
+        <div class="filter-group">
+            <label for="clockModeSelect">Saat Görünüm Modu (4 Tip):</label>
+            <select id="clockModeSelect" onchange="updateClockPreferences()">
+                <option value="digital_sec">1. Dijital Saniyeli (SS:DD:sn - Varsayılan)</option>
+                <option value="digital_short">2. Dijital Kısa (SS:DD)</option>
+                <option value="analog_digital">3. Analog Kadranlı + Dijital Saat</option>
+                <option value="full_date_digital">4. Tam Tarih + Dijital (GG.AA.YYYY Gün)</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="clockScaleRange">Boyut Ölçeği (`--clock-scale`): <span id="clockScaleLabel" style="color: var(--primary); font-weight: 800;">2.0x</span></label>
+            <input type="range" id="clockScaleRange" min="1.0" max="3.0" step="0.1" value="2.0" oninput="updateClockPreferences()">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--muted);">
+                <span>1.0x (Normal)</span>
+                <span>2.0x (Varsayılan)</span>
+                <span>3.0x (Maks)</span>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; gap: 8px; margin-top: 4px;">
+            <button type="button" class="btn-secondary btn-sm" onclick="resetClockPreferences()" style="flex: 1; justify-content: center;">Varsayılana Dön (2.0x)</button>
+            <button type="button" class="btn-sm" onclick="toggleClockSettingsDrawer()" style="flex: 1; justify-content: center;">Tamam</button>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- SOL ALT KÖŞE: ESNEK HİCRİ / MİLADİ TAKVİM PILL BUTONU      -->
+    <!-- ========================================================= -->
+    <button type="button" id="calendarTriggerPill" class="calendar-pill fixed bottom-4 left-4 z-[60]" onclick="toggleCalendarModal()" title="Hicri / Miladi Takvim ve Özel Günler Rehberini Aç">
+        <span>📅</span>
+        <span class="cal-pill-miladi" id="pillMiladiText">...</span>
+        <span class="cal-pill-divider">|</span>
+        <span class="cal-pill-hijri" id="pillHijriText">...</span>
+        <span class="cal-pill-upcoming" id="pillUpcomingText">...</span>
+    </button>
+
+    <!-- AÇILIR 2 SÜTUNLU HİCRİ / MİLADİ TAKVİM VE ÖZEL GÜNLER MODALI -->
+    <div class="calendar-modal-backdrop" id="calendarModalBackdrop" onclick="handleCalendarBackdropClick(event)">
+        <div class="calendar-modal-window" onclick="event.stopPropagation()">
+            <div class="calendar-modal-header">
+                <div>
+                    <div style="font-size: 18px; font-weight: 800;">🗓️ Hicri / Miladi Takvim & Özel Günler Rehberi</div>
+                    <div style="font-size: 12px; color: var(--muted);">Çevrimdışı `Intl.DateTimeFormat('tr-TR-u-ca-islamic-umalqura')` Hicri Hesaplama Motoru</div>
+                </div>
+                <div class="toolbar-btn-group">
+                    <button type="button" class="btn-secondary btn-sm" onclick="jumpCalendarToToday()">📍 Bugüne Git</button>
+                    <button type="button" class="btn-danger btn-sm" onclick="toggleCalendarModal()">✖ Kapat</button>
+                </div>
+            </div>
+
+            <div class="calendar-modal-body">
+                <!-- SOL SÜTUN: TAKVİM IZGARASI & GÜNÜN/AYIN ANLAMI -->
+                <div class="cal-col-left">
+                    <div class="cal-nav-bar">
+                        <button type="button" class="btn-secondary btn-sm" onclick="changeCalendarMonth(-1)">◀ Önceki Ay</button>
+                        <div style="text-align: center;">
+                            <div class="cal-month-title" id="calHeaderMonthYear">Kasım 2026</div>
+                            <div class="cal-hijri-subtitle" id="calHeaderHijriRange">Cemaziyelevvel - Cemaziyelahir 1448</div>
+                        </div>
+                        <button type="button" class="btn-secondary btn-sm" onclick="changeCalendarMonth(1)">Sonraki Ay ▶</button>
+                    </div>
+
+                    <div class="cal-grid-weekdays">
+                        <div>Pzt</div><div>Sal</div><div>Çar</div><div>Per</div><div>Cum</div><div>Cmt</div><div>Paz</div>
+                    </div>
+
+                    <div class="cal-grid-days" id="calGridDays"></div>
+
+                    <!-- GÜNÜN VE AYIN ANLAMI KUTUSU -->
+                    <div class="cal-meaning-box" id="calMeaningBox">
+                        <div class="cal-meaning-item" id="meaningSelectedDay"></div>
+                        <div class="cal-meaning-item" id="meaningGregorianMonth"></div>
+                        <div class="cal-meaning-item" id="meaningHijriMonth"></div>
+                    </div>
+                </div>
+
+                <!-- SAĞ SÜTUN: DİNİ GÜNLER & ULUSAL TATİLLER LİSTESİ -->
+                <div class="cal-col-right">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <strong style="font-size: 14px;" id="calEventsYearTitle">📌 Yılın Özel Günleri ve Tatilleri</strong>
+                        <div class="cal-filter-tabs">
+                            <button type="button" class="cal-filter-btn active" id="calFilterAll" onclick="setCalendarEventFilter('all')">Tümü</button>
+                            <button type="button" class="cal-filter-btn" id="calFilterReligious" onclick="setCalendarEventFilter('religious')">Dini Gün ve Geceler</button>
+                            <button type="button" class="cal-filter-btn" id="calFilterNational" onclick="setCalendarEventFilter('national')">Ulusal Tatiller</button>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 12px; color: var(--muted);">
+                        Listedeki herhangi bir özel güne tıkladığınızda sol taraftaki takvim otomatik olarak o ay ve güne odaklanır:
+                    </div>
+
+                    <div class="cal-events-list" id="calEventsListContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // ============================================================================
+        // GLOBAL DURUM (STATE) VE VERİ YAPILARI
+        // ============================================================================
+        let mainDirectoryHandle = null;
+        let lastRememberedHandle = null;
+        let lastRememberedFolderName = '';
+        let filesData = [];
+        let completedGroups = [];
+        let folderTreeRoot = null;
+        let deletionHistory = [];
+        let activePreviewUrls = {};
+
+        let isPaused = false;
+        let isScanning = false;
+        let pauseResolve = null;
+        let pendingModalCallback = null;
+        let pendingModalKeyword = null;
+
+        const EXTS = {
+            image: ['jpg','jpeg','png','gif','webp','bmp','tiff','svg','heic','raw'],
+            video: ['mp4','avi','mkv','mov','webm','flv','wmv','m4v'],
+            doc: ['pdf','doc','docx','xls','xlsx','ppt','pptx','txt','rtf','csv','odt'],
+            archive: ['zip','rar','7z','tar','gz','iso']
+        };
+
+        const DB_NAME = 'HizliKopyaBulucuProDB';
+        const DB_STORE = 'DirectoryHandles';
+
+        // ============================================================================
+        // BAŞLANGIÇ (INIT) VE LOCALSTORAGE / INDEXEDDB YÖNETİMİ
+        // ============================================================================
+        window.addEventListener('DOMContentLoaded', async () => {
+            loadSettingsFromStorage();
+            loadHistoryFromStorage();
+            await initRememberedFolderFromDB();
+            initSmartClock();
+            initHijriGregorianCalendar();
+        });
+
+        function safeStorageGet(key, fallback) {
+            try {
+                const val = localStorage.getItem(key);
+                return val ? JSON.parse(val) : fallback;
+            } catch (e) {
+                return fallback;
+            }
+        }
+
+        function safeStorageSet(key, val) {
+            try {
+                localStorage.setItem(key, JSON.stringify(val));
+            } catch (e) {}
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const item = document.createElement('div');
+            item.className = 'toast-item';
+            const colors = {
+                info: 'var(--primary)',
+                success: 'var(--success)',
+                warning: 'var(--warning)',
+                danger: 'var(--danger)'
+            };
+            item.style.borderLeftColor = colors[type] || colors.info;
+            item.textContent = message;
+            container.appendChild(item);
+            setTimeout(() => {
+                if (item.parentNode) item.parentNode.removeChild(item);
+            }, 3800);
+        }
+
+        // ============================================================================
+        // INDEXEDDB İLE SON SEÇİLEN KLASÖR YOLUNU HATIRLAMA
+        // ============================================================================
+        function openHandleDB() {
+            return new Promise((resolve, reject) => {
+                if (!window.indexedDB) { resolve(null); return; }
+                const req = indexedDB.open(DB_NAME, 1);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(DB_STORE)) {
+                        db.createObjectStore(DB_STORE);
+                    }
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => resolve(null);
+            });
+        }
+
+        async function saveDirectoryHandleToDB(handle) {
+            if (!handle) return;
+            lastRememberedHandle = handle;
+            lastRememberedFolderName = handle.name || 'Seçili_Klasör';
+            safeStorageSet('kopya_pro_last_folder_name', lastRememberedFolderName);
+            updateRememberedFolderUI();
+            try {
+                const db = await openHandleDB();
+                if (!db) return;
+                const tx = db.transaction(DB_STORE, 'readwrite');
+                tx.objectStore(DB_STORE).put(handle, 'lastHandle');
+            } catch (e) {}
+        }
+
+        async function initRememberedFolderFromDB() {
+            const savedName = safeStorageGet('kopya_pro_last_folder_name', '');
+            if (savedName) {
+                lastRememberedFolderName = savedName;
+            }
+            try {
+                const db = await openHandleDB();
+                if (db) {
+                    const tx = db.transaction(DB_STORE, 'readonly');
+                    const req = tx.objectStore(DB_STORE).get('lastHandle');
+                    req.onsuccess = () => {
+                        if (req.result) {
+                            lastRememberedHandle = req.result;
+                            lastRememberedFolderName = req.result.name || savedName;
+                            updateRememberedFolderUI();
+                        } else if (savedName) {
+                            updateRememberedFolderUI();
+                        }
+                    };
+                } else if (savedName) {
+                    updateRememberedFolderUI();
+                }
+            } catch (e) {
+                if (savedName) updateRememberedFolderUI();
+            }
+        }
+
+        function updateRememberedFolderUI() {
+            const badge = document.getElementById('activeFolderBadge');
+            const sideText = document.getElementById('sidebarLastFolderText');
+            const dot = document.getElementById('memoryStatusDot');
+            const rescan1 = document.getElementById('rescanLastBtn');
+            const rescan2 = document.getElementById('sidebarRescanBtn');
+            const rescanTree = document.getElementById('treeRescanBtn');
+
+            if (lastRememberedFolderName) {
+                badge.textContent = `📁 ${lastRememberedFolderName} (Hafızada Kayıtlı)`;
+                sideText.textContent = `📁 ${lastRememberedFolderName}`;
+                dot.style.color = 'var(--success)';
+                rescan1.disabled = false;
+                rescan2.disabled = false;
+                rescanTree.disabled = false;
+            } else {
+                badge.textContent = 'Henüz seçilmedi';
+                sideText.textContent = 'Henüz klasör seçilmedi';
+                dot.style.color = 'var(--muted)';
+                rescan1.disabled = true;
+                rescan2.disabled = true;
+                rescanTree.disabled = true;
+            }
+        }
+
+        async function clearSavedFolderMemory() {
+            lastRememberedHandle = null;
+            mainDirectoryHandle = null;
+            lastRememberedFolderName = '';
+            safeStorageSet('kopya_pro_last_folder_name', '');
+            try {
+                const db = await openHandleDB();
+                if (db) {
+                    const tx = db.transaction(DB_STORE, 'readwrite');
+                    tx.objectStore(DB_STORE).delete('lastHandle');
+                }
+            } catch (e) {}
+            updateRememberedFolderUI();
+            showToast('Klasör hafızası sıfırlandı.', 'info');
+        }
+
+        // ============================================================================
+        // SEKME (TAB) VE TEMA YÖNETİMİ
+        // ============================================================================
+        function switchTab(tabId) {
+            const tabs = ['duplicate', 'tree', 'history', 'security', 'settings'];
+            tabs.forEach(t => {
+                const sec = document.getElementById(`tab-${t}`);
+                if (sec) sec.classList.toggle('active', t === tabId);
+            });
+
+            const navMap = {
+                duplicate: 'navDuplicate',
+                tree: 'navTree',
+                history: 'navHistory',
+                security: 'navSecurity',
+                settings: 'navSettings'
+            };
+            Object.entries(navMap).forEach(([k, btnId]) => {
+                const btn = document.getElementById(btnId);
+                if (btn) btn.classList.toggle('active', k === tabId);
+            });
+
+            const titles = {
+                duplicate: ['🔍 Hızlı Kopya Tarayıcı & Esnek Temizlik', 'Seçilen klasör yolunu hatırlar, tümünü seç/kaldır ve SHA-256 doğrulama desteği sunar.'],
+                tree: ['🌳 Klasör Boyutu & Büyük Dosya Keşif Ağacı', 'En üst klasör ve alt klasör boyutlarını, belirlenen MB üstü dosyalarla birlikte açık [-/+] ağaçta gösterir.'],
+                history: ['📜 Silinme & Karantina Geçmişi', 'Silinen veya karantinaya taşınan dosyaları inceleyin, listeden tek tek veya toplu olarak temizleyin.'],
+                security: ['🛡️ Güvenlik Denetimi & Koruma Katmanları', 'Veri kaybını önleyen çok katmanlı güvenlik kontrolleri.'],
+                settings: ['⚙️ Ayarlar, Karanlık Tema & Kara Liste', 'Tema, eşleştirme hassasiyeti ve sistem klasörü korumalarını yapılandırın.']
+            };
+            if (titles[tabId]) {
+                document.getElementById('pageMainTitle').textContent = titles[tabId][0];
+                document.getElementById('pageSubTitle').textContent = titles[tabId][1];
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            safeStorageSet('kopya_pro_dark_mode', isDark);
+            updateThemeButtonsUI(isDark);
+        }
+
+        function updateThemeButtonsUI(isDark) {
+            const qBtn = document.getElementById('quickThemeBtn');
+            const sBtn = document.getElementById('settingsThemeBtn');
+            if (qBtn) qBtn.textContent = isDark ? '☀️' : '🌙';
+            if (sBtn) sBtn.textContent = isDark ? '☀️ Açık Temaya Geç' : '🌙 Karanlık Temaya Geç';
+        }
+
+        function loadSettingsFromStorage() {
+            const isDark = safeStorageGet('kopya_pro_dark_mode', false);
+            if (isDark) document.body.classList.add('dark-mode');
+            updateThemeButtonsUI(isDark);
+
+            const savedSettings = safeStorageGet('kopya_pro_settings', null);
+            if (savedSettings) {
+                if (savedSettings.blacklist) document.getElementById('blacklist').value = savedSettings.blacklist;
+                if (savedSettings.groupLock) document.getElementById('settingsGroupLock').value = savedSettings.groupLock;
+                if (savedSettings.matchMode) {
+                    document.getElementById('matchModeSelect').value = savedSettings.matchMode;
+                    document.getElementById('settingsDefaultMatch').value = savedSettings.matchMode;
+                }
+            }
+        }
+
+        function saveSettingsToStorage() {
+            const settings = {
+                blacklist: document.getElementById('blacklist').value,
+                groupLock: document.getElementById('settingsGroupLock').value,
+                matchMode: document.getElementById('matchModeSelect').value
+            };
+            safeStorageSet('kopya_pro_settings', settings);
+            showToast('Ayarlar kaydedildi.', 'success');
+        }
+
+        function syncMatchModeSetting() {
+            const val = document.getElementById('matchModeSelect').value;
+            document.getElementById('settingsDefaultMatch').value = val;
+            saveSettingsToStorage();
+        }
+
+        function syncSettingsMatchToScanner() {
+            const val = document.getElementById('settingsDefaultMatch').value;
+            document.getElementById('matchModeSelect').value = val;
+            saveSettingsToStorage();
+        }
+
+        // ============================================================================
+        // YARDIMCI FONKSİYONLAR (FORMAT, DURUM, HASH)
+        // ============================================================================
+        function formatBytes(bytes) {
+            if (!bytes || bytes <= 0) return '0 MB';
+            const k = 1024;
+            const sizes = ['Bayt', 'KB', 'MB', 'GB', 'TB'];
+            if (bytes < k * k) return (bytes / (k * k)).toFixed(2) + ' MB';
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function updateStatus(text, color = 'var(--text)', showSpinner = false) {
+            const st = document.getElementById('statusText');
+            st.textContent = text;
+            st.style.color = color;
+            document.getElementById('spinner').style.display = showSpinner ? 'inline-block' : 'none';
+        }
+
+        async function checkPause() {
+            if (isPaused) await new Promise(r => { pauseResolve = r; });
+        }
+
+        function togglePause() {
+            if (!isScanning) return;
+            isPaused = !isPaused;
+            const btn = document.getElementById('pauseBtn');
+            if (isPaused) {
+                btn.innerHTML = '▶️ Devam Ettir';
+                btn.className = 'btn-success';
+                updateStatus('Tarama duraklatıldı.', 'var(--warning)', false);
+            } else {
+                btn.innerHTML = '⏸️ Duraklat';
+                btn.className = 'btn-warning';
+                if (pauseResolve) pauseResolve();
+                updateStatus('Tarama devam ediyor...', 'var(--primary)', true);
+            }
+        }
+
+        // Hızlı ve Güvenli Kısmi + Tam SHA-256 Özeti (Büyük dosyalarda ilk/orta/son 64KB + boyut)
+        async function computeFileFastHash(fileObj) {
+            try {
+                if (!fileObj || typeof fileObj.slice !== 'function' || !window.crypto || !window.crypto.subtle) {
+                    return `fallback_${fileObj.size}_${fileObj.lastModified}`;
+                }
+                const CHUNK = 65536; // 64 KB
+                let buffer;
+                if (fileObj.size <= CHUNK * 3) {
+                    buffer = await fileObj.arrayBuffer();
+                } else {
+                    const start = fileObj.slice(0, CHUNK);
+                    const midOffset = Math.floor(fileObj.size / 2);
+                    const mid = fileObj.slice(midOffset, midOffset + CHUNK);
+                    const end = fileObj.slice(fileObj.size - CHUNK, fileObj.size);
+                    const b1 = new Uint8Array(await start.arrayBuffer());
+                    const b2 = new Uint8Array(await mid.arrayBuffer());
+                    const b3 = new Uint8Array(await end.arrayBuffer());
+                    const combined = new Uint8Array(b1.length + b2.length + b3.length);
+                    combined.set(b1, 0);
+                    combined.set(b2, b1.length);
+                    combined.set(b3, b1.length + b2.length);
+                    buffer = combined.buffer;
+                }
+                const hashBuf = await crypto.subtle.digest('SHA-256', buffer);
+                const hashArr = Array.from(new Uint8Array(hashBuf));
+                return hashArr.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+            } catch (e) {
+                return `err_${fileObj.size}`;
+            }
+        }
+
+        // ============================================================================
+        // KLASÖR SEÇİMİ (SON KLASÖRÜ HATIRLAYAN PICKER) VE TARAMA BAŞLATMA
+        // ============================================================================
+        async function pickDirectoryWithMemory() {
+            if (!window.showDirectoryPicker) {
+                showToast('Tarayıcınız doğrudan klasör seçimini desteklemiyor veya önizleme modundasınız. "Örnek Veri ile Test Et" butonunu kullanabilirsiniz.', 'warning');
+                return null;
+            }
+            const pickerOptions = {
+                id: 'hizli_kopya_pro_workspace',
+                mode: 'readwrite'
+            };
+            if (lastRememberedHandle) {
+                pickerOptions.startIn = lastRememberedHandle;
+            }
+            let handle;
+            try {
+                handle = await window.showDirectoryPicker(pickerOptions);
+            } catch (err) {
+                if (err && err.name === 'AbortError') return null;
+                // startIn geçersizse tekrar dene
+                delete pickerOptions.startIn;
+                handle = await window.showDirectoryPicker(pickerOptions);
+            }
+            if (handle) {
+                await saveDirectoryHandleToDB(handle);
+            }
+            return handle;
+        }
+
+        async function verifyHandlePermission(handle) {
+            if (!handle) return false;
+            try {
+                if (typeof handle.queryPermission === 'function') {
+                    const perm = await handle.queryPermission({ mode: 'readwrite' });
+                    if (perm === 'granted') return true;
+                }
+                if (typeof handle.requestPermission === 'function') {
+                    const req = await handle.requestPermission({ mode: 'readwrite' });
+                    return req === 'granted';
+                }
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function pickAndScanFolder() {
+            try {
+                const handle = await pickDirectoryWithMemory();
+                if (!handle) return;
+                mainDirectoryHandle = handle;
+                await runFullScanOnHandle(mainDirectoryHandle);
+            } catch (err) {
+                updateStatus('Klasör seçimi iptal edildi veya yetki verilmedi.', 'var(--warning)', false);
+            }
+        }
+
+        async function rescanRememberedFolder() {
+            if (lastRememberedHandle) {
+                const ok = await verifyHandlePermission(lastRememberedHandle);
+                if (ok) {
+                    mainDirectoryHandle = lastRememberedHandle;
+                    switchTab('duplicate');
+                    await runFullScanOnHandle(mainDirectoryHandle);
+                    return;
+                }
+            }
+            await pickAndScanFolder();
+        }
+
+        async function runFullScanOnHandle(rootHandle) {
+            switchTab('duplicate');
+            revokeAllPreviewUrls();
+
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('pauseBtn').style.display = 'inline-flex';
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('bottomActions').style.display = 'none';
+            document.getElementById('summaryPanel').style.display = 'none';
+            document.getElementById('selectionToolbar').style.display = 'none';
+
+            filesData = [];
+            completedGroups = [];
+            isScanning = true;
+            isPaused = false;
+
+            const minBytes = (parseFloat(document.getElementById('minSize').value) || 0) * 1024 * 1024;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const blacklist = document.getElementById('blacklist').value
+                .split(',')
+                .map(s => s.trim().toLowerCase())
+                .filter(Boolean);
+
+            updateStatus(`"${rootHandle.name}" klasörü taranıyor ve klasör ağacı çıkarılıyor...`, 'var(--primary)', true);
+
+            // Hem kopya taraması için dosyaları topla hem de Klasör Boyut Ağacını oluştur
+            const treeRoot = {
+                name: rootHandle.name,
+                path: rootHandle.name,
+                handle: rootHandle,
+                totalSize: 0,
+                directSize: 0,
+                fileCount: 0,
+                folderCount: 0,
+                expanded: true,
+                children: [],
+                files: []
+            };
+
+            await scanDirectoryRecursive(rootHandle, '', minBytes, typeFilter, dateFilter, blacklist, treeRoot);
+            folderTreeRoot = treeRoot;
+            renderFolderTree();
+
+            await checkPause();
+            await analyzeCollectedFiles();
+        }
+
+        async function scanDirectoryRecursive(dirHandle, currentPath, minBytes, typeFilter, dateFilter, blacklist, treeNode) {
+            try {
+                for await (const entry of dirHandle.values()) {
+                    await checkPause();
+                    if (entry.kind === 'file') {
+                        try {
+                            const file = await entry.getFile();
+                            treeNode.directSize += file.size;
+                            treeNode.totalSize += file.size;
+                            treeNode.fileCount += 1;
+                            treeNode.files.push({
+                                name: file.name,
+                                path: currentPath + file.name,
+                                size: file.size,
+                                lastModified: file.lastModified
+                            });
+
+                            if (file.size < minBytes) continue;
+                            if (dateFilter !== 'all') {
+                                const ageDays = (Date.now() - file.lastModified) / (1000 * 60 * 60 * 24);
+                                if (ageDays > parseInt(dateFilter, 10)) continue;
+                            }
+                            if (typeFilter !== 'all') {
+                                const ext = file.name.split('.').pop().toLowerCase();
+                                if (!EXTS[typeFilter] || !EXTS[typeFilter].includes(ext)) continue;
+                            }
+
+                            filesData.push({
+                                id: 'f_' + (filesData.length + 1),
+                                parentHandle: dirHandle,
+                                file: file,
+                                name: file.name,
+                                path: currentPath + file.name,
+                                size: file.size,
+                                lastModified: file.lastModified
+                            });
+
+                            if (filesData.length % 300 === 0) {
+                                updateStatus(`Okunan dosya: ${filesData.length}...`, 'var(--primary)', true);
+                            }
+                        } catch (e) {}
+                    } else if (entry.kind === 'directory') {
+                        if (blacklist.includes(entry.name.toLowerCase())) continue;
+                        const childTree = {
+                            name: entry.name,
+                            path: currentPath + entry.name,
+                            handle: entry,
+                            totalSize: 0,
+                            directSize: 0,
+                            fileCount: 0,
+                            folderCount: 0,
+                            expanded: true, // Varsayılan olarak AÇIK (-)
+                            children: [],
+                            files: []
+                        };
+                        await scanDirectoryRecursive(entry, currentPath + entry.name + '/', minBytes, typeFilter, dateFilter, blacklist, childTree);
+                        treeNode.children.push(childTree);
+                        treeNode.totalSize += childTree.totalSize;
+                        treeNode.fileCount += childTree.fileCount;
+                        treeNode.folderCount += 1 + childTree.folderCount;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        async function analyzeCollectedFiles() {
+            if (filesData.length === 0) {
+                updateStatus('Kriterlerinize uygun dosya bulunamadı.', 'var(--warning)', false);
+                resetScannerUI();
+                return;
+            }
+
+            const matchMode = document.getElementById('matchModeSelect').value;
+            updateStatus(`${filesData.length} dosya eşleştiriliyor (${matchMode === 'name_size' ? 'Ad + Boyut' : 'SHA-256 İçerik Doğrulamalı'})...`, 'var(--primary)', true);
+
+            // 1. Ön gruplama
+            const preGroups = {};
+            for (const item of filesData) {
+                const preKey = matchMode === 'size_hash'
+                    ? `${item.size}`
+                    : `${item.name.toLowerCase()}___${item.size}`;
+                if (!preGroups[preKey]) preGroups[preKey] = [];
+                preGroups[preKey].push(item);
+            }
+
+            const candidates = Object.values(preGroups).filter(g => g.length > 1);
+            const finalGroups = [];
+
+            if (matchMode === 'name_size') {
+                for (const grp of candidates) {
+                    grp.forEach(f => { f.hash = 'Ad+Boyut Eşleşmesi'; });
+                    finalGroups.push(grp);
+                }
+            } else {
+                let checkedCount = 0;
+                for (const grp of candidates) {
+                    await checkPause();
+                    const hashSubGroups = {};
+                    for (const item of grp) {
+                        const h = item.hash || await computeFileFastHash(item.file);
+                        item.hash = h;
+                        const subKey = matchMode === 'name_size_hash' ? `${item.name.toLowerCase()}___${item.size}___${h}` : `${item.size}___${h}`;
+                        if (!hashSubGroups[subKey]) hashSubGroups[subKey] = [];
+                        hashSubGroups[subKey].push(item);
+                        checkedCount++;
+                        if (checkedCount % 40 === 0) {
+                            updateStatus(`SHA-256 içerik kontrolü yapılıyor (${checkedCount} aday dosya)...`, 'var(--primary)', true);
+                        }
+                    }
+                    Object.values(hashSubGroups).filter(sg => sg.length > 1).forEach(sg => finalGroups.push(sg));
+                }
+            }
+
+            if (finalGroups.length === 0) {
+                updateStatus('Harika! Klasörde kriterlerinize uyan kopya dosya bulunamadı.', 'var(--success)', false);
+                resetScannerUI();
+                return;
+            }
+
+            completedGroups = finalGroups.map((grp, idx) => {
+                grp.sort((a, b) => a.lastModified - b.lastModified);
+                const items = grp.map((f, fIdx) => ({
+                    ...f,
+                    isOriginal: fIdx === 0,
+                    selectedForAction: fIdx !== 0,
+                    removed: false
+                }));
+                return {
+                    id: idx + 1,
+                    hash: grp[0].hash || 'Ad+Boyut',
+                    unitSize: grp[0].size,
+                    wastedSpace: grp[0].size * (grp.length - 1),
+                    items: items
+                };
+            });
+
+            resetScannerUI();
+            applySorting();
+            refreshDuplicateSummary();
+
+            document.getElementById('summaryPanel').style.display = 'grid';
+            document.getElementById('selectionToolbar').style.display = 'flex';
+            document.getElementById('bottomActions').style.display = 'flex';
+
+            updateStatus(`Tarama tamamlandı! ${completedGroups.length} kopya grubu listelendi.`, 'var(--success)', false);
+        }
+
+        function resetScannerUI() {
+            isScanning = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').style.display = 'none';
+        }
+
+        // ============================================================================
+        // KOPYA GRUPLARINI EKRANA ÇİZME VE ESNEK SEÇİM KONTROLLERİ
+        // ============================================================================
+        function renderDuplicateGroups(groupsToRender) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            groupsToRender.forEach(group => {
+                const activeItems = group.items.filter(it => !it.removed);
+                if (activeItems.length <= 1) return;
+
+                const card = document.createElement('div');
+                card.className = 'group-card';
+                card.id = `group_card_${group.id}`;
+
+                const selectedInGroup = activeItems.filter(it => it.selectedForAction);
+                const groupSelectedBytes = selectedInGroup.reduce((acc, it) => acc + it.size, 0);
+
+                let html = `
+                    <div class="group-header">
+                        <div class="group-title">
+                            <span>📦 Grup #${group.id} (${activeItems.length} Adet)</span>
+                            <span class="hash-tag">🔑 ${group.hash}</span>
+                            <span class="hash-tag">Birim Boyut: ${formatBytes(group.unitSize)}</span>
+                        </div>
+                        <div class="toolbar-btn-group">
+                            <span style="font-size: 13px; font-weight: 700; color: var(--danger);">Seçili Kazanç: ${formatBytes(groupSelectedBytes)}</span>
+                            <button class="btn-secondary btn-sm" onclick="selectGroupDuplicates(${group.id}, true)">Kopyaları Seç</button>
+                            <button class="btn-secondary btn-sm" onclick="selectGroupDuplicates(${group.id}, false)">Seçimi Bırak</button>
+                        </div>
+                    </div>
+                `;
+
+                activeItems.forEach(item => {
+                    const prevId = `prev_${group.id}_${item.id}`;
+                    const dateStr = new Date(item.lastModified).toLocaleString('tr-TR');
+                    const rowClass = item.isOriginal
+                        ? 'file-keep'
+                        : (item.selectedForAction ? 'file-delete' : 'file-unselected');
+                    const badgeHtml = item.isOriginal
+                        ? `<span class="badge badge-keep">⭐ KORUNACAK (ORİJİNAL)</span>`
+                        : (item.selectedForAction
+                            ? `<span class="badge badge-delete">🗑️ İŞLEME SEÇİLİ</span>`
+                            : `<span class="badge badge-neutral">⏸️ ATLANDI (KORUNUR)</span>`);
+
+                    html += `
+                        <div class="file-item ${rowClass}" id="row_${group.id}_${item.id}">
+                            <div class="file-main-row">
+                                <input type="checkbox"
+                                    ${item.selectedForAction ? 'checked' : ''}
+                                    onchange="toggleSingleFileSelection(${group.id}, '${item.id}', this.checked)"
+                                    title="Silmek veya karantinaya taşımak için işaretleyin">
+                                <div class="file-details" onclick="togglePreview('${prevId}', ${group.id}, '${item.id}')">
+                                    <div class="file-name">👁️ ${escapeHtml(item.name)}</div>
+                                    <div class="file-meta">
+                                        <span>📁 /${escapeHtml(item.path)}</span>
+                                        <span>🕒 ${dateStr}</span>
+                                        <span>💾 ${formatBytes(item.size)}</span>
+                                    </div>
+                                </div>
+                                <div class="toolbar-btn-group">
+                                    ${!item.isOriginal ? `<button class="btn-secondary btn-sm" onclick="makeItemOriginal(${group.id}, '${item.id}')" title="Bu dosyayı Orijinal (Korunacak) olarak belirle">⭐ Orijinal Yap</button>` : ''}
+                                    ${badgeHtml}
+                                </div>
+                            </div>
+                            <div class="preview-container" id="${prevId}"></div>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = html;
+                resultsDiv.appendChild(card);
+            });
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // Tekil dosya seçimini değiştirme + Grup Güvenlik Kilidi kontrolü
+        function toggleSingleFileSelection(groupId, itemId, isChecked) {
+            const grp = completedGroups.find(g => g.id === groupId);
+            if (!grp) return;
+            const activeItems = grp.items.filter(it => !it.removed);
+            const target = activeItems.find(it => it.id === itemId);
+            if (!target) return;
+
+            const lockMode = document.getElementById('settingsGroupLock').value;
+            if (isChecked && lockMode === 'strict') {
+                const unselectedRemaining = activeItems.filter(it => it.id !== itemId && !it.selectedForAction);
+                if (unselectedRemaining.length === 0) {
+                    showToast('🛡️ Grup Güvenlik Kilidi: Bir gruptaki tüm dosyaları aynı anda silemezsiniz! En az 1 kopya korunmalıdır.', 'warning');
+                    applySorting();
+                    return;
+                }
+            }
+
+            target.selectedForAction = isChecked;
+            if (isChecked && target.isOriginal) {
+                target.isOriginal = false;
+                const another = activeItems.find(it => it.id !== itemId && !it.selectedForAction);
+                if (another) another.isOriginal = true;
+            } else if (!isChecked && !activeItems.some(it => it.isOriginal)) {
+                target.isOriginal = true;
+            }
+
+            applySorting();
+            refreshDuplicateSummary();
+        }
+
+        // İstediğimiz dosyayı "Orijinal (Korunacak)" yapma
+        function makeItemOriginal(groupId, itemId) {
+            const grp = completedGroups.find(g => g.id === groupId);
+            if (!grp) return;
+            grp.items.forEach(it => {
+                if (it.removed) return;
+                if (it.id === itemId) {
+                    it.isOriginal = true;
+                    it.selectedForAction = false;
+                } else {
+                    it.isOriginal = false;
+                    it.selectedForAction = true;
+                }
+            });
+            applySorting();
+            refreshDuplicateSummary();
+            showToast(`Grup #${groupId} için korunacak orijinal dosya değiştirildi.`, 'info');
+        }
+
+        function selectGroupDuplicates(groupId, selectDups) {
+            const grp = completedGroups.find(g => g.id === groupId);
+            if (!grp) return;
+            grp.items.forEach(it => {
+                if (it.removed) return;
+                it.selectedForAction = selectDups ? !it.isOriginal : false;
+            });
+            applySorting();
+            refreshDuplicateSummary();
+        }
+
+        // TOPLU ESNEK SEÇİM FONKSİYONLARI
+        function selectAllDuplicates() {
+            completedGroups.forEach(grp => {
+                const active = grp.items.filter(it => !it.removed);
+                if (!active.some(it => it.isOriginal) && active.length > 0) {
+                    active[0].isOriginal = true;
+                }
+                active.forEach(it => {
+                    it.selectedForAction = !it.isOriginal;
+                });
+            });
+            applySorting();
+            refreshDuplicateSummary();
+            showToast('Tüm gruplardaki kopya dosyalar seçildi (orijinaller korundu).', 'success');
+        }
+
+        function deselectAllDuplicates() {
+            completedGroups.forEach(grp => {
+                grp.items.forEach(it => {
+                    it.selectedForAction = false;
+                });
+            });
+            applySorting();
+            refreshDuplicateSummary();
+            showToast('Tüm seçimler kaldırıldı.', 'info');
+        }
+
+        function invertDuplicateSelection() {
+            const lockMode = document.getElementById('settingsGroupLock').value;
+            completedGroups.forEach(grp => {
+                const active = grp.items.filter(it => !it.removed);
+                active.forEach(it => {
+                    it.selectedForAction = !it.selectedForAction;
+                });
+                if (lockMode === 'strict' && active.every(it => it.selectedForAction) && active.length > 0) {
+                    // En az 1 dosyayı koru
+                    const orig = active.find(it => it.isOriginal) || active[0];
+                    orig.selectedForAction = false;
+                    orig.isOriginal = true;
+                }
+                active.forEach(it => {
+                    it.isOriginal = !it.selectedForAction && (it === active.find(x => !x.selectedForAction));
+                });
+            });
+            applySorting();
+            refreshDuplicateSummary();
+            showToast('Seçimler tersine çevrildi.', 'info');
+        }
+
+        function applyKeepCriteria(criteria) {
+            completedGroups.forEach(grp => {
+                const active = grp.items.filter(it => !it.removed);
+                if (active.length === 0) return;
+                let keepItem = active[0];
+                if (criteria === 'oldest') {
+                    keepItem = active.reduce((prev, cur) => (cur.lastModified < prev.lastModified ? cur : prev), active[0]);
+                } else if (criteria === 'newest') {
+                    keepItem = active.reduce((prev, cur) => (cur.lastModified > prev.lastModified ? cur : prev), active[0]);
+                } else if (criteria === 'shortestPath') {
+                    keepItem = active.reduce((prev, cur) => (cur.path.length < prev.path.length ? cur : prev), active[0]);
+                }
+                active.forEach(it => {
+                    it.isOriginal = (it.id === keepItem.id);
+                    it.selectedForAction = !it.isOriginal;
+                });
+            });
+            applySorting();
+            refreshDuplicateSummary();
+            const labelMap = {
+                oldest: 'En eski tarihli dosyalar',
+                newest: 'En yeni tarihli dosyalar',
+                shortestPath: 'En kısa klasör yoluna sahip dosyalar'
+            };
+            showToast(`${labelMap[criteria]} Orijinal (Korunacak) olarak ayarlandı.`, 'success');
+        }
+
+        function selectByPathKeyword(shouldSelect) {
+            const kw = document.getElementById('pathSelectFilter').value.trim().toLowerCase();
+            if (!kw) {
+                showToast('Lütfen filtrelemek için bir klasör veya dosya adı kelimesi yazın.', 'warning');
+                return;
+            }
+            const lockMode = document.getElementById('settingsGroupLock').value;
+            let affected = 0;
+
+            completedGroups.forEach(grp => {
+                const active = grp.items.filter(it => !it.removed);
+                active.forEach(it => {
+                    if (it.path.toLowerCase().includes(kw)) {
+                        it.selectedForAction = shouldSelect;
+                        affected++;
+                    }
+                });
+                if (lockMode === 'strict' && active.every(it => it.selectedForAction) && active.length > 0) {
+                    const keep = active.find(it => it.isOriginal) || active[0];
+                    keep.selectedForAction = false;
+                    keep.isOriginal = true;
+                }
+            });
+
+            applySorting();
+            refreshDuplicateSummary();
+            showToast(`"${kw}" içeren ${affected} dosya ${shouldSelect ? 'seçildi' : 'seçimden çıkarıldı'}.`, 'info');
+        }
+
+        function refreshDuplicateSummary() {
+            let totalWasted = 0;
+            let selectedBytes = 0;
+            let selectedCount = 0;
+            let keptCount = 0;
+            let activeGroupCount = 0;
+
+            completedGroups.forEach(grp => {
+                const active = grp.items.filter(it => !it.removed);
+                if (active.length <= 1) return;
+                activeGroupCount++;
+                totalWasted += grp.unitSize * (active.length - 1);
+                active.forEach(it => {
+                    if (it.selectedForAction) {
+                        selectedBytes += it.size;
+                        selectedCount++;
+                    } else {
+                        keptCount++;
+                    }
+                });
+            });
+
+            document.getElementById('savedSpaceText').textContent = formatBytes(totalWasted);
+            document.getElementById('selectedSpaceText').textContent = `${formatBytes(selectedBytes)} (${selectedCount} Dosya)`;
+            document.getElementById('groupCountText').textContent = `${activeGroupCount} Grup`;
+            document.getElementById('keptCountText').textContent = `${keptCount} Dosya`;
+            document.getElementById('badgeGroups').textContent = `${activeGroupCount} Grup`;
+            document.getElementById('actionBtnCount').textContent = `${selectedCount} Dosya / ${formatBytes(selectedBytes)}`;
+            document.getElementById('deleteBtn').disabled = selectedCount === 0;
+        }
+
+        function applySorting() {
+            const sortVal = document.getElementById('sortSelect').value;
+            const sorted = [...completedGroups];
+            if (sortVal === 'sizeDesc') sorted.sort((a, b) => b.wastedSpace - a.wastedSpace);
+            else if (sortVal === 'sizeAsc') sorted.sort((a, b) => a.wastedSpace - b.wastedSpace);
+            else if (sortVal === 'countDesc') sorted.sort((a, b) => b.items.length - a.items.length);
+            else sorted.sort((a, b) => a.id - b.id);
+
+            renderDuplicateGroups(sorted);
+        }
+
+        // ============================================================================
+        // DOSYA ÖNİZLEME (BELLEK SIZINTISINI ÖNLEYEN BLOB YÖNETİMİ)
+        // ============================================================================
+        function revokeAllPreviewUrls() {
+            Object.values(activePreviewUrls).forEach(u => {
+                try { URL.revokeObjectURL(u); } catch (e) {}
+            });
+            activePreviewUrls = {};
+        }
+
+        function togglePreview(containerId, groupId, itemId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            if (container.style.display === 'block') {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                if (activePreviewUrls[containerId]) {
+                    try { URL.revokeObjectURL(activePreviewUrls[containerId]); } catch (e) {}
+                    delete activePreviewUrls[containerId];
+                }
+                return;
+            }
+
+            const grp = completedGroups.find(g => g.id === groupId);
+            const item = grp ? grp.items.find(i => i.id === itemId) : null;
+            if (!item) return;
+
+            if (item.isDemo || !item.file) {
+                container.innerHTML = `<div style="padding:10px; color:var(--text-secondary);">📄 <strong>Önizleme (Demo Dosyası):</strong> /${escapeHtml(item.path)} — Boyut: ${formatBytes(item.size)}</div>`;
+                container.style.display = 'block';
+                return;
+            }
+
+            const url = URL.createObjectURL(item.file);
+            activePreviewUrls[containerId] = url;
+            const t = item.file.type || '';
+            let h = `<span>Bu dosya formatı tarayıcıda doğrudan önizlenemiyor. Boyut: ${formatBytes(item.size)}</span>`;
+            if (t.startsWith('image/')) h = `<img src="${url}" alt="${escapeHtml(item.name)}">`;
+            else if (t.startsWith('video/')) h = `<video controls src="${url}"></video>`;
+            else if (t.startsWith('audio/')) h = `<audio controls src="${url}"></audio>`;
+            else if (t === 'application/pdf' || t.startsWith('text/')) h = `<iframe src="${url}" style="width:100%;height:280px;border:none;"></iframe>`;
+
+            container.innerHTML = h;
+            container.style.display = 'block';
+        }
+
+        // ============================================================================
+        // KLASÖR & BOYUT ANALİZİ AĞACI ([-/+] VARSAYILAN AÇIK GÖRÜNÜM)
+        // ============================================================================
+        async function pickAndAnalyzeTreeFolder() {
+            try {
+                const handle = await pickDirectoryWithMemory();
+                if (!handle) return;
+                mainDirectoryHandle = handle;
+                await buildTreeOnlyForHandle(handle);
+            } catch (e) {
+                updateStatus('Klasör analizi iptal edildi.', 'var(--warning)', false);
+            }
+        }
+
+        async function analyzeRememberedFolderTree() {
+            if (lastRememberedHandle) {
+                const ok = await verifyHandlePermission(lastRememberedHandle);
+                if (ok) {
+                    mainDirectoryHandle = lastRememberedHandle;
+                    await buildTreeOnlyForHandle(lastRememberedHandle);
+                    return;
+                }
+            }
+            await pickAndAnalyzeTreeFolder();
+        }
+
+        async function buildTreeOnlyForHandle(rootHandle) {
+            switchTab('tree');
+            isScanning = true;
+            isPaused = false;
+            updateStatus(`"${rootHandle.name}" klasör ve alt klasör boyutları hesaplanıyor...`, 'var(--primary)', true);
+
+            const blacklist = document.getElementById('blacklist').value
+                .split(',')
+                .map(s => s.trim().toLowerCase())
+                .filter(Boolean);
+
+            const treeRoot = {
+                name: rootHandle.name,
+                path: rootHandle.name,
+                handle: rootHandle,
+                totalSize: 0,
+                directSize: 0,
+                fileCount: 0,
+                folderCount: 0,
+                expanded: true, // Varsayılan olarak [-] AÇIK gelir
+                children: [],
+                files: []
+            };
+
+            filesData = [];
+            await scanDirectoryRecursive(rootHandle, '', 0, 'all', 'all', blacklist, treeRoot);
+            folderTreeRoot = treeRoot;
+            isScanning = false;
+
+            renderFolderTree();
+            updateStatus(`Klasör boyut analizi tamamlandı: "${rootHandle.name}" (${formatBytes(treeRoot.totalSize)})`, 'var(--success)', false);
+        }
+
+        function renderFolderTree() {
+            const container = document.getElementById('folderTreeContainer');
+            const statsPanel = document.getElementById('treeStatsPanel');
+
+            if (!folderTreeRoot) {
+                statsPanel.style.display = 'none';
+                return;
+            }
+
+            const minMB = parseFloat(document.getElementById('treeMinFileMB').value) || 0;
+            const minBytes = minMB * 1024 * 1024;
+            const showFiles = document.getElementById('treeShowFilesToggle').value === 'yes';
+            const sortMode = document.getElementById('treeSortMode').value;
+
+            let largeFileCount = 0;
+            function countLarge(node) {
+                node.files.forEach(f => { if (f.size >= minBytes) largeFileCount++; });
+                node.children.forEach(c => countLarge(c));
+            }
+            countLarge(folderTreeRoot);
+
+            statsPanel.style.display = 'grid';
+            document.getElementById('treeRootSizeText').textContent = formatBytes(folderTreeRoot.totalSize);
+            document.getElementById('treeFolderCountText').textContent = `${folderTreeRoot.folderCount} Alt Klasör`;
+            document.getElementById('treeFileCountText').textContent = `${folderTreeRoot.fileCount} Dosya`;
+            document.getElementById('treeLargeFileCountText').textContent = `${largeFileCount} Dosya (≥ ${minMB} MB)`;
+            document.getElementById('badgeTree').textContent = formatBytes(folderTreeRoot.totalSize);
+
+            const rootTotal = Math.max(folderTreeRoot.totalSize, 1);
+
+            function buildNodeHtml(node, isRoot = false) {
+                const pct = Math.min(100, Math.round((node.totalSize / rootTotal) * 100));
+                const sortedChildren = [...node.children];
+                if (sortMode === 'sizeDesc') sortedChildren.sort((a, b) => b.totalSize - a.totalSize);
+                else sortedChildren.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+
+                const qualifyingFiles = showFiles
+                    ? node.files.filter(f => f.size >= minBytes).sort((a, b) => b.size - a.size)
+                    : [];
+
+                const hasExpandableContent = sortedChildren.length > 0 || qualifyingFiles.length > 0;
+                const toggleSymbol = node.expanded ? '-' : '+';
+                const safePathId = encodeURIComponent(node.path);
+
+                let html = `
+                    <div class="tree-node">
+                        <div class="tree-row ${isRoot ? 'root-row' : ''}">
+                            <div class="tree-left">
+                                ${hasExpandableContent
+                                    ? `<button type="button" class="tree-toggle-btn" onclick="toggleTreeNode('${safePathId}')" title="Alt klasörleri ve dosyaları Aç / Kapat">${toggleSymbol}</button>`
+                                    : `<span class="tree-toggle-btn" style="opacity:0.35; cursor:default;">•</span>`
+                                }
+                                <span>${isRoot ? '👑' : '📁'} <strong>${escapeHtml(node.name)}</strong></span>
+                                <span style="font-size:12px; color:var(--muted);">(${node.children.length} alt klasör, ${node.files.length} doğrudan dosya)</span>
+                            </div>
+                            <div class="tree-right">
+                                <div class="size-bar-wrap" title="Toplam boyutun %${pct}'i">
+                                    <div class="size-bar-fill" style="width: ${pct}%;"></div>
+                                </div>
+                                <span style="font-size:12px; font-weight:700; min-width:38px;">%${pct}</span>
+                                <span class="size-pill">Toplam: ${formatBytes(node.totalSize)}</span>
+                                <button type="button" class="btn-secondary btn-sm" onclick="scanSubfolderFromTree('${safePathId}')">🔍 Bu Klasörde Kopya Tara</button>
+                            </div>
+                        </div>
+                `;
+
+                if (hasExpandableContent) {
+                    html += `<div class="tree-children ${node.expanded ? '' : 'collapsed'}">`;
+
+                    // Bu klasörün içindeki MB sınırını aşan dosyalar
+                    qualifyingFiles.forEach(f => {
+                        html += `
+                            <div class="tree-file-row">
+                                <div class="tree-file-name">
+                                    <span>📄</span>
+                                    <span>${escapeHtml(f.name)}</span>
+                                    <span style="font-size:11px; color:var(--muted);">(${new Date(f.lastModified).toLocaleDateString('tr-TR')})</span>
+                                </div>
+                                <span class="tree-file-size">💾 ${formatBytes(f.size)}</span>
+                            </div>
+                        `;
+                    });
+
+                    // Alt klasörler
+                    sortedChildren.forEach(child => {
+                        html += buildNodeHtml(child, false);
+                    });
+
+                    html += `</div>`;
+                }
+
+                html += `</div>`;
+                return html;
+            }
+
+            container.innerHTML = buildNodeHtml(folderTreeRoot, true);
+        }
+
+        function findTreeNodeByPath(node, targetPath) {
+            if (!node) return null;
+            if (node.path === targetPath) return node;
+            for (const c of node.children) {
+                const found = findTreeNodeByPath(c, targetPath);
+                if (found) return found;
+            }
+            return null;
+        }
+
+        function toggleTreeNode(encodedPath) {
+            const targetPath = decodeURIComponent(encodedPath);
+            const node = findTreeNodeByPath(folderTreeRoot, targetPath);
+            if (node) {
+                node.expanded = !node.expanded;
+                renderFolderTree();
+            }
+        }
+
+        function expandOrCollapseAllTree(collapse) {
+            if (!folderTreeRoot) return;
+            function walk(n) {
+                n.expanded = !collapse;
+                n.children.forEach(walk);
+            }
+            walk(folderTreeRoot);
+            renderFolderTree();
+        }
+
+        async function scanSubfolderFromTree(encodedPath) {
+            const targetPath = decodeURIComponent(encodedPath);
+            const node = findTreeNodeByPath(folderTreeRoot, targetPath);
+            if (!node) return;
+
+            if (node.handle) {
+                mainDirectoryHandle = node.handle;
+                await saveDirectoryHandleToDB(node.handle);
+                await runFullScanOnHandle(node.handle);
+            } else {
+                // Demo modunda alt klasör filtreleme
+                switchTab('duplicate');
+                document.getElementById('pathSelectFilter').value = node.name;
+                selectByPathKeyword(true);
+                showToast(`"${node.name}" klasörü kopya tarayıcıda filtrelendi ve seçildi.`, 'success');
+            }
+        }
+
+        // ============================================================================
+        // MODAL ONAY SİSTEMİ VE SİLME / KARANTİNA UYGULAMA
+        // ============================================================================
+        function openCustomModal(title, desc, keyword, onConfirm) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalDesc').textContent = desc;
+            const inputWrap = document.getElementById('modalInputWrap');
+            const inputEl = document.getElementById('modalConfirmInput');
+
+            pendingModalKeyword = keyword;
+            pendingModalCallback = onConfirm;
+
+            if (keyword) {
+                inputWrap.style.display = 'block';
+                inputEl.value = '';
+                inputEl.placeholder = `Onaylamak için büyük harflerle ${keyword} yazın`;
+            } else {
+                inputWrap.style.display = 'none';
+            }
+
+            document.getElementById('confirmModal').style.display = 'flex';
+            if (keyword) setTimeout(() => inputEl.focus(), 60);
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            pendingModalCallback = null;
+            pendingModalKeyword = null;
+        }
+
+        function handleModalConfirm() {
+            if (pendingModalKeyword) {
+                const val = document.getElementById('modalConfirmInput').value.trim();
+                if (val !== pendingModalKeyword) {
+                    showToast(`Hatalı onay kelimesi! Lütfen tam olarak "${pendingModalKeyword}" yazın.`, 'danger');
+                    return;
+                }
+            }
+            const cb = pendingModalCallback;
+            closeConfirmModal();
+            if (typeof cb === 'function') cb();
+        }
+
+        function openActionConfirmModal() {
+            const action = document.querySelector('input[name="actionType"]:checked').value;
+            const selectedItems = [];
+            completedGroups.forEach(g => {
+                g.items.forEach(it => {
+                    if (!it.removed && it.selectedForAction) {
+                        selectedItems.push({ group: g, item: it });
+                    }
+                });
+            });
+
+            if (selectedItems.length === 0) {
+                showToast('İşlem yapılacak hiçbir dosya seçilmedi!', 'warning');
+                return;
+            }
+
+            const totalBytes = selectedItems.reduce((acc, x) => acc + x.item.size, 0);
+            const keyword = action === 'delete' ? 'SİL' : 'TAŞI';
+            const title = action === 'delete' ? '🗑️ Kalıcı Silme Onayı' : '🛡️ Karantinaya Taşıma Onayı';
+            const desc = action === 'delete'
+                ? `Seçilen ${selectedItems.length} adet dosya (${formatBytes(totalBytes)}) KALICI OLARAK SİLİNECEKTİR.\nHer gruptaki korunacak (Orijinal) dosyalar güvendedir.\n\nDevam etmek için aşağıya SİL yazın:`
+                : `Seçilen ${selectedItems.length} adet dosya (${formatBytes(totalBytes)}) ana klasördeki "Kopya_Coplugu" klasörüne güvenli şekilde TAŞINACAKTIR.\n\nDevam etmek için aşağıya TAŞI yazın:`;
+
+            openCustomModal(title, desc, keyword, () => executeBatchFileAction(action, selectedItems));
+        }
+
+        async function executeBatchFileAction(action, selectedItems) {
+            updateStatus('Seçili dosyalar işleniyor, lütfen bekleyin...', 'var(--danger)', true);
+            document.getElementById('deleteBtn').disabled = true;
+
+            let successCount = 0;
+            let errorCount = 0;
+            let recoveredBytes = 0;
+            let quarantineHandle = null;
+
+            const isDemoRun = selectedItems.every(x => x.item.isDemo);
+
+            if (!isDemoRun && action === 'quarantine' && mainDirectoryHandle) {
+                try {
+                    quarantineHandle = await mainDirectoryHandle.getDirectoryHandle('Kopya_Coplugu', { create: true });
+                } catch (e) {
+                    showToast('Karantina klasörü oluşturulamadı! Yazma izninizi kontrol edin.', 'danger');
+                    document.getElementById('deleteBtn').disabled = false;
+                    return;
+                }
+            }
+
+            for (const entry of selectedItems) {
+                const target = entry.item;
+                try {
+                    if (!target.isDemo) {
+                        if (action === 'quarantine' && quarantineHandle) {
+                            const fileData = target.file;
+                            const safeSubName = `${Date.now()}_${target.name}`;
+                            const newFileHandle = await quarantineHandle.getFileHandle(safeSubName, { create: true });
+                            const writable = await newFileHandle.createWritable();
+                            await writable.write(fileData);
+                            await writable.close();
+
+                            // Güvenlik kontrolü: yazılan dosyanın boyutu birebir aynı mı?
+                            const writtenFile = await newFileHandle.getFile();
+                            if (writtenFile.size !== target.size) {
+                                throw new Error('Karantina dosya boyutu doğrulaması başarısız oldu.');
+                            }
+                        }
+                        await target.parentHandle.removeEntry(target.name);
+                    }
+
+                    target.removed = true;
+                    target.selectedForAction = false;
+                    successCount++;
+                    recoveredBytes += target.size;
+
+                    // Silinme / Karantina Geçmişine Kaydet
+                    addHistoryRecord({
+                        id: 'hist_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+                        timestamp: Date.now(),
+                        action: action === 'delete' ? 'Kalıcı Silindi' : 'Karantinaya Taşındı',
+                        name: target.name,
+                        path: target.path,
+                        size: target.size
+                    });
+                } catch (err) {
+                    console.error('Dosya işlem hatası:', err);
+                    errorCount++;
+                }
+            }
+
+            saveHistoryToStorage();
+            renderHistoryTable();
+            applySorting();
+            refreshDuplicateSummary();
+
+            updateStatus(
+                `İşlem Tamamlandı: ${successCount} dosya ${action === 'delete' ? 'kalıcı olarak silindi' : 'karantinaya taşındı'} (${formatBytes(recoveredBytes)} alan açıldı).`,
+                'var(--success)',
+                false
+            );
+            showToast(
+                `${successCount} dosya işlendi (${formatBytes(recoveredBytes)}). Geçmiş sekmesine kaydedildi.`,
+                errorCount > 0 ? 'warning' : 'success'
+            );
+        }
+
+        // ============================================================================
+        // SİLİNME VE KARANTİNA GEÇMİŞİ YÖNETİMİ (TEK TEK VEYA TOPLU SİLME)
+        // ============================================================================
+        function loadHistoryFromStorage() {
+            deletionHistory = safeStorageGet('kopya_pro_deletion_history', []);
+            renderHistoryTable();
+        }
+
+        function saveHistoryToStorage() {
+            safeStorageSet('kopya_pro_deletion_history', deletionHistory);
+        }
+
+        function addHistoryRecord(rec) {
+            deletionHistory.unshift({ ...rec, checked: false });
+            if (deletionHistory.length > 2000) deletionHistory.length = 2000;
+        }
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('historyTableBody');
+            const badge = document.getElementById('badgeHistory');
+            const query = (document.getElementById('historySearchInput').value || '').trim().toLowerCase();
+
+            badge.textContent = String(deletionHistory.length);
+
+            const filtered = deletionHistory.filter(item => {
+                if (!query) return true;
+                return item.name.toLowerCase().includes(query) ||
+                       item.path.toLowerCase().includes(query) ||
+                       item.action.toLowerCase().includes(query);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--muted);">Kayıtlı silinme veya karantina geçmişi bulunmuyor.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(item => `
+                <tr>
+                    <td><input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleSingleHistoryCheck('${item.id}', this.checked)"></td>
+                    <td style="white-space:nowrap;">${new Date(item.timestamp).toLocaleString('tr-TR')}</td>
+                    <td>
+                        <span class="badge ${item.action.includes('Kalıcı') ? 'badge-delete' : 'badge-keep'}">
+                            ${escapeHtml(item.action)}
+                        </span>
+                    </td>
+                    <td><strong>${escapeHtml(item.name)}</strong></td>
+                    <td style="font-family:monospace; font-size:12px; color:var(--muted);">/${escapeHtml(item.path)}</td>
+                    <td style="font-family:monospace; font-weight:700;">${formatBytes(item.size)}</td>
+                    <td>
+                        <button class="btn-danger btn-sm" onclick="deleteSingleHistoryItem('${item.id}')" title="Bu kaydı geçmiş listesinden sil">❌ Sil</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleSingleHistoryCheck(id, checked) {
+            const item = deletionHistory.find(x => x.id === id);
+            if (item) item.checked = checked;
+        }
+
+        function toggleSelectAllHistory(checked) {
+            const master = document.getElementById('historyMasterCb');
+            if (master) master.checked = checked;
+            deletionHistory.forEach(x => { x.checked = checked; });
+            renderHistoryTable();
+        }
+
+        function deleteSingleHistoryItem(id) {
+            deletionHistory = deletionHistory.filter(x => x.id !== id);
+            saveHistoryToStorage();
+            renderHistoryTable();
+            showToast('Kayıt geçmiş listesinden silindi.', 'info');
+        }
+
+        function deleteSelectedHistoryItems() {
+            const selectedCount = deletionHistory.filter(x => x.checked).length;
+            if (selectedCount === 0) {
+                showToast('Geçmişten silmek için en az 1 kayıt seçin.', 'warning');
+                return;
+            }
+            openCustomModal(
+                '🗑️ Seçili Geçmiş Kayıtlarını Sil',
+                `Seçtiğiniz ${selectedCount} adet geçmiş kaydı listeden silinecek. Onaylıyor musunuz?`,
+                null,
+                () => {
+                    deletionHistory = deletionHistory.filter(x => !x.checked);
+                    saveHistoryToStorage();
+                    renderHistoryTable();
+                    showToast(`${selectedCount} kayıt geçmiş listesinden temizlendi.`, 'success');
+                }
+            );
+        }
+
+        function clearAllHistoryItems() {
+            if (deletionHistory.length === 0) {
+                showToast('Geçmiş listesi zaten boş.', 'info');
+                return;
+            }
+            openCustomModal(
+                '🧹 Tüm Geçmişi Temizle',
+                `Toplam ${deletionHistory.length} adet silinme/karantina geçmiş kaydı tamamen temizlenecek. Onaylıyor musunuz?`,
+                null,
+                () => {
+                    deletionHistory = [];
+                    saveHistoryToStorage();
+                    renderHistoryTable();
+                    showToast('Tüm geçmiş kayıtları temizlendi.', 'success');
+                }
+            );
+        }
+
+        // ============================================================================
+        // CSV DIŞA AKTARMA (KOPYA RAPORU VE GEÇMİŞ RAPORU)
+        // ============================================================================
+        function exportCSV() {
+            if (completedGroups.length === 0) {
+                showToast('Dışa aktarılacak kopya grubu bulunmuyor.', 'warning');
+                return;
+            }
+            let csv = "\uFEFFGrup ID,Durum,Secili_Mi,Dosya Adi,Klasor Yolu,Boyut(MB),SHA256_Hash,Son_Degisiklik\n";
+            completedGroups.forEach(g => {
+                g.items.filter(it => !it.removed).forEach(it => {
+                    const role = it.isOriginal ? 'ORIJINAL_KORUNACAK' : 'KOPYA';
+                    const sel = it.selectedForAction ? 'EVET' : 'HAYIR';
+                    csv += `Grup ${g.id},${role},${sel},"${it.name}","${it.path}",${(it.size / 1024 / 1024).toFixed(2)},${g.hash},${new Date(it.lastModified).toLocaleDateString('tr-TR')}\n`;
+                });
+            });
+            downloadCsvBlob(csv, `Hizli_Kopya_Raporu_${new Date().toISOString().split('T')[0]}.csv`);
+        }
+
+        function exportHistoryCSV() {
+            if (deletionHistory.length === 0) {
+                showToast('Dışa aktarılacak geçmiş kaydı bulunmuyor.', 'warning');
+                return;
+            }
+            let csv = "\uFEFFTarih,Islem Turu,Dosya Adi,Eski Klasor Yolu,Boyut(MB)\n";
+            deletionHistory.forEach(h => {
+                csv += `"${new Date(h.timestamp).toLocaleString('tr-TR')}","${h.action}","${h.name}","${h.path}",${(h.size / 1024 / 1024).toFixed(2)}\n`;
+            });
+            downloadCsvBlob(csv, `Silinme_Gecmisi_${new Date().toISOString().split('T')[0]}.csv`);
+        }
+
+        function downloadCsvBlob(csvText, fileName) {
+            const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+        }
+
+        // ============================================================================
+        // DEMO VERİSİ YÜKLEYİCİ (CANVAS ÖNİZLEMESİNDE TÜM ÖZELLİKLERİ TEST ETMEK İÇİN)
+        // ============================================================================
+        function loadDemoWorkspace() {
+            const MB = 1024 * 1024;
+            lastRememberedFolderName = 'C:/Kullanicilar/Belgelerim_Ve_Medya_Arsivi';
+            updateRememberedFolderUI();
+
+            // 1. Örnek Klasör & Boyut Ağacı (Varsayılan olarak [-] Açık gelir)
+            folderTreeRoot = {
+                name: 'Belgelerim_Ve_Medya_Arsivi',
+                path: 'Belgelerim_Ve_Medya_Arsivi',
+                handle: null,
+                totalSize: 1840 * MB,
+                directSize: 45 * MB,
+                fileCount: 14,
+                folderCount: 4,
+                expanded: true,
+                files: [
+                    { name: 'Genel_Sunum_Master.pptx', path: 'Belgelerim_Ve_Medya_Arsivi/Genel_Sunum_Master.pptx', size: 45 * MB, lastModified: Date.now() - 86400000 * 40 }
+                ],
+                children: [
+                    {
+                        name: 'Video_Projeleri_2026',
+                        path: 'Belgelerim_Ve_Medya_Arsivi/Video_Projeleri_2026',
+                        handle: null,
+                        totalSize: 1120 * MB,
+                        directSize: 740 * MB,
+                        fileCount: 5,
+                        folderCount: 1,
+                        expanded: true,
+                        files: [
+                            { name: 'Tanitim_Filmi_4K.mp4', path: 'Belgelerim_Ve_Medya_Arsivi/Video_Projeleri_2026/Tanitim_Filmi_4K.mp4', size: 370 * MB, lastModified: Date.now() - 86400000 * 25 },
+                            { name: 'Tanitim_Filmi_4K_Kopya.mp4', path: 'Belgelerim_Ve_Medya_Arsivi/Video_Projeleri_2026/Tanitim_Filmi_4K_Kopya.mp4', size: 370 * MB, lastModified: Date.now() - 86400000 * 5 }
+                        ],
+                        children: [
+                            {
+                                name: 'Ham_Kayitlar_Yedek',
+                                path: 'Belgelerim_Ve_Medya_Arsivi/Video_Projeleri_2026/Ham_Kayitlar_Yedek',
+                                handle: null,
+                                totalSize: 380 * MB,
+                                directSize: 380 * MB,
+                                fileCount: 3,
+                                folderCount: 0,
+                                expanded: true,
+                                files: [
+                                    { name: 'Tanitim_Filmi_4K.mp4', path: 'Belgelerim_Ve_Medya_Arsivi/Video_Projeleri_2026/Ham_Kayitlar_Yedek/Tanitim_Filmi_4K.mp4', size: 370 * MB, lastModified: Date.now() - 86400000 * 2 },
+                                    { name: 'Ses_Kaydi_Stüdyo.wav', path: 'Belgelerim_Ve_Medya_Arsivi/Video_Projeleri_2026/Ham_Kayitlar_Yedek/Ses_Kaydi_Stüdyo.wav', size: 10 * MB, lastModified: Date.now() - 86400000 * 10 }
+                                ],
+                                children: []
+                            }
+                        ]
+                    },
+                    {
+                        name: 'Kamera_Fotograflari',
+                        path: 'Belgelerim_Ve_Medya_Arsivi/Kamera_Fotograflari',
+                        handle: null,
+                        totalSize: 425 * MB,
+                        directSize: 425 * MB,
+                        fileCount: 4,
+                        folderCount: 0,
+                        expanded: true,
+                        files: [
+                            { name: 'Tatil_Albumu_RAW.zip', path: 'Belgelerim_Ve_Medya_Arsivi/Kamera_Fotograflari/Tatil_Albumu_RAW.zip', size: 210 * MB, lastModified: Date.now() - 86400000 * 60 },
+                            { name: 'Tatil_Albumu_RAW (1).zip', path: 'Belgelerim_Ve_Medya_Arsivi/Kamera_Fotograflari/Tatil_Albumu_RAW (1).zip', size: 210 * MB, lastModified: Date.now() - 86400000 * 12 },
+                            { name: 'Kapak_Gorseli_Yuksek.png', path: 'Belgelerim_Ve_Medya_Arsivi/Kamera_Fotograflari/Kapak_Gorseli_Yuksek.png', size: 5 * MB, lastModified: Date.now() - 86400000 * 14 }
+                        ],
+                        children: []
+                    },
+                    {
+                        name: 'Indirilenler_Yedek',
+                        path: 'Belgelerim_Ve_Medya_Arsivi/Indirilenler_Yedek',
+                        handle: null,
+                        totalSize: 250 * MB,
+                        directSize: 250 * MB,
+                        fileCount: 4,
+                        folderCount: 0,
+                        expanded: true,
+                        files: [
+                            { name: 'Yillik_Finans_Raporu_2026.pdf', path: 'Belgelerim_Ve_Medya_Arsivi/Indirilenler_Yedek/Yillik_Finans_Raporu_2026.pdf', size: 80 * MB, lastModified: Date.now() - 86400000 * 30 },
+                            { name: 'Yillik_Finans_Raporu_2026.pdf', path: 'Belgelerim_Ve_Medya_Arsivi/Indirilenler_Yedek/Alt_Arsiv/Yillik_Finans_Raporu_2026.pdf', size: 80 * MB, lastModified: Date.now() - 86400000 * 3 },
+                            { name: 'Genel_Sunum_Master.pptx', path: 'Belgelerim_Ve_Medya_Arsivi/Indirilenler_Yedek/Genel_Sunum_Master.pptx', size: 45 * MB, lastModified: Date.now() - 86400000 * 8 },
+                            { name: 'Genel_Sunum_Master.pptx', path: 'Belgelerim_Ve_Medya_Arsivi/Indirilenler_Yedek/Eski/Genel_Sunum_Master.pptx', size: 45 * MB, lastModified: Date.now() - 86400000 * 1 }
+                        ],
+                        children: []
+                    }
+                ]
+            };
+
+            // 2. Örnek Kopya Grupları
+            completedGroups = [
+                {
+                    id: 1,
+                    hash: '9f86d081884c7d65 (SHA-256)',
+                    unitSize: 370 * MB,
+                    wastedSpace: 740 * MB,
+                    items: [
+                        { id: 'd1', isDemo: true, name: 'Tanitim_Filmi_4K.mp4', path: 'Video_Projeleri_2026/Tanitim_Filmi_4K.mp4', size: 370 * MB, lastModified: Date.now() - 86400000 * 25, isOriginal: true, selectedForAction: false, removed: false },
+                        { id: 'd2', isDemo: true, name: 'Tanitim_Filmi_4K.mp4', path: 'Video_Projeleri_2026/Ham_Kayitlar_Yedek/Tanitim_Filmi_4K.mp4', size: 370 * MB, lastModified: Date.now() - 86400000 * 5, isOriginal: false, selectedForAction: true, removed: false },
+                        { id: 'd3', isDemo: true, name: 'Tanitim_Filmi_4K.mp4', path: 'Indirilenler_Yedek/Tanitim_Filmi_4K.mp4', size: 370 * MB, lastModified: Date.now() - 86400000 * 2, isOriginal: false, selectedForAction: true, removed: false }
+                    ]
+                },
+                {
+                    id: 2,
+                    hash: '4b227777d4dd1fc6 (SHA-256)',
+                    unitSize: 210 * MB,
+                    wastedSpace: 210 * MB,
+                    items: [
+                        { id: 'd4', isDemo: true, name: 'Tatil_Albumu_RAW.zip', path: 'Kamera_Fotograflari/Tatil_Albumu_RAW.zip', size: 210 * MB, lastModified: Date.now() - 86400000 * 60, isOriginal: true, selectedForAction: false, removed: false },
+                        { id: 'd5', isDemo: true, name: 'Tatil_Albumu_RAW.zip', path: 'Indirilenler_Yedek/Tatil_Albumu_RAW.zip', size: 210 * MB, lastModified: Date.now() - 86400000 * 12, isOriginal: false, selectedForAction: true, removed: false }
+                    ]
+                },
+                {
+                    id: 3,
+                    hash: 'e3b0c44298fc1c14 (SHA-256)',
+                    unitSize: 80 * MB,
+                    wastedSpace: 80 * MB,
+                    items: [
+                        { id: 'd6', isDemo: true, name: 'Yillik_Finans_Raporu_2026.pdf', path: 'Belgelerim/Yillik_Finans_Raporu_2026.pdf', size: 80 * MB, lastModified: Date.now() - 86400000 * 30, isOriginal: true, selectedForAction: false, removed: false },
+                        { id: 'd7', isDemo: true, name: 'Yillik_Finans_Raporu_2026.pdf', path: 'Indirilenler_Yedek/Yillik_Finans_Raporu_2026.pdf', size: 80 * MB, lastModified: Date.now() - 86400000 * 3, isOriginal: false, selectedForAction: true, removed: false }
+                    ]
+                },
+                {
+                    id: 4,
+                    hash: '7d865e959b246691 (SHA-256)',
+                    unitSize: 45 * MB,
+                    wastedSpace: 90 * MB,
+                    items: [
+                        { id: 'd8', isDemo: true, name: 'Genel_Sunum_Master.pptx', path: 'Belgelerim_Ve_Medya_Arsivi/Genel_Sunum_Master.pptx', size: 45 * MB, lastModified: Date.now() - 86400000 * 40, isOriginal: true, selectedForAction: false, removed: false },
+                        { id: 'd9', isDemo: true, name: 'Genel_Sunum_Master.pptx', path: 'Indirilenler_Yedek/Genel_Sunum_Master.pptx', size: 45 * MB, lastModified: Date.now() - 86400000 * 8, isOriginal: false, selectedForAction: true, removed: false },
+                        { id: 'd10', isDemo: true, name: 'Genel_Sunum_Master.pptx', path: 'Indirilenler_Yedek/Eski/Genel_Sunum_Master.pptx', size: 45 * MB, lastModified: Date.now() - 86400000 * 1, isOriginal: false, selectedForAction: true, removed: false }
+                    ]
+                }
+            ];
+
+            renderFolderTree();
+            applySorting();
+            refreshDuplicateSummary();
+
+            document.getElementById('summaryPanel').style.display = 'grid';
+            document.getElementById('selectionToolbar').style.display = 'flex';
+            document.getElementById('bottomActions').style.display = 'flex';
+
+            updateStatus('Örnek (Demo) çalışma alanı yüklendi! Tüm seçim, klasör ağacı [-/+] ve geçmiş özelliklerini hemen test edebilirsiniz.', 'var(--success)', false);
+            showToast('Örnek veri yüklendi! Sol menüden "Klasör & Boyut Ağacı" sekmesini de inceleyebilirsiniz.', 'success');
+        }
+
+        // ============================================================================
+        // AKILLI CANLI SAAT WİDGET'I MOTORU (SAĞ ALT KÖŞE)
+        // ============================================================================
+        let clockState = {
+            mode: 'digital_sec',
+            scale: 2.0
+        };
+        let clockIntervalId = null;
+
+        function initSmartClock() {
+            const saved = safeStorageGet('kopya_pro_clock_prefs', null);
+            if (saved) {
+                if (saved.mode) clockState.mode = saved.mode;
+                if (typeof saved.scale === 'number' && saved.scale >= 1.0 && saved.scale <= 3.0) {
+                    clockState.scale = saved.scale;
+                }
+            }
+            applyClockPreferencesToUI();
+            renderSmartClockTick();
+            if (clockIntervalId) clearInterval(clockIntervalId);
+            clockIntervalId = setInterval(renderSmartClockTick, 1000);
+        }
+
+        function applyClockPreferencesToUI() {
+            document.documentElement.style.setProperty('--clock-scale', String(clockState.scale));
+            const widget = document.getElementById('smartClockWidget');
+            if (widget) {
+                widget.style.setProperty('--clock-scale', String(clockState.scale));
+            }
+            const modeSel = document.getElementById('clockModeSelect');
+            if (modeSel) modeSel.value = clockState.mode;
+            const scaleRange = document.getElementById('clockScaleRange');
+            if (scaleRange) scaleRange.value = String(clockState.scale);
+            const scaleLbl = document.getElementById('clockScaleLabel');
+            if (scaleLbl) scaleLbl.textContent = Number(clockState.scale).toFixed(1) + 'x';
+        }
+
+        function updateClockPreferences() {
+            const modeSel = document.getElementById('clockModeSelect');
+            const scaleRange = document.getElementById('clockScaleRange');
+            if (modeSel) clockState.mode = modeSel.value;
+            if (scaleRange) clockState.scale = Math.min(3.0, Math.max(1.0, parseFloat(scaleRange.value) || 2.0));
+            safeStorageSet('kopya_pro_clock_prefs', clockState);
+            applyClockPreferencesToUI();
+            renderSmartClockTick();
+        }
+
+        function resetClockPreferences() {
+            clockState = { mode: 'digital_sec', scale: 2.0 };
+            safeStorageSet('kopya_pro_clock_prefs', clockState);
+            applyClockPreferencesToUI();
+            renderSmartClockTick();
+            showToast('Saat ayarları varsayılan (2.0x, Dijital Saniyeli) duruma döndürüldü.', 'info');
+        }
+
+        function toggleClockSettingsDrawer() {
+            const drawer = document.getElementById('clockSettingsDrawer');
+            if (!drawer) return;
+            drawer.classList.toggle('open');
+        }
+
+        function renderSmartClockTick() {
+            const container = document.getElementById('smartClockContent');
+            if (!container) return;
+
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+
+            const secNum = now.getSeconds();
+            const minNum = now.getMinutes();
+            const hourNum = now.getHours();
+
+            // Açı formülleri: (sn / 60) * 360, (dk / 60) * 360 ve akrep için ((saat % 12 + dk / 60) / 12) * 360
+            const secAngle = (secNum / 60) * 360;
+            const minAngle = (minNum / 60) * 360;
+            const hourAngle = (((hourNum % 12) + minNum / 60) / 12) * 360;
+
+            if (clockState.mode === 'digital_sec') {
+                container.innerHTML = `
+                    <div class="clock-digital-main">
+                        <span>${hh}:${mm}</span><span class="clock-digital-sec">:${ss}</span>
+                    </div>
+                `;
+            } else if (clockState.mode === 'digital_short') {
+                container.innerHTML = `
+                    <div class="clock-digital-main">
+                        <span>${hh}:${mm}</span>
+                    </div>
+                `;
+            } else if (clockState.mode === 'analog_digital') {
+                container.innerHTML = `
+                    <div style="display: inline-flex; align-items: center; gap: 7px;">
+                        <svg class="clock-analog-svg" viewBox="0 0 40 40">
+                            <circle cx="20" cy="20" r="18" fill="none" stroke="var(--primary)" stroke-width="2"></circle>
+                            <line x1="20" y1="20" x2="20" y2="9" stroke="var(--text)" stroke-width="2.2" stroke-linecap="round" transform="rotate(${hourAngle} 20 20)"></line>
+                            <line x1="20" y1="20" x2="20" y2="5.5" stroke="var(--primary)" stroke-width="1.7" stroke-linecap="round" transform="rotate(${minAngle} 20 20)"></line>
+                            <line x1="20" y1="20" x2="20" y2="4.5" stroke="#EF4444" stroke-width="1.1" stroke-linecap="round" transform="rotate(${secAngle} 20 20)"></line>
+                            <circle cx="20" cy="20" r="2" fill="#EF4444"></circle>
+                        </svg>
+                        <div class="clock-digital-main">
+                            <span>${hh}:${mm}</span><span class="clock-digital-sec">:${ss}</span>
+                        </div>
+                    </div>
+                `;
+            } else if (clockState.mode === 'full_date_digital') {
+                const dayNames = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+                const dd = String(now.getDate()).padStart(2, '0');
+                const mo = String(now.getMonth() + 1).padStart(2, '0');
+                const yyyy = now.getFullYear();
+                const dayName = dayNames[now.getDay()];
+                container.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                        <div class="clock-date-line">${dd}.${mo}.${yyyy} ${dayName}</div>
+                        <div class="clock-digital-main">
+                            <span>${hh}:${mm}</span><span class="clock-digital-sec">:${ss}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================================================
+        // ÇEVRİMDIŞI HİCRİ / MİLADİ TAKVİM VE ÖZEL GÜNLER MOTORU (SOL ALT KÖŞE)
+        // ============================================================================
+        const HIJRI_MONTH_NAMES_TR = [
+            'Muharrem', 'Safer', 'Rebiülevvel', 'Rebiülahir',
+            'Cemaziyelevvel', 'Cemaziyelahir', 'Recep', 'Şaban',
+            'Ramazan', 'Şevval', 'Zilkade', 'Zilhicce'
+        ];
+
+        const HIJRI_MONTH_MEANINGS = {
+            1: "Muharrem: Hicri takvimin ilk ayıdır ve 'hürmet edilen, haram kılınan' anlamına gelir. Paylaşmanın ve şükretmenin simgesi olan Aşure Günü (10 Muharrem) bu aydadır.",
+            2: "Safer: Hicri yılın ikinci ayıdır. Sabır, dua ve manevi tefekkür ayı olarak değerlendirilir.",
+            3: "Rebiülevvel: 'İlk bahar' anlamını taşır. Hz. Muhammed'in (s.a.v.) dünyaya teşrif ettiği Mevlid Kandili (12 Rebiülevvel) bu mübarek ayda idrak edilir.",
+            4: "Rebiülahir: 'Son bahar / ikinci bahar' demektir. Manevi dinginlik ve hayır işlerinin sürdürüldüğü dördüncü Hicri aydır.",
+            5: "Cemaziyelevvel: Hicri yılın beşinci ayıdır; tövbe, istiğfar ve içsel muhasebe zamanıdır.",
+            6: "Cemaziyelahir: Hicri yılın altıncı ayıdır; mübarek Üç Aylar öncesinde kalbi ve ahlaki hazırlık dönemidir.",
+            7: "Recep: Mübarek 'Üç Aylar'ın başlangıcıdır. İlk Cuma gecesi Regaib Kandili, 27. gecesi ise Miraç Kandili olarak idrak edilen rahmet ayıdır.",
+            8: "Şaban: Ramazan-ı Şerif'in müjdecisi olan ikinci mübarek aydır. 15. gecesi af ve mağfiret gecesi olan Berat Kandili'dir.",
+            9: "Ramazan: Kur'an-ı Kerim'in indirilmeye başlandığı, oruç, yardımlaşma ve arınma ayıdır. Bin aydan daha hayırlı olan Kadir Gecesi (27 Ramazan) bu aydadır.",
+            10: "Şevval: Ramazan Bayramı (1-3 Şevval) ile başlayan sevgi, kucaklaşma ve bayramlaşma ayıdır.",
+            11: "Zilkade: Hac hazırlıklarının başladığı ve İslam geleneğinde barışın korunduğu hürmetli aylardan biridir.",
+            12: "Zilhicce: Hac ibadetinin yerine getirildiği ve Kurban Bayramı'nın (10-13 Zilhicce) idrak edildiği Hicri yılın son ayıdır."
+        };
+
+        const GREGORIAN_MONTH_MEANINGS = {
+            0: "Ocak: adını kış ortasında yakılan ocak ateşinden alır; yeni bir yılın, umudun ve taze başlangıçların simgesidir.",
+            1: "Şubat: Süryanice 'Şbat' kökünden gelir; kışın son demlerini ve cemrelerin toprağa, havaya, suya düşüşünü müjdeler.",
+            2: "Mart: adını Roma mitolojisinden alan, doğanın uyanışını, Nevruz'u ve ilkbahar ekinoksunu simgeleyen aydır.",
+            3: "Nisan: Süryanice 'Nisanna' (ilk meyve / tomurcuk) kökünden gelir; baharın coşkusunu ve 23 Nisan Ulusal Egemenlik ruhunu taşır.",
+            4: "Mayıs: bolluk ve bereket tanrıçası Maia'dan adını alır; 19 Mayıs Gençlik ve Spor Bayramı ile milli mücadelenin başlangıç ayıdır.",
+            5: "Haziran: Süryanice 'Huziran' (sıcak/yaz başlangıcı) kökünden gelir; en uzun gündüzün (21 Haziran) yaşandığı yaz başlangıcıdır.",
+            6: "Temmuz: 'Tammuz' kökünden gelir; hasat ve sıcak yaz mevsiminin kalbidir.",
+            7: "Ağustos: Anadolu'da 'Zafer Ayı' olarak da anılır; 30 Ağustos Büyük Taarruz zaferini ve bolluk dönemini temsil eder.",
+            8: "Eylül: Süryanice 'Eylul' (üzüm hasadı / bağ bozumu) kökünden gelir; sonbahar ekinoksu ve okulların açılış dönemidir.",
+            9: "Ekim: toprağın sürülüp tohumların ekildiği bereketli dönemdir; 29 Ekim Cumhuriyet Bayramı ile taçlanır.",
+            10: "Kasım: Arapça 'bölen/ayrıştıran' kökünden gelir; halk takviminde yılın 'Kasım günleri' (kış yarısı) başlangıcı ve 10 Kasım Atatürk'ü Anma ayıdır.",
+            11: "Aralık: iki yıl arasındaki geçişi ('aralık' zamanı) ve 21 Aralık kış gündönümüyle günlerin yeniden uzamaya başlamasını ifade eder."
+        };
+
+        const GREGORIAN_MONTH_NAMES_TR = [
+            'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+            'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+        ];
+
+        const DAY_NAMES_FULL_TR = [
+            'Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'
+        ];
+
+        // Intl.DateTimeFormat('tr-TR-u-ca-islamic-umalqura') çevrimdışı Hicri dönüştürücü
+        const hijriNumericFormatter = (() => {
+            try {
+                return new Intl.DateTimeFormat('tr-TR-u-ca-islamic-umalqura', {
+                    day: 'numeric',
+                    month: 'numeric',
+                    year: 'numeric'
+                });
+            } catch (e) {
+                return null;
+            }
+        })();
+
+        function getHijriDateParts(dateObj) {
+            if (hijriNumericFormatter) {
+                try {
+                    const parts = hijriNumericFormatter.formatToParts(dateObj);
+                    let d = 1, m = 1, y = 1448;
+                    parts.forEach(p => {
+                        const val = parseInt(p.value, 10);
+                        if (!isNaN(val)) {
+                            if (p.type === 'day') d = val;
+                            else if (p.type === 'month') m = val;
+                            else if (p.type === 'year') y = val;
+                        }
+                    });
+                    const mIndex = Math.max(1, Math.min(12, m));
+                    return {
+                        day: d,
+                        month: mIndex,
+                        monthName: HIJRI_MONTH_NAMES_TR[mIndex - 1],
+                        year: y
+                    };
+                } catch (e) {}
+            }
+            const jd = Math.floor((dateObj.getTime() / 86400000) + 2440587.5);
+            let l = jd - 1948440 + 10632;
+            const n = Math.floor((l - 1) / 10631);
+            l = l - 10631 * n + 354;
+            const j = (Math.floor((10985 - l) / 5316)) * (Math.floor((50 * l) / 17719)) + (Math.floor(l / 5670)) * (Math.floor((43 * l) / 15238));
+            l = l - (Math.floor((30 - j) / 15)) * (Math.floor((17719 * j) / 50)) - (Math.floor(j / 16)) * (Math.floor((15238 * j) / 43)) + 29;
+            const m = Math.floor((24 * l) / 709);
+            const d = l - Math.floor((709 * m) / 24);
+            const y = 30 * n + j - 30;
+            const mIdx = Math.max(1, Math.min(12, m));
+            return {
+                day: d,
+                month: mIdx,
+                monthName: HIJRI_MONTH_NAMES_TR[mIdx - 1],
+                year: y
+            };
+        }
+
+        const yearSpecialEventsCache = {};
+
+        function getSpecialEventsForYear(gregorianYear) {
+            if (yearSpecialEventsCache[gregorianYear]) {
+                return yearSpecialEventsCache[gregorianYear];
+            }
+
+            const events = [];
+
+            const nationalDefs = [
+                { month: 0, day: 1, title: "Yılbaşı (Resmi Tatil)", desc: "Miladi yeni yılın ilk günü ve resmi tatil." },
+                { month: 2, day: 18, title: "18 Mart Çanakkale Zaferi ve Şehitleri Anma Günü", desc: "18 Mart 1915 Çanakkale Deniz Zaferi'nin yıl dönümü ve aziz şehitlerimizi anma günü." },
+                { month: 3, day: 23, title: "23 Nisan Ulusal Egemenlik ve Çocuk Bayramı", desc: "TBMM'nin açılışı (1920) ve Gazi Mustafa Kemal Atatürk'ün dünya çocuklarına armağan ettiği ulusal bayram." },
+                { month: 4, day: 1, title: "1 Mayıs Emek ve Dayanışma Günü", desc: "Emekçilerin birlik, dayanışma ve çalışma haklarını kutladığı resmi tatil günü." },
+                { month: 4, day: 19, title: "19 Mayıs Atatürk'ü Anma, Gençlik ve Spor Bayramı", desc: "Atatürk'ün 19 Mayıs 1919'da Samsun'a çıkarak Milli Mücadele'yi başlattığı, Türk gençliğine armağan edilen resmi bayram." },
+                { month: 6, day: 15, title: "15 Temmuz Demokrasi ve Milli Birlik Günü", desc: "Milli iradeye ve demokrasiye sahip çıkılan resmi anma ve tatil günü." },
+                { month: 7, day: 30, title: "30 Ağustos Zafer Bayramı", desc: "1922 Dumlupınar Başkomutanlık Meydan Muharebesi zaferinin kutlandığı ulusal bayramımız." },
+                { month: 9, day: 29, title: "29 Ekim Cumhuriyet Bayramı", desc: "29 Ekim 1923'te Türkiye Cumhuriyeti'nin ilan edildiği en büyük ulusal bayramımız." },
+                { month: 10, day: 10, title: "10 Kasım Atatürk'ü Anma Günü", desc: "Cumhuriyetimizin kurucusu Gazi Mustafa Kemal Atatürk'ün ebediyete intikalinin yıl dönümü ve milli anma günü." }
+            ];
+
+            nationalDefs.forEach(nd => {
+                const dt = new Date(gregorianYear, nd.month, nd.day, 12, 0, 0);
+                const h = getHijriDateParts(dt);
+                events.push({
+                    dateKey: formatDateKey(dt),
+                    dateObj: dt,
+                    type: 'national',
+                    title: nd.title,
+                    desc: nd.desc,
+                    hijriLabel: `${h.day} ${h.monthName} ${h.year}`
+                });
+            });
+
+            const startDay = new Date(gregorianYear, 0, 1, 12, 0, 0);
+            const endDay = new Date(gregorianYear, 11, 31, 12, 0, 0);
+
+            for (let d = new Date(startDay); d <= endDay; d.setDate(d.getDate() + 1)) {
+                const cur = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
+                const h = getHijriDateParts(cur);
+                const hLabel = `${h.day} ${h.monthName} ${h.year}`;
+
+                if (h.month === 7 && h.day >= 1 && h.day <= 7 && cur.getDay() === 4) {
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: "Regaib Kandili",
+                        desc: "Üç Aylar'ın başlangıcı olan Recep ayının ilk Cuma gecesi; rahmet, rağbet ve dua gecesidir.",
+                        hijriLabel: hLabel
+                    });
+                }
+
+                if (h.month === 7 && h.day === 1) {
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: "Üç Aylar Başlangıcı (1 Recep)",
+                        desc: "Recep, Şaban ve Ramazan aylarını kapsayan mübarek Üç Aylar mevsiminin ilk günü.",
+                        hijriLabel: hLabel
+                    });
+                } else if (h.month === 7 && h.day === 26) {
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: "Miraç Kandili",
+                        desc: "Hz. Peygamber'in (s.a.v.) Mescid-i Haram'dan Mescid-i Aksa'ya ve oradan ilahi huzura yükseldiği mübarek gece (27 Recep gecesi).",
+                        hijriLabel: hLabel
+                    });
+                } else if (h.month === 8 && h.day === 14) {
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: "Berat Kandili",
+                        desc: "Şaban ayının 15. gecesi; günahlardan arınma, bağışlanma ve kulluk muhasebesi gecesidir.",
+                        hijriLabel: hLabel
+                    });
+                } else if (h.month === 9 && h.day === 1) {
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: "Ramazan Ayı Başlangıcı",
+                        desc: "On bir ayın sultanı mübarek Ramazan-ı Şerif'in ve ilk orucun başlangıç günü.",
+                        hijriLabel: hLabel
+                    });
+                } else if (h.month === 9 && h.day === 26) {
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: "Kadir Gecesi",
+                        desc: "Kur'an-ı Kerim'in indirilmeye başlandığı ve 'bin aydan daha hayırlı' olduğu müjdelenen mübarek 27 Ramazan gecesi.",
+                        hijriLabel: hLabel
+                    });
+                } else if (h.month === 10 && h.day === 1) {
+                    const arife = new Date(cur.getTime() - 86400000);
+                    if (arife.getFullYear() === gregorianYear) {
+                        const hArife = getHijriDateParts(arife);
+                        events.push({
+                            dateKey: formatDateKey(arife),
+                            dateObj: arife,
+                            type: 'religious',
+                            title: "Ramazan Bayramı Arifesi",
+                            desc: "Ramazan ayının son günü ve bayram öncesi hazırlık / arife günü.",
+                            hijriLabel: `${hArife.day} ${hArife.monthName} ${hArife.year}`
+                        });
+                    }
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: "Ramazan Bayramı (1. Gün)",
+                        desc: "Oruç ibadetinin ardından kavuşulan üç günlük Ramazan Bayramı'nın birinci günü (1 Şevval).",
+                        hijriLabel: hLabel
+                    });
+                } else if (h.month === 10 && (h.day === 2 || h.day === 3)) {
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: `Ramazan Bayramı (${h.day}. Gün)`,
+                        desc: `Ramazan Bayramı'nın ${h.day}. günü (${h.day} Şevval).`,
+                        hijriLabel: hLabel
+                    });
+                } else if (h.month === 12 && h.day === 9) {
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: "Kurban Bayramı Arifesi (Arefe)",
+                        desc: "Zilhicce ayının 9. günü; hacıların Arafat'ta vakfeye durduğu mübarek Arife günü.",
+                        hijriLabel: hLabel
+                    });
+                } else if (h.month === 12 && h.day >= 10 && h.day <= 13) {
+                    const gunNo = h.day - 9;
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: `Kurban Bayramı (${gunNo}. Gün)`,
+                        desc: `Teslimiyet ve paylaşma bayramı olan dört günlük Kurban Bayramı'nın ${gunNo}. günü (${h.day} Zilhicce).`,
+                        hijriLabel: hLabel
+                    });
+                } else if (h.month === 1 && h.day === 1) {
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: `Hicri Yılbaşı (1 Muharrem ${h.year})`,
+                        desc: `Hz. Peygamber'in Mekke'den Medine'ye hicretini esas alan Hicri ${h.year} yılının ilk günü.`,
+                        hijriLabel: hLabel
+                    });
+                } else if (h.month === 1 && h.day === 10) {
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: "Aşure Günü (10 Muharrem)",
+                        desc: "Muharrem ayının 10. günü; paylaşma, birlik, bereket ve tarihteki önemli kurtuluşların anıldığı mübarek gün.",
+                        hijriLabel: hLabel
+                    });
+                } else if (h.month === 3 && h.day === 11) {
+                    events.push({
+                        dateKey: formatDateKey(cur),
+                        dateObj: new Date(cur),
+                        type: 'religious',
+                        title: "Mevlid Kandili",
+                        desc: "Alemlere rahmet olarak gönderilen Hz. Muhammed'in (s.a.v.) dünyaya teşrif ettiği mübarek 12 Rebiülevvel gecesi.",
+                        hijriLabel: hLabel
+                    });
+                }
+            }
+
+            events.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
+            yearSpecialEventsCache[gregorianYear] = events;
+            return events;
+        }
+
+        function formatDateKey(d) {
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function formatTurkishFullDate(d) {
+            return `${d.getDate()} ${GREGORIAN_MONTH_NAMES_TR[d.getMonth()]} ${d.getFullYear()} ${DAY_NAMES_FULL_TR[d.getDay()]}`;
+        }
+
+        let calViewYear = new Date().getFullYear();
+        let calViewMonth = new Date().getMonth();
+        let calSelectedDate = new Date();
+        let calEventFilter = 'all';
+
+        function initHijriGregorianCalendar() {
+            const now = new Date();
+            calViewYear = now.getFullYear();
+            calViewMonth = now.getMonth();
+            calSelectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+            updateCalendarPillSummary();
+            renderCalendarModalContent();
+        }
+
+        function updateCalendarPillSummary() {
+            const now = new Date();
+            const todayNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+            const hijri = getHijriDateParts(todayNoon);
+
+            const miladiEl = document.getElementById('pillMiladiText');
+            const hijriEl = document.getElementById('pillHijriText');
+            const upcomingEl = document.getElementById('pillUpcomingText');
+
+            if (miladiEl) {
+                miladiEl.textContent = formatTurkishFullDate(todayNoon);
+            }
+            if (hijriEl) {
+                hijriEl.textContent = `${hijri.day} ${hijri.monthName} ${hijri.year}`;
+            }
+
+            const pool = [
+                ...getSpecialEventsForYear(todayNoon.getFullYear()),
+                ...getSpecialEventsForYear(todayNoon.getFullYear() + 1)
+            ];
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime();
+            const nextEv = pool.find(ev => ev.dateObj.getTime() >= todayStart);
+
+            if (upcomingEl && nextEv) {
+                const diffDays = Math.round((new Date(nextEv.dateObj.getFullYear(), nextEv.dateObj.getMonth(), nextEv.dateObj.getDate()).getTime() - todayStart) / 86400000);
+                const whenText = diffDays === 0 ? 'Bugün!' : `${diffDays} gün sonra`;
+                upcomingEl.textContent = `✨ ${nextEv.title} (${whenText})`;
+            }
+        }
+
+        function toggleCalendarModal() {
+            const modal = document.getElementById('calendarModalBackdrop');
+            if (!modal) return;
+            const willOpen = !modal.classList.contains('open');
+            modal.classList.toggle('open', willOpen);
+            if (willOpen) {
+                renderCalendarModalContent();
+            }
+        }
+
+        function handleCalendarBackdropClick(e) {
+            if (e.target && e.target.id === 'calendarModalBackdrop') {
+                toggleCalendarModal();
+            }
+        }
+
+        function changeCalendarMonth(delta) {
+            calViewMonth += delta;
+            if (calViewMonth < 0) {
+                calViewMonth = 11;
+                calViewYear -= 1;
+            } else if (calViewMonth > 11) {
+                calViewMonth = 0;
+                calViewYear += 1;
+            }
+            calSelectedDate = new Date(calViewYear, calViewMonth, 1, 12, 0, 0);
+            renderCalendarModalContent();
+        }
+
+        function jumpCalendarToToday() {
+            const now = new Date();
+            calViewYear = now.getFullYear();
+            calViewMonth = now.getMonth();
+            calSelectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+            renderCalendarModalContent();
+        }
+
+        function selectCalendarDay(yyyy, mm, dd) {
+            calViewYear = yyyy;
+            calViewMonth = mm;
+            calSelectedDate = new Date(yyyy, mm, dd, 12, 0, 0);
+            renderCalendarModalContent();
+        }
+
+        function setCalendarEventFilter(filterType) {
+            calEventFilter = filterType;
+            document.getElementById('calFilterAll').classList.toggle('active', filterType === 'all');
+            document.getElementById('calFilterReligious').classList.toggle('active', filterType === 'religious');
+            document.getElementById('calFilterNational').classList.toggle('active', filterType === 'national');
+            renderCalendarEventsList();
+        }
+
+        function renderCalendarModalContent() {
+            const gridEl = document.getElementById('calGridDays');
+            if (!gridEl) return;
+
+            const yearEvents = getSpecialEventsForYear(calViewYear);
+            const eventsByKey = {};
+            yearEvents.forEach(ev => {
+                if (!eventsByKey[ev.dateKey]) eventsByKey[ev.dateKey] = [];
+                eventsByKey[ev.dateKey].push(ev);
+            });
+
+            const firstDayOfMonth = new Date(calViewYear, calViewMonth, 1, 12, 0, 0);
+            const lastDayOfMonth = new Date(calViewYear, calViewMonth + 1, 0, 12, 0, 0);
+            const hStart = getHijriDateParts(firstDayOfMonth);
+            const hEnd = getHijriDateParts(lastDayOfMonth);
+
+            document.getElementById('calHeaderMonthYear').textContent = `${GREGORIAN_MONTH_NAMES_TR[calViewMonth]} ${calViewYear}`;
+            document.getElementById('calHeaderHijriRange').textContent = hStart.monthName === hEnd.monthName
+                ? `${hStart.monthName} ${hStart.year}`
+                : `${hStart.monthName} – ${hEnd.monthName} ${hEnd.year}`;
+
+            const startWeekday = (firstDayOfMonth.getDay() + 6) % 7;
+            const daysInMonth = lastDayOfMonth.getDate();
+            const prevMonthLastDate = new Date(calViewYear, calViewMonth, 0, 12, 0, 0).getDate();
+
+            const todayKey = formatDateKey(new Date());
+            const selectedKey = formatDateKey(calSelectedDate);
+
+            let cellsHtml = '';
+
+            for (let i = startWeekday - 1; i >= 0; i--) {
+                const dNum = prevMonthLastDate - i;
+                const dObj = new Date(calViewYear, calViewMonth - 1, dNum, 12, 0, 0);
+                const h = getHijriDateParts(dObj);
+                cellsHtml += `
+                    <div class="cal-day-cell other-month" onclick="selectCalendarDay(${dObj.getFullYear()}, ${dObj.getMonth()}, ${dObj.getDate()})">
+                        <div class="cal-day-miladi">${dNum}</div>
+                        <div class="cal-day-hijri">${h.day} ${h.monthName.slice(0, 3)}</div>
+                        <div class="cal-dots-row"></div>
+                    </div>
+                `;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dObj = new Date(calViewYear, calViewMonth, day, 12, 0, 0);
+                const dKey = formatDateKey(dObj);
+                const h = getHijriDateParts(dObj);
+                const dayEvs = eventsByKey[dKey] || [];
+
+                const isToday = dKey === todayKey;
+                const isSelected = dKey === selectedKey;
+
+                const dotsHtml = dayEvs.map(ev =>
+                    `<span class="cal-dot ${ev.type}" title="${escapeHtml(ev.title)}"></span>`
+                ).join('');
+
+                const hijriSub = (h.day === 1 || day === 1)
+                    ? `${h.day} ${h.monthName.slice(0, 4)}`
+                    : `${h.day}`;
+
+                cellsHtml += `
+                    <div class="cal-day-cell ${isToday ? 'is-today' : ''} ${isSelected ? 'is-selected' : ''}"
+                         onclick="selectCalendarDay(${calViewYear}, ${calViewMonth}, ${day})">
+                        <div class="cal-day-miladi">${day}</div>
+                        <div class="cal-day-hijri">${hijriSub}</div>
+                        <div class="cal-dots-row">${dotsHtml}</div>
+                    </div>
+                `;
+            }
+
+            const totalSoFar = startWeekday + daysInMonth;
+            const remaining = (7 - (totalSoFar % 7)) % 7;
+            for (let n = 1; n <= remaining; n++) {
+                const dObj = new Date(calViewYear, calViewMonth + 1, n, 12, 0, 0);
+                const h = getHijriDateParts(dObj);
+                cellsHtml += `
+                    <div class="cal-day-cell other-month" onclick="selectCalendarDay(${dObj.getFullYear()}, ${dObj.getMonth()}, ${dObj.getDate()})">
+                        <div class="cal-day-miladi">${n}</div>
+                        <div class="cal-day-hijri">${h.day} ${h.monthName.slice(0, 3)}</div>
+                        <div class="cal-dots-row"></div>
+                    </div>
+                `;
+            }
+
+            gridEl.innerHTML = cellsHtml;
+
+            const selHijri = getHijriDateParts(calSelectedDate);
+            const selKey = formatDateKey(calSelectedDate);
+            const selEvents = (getSpecialEventsForYear(calSelectedDate.getFullYear()) || []).filter(e => e.dateKey === selKey);
+
+            const meaningDayEl = document.getElementById('meaningSelectedDay');
+            const meaningGregEl = document.getElementById('meaningGregorianMonth');
+            const meaningHijriEl = document.getElementById('meaningHijriMonth');
+
+            if (selEvents.length > 0) {
+                const evDescriptions = selEvents.map(e => `🌟 <strong>${escapeHtml(e.title)}:</strong> ${escapeHtml(e.desc)}`).join('<br>');
+                meaningDayEl.innerHTML = `
+                    <div>📅 <strong>Seçilen Gün:</strong> ${formatTurkishFullDate(calSelectedDate)} — <strong>Hicri:</strong> ${selHijri.day} ${selHijri.monthName} ${selHijri.year}</div>
+                    <div style="margin-top:4px; padding:6px 8px; border-radius:6px; background:var(--primary-light);">${evDescriptions}</div>
+                `;
+            } else {
+                meaningDayEl.innerHTML = `
+                    <div>📅 <strong>Seçilen Gün:</strong> ${formatTurkishFullDate(calSelectedDate)} — <strong>Hicri Karşılığı:</strong> ${selHijri.day} ${selHijri.monthName} ${selHijri.year} (Bugün için kayıtlı resmi/dini tatil bulunmuyor).</div>
+                `;
+            }
+
+            meaningGregEl.innerHTML = `🏛️ <strong>Miladi Ayın Kökeni (${GREGORIAN_MONTH_NAMES_TR[calSelectedDate.getMonth()]}):</strong> ${GREGORIAN_MONTH_MEANINGS[calSelectedDate.getMonth()]}`;
+            meaningHijriEl.innerHTML = `🌙 <strong>Hicri Ayın Manevi Anlamı (${selHijri.monthName}):</strong> ${HIJRI_MONTH_MEANINGS[selHijri.month]}`;
+
+            renderCalendarEventsList();
+        }
+
+        function renderCalendarEventsList() {
+            const listEl = document.getElementById('calEventsListContainer');
+            const titleEl = document.getElementById('calEventsYearTitle');
+            if (!listEl) return;
+
+            titleEl.textContent = `📌 ${calViewYear} Yılı Özel Günler & Tatiller`;
+
+            const allEvents = getSpecialEventsForYear(calViewYear);
+            const filtered = allEvents.filter(ev => {
+                if (calEventFilter === 'all') return true;
+                return ev.type === calEventFilter;
+            });
+
+            const selectedKey = formatDateKey(calSelectedDate);
+
+            listEl.innerHTML = filtered.map(ev => {
+                const y = ev.dateObj.getFullYear();
+                const m = ev.dateObj.getMonth();
+                const d = ev.dateObj.getDate();
+                const isActive = ev.dateKey === selectedKey;
+                const badgeText = ev.type === 'religious' ? '🌙 Dini Gün/Gece' : '🇹🇷 Ulusal/Resmi';
+                return `
+                    <div class="cal-event-card" style="${isActive ? 'border-color: var(--primary); background: var(--primary-light);' : ''}"
+                         onclick="selectCalendarDay(${y}, ${m}, ${d})">
+                        <div class="cal-event-top">
+                            <div class="cal-event-title">${escapeHtml(ev.title)}</div>
+                            <span class="cal-event-badge ${ev.type}">${badgeText}</span>
+                        </div>
+                        <div class="cal-event-dates">
+                            🗓️ ${formatTurkishFullDate(ev.dateObj)} &nbsp;|&nbsp; 🌙 ${escapeHtml(ev.hijriLabel)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+    </script>
+</body>
+</html>
