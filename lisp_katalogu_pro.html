@@ -1,0 +1,2880 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoLISP Katalog Pro — CAD Kod, Denetim & Kılavuz Kütüphanesi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (window.tailwind) {
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              darkbg: '#0b1120',
+              darksurface: '#151f32',
+              darkcard: '#1e293b',
+              darkborder: '#334155'
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+              mono: ['Consolas', 'Monaco', 'Courier New', 'monospace']
+            }
+          }
+        }
+      };
+    }
+  </script>
+  <style>
+    :root {
+      --clock-scale: 2;
+    }
+    /* Çevrimdışı (CDN Engeli) Durumu İçin Temel Yedek Stiller */
+    body { margin: 0; font-family: Inter, system-ui, -apple-system, sans-serif; background-color: #f1f5f9; color: #1e293b; }
+    html.dark body { background-color: #0b1120; color: #f1f5f9; }
+    .hidden { display: none !important; }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #64748b; border-radius: 9999px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+    /* Sağ Alt Canlı Saat Ölçekleme Kuralları */
+    .clock-widget-scale {
+      transform: scale(var(--clock-scale, 2));
+      transform-origin: bottom right;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+    }
+
+    /* Sol Alt Esnek Takvim Hapı (Flexible Pill) */
+    .calendar-pill {
+      width: auto;
+      max-width: calc(100vw - 2rem);
+      transition: all 0.25s ease;
+    }
+
+    .glass-panel {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .code-preview {
+      max-height: 200px;
+      tab-size: 2;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 dark:bg-darkbg dark:text-slate-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+
+  <!-- ÜST BAR (HEADER) -->
+  <header class="sticky top-0 z-40 bg-white/90 dark:bg-darksurface/90 glass-panel border-b border-slate-200 dark:border-darkborder px-4 lg:px-8 py-3">
+    <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-4">
+      <!-- Logo & Başlık -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-500 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-500/20">
+          (L)
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-lg lg:text-xl font-bold tracking-tight text-slate-900 dark:text-white">AutoLISP Katalog Pro</h1>
+            <span id="fb-connection-badge" onclick="switchMainTab('settings')" title="Realtime Database (/autolisp_katalog_pro) bağlantı durumu"
+              class="cursor-pointer text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              ☁️ Bulut DB: Kontrol Ediliyor...
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">AutoCAD 2025 Kod Denetçisi, Kılavuz & Realtime DB Kütüphanesi (<code class="text-indigo-500">/autolisp_katalog_pro</code>)</p>
+        </div>
+      </div>
+
+      <!-- Orta Arama Çubuğu (/ veya Ctrl+K destekli) -->
+      <div class="flex-1 max-w-xl mx-auto w-full order-3 md:order-2">
+        <div class="relative">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input id="search-input" type="text" oninput="renderCatalog()" placeholder="Komut (c:...), başlık, kılavuz veya kod ara... (Kısayol: / veya Ctrl+K)"
+            class="w-full pl-10 pr-9 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition">
+          <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs">✕</button>
+        </div>
+      </div>
+
+      <!-- Sağ Menü & Aksiyonlar -->
+      <div class="flex items-center gap-2 order-2 md:order-3 flex-wrap">
+        <!-- Sekme Butonları -->
+        <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center">
+          <button id="tab-btn-catalog" onclick="switchMainTab('catalog')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm transition">
+            📂 Katalog
+          </button>
+          <button id="tab-btn-settings" onclick="switchMainTab('settings')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">
+            ⚙️ Ayarlar & Bulut Yedek
+          </button>
+        </div>
+
+        <!-- Tema Değiştirici -->
+        <button onclick="toggleTheme()" title="Açık / Karanlık Tema" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition">
+          <span id="theme-icon">🌙</span>
+        </button>
+
+        <!-- Çoklu .LSP Toplu Yükle -->
+        <label title="Birden fazla .lsp dosyasını tek seferde otomatik analiz ederek kataloğa ekler"
+          class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-md shadow-emerald-600/20 cursor-pointer transition">
+          <span>📂</span> <span class="hidden sm:inline">Çoklu .LSP Yükle</span>
+          <input type="file" accept=".lsp,.mnl,.txt" multiple onchange="handleBatchLispFilesUpload(event)" class="hidden">
+        </label>
+
+        <!-- Yeni LISP Ekle Butonu -->
+        <button onclick="openLispModal()" class="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl shadow-md shadow-indigo-600/25 transition">
+          <span>＋</span> <span>Yeni LISP Ekle</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ANA İÇERİK ALANI -->
+  <div class="max-w-[1600px] w-full mx-auto flex-1 px-4 lg:px-8 pt-6 pb-28">
+
+    <!-- SEKME 1: KATALOG GÖRÜNÜMÜ -->
+    <div id="view-catalog" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- SOL SÜTUN: SINIRSIZ ALT KATEGORİ AĞACI & FİLTRELER -->
+      <aside class="lg:col-span-3 space-y-4">
+        <!-- Kayıt Yeri Filtresi -->
+        <div class="bg-white dark:bg-darksurface rounded-2xl p-4 border border-slate-200 dark:border-darkborder shadow-sm">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">Veritabanı Konum Filtresi</h2>
+          <div class="grid grid-cols-3 gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl">
+            <button onclick="setStorageFilter('all')" id="st-filter-all" class="py-1.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition">
+              Tümü (<span id="count-all">0</span>)
+            </button>
+            <button onclick="setStorageFilter('local')" id="st-filter-local" class="py-1.5 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 transition">
+              💾 Yerel (<span id="count-local">0</span>)
+            </button>
+            <button onclick="setStorageFilter('firebase')" id="st-filter-firebase" class="py-1.5 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 transition">
+              ☁️ DB ✔ (<span id="count-cloud">0</span>)
+            </button>
+          </div>
+
+          <!-- Hızlı Bulut Senkronizasyon Butonları -->
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1.5">
+            <button onclick="runRtdbAction('pull')" title="Firebase /autolisp_katalog_pro adresindeki kayıtları yerel kayıtlarla tekrarsız birleştirir"
+              class="flex-1 py-1.5 px-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-[11px] font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition">
+              ↓ DB'den Al & Birleştir
+            </button>
+            <button onclick="runRtdbAction('push')" title="Tüm kataloğu /autolisp_katalog_pro/latest ve tarihli arşive yedekler"
+              class="flex-1 py-1.5 px-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-[11px] font-semibold text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 transition">
+              ↑ Tümünü DB'ye Yedekle
+            </button>
+          </div>
+        </div>
+
+        <!-- Hiyerarşik Kategori Ağacı -->
+        <div class="bg-white dark:bg-darksurface rounded-2xl p-4 border border-slate-200 dark:border-darkborder shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Kategori Ağacı</h2>
+            <button onclick="selectCategoryPath('')" class="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+              Tümünü Göster
+            </button>
+          </div>
+
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700/60 mb-3">
+            💡 Kategorileri <code class="text-indigo-500 font-mono">Ana / Alt / Detay</code> şeklinde sınırsız derinlikte oluşturabilirsiniz.
+          </div>
+
+          <!-- Ağaç Listesi -->
+          <div id="category-tree-container" class="space-y-1 max-h-[460px] overflow-y-auto pr-1 text-sm">
+            <!-- JS ile dinamik oluşturulur -->
+          </div>
+        </div>
+      </aside>
+
+      <!-- SAĞ SÜTUN: LISP LİSTESİ & PRO FİLTRE BARI -->
+      <section class="lg:col-span-9 space-y-4">
+        <!-- Üst Bilgi ve PRO Görünüm Kontrolleri -->
+        <div class="bg-white dark:bg-darksurface rounded-2xl px-4 py-3 border border-slate-200 dark:border-darkborder shadow-sm flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Aktif Kategori:</span>
+            <div id="active-category-breadcrumb" class="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800/60">
+              📁 Tüm Kategoriler
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <select id="sort-select" onchange="renderCatalog()" class="text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-none">
+              <option value="newest">En Yeni Eklenen</option>
+              <option value="oldest">En Eski Eklenen</option>
+              <option value="az">Başlığa Göre (A-Z)</option>
+              <option value="command">Komuta Göre (A-Z)</option>
+              <option value="fav">⭐ Favoriler Önce</option>
+              <option value="used">📊 En Çok Kullanılan</option>
+            </select>
+
+            <button id="pro-fav-btn" onclick="proToggleFilter('fav')" title="Yalnızca favori LISP kayıtlarını göster"
+              class="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+              ⭐ Favori
+            </button>
+
+            <button id="pro-issue-btn" onclick="proToggleFilter('issue')" title="Parantez hatası, güvenlik notu veya komut çakışması olan kayıtları filtrele"
+              class="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+              ⚠ Sorunlu
+            </button>
+
+            <button onclick="proDownloadBundle()" title="Görünen hatasız LISP'leri tek bir .lsp kütüphanesi olarak indir (parantez hatalı olanları atlar)"
+              class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 transition">
+              📦 Paket .LSP İndir
+            </button>
+          </div>
+        </div>
+
+        <!-- LISP Kartları Izgarası -->
+        <div id="lisp-cards-grid" class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <!-- JS ile dinamik oluşturulur -->
+        </div>
+      </section>
+    </div>
+
+    <!-- SEKME 2: AYARLAR & FIREBASE REALTIME DATABASE YEDEKLEME GÖRÜNÜMÜ -->
+    <div id="view-settings" class="hidden max-w-4xl mx-auto space-y-6">
+
+      <!-- Firebase Realtime Database Paneli (/autolisp_katalog_pro) -->
+      <div class="bg-white dark:bg-darksurface rounded-2xl p-6 border border-slate-200 dark:border-darkborder shadow-sm space-y-4">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold flex items-center gap-2">☁️ Firebase Realtime Database (<code class="text-sm text-indigo-500 font-mono">/autolisp_katalog_pro</code>)</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <strong>Prompt Atlası</strong> (<code class="font-mono">/prompt_atlasi</code>) ve <strong>Ev Bütçesi</strong> kayıtlarınıza kesinlikle dokunulmaz. Tüm LISP verileri ve favori/kullanım istatistikleri yalnızca ayrı <code class="font-mono text-indigo-500">/autolisp_katalog_pro</code> veri alanında saklanır.
+            </p>
+          </div>
+          <span id="settings-rtdb-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800">
+            Kontrol ediliyor...
+          </span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold mb-1">Realtime Database Adresi</label>
+          <div class="flex flex-wrap sm:flex-nowrap gap-2">
+            <input id="rtdb-url-input" type="url" spellcheck="false"
+              value="https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app"
+              placeholder="https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app"
+              class="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-mono">
+            <button onclick="runRtdbAction('test')" class="shrink-0 px-4 py-2.5 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 text-white text-xs font-semibold transition">
+              🔌 Bağlantıyı Test Et
+            </button>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-xs leading-relaxed">
+          ⚠️ <strong>Veri Alanı Güvencesi:</strong> Bu uygulama yalnızca <code class="font-mono font-bold">/autolisp_katalog_pro</code> düğümüne okuma/yazma yapar. Gönderilen her tam yedek hem <code class="font-mono">/autolisp_katalog_pro/latest</code> alanına hem de tarih-saat-saniye damgalı <code class="font-mono">/autolisp_katalog_pro/backups/</code> arşivine kaydedilir.
+        </div>
+
+        <!-- Senkronizasyon Aksiyon Butonları -->
+        <div class="flex flex-wrap gap-2.5 pt-1">
+          <button onclick="runRtdbAction('pull')" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition">
+            ↓ En Güncel Veriyi Al ve Birleştir
+          </button>
+          <button onclick="runRtdbAction('push')" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition">
+            ↑ Güncel Durumu Firebase’e Yedekle
+          </button>
+          <button onclick="runRtdbAction('list')" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold transition">
+            ☷ Firebase Tarihli Yedekleri Listele
+          </button>
+        </div>
+
+        <!-- Tarihli Arşiv Seçimi ve Geri Yükleme -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
+          <div class="text-xs font-bold">🕓 Firebase Yedek Geçmişi (<code class="font-mono">/autolisp_katalog_pro/backups</code>)</div>
+          <div class="flex flex-wrap sm:flex-nowrap gap-2">
+            <select id="rtdb-remote-backups-select" class="w-full p-2.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700">
+              <option value="">Önce "☷ Firebase Tarihli Yedekleri Listele" butonuna tıklayın...</option>
+            </select>
+            <button onclick="runRtdbAction('restore')" class="shrink-0 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold transition">
+              ↶ Seçili Yedeği Geri Yükle
+            </button>
+          </div>
+          <p id="rtdb-status-text" class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+            Durum: Hazır · Hedef yol: /autolisp_katalog_pro
+          </p>
+        </div>
+      </div>
+
+      <!-- Tema ve Görünüm Ayarları -->
+      <div class="bg-white dark:bg-darksurface rounded-2xl p-6 border border-slate-200 dark:border-darkborder shadow-sm">
+        <h2 class="text-lg font-bold mb-1 flex items-center gap-2">🎨 Tema ve Varsayılan Kayıt Ayarları</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Arayüz temasını ve yeni LISP eklerken seçili gelecek kayıt davranışını özelleştirin.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-sm">Karanlık Mod (Dark Mode)</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">Göz yormayan koyu mühendislik teması</div>
+            </div>
+            <button onclick="toggleTheme()" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 transition">
+              Temayı Değiştir
+            </button>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-sm">Varsayılan Kayıt Hedefi</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">Yeni LISP eklerken seçili gelecek hedef</div>
+            </div>
+            <select id="setting-default-storage" onchange="saveAppSettings()" class="text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 font-semibold">
+              <option value="firebase">☁️ Bulut DB (/autolisp_katalog_pro)</option>
+              <option value="local">💾 Sadece Yerel (LocalStorage)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Yedekleme (JSON Dışa/İçe Aktar) -->
+      <div class="bg-white dark:bg-darksurface rounded-2xl p-6 border border-slate-200 dark:border-darkborder shadow-sm">
+        <h2 class="text-lg font-bold mb-1">📦 Yerel Dosya Yedekleme (.JSON)</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Tüm LISP kataloğunuzu, kullanım kılavuzlarını, ekli PDF/DOCX dosyalarını ve alt kategorileri tek bir JSON dosyası olarak bilgisayarınıza indirebilir veya mevcut kayıtları silmeden birleştirerek içe aktarabilirsiniz.</p>
+        <div class="flex flex-wrap gap-3">
+          <button onclick="exportCatalogJSON()" class="px-4 py-2.5 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 text-white text-xs font-semibold transition">
+            ⬇️ Tüm Kataloğu İndir (.JSON)
+          </button>
+          <label class="px-4 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 text-xs font-semibold cursor-pointer transition">
+            ⬆️ JSON Yedek Dosyası Birleştir / Yükle
+            <input type="file" accept=".json" onchange="importCatalogJSON(event)" class="hidden">
+          </label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 1: YENİ LISP EKLE / DÜZENLE (PRO DENETÇİ + KILAVUZ + PDF/DOCX)      -->
+  <!-- ========================================================================= -->
+  <div id="lisp-modal" class="fixed inset-0 z-[75] hidden bg-slate-950/60 glass-panel flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-darksurface border border-slate-200 dark:border-darkborder rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden my-8">
+      <!-- Modal Başlık -->
+      <div class="px-6 py-4 border-b border-slate-200 dark:border-darkborder flex items-center justify-between bg-slate-50/60 dark:bg-slate-800/40">
+        <h3 id="modal-form-title" class="text-base font-bold text-slate-900 dark:text-white">Yeni AutoLISP Kaydı & Kullanım Kılavuzu Ekle</h3>
+        <button onclick="closeLispModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">&times;</button>
+      </div>
+
+      <!-- Modal Gövde -->
+      <div class="p-6 space-y-5 max-h-[82vh] overflow-y-auto">
+        <input type="hidden" id="form-id">
+
+        <!-- Başlık & Komut -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="md:col-span-2">
+            <label class="block text-xs font-semibold mb-1">LISP Başlığı <span class="text-red-500">*</span></label>
+            <input id="form-title" type="text" placeholder="Örn: OSMODE Korumalı Otomatik Boru Hattı Numaralandırma"
+              class="w-full p-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">AutoCAD Komutu</label>
+            <input id="form-command" type="text" placeholder="Örn: c:BORUNO"
+              class="w-full p-2.5 text-sm font-mono rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <!-- Sınırsız Alt Kategori Girişi + Hızlı Seçici -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          <div class="md:col-span-2">
+            <label class="block text-xs font-semibold mb-1">
+              Kategori ve Alt Kategoriler <span class="text-slate-400 font-normal">(Sınırsız kırılım için <code class="text-indigo-500">/</code> kullanın)</span>
+            </label>
+            <input id="form-category" type="text" placeholder="Örn: Borulama / P&ID / Metraj & MTO"
+              class="w-full p-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Mevcut Kategoriden Seç</label>
+            <select id="form-category-helper" onchange="applyCategoryHelper(this.value)"
+              class="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+              <option value="">-- Kategori Seç / Altına Ekle --</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 1. KISA KULLANIM VE NE İŞE YARADIĞI (ÖZET) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold mb-1">Ne İşe Yarıyor? (Kısa Açıklama & Amaç)</label>
+            <textarea id="form-desc" rows="2" placeholder="Bu LISP'in hangi mühendislik/çizim işini kolaylaştırdığını kısaca yazın..."
+              class="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-indigo-500"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Komutun Kısa Kullanımı (Hızlı Adımlar)</label>
+            <textarea id="form-short-usage" rows="2" placeholder="Örn: Komut satırına BORUNO yazıp Enter'a basın -> Hat çizgilerini seçin -> Başlangıç numarasını girin."
+              class="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-indigo-500"></textarea>
+          </div>
+        </div>
+
+        <!-- LISP Dosyası Ekleme Kutusu (.lsp, .vlx, .fas, .dcl, .txt) -->
+        <div class="p-4 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/40 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-lg font-bold">
+              📄
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-200">AutoLISP Kod Dosyası Ekle (.lsp, .dcl, .vlx, .fas, .txt)</div>
+              <div id="attached-file-info" class="text-[11px] text-slate-500 dark:text-slate-400">
+                Dosya seçildiğinde hem dosyayı saklar hem de metin kodunu aşağıdaki editöre aktarır.
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold cursor-pointer transition">
+              📎 LISP Dosyası Seç
+              <input id="form-file-input" type="file" accept=".lsp,.dcl,.txt,.vlx,.fas,.mnl" onchange="handleLispFileUpload(event)" class="hidden">
+            </label>
+            <button id="remove-file-btn" type="button" onclick="clearAttachedFile()" class="hidden px-2.5 py-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 text-xs font-semibold">
+              Kaldır
+            </button>
+          </div>
+        </div>
+
+        <!-- LISP Text Kodu + Koruma Şablonu + Komple Kopyala + Canlı PRO Denetim Paneli -->
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+            <label class="text-xs font-semibold">AutoLISP / Visual LISP Metin Kodu <span class="text-red-500">*</span></label>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button type="button" onclick="injectSafeLispWrapper()" title="OSMODE, CMDECHO ve *error* geri yükleme korumasına sahip AutoCAD 2025 uyumlu yapı ekler"
+                class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold shadow-sm transition">
+                🛡️ AutoCAD 2025 OSMODE & Hata Koruması Ekle
+              </button>
+              <button type="button" onclick="copyFormCodeComplete(this)"
+                class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold shadow-sm transition flex items-center gap-1">
+                📋 Yapıştırılan Kodu Komple Kopyala
+              </button>
+              <button type="button" onclick="clearFormCode()"
+                class="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-[11px] font-semibold transition">
+                Temizle
+              </button>
+            </div>
+          </div>
+          <textarea id="form-code" rows="8" oninput="autoDetectCommand(this.value);proLiveAnalyze()" placeholder="(defun c:KomutAdi ( / *error* oldos oldcmd)&#10;  (setq oldos (getvar &quot;OSMODE&quot;))&#10;  ...&#10;  (setvar &quot;OSMODE&quot; oldos)&#10;  (princ)&#10;)"
+            class="w-full p-3 text-xs font-mono rounded-xl bg-slate-900 text-emerald-300 border border-slate-700 focus:outline-none focus:border-indigo-500"></textarea>
+
+          <!-- PRO Canlı Kod Denetim Paneli (Satır Numaralı Parantez, *error*, Bağımlılık, Güvenlik) -->
+          <div id="pro-live-panel" class="mt-2 p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-[11px] space-y-0.5">
+            <span class="text-slate-400">Kod yapıştırıldığında otomatik denetlenir (satır numaralı parantez kontrolü, *error*, sistem değişkenleri, bağımlılıklar, güvenlik).</span>
+          </div>
+        </div>
+
+        <!-- =================================================================== -->
+        <!-- 2. DETAYLI KULLANIM KILAVUZU (APPLOAD'TAN BAŞLAYARAK TEXT ANLATIM)  -->
+        <!-- =================================================================== -->
+        <div class="p-4 rounded-2xl bg-indigo-50/50 dark:bg-slate-800/50 border border-indigo-200/70 dark:border-slate-700 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h4 class="text-xs font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                📘 Detaylı Kullanım Kılavuzu (APPLOAD, Olası Hatalar ve Test Senaryoları)
+              </h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                Kullanıcı hiçbir harici editöre ihtiyaç duymadan bu kılavuzu uygulama içinde okuyabilir veya indirebilir.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button type="button" onclick="generateApploadGuideTemplate()"
+                class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold transition shadow-sm">
+                ✨ APPLOAD + Kod Analizli Kılavuz Doldur
+              </button>
+              <label class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 text-[11px] font-semibold cursor-pointer transition">
+                📄 .TXT Dosyasından Yükle
+                <input type="file" accept=".txt,.md" onchange="loadGuideTextFromFile(event)" class="hidden">
+              </label>
+            </div>
+          </div>
+
+          <textarea id="form-guide-text" rows="7"
+            placeholder="1. APPLOAD İLE YÜKLEME ADIMLARI:&#10;- AutoCAD komut satırına APPLOAD yazıp Enter'a basın...&#10;&#10;2. STARTUP SUITE (OTOMATİK YÜKLEME):&#10;- Çanta (Contents) butonuna tıklayıp dosyayı ekleyin...&#10;&#10;3. KOMUTUN ADIM ADIM KULLANIMI, OLASI HATALAR VE TEST SENARYOLARI:&#10;- Komut satırına ... yazın..."
+            class="w-full p-3 text-xs leading-relaxed rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-indigo-500"></textarea>
+
+          <!-- 3. ÇOKLU KILAVUZ DOSYASI EKLEME (.PDF, .DOCX, .DOC, .TXT) -->
+          <div class="pt-2 border-t border-indigo-200/50 dark:border-slate-700/70">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+              <div>
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  📎 Ekli Kılavuz Dosyaları (Çoklu PDF, DOCX, TXT)
+                </div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400">
+                  Birden fazla PDF veya Word (.docx) kullanım kılavuzu seçip ekleyebilirsiniz.
+                </div>
+              </div>
+              <label class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold cursor-pointer transition shadow-sm">
+                ➕ PDF / DOCX Kılavuz Dosyaları Seç (Çoklu)
+                <input id="form-guide-files-input" type="file" multiple accept=".pdf,.docx,.doc,.txt,.md" onchange="handleGuideFilesUpload(event)" class="hidden">
+              </label>
+            </div>
+
+            <!-- Eklenen Çoklu Dosyaların Listesi -->
+            <div id="form-guide-files-list" class="space-y-1.5">
+              <!-- JS ile doldurulur -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Kayıt Yeri Seçimi (Sağa-Sola Çekmeli Switch: Yerel vs Gerçek Bulut DB) -->
+        <div class="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="text-xs font-bold flex items-center gap-2">
+              <span>Veritabanı Kayıt Tercihi (<code class="text-indigo-500 font-mono">/autolisp_katalog_pro</code>)</span>
+              <span id="modal-db-check-badge" class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                ☁️ DB ✖
+              </span>
+            </div>
+            <div id="modal-storage-desc" class="text-[11px] text-amber-600 dark:text-amber-400 font-medium mt-0.5">
+              💾 Yalnızca Yerel Hafızaya kaydedilecek. (Bulut DB iletişimi kapalı: ✖)
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5">
+            <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">💾 Yerel</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="form-storage-cloud" onchange="updateModalStorageSwitchUI()" class="sr-only peer">
+              <div class="w-12 h-6 bg-amber-500/30 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-6 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+            </label>
+            <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">☁️ Bulut DB</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Alt Butonlar -->
+      <div class="px-6 py-4 border-t border-slate-200 dark:border-darkborder bg-slate-50/60 dark:bg-slate-800/40 flex justify-end gap-2">
+        <button onclick="closeLispModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-xs font-semibold transition">
+          İptal
+        </button>
+        <button id="save-record-btn" onclick="saveLispRecord()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition">
+          💾 Kaydı Tamamla
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 2: EDİTÖRSÜZ KULLANIM KILAVUZU OKUYUCU & DOSYA İNDİRME PENCERESİ    -->
+  <!-- ========================================================================= -->
+  <div id="guide-reader-modal" class="fixed inset-0 z-[85] hidden bg-slate-950/70 glass-panel flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-darksurface border border-slate-200 dark:border-darkborder rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden my-8 flex flex-col max-h-[90vh]">
+      <!-- Üst Başlık -->
+      <div class="px-6 py-4 border-b border-slate-200 dark:border-darkborder flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/50">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-lg">📖</span>
+            <h3 id="reader-title" class="text-base font-bold text-slate-900 dark:text-white">Kullanım Kılavuzu</h3>
+            <span id="reader-command" class="font-mono text-xs font-bold px-2.5 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"></span>
+          </div>
+          <p id="reader-category" class="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium mt-0.5"></p>
+        </div>
+        <button onclick="closeGuideReaderModal()" class="w-8 h-8 rounded-xl bg-slate-200/70 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-rose-500 font-bold text-lg">&times;</button>
+      </div>
+
+      <!-- İçerik Gövdesi -->
+      <div class="p-6 overflow-y-auto space-y-5 flex-1">
+        <!-- Kısa Amaç & Hızlı Kullanım Özeti -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">🎯 Komutun Amacı & Ne İşe Yarar</div>
+            <p id="reader-desc" class="text-xs text-slate-700 dark:text-slate-200 leading-relaxed"></p>
+          </div>
+          <div class="p-4 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/70 dark:border-indigo-800/50">
+            <div class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">⚡ Kısa Kullanım (Hızlı Adımlar)</div>
+            <p id="reader-short-usage" class="text-xs text-slate-700 dark:text-slate-200 leading-relaxed font-medium"></p>
+          </div>
+        </div>
+
+        <!-- Ekli PDF / DOCX / TXT Dosyaları İndirme ve Önizleme Bölümü -->
+        <div id="reader-files-section" class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+          <div class="text-xs font-bold text-slate-800 dark:text-slate-200 mb-2.5">📎 Ekli Kılavuz Dosyaları (PDF / DOCX / TXT)</div>
+          <div id="reader-files-list" class="flex flex-wrap gap-2"></div>
+          <!-- PDF Gömülü Önizleme Alanı -->
+          <div id="reader-pdf-preview-wrap" class="hidden mt-4 border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden">
+            <div class="bg-slate-200 dark:bg-slate-800 px-3 py-1.5 flex items-center justify-between text-xs font-semibold">
+              <span id="reader-pdf-title">PDF Önizleme</span>
+              <button onclick="closePdfPreview()" class="text-rose-500 hover:underline">Önizlemeyi Kapat ✕</button>
+            </div>
+            <iframe id="reader-pdf-frame" class="w-full h-[420px] bg-white"></iframe>
+          </div>
+        </div>
+
+        <!-- Detaylı APPLOAD & Adım Adım Metin Kılavuzu (Editörsüz Okuma Alanı) -->
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              📘 APPLOAD'tan Başlayarak Adım Adım Detaylı Anlatım (Text Kılavuz)
+            </h4>
+            <div class="flex items-center gap-2">
+              <button onclick="copyReaderGuideText(this)" class="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">
+                📋 Kılavuz Metnini Kopyala
+              </button>
+              <button onclick="downloadReaderGuideTxt()" class="px-3 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-xs font-semibold transition">
+                📥 Kılavuzu .TXT İndir
+              </button>
+            </div>
+          </div>
+          <div id="reader-guide-text" class="p-4 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs leading-relaxed whitespace-pre-wrap border border-slate-800 max-h-[380px] overflow-y-auto"></div>
+        </div>
+      </div>
+
+      <!-- Alt Kapat Barı -->
+      <div class="px-6 py-3.5 border-t border-slate-200 dark:border-darkborder bg-slate-50/70 dark:bg-slate-800/50 flex justify-end">
+        <button onclick="closeGuideReaderModal()" class="px-5 py-2 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 text-white text-xs font-semibold transition">
+          Kapat
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 1. SAĞ ALT KÖŞE: AYARLANABİLİR CANLI SAAT WİDGET'I                         -->
+  <!-- ========================================================================= -->
+  <div id="live-clock-widget" onclick="toggleClockPopover(event)"
+    class="fixed bottom-4 right-4 z-[70] clock-widget-scale cursor-pointer select-none bg-white/95 dark:bg-slate-900/95 glass-panel px-3 py-1.5 rounded-xl shadow-xl border border-slate-200/90 dark:border-slate-700/90 hover:border-indigo-500 dark:hover:border-indigo-400 flex items-center gap-2 font-mono text-slate-900 dark:text-slate-100">
+    <div id="live-clock-content" class="flex items-center gap-1.5 text-xs font-bold">
+      00:00:00
+    </div>
+  </div>
+
+  <!-- Saat Ayar Çekmecesi / Popover -->
+  <div id="clock-settings-popover" onclick="event.stopPropagation()"
+    class="fixed bottom-24 right-4 z-[80] hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl p-4 w-72">
+    <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+      <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">⏱️ Canlı Saat Ayarları</h4>
+      <button onclick="closeAllPopovers()" class="text-slate-400 hover:text-slate-600 text-sm">✕</button>
+    </div>
+
+    <div class="space-y-3 text-xs">
+      <div>
+        <label class="block font-semibold mb-1">Saat Görünüm Tipi</label>
+        <select id="clock-type-select" onchange="updateClockPrefs()"
+          class="w-full p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none">
+          <option value="digital-sec">1. Dijital Saniyeli (SS:DD:sn)</option>
+          <option value="digital-short">2. Dijital Kısa (SS:DD)</option>
+          <option value="analog-digital">3. Analog Kadranlı + Dijital</option>
+          <option value="full-date">4. Tam Tarih + Dijital</option>
+        </select>
+      </div>
+
+      <div>
+        <div class="flex justify-between font-semibold mb-1">
+          <span>Boyut Ölçeği</span>
+          <span id="clock-scale-label" class="text-indigo-600 dark:text-indigo-400 font-mono">2.0x</span>
+        </div>
+        <input id="clock-scale-slider" type="range" min="1.0" max="3.0" step="0.1" value="2.0" oninput="updateClockPrefs()"
+          class="w-full accent-indigo-600 cursor-pointer">
+        <div class="flex justify-between text-[10px] text-slate-400 mt-0.5">
+          <span>1.0x</span>
+          <span>Varsayılan (2.0x)</span>
+          <span>3.0x</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. SOL ALT KÖŞE: ESNEK HİCRİ / MİLADİ TAKVİM & ÖZEL GÜNLER REHBERİ        -->
+  <!-- ========================================================================= -->
+  <button id="calendar-trigger-pill" onclick="openCalendarModal()"
+    class="fixed bottom-4 left-4 z-[60] calendar-pill bg-white/95 dark:bg-slate-900/95 glass-panel px-4 py-2.5 rounded-2xl shadow-xl border border-slate-200/90 dark:border-slate-700/90 hover:border-indigo-500 dark:hover:border-indigo-400 flex flex-wrap items-center gap-x-3 gap-y-1 text-left text-xs">
+    <span class="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+      <span>📅</span>
+      <span id="pill-gregorian-text">...</span>
+    </span>
+    <span class="text-slate-300 dark:text-slate-600">|</span>
+    <span id="pill-hijri-text" class="font-semibold text-indigo-600 dark:text-indigo-400">...</span>
+    <span id="pill-upcoming-badge" class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+      ...
+    </span>
+  </button>
+
+  <!-- AÇILIR TAKVİM PENCERESİ (2 SÜTUNLU MODAL) -->
+  <div id="calendar-modal" class="fixed inset-0 z-[80] hidden bg-slate-950/60 glass-panel flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white dark:bg-darksurface border border-slate-200 dark:border-darkborder rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 max-h-[92vh]">
+
+      <!-- Sol Sütun: Takvim Izgarası & Günün/Ayın Anlamı -->
+      <div class="lg:col-span-7 p-5 sm:p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-darkborder overflow-y-auto">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-4">
+            <div>
+              <h3 id="cal-header-title" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Kasım 2026</h3>
+              <p id="cal-header-hijri" class="text-xs text-indigo-600 dark:text-indigo-400 font-medium">Cemaziyelevvel - Cemaziyelahir 1448</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="navigateCalendarMonth(-1)" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition">&larr;</button>
+              <button onclick="navigateCalendarToday()" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">Bugün</button>
+              <button onclick="navigateCalendarMonth(1)" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition">&rarr;</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-7 gap-1.5 text-center text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
+            <div>Pzt</div><div>Sal</div><div>Çar</div><div>Per</div><div>Cum</div><div>Cmt</div><div>Paz</div>
+          </div>
+
+          <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5"></div>
+        </div>
+
+        <div class="mt-5 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span id="meaning-selected-date" class="font-bold text-indigo-600 dark:text-indigo-400">Seçili Gün Detayı</span>
+            <div class="flex items-center gap-3 text-[11px]">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Dini Gün</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Ulusal Tatil</span>
+            </div>
+          </div>
+          <div id="meaning-special-day-box" class="hidden p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-slate-800 dark:text-slate-100 font-medium"></div>
+          <p id="meaning-gregorian-month" class="text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+          <p id="meaning-hijri-month" class="text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+        </div>
+      </div>
+
+      <!-- Sağ Sütun: Yılın Dini Günleri & Ulusal Tatiller Listesi -->
+      <div class="lg:col-span-5 p-5 sm:p-6 bg-slate-50/60 dark:bg-slate-900/50 flex flex-col h-full overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h4 class="text-sm font-bold text-slate-900 dark:text-white">🌟 Özel Günler & Tatiller (<span id="holiday-year-label">2026</span>)</h4>
+            <p class="text-[11px] text-slate-500">Güne tıklayarak takvimde o tarihe zıplayabilirsiniz</p>
+          </div>
+          <button onclick="closeCalendarModal()" class="w-8 h-8 rounded-xl bg-slate-200/70 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-rose-500 font-bold">&times;</button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-200/70 dark:bg-slate-800 p-1 rounded-xl mb-3 text-xs">
+          <button id="hol-filter-all" onclick="setHolidayFilter('all')" class="py-1.5 rounded-lg font-semibold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm transition">
+            Tümü
+          </button>
+          <button id="hol-filter-religious" onclick="setHolidayFilter('religious')" class="py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition">
+            🌙 Dini Günler
+          </button>
+          <button id="hol-filter-national" onclick="setHolidayFilter('national')" class="py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition">
+            🇹🇷 Ulusal Tatiller
+          </button>
+        </div>
+
+        <div id="special-days-list" class="space-y-2 overflow-y-auto pr-1 flex-1 max-h-[420px]"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BİLDİRİM (TOAST) KUTUSU -->
+  <div id="toast-container" class="fixed top-5 right-5 z-[95] space-y-2 pointer-events-none"></div>
+
+  <script>
+    /***************************************************************************
+     * 1. UYGULAMA VERİ YAPISI, FIREBASE RTDB SABİTLERİ VE VARSAYILAN KAYITLAR
+     ***************************************************************************/
+    const STORAGE_KEY_LISPS    = 'cad_lisp_catalog_v2';
+    const STORAGE_KEY_PREFS    = 'cad_lisp_prefs_v2';
+    const STORAGE_KEY_RTDB_URL = 'cad_lisp_rtdb_url_v1';
+    const PRO_META_KEY         = 'cad_lisp_meta_v1';
+
+    // Prompt Atlası.html ile aynı sunucu, ancak tamamen izole /autolisp_katalog_pro veri yolu
+    const DEFAULT_RTDB_URL = 'https://karaaslanhomebutcetakip-default-rtdb.europe-west1.firebasedatabase.app';
+    const RTDB_NAMESPACE   = '/autolisp_katalog_pro';
+
+    let rtdbUrl = DEFAULT_RTDB_URL;
+    let isCloudDBVerified = false;
+    let rtdbRemoteBackups = [];
+
+    // Kodu analiz ederek akıllı kullanım kılavuzu, hata çözümleri ve test senaryosu üreten motor
+    function buildDefaultGuideText(title, cmd, fileName, shortUsage, codeStr = '') {
+      const cleanCmd = (cmd || 'KOMUT').replace(/^c:/i, '');
+      const cleanFile = fileName || 'DosyaAdi.lsp';
+
+      const detectedInputs = [];
+      if (/ssget/i.test(codeStr)) detectedInputs.push('Nesne seçimi (Selection Set - ssget)');
+      if (/getpoint|getcorner/i.test(codeStr)) detectedInputs.push('Ekrandan nokta/köşe seçimi (getpoint/getcorner)');
+      if (/getreal|getdist/i.test(codeStr)) detectedInputs.push('Sayısal/Mesafe girdisi (getreal/getdist)');
+      if (/getint/i.test(codeStr)) detectedInputs.push('Tam sayı girdisi (getint)');
+      if (/getstring/i.test(codeStr)) detectedInputs.push('Metin girdisi (getstring)');
+      if (/getkword/i.test(codeStr)) detectedInputs.push('Anahtar kelime seçeneği (getkword)');
+      const inputsSummary = detectedInputs.length > 0
+        ? detectedInputs.map(x => '  - ' + x).join('\n')
+        : '  - Komut satırı yönlendirmelerini takip edin.';
+
+      return `====================================================================
+${title.toUpperCase()} - AUTOCAD 2025 KULLANIM VE YÜKLEME KILAVUZU
+====================================================================
+
+1. KOMUTUN KULLANIM AMACI VE KISA ÖZETİ
+--------------------------------------------------------------------
+${shortUsage || 'Bu AutoLISP rutini AutoCAD 2025 çizim süreçlerini hızlandırmak ve standartlaştırmak için hazırlanmıştır.'}
+
+2. LISP DOSYASININ AUTOCAD'E YÜKLENMESİ (APPLOAD ADIMLARI)
+--------------------------------------------------------------------
+Adım 1: "${cleanFile}" dosyasını bilgisayarınızda güvenli bir klasöre kaydedin (Örn: C:\\Users\\Kullanici\\CAD_Lisp\\${cleanFile} - bu yol örnektir, kendi klasörünüzü seçin).
+Adım 2: AutoCAD ekranında komut satırına APPLOAD yazıp ENTER tuşuna basın.
+Adım 3: Açılan "Load/Unload Applications" penceresinden "${cleanFile}" dosyasını seçin ve "Load" (Yükle) butonuna tıklayın.
+Adım 4: Güvenlik uyarısı çıkarsa "Always Load" (Her Zaman Yükle) seçeneğini işaretleyin.
+Adım 5: Komut satırında "${cleanFile} successfully loaded." mesajını gördüğünüzde pencereyi "Close" ile kapatın.
+
+3. HER AUTOCAD AÇILIŞINDA OTOMATİK YÜKLEME (STARTUP SUITE)
+--------------------------------------------------------------------
+- APPLOAD penceresinin sağ alt kısmındaki "Startup Suite" (Çanta simgesi) altındaki "Contents..." butonuna tıklayın.
+- "Add..." butonuna basarak "${cleanFile}" dosyasını listeye ekleyin. Artık her yeni çizim açtığınızda LISP otomatik yüklenecektir.
+
+4. KOMUTUN ADIM ADIM KULLANIMI VE BEKLENEN GİRDİLER
+--------------------------------------------------------------------
+Adım 1: Komut satırına ${cleanCmd} yazıp ENTER tuşuna basın.
+Adım 2: Kod analizine göre komutun beklediği girdiler:
+${inputsSummary}
+Adım 3: İşlem tamamlandığında mevcut OSMODE (Osnap) ve CMDECHO ayarlarınız otomatik olarak eski hâline döndürülür.
+
+5. OLASI HATALAR VE ÇÖZÜMLERİ (SORUN GİDERME)
+--------------------------------------------------------------------
+• Sorun: "Unknown command '${cleanCmd}'" uyarısı alıyorum.
+  Çözüm: LISP dosyası henüz yüklenmemiştir. 2. maddede anlatılan APPLOAD adımlarını tekrar uygulayın.
+• Sorun: Seçim esnasında ESC ile iptal edildiğinde yakalama (Osnap) ayarlarım bozuldu.
+  Çözüm: Kod içindeki yerel *error* fonksiyonu OSMODE değerini otomatik geri yükler; eski sürüm kod kullanıyorsanız F3 veya OSNAP ile kontrol edin.
+• Sorun: Kilitli katman (Locked Layer) üzerinde nesne güncellenemedi.
+  Çözüm: İşlem öncesi ilgili katmanın kilidini (LA komutu ile) açıp komutu tekrar çalıştırın.
+
+6. AUTOCAD ÜZERİNDE DOĞRULAMA VE TEST SENARYOLARI
+--------------------------------------------------------------------
+Test 1 (Normal Akış): OSMODE açıkken (örn: Endpoint + Midpoint) ${cleanCmd} komutunu çalıştırın, işlemi tamamlayın ve işlem sonunda OSMODE değerinin değişmediğini doğrulayın.
+Test 2 (Boş Seçim / ESC İptal Testi): Komutu başlatıp hiçbir nesne seçmeden Enter veya ESC tuşuna basın; komutun hatasız sonlandığını ve sistem değişkenlerini bozmadığını kontrol edin.`;
+    }
+
+    const DEFAULT_LISPS = [
+      {
+        id: 'lisp_default_1',
+        title: 'OSMODE Korumalı Otomatik Kenar Boşluksuz PNG Çıktı',
+        command: 'c:PNGCIKTI',
+        category: 'Çizim & Çıktı / Görsel Aktarım / Otomatik Plot',
+        desc: 'Mevcut OSMODE (Osnap) ayarlarını bozmadan seçilen alanı sıfır kenar boşluğu ile yüksek çözünürlüklü PNG olarak dışa aktarır.',
+        shortUsage: 'Komut satırına PNGCIKTI yazıp Enter -> Çıktı alınacak pencerenin ilk ve ikinci köşesini seçin -> Çizim klasörüne Cikti.png kaydedilir.',
+        usageGuideText: '',
+        guideFiles: [],
+        code: `(defun c:PNGCIKTI ( / *error* oldos oldcmdecho pt1 pt2)\n  (vl-load-com)\n  (setq oldos (getvar "OSMODE")\n        oldcmdecho (getvar "CMDECHO"))\n  (defun *error* (msg)\n    (if oldos (setvar "OSMODE" oldos))\n    (if oldcmdecho (setvar "CMDECHO" oldcmdecho))\n    (if (and msg (not (wcmatch (strcase msg) "*BREAK*,*CANCEL*,*EXIT*")))\n      (princ (strcat "\\nHata: " msg))\n    )\n    (princ)\n  )\n  (setvar "CMDECHO" 0)\n  (if (and (setq pt1 (getpoint "\\nÇıktı penceresi ilk köşe: "))\n           (setq pt2 (getcorner pt1 "\\nİkinci köşe: ")))\n    (progn\n      (setvar "OSMODE" 0)\n      (command "_.-PLOT" "_Y" "" "PublishToWeb PNG.pc3" "Sun Hi-Res (1600.00 x 1280.00 Pixels)" "_M" "_L" "_N" "_W" pt1 pt2 "_F" "_C" "_Y" "." "_Y" "_N" "_N" "_Y" (strcat (getvar "DWGPREFIX") "Cikti.png") "_N" "_Y")\n      (princ "\\nPNG çıktısı çizim klasörüne kaydedildi.")\n    )\n  )\n  (setvar "OSMODE" oldos)\n  (setvar "CMDECHO" oldcmdecho)\n  (princ)\n)`,
+        fileName: 'PNGCIKTI.lsp',
+        fileContent: null,
+        storageLocation: 'local',
+        cloudSynced: false,
+        updatedAt: Date.now() - 120000000
+      },
+      {
+        id: 'lisp_default_2',
+        title: 'P&ID Hat ve Vana Blok Metraj Sayıcı (MTO)',
+        command: 'c:PIDMTO',
+        category: 'Borulama / P&ID / Metraj & MTO',
+        desc: 'Seçilen P&ID çizimindeki tüm vana ve enstrüman bloklarını isimlerine göre gruplayarak komut satırına ve CSV formatına uygun listeler.',
+        shortUsage: 'Komut satırına PIDMTO yazıp Enter -> Sayılacak P&ID bloklarını pencere içine alarak seçin ve Enter tuşuna basın -> Adet listesi ekrana yazılır.',
+        usageGuideText: '',
+        guideFiles: [],
+        code: `(defun c:PIDMTO ( / *error* ss i ent blkName lst item)\n  (vl-load-com)\n  (defun *error* (msg)\n    (if (and msg (not (wcmatch (strcase msg) "*BREAK*,*CANCEL*,*EXIT*")))\n      (princ (strcat "\\nHata: " msg))\n    )\n    (princ)\n  )\n  (princ "\\nSayılacak P&ID bloklarını seçin: ")\n  (if (setq ss (ssget '((0 . "INSERT"))))\n    (progn\n      (setq i 0 lst '())\n      (repeat (sslength ss)\n        (setq ent (entget (ssname ss i))\n              blkName (cdr (assoc 2 ent)))\n        (if (setq item (assoc blkName lst))\n          (setq lst (subst (cons blkName (1+ (cdr item))) item lst))\n          (setq lst (cons (cons blkName 1) lst))\n        )\n        (setq i (1+ i))\n      )\n      (princ "\\n--- P&ID BLOK METRAJ LİSTESİ ---")\n      (foreach x lst\n        (princ (strcat "\\n" (car x) " : " (itoa (cdr x)) " Adet"))\n      )\n    )\n    (princ "\\nHiçbir blok seçilmedi.")\n  )\n  (princ)\n)`,
+        fileName: 'PIDMTO.lsp',
+        fileContent: null,
+        storageLocation: 'local',
+        cloudSynced: false,
+        updatedAt: Date.now() - 60000000
+      },
+      {
+        id: 'lisp_default_3',
+        title: 'Seçili Boru Hatları Toplam Uzunluk ve Katman Analizi (AutoCAD 2025)',
+        command: 'c:BORUMETRAJ',
+        category: 'Borulama / 3D Plant & İzometri / Hat Uzunluk Hesabı',
+        desc: 'Seçilen LINE, LWPOLYLINE, POLYLINE ve ARC nesnelerinin toplam uzunluğunu VLA-Curve fonksiyonlarıyla hatasız hesaplar, OSMODE ayarlarını korur.',
+        shortUsage: 'Komut satırına BORUMETRAJ yazıp Enter -> Boru eksen çizgilerini seçip Enter -> Toplam uzunluk ve parça sayısı komut satırında gösterilir.',
+        usageGuideText: '',
+        guideFiles: [],
+        code: `(defun c:BORUMETRAJ ( / *error* oldos oldcmd ss i ent totalLen segLen)\n  (vl-load-com)\n  (setq oldos (getvar "OSMODE")\n        oldcmd (getvar "CMDECHO"))\n  (defun *error* (msg)\n    (if oldos (setvar "OSMODE" oldos))\n    (if oldcmd (setvar "CMDECHO" oldcmd))\n    (if (and msg (not (wcmatch (strcase msg) "*BREAK*,*CANCEL*,*EXIT*")))\n      (princ (strcat "\\nİşlem durduruldu: " msg))\n    )\n    (princ)\n  )\n  (setvar "CMDECHO" 0)\n  (princ "\\nUzunluğu hesaplanacak boru hatlarını seçin: ")\n  (if (setq ss (ssget '((0 . "LINE,LWPOLYLINE,POLYLINE,ARC,SPLINE"))))\n    (progn\n      (setq i 0 totalLen 0.0)\n      (repeat (sslength ss)\n        (setq ent (ssname ss i)\n              segLen (vlax-curve-getDistAtParam ent (vlax-curve-getEndParam ent))\n              totalLen (+ totalLen segLen)\n              i (1+ i))\n      )\n      (princ (strcat "\\n✔ Seçilen Hat Sayısı: " (itoa (sslength ss)) " | Toplam Uzunluk: " (rtos totalLen 2 2) " birim."))\n    )\n    (princ "\\n✖ Geçerli bir hat nesnesi seçilmedi.")\n  )\n  (setvar "OSMODE" oldos)\n  (setvar "CMDECHO" oldcmd)\n  (princ)\n)`,
+        fileName: 'BORUMETRAJ.lsp',
+        fileContent: null,
+        storageLocation: 'local',
+        cloudSynced: false,
+        updatedAt: Date.now()
+      }
+    ];
+
+    let lisps = [];
+    let activeCategoryFilter = '';
+    let activeStorageFilter = 'all';
+    let expandedTreeNodes = new Set(['Borulama', 'Borulama / P&ID', 'Borulama / 3D Plant & İzometri', 'Çizim & Çıktı']);
+    let tempAttachedFile = { name: null, content: null };
+    let tempGuideFiles = [];
+    let activeReaderItemId = null;
+
+    let appPrefs = {
+      theme: 'dark',
+      defaultStorage: 'firebase',
+      clockType: 'digital-sec',
+      clockScale: 2.0
+    };
+
+    /***************************************************************************
+     * 2. PRO MODÜL: FAVORİLER, KULLANIM SAYACI, SATIR NUMARALI DENETÇİ & ROZETLER
+     ***************************************************************************/
+    let proOnlyFav = false;
+    let proOnlyIssue = false;
+    let proMetaCache = null;
+    window.proVisibleIds = [];
+
+    function proLoadMeta() {
+      if (proMetaCache) return proMetaCache;
+      try { proMetaCache = JSON.parse(localStorage.getItem(PRO_META_KEY)) || {}; } catch (e) { proMetaCache = {}; }
+      return proMetaCache;
+    }
+
+    function proSaveMeta() {
+      try { localStorage.setItem(PRO_META_KEY, JSON.stringify(proLoadMeta())); } catch (e) {}
+    }
+
+    function proMeta(id) {
+      const m = proLoadMeta()[id];
+      return m ? { fav: !!m.fav, uses: m.uses || 0 } : { fav: false, uses: 0 };
+    }
+
+    function proBump(id) {
+      const m = proLoadMeta();
+      m[id] = { ...proMeta(id), uses: proMeta(id).uses + 1 };
+      proSaveMeta();
+      renderCatalog();
+    }
+
+    function toggleFav(id) {
+      const m = proLoadMeta();
+      m[id] = { ...proMeta(id), fav: !proMeta(id).fav };
+      proSaveMeta();
+      renderCatalog();
+    }
+
+    /* Yorumları ve metinleri ayıklayarak parantez dengesini tam satır numarasıyla denetler */
+    function lispScan(code) {
+      let i = 0, n = code.length, line = 1, depth = 0, stack = [], err = null, noCom = '', bare = '';
+      const nl = s => (s.match(/\n/g) || []).length;
+      const blank = s => s.replace(/[^\n]/g, ' ');
+      while (i < n) {
+        const c = code[i], d = code[i + 1];
+        if ((c === ';' && d === '|') || (c === '#' && d === '|')) {
+          const close = c === ';' ? '|;' : '|#';
+          let e = code.indexOf(close, i + 2);
+          if (e < 0) { e = n; err = err || { line, msg: 'Kapanmamış yorum bloğu' }; } else e += 2;
+          const s = code.slice(i, e); noCom += blank(s); bare += blank(s); line += nl(s); i = e; continue;
+        }
+        if (c === ';') {
+          let e = code.indexOf('\n', i); if (e < 0) e = n;
+          noCom += ' '.repeat(e - i); bare += ' '.repeat(e - i); i = e; continue;
+        }
+        if (c === '"') {
+          let j = i + 1;
+          while (j < n && code[j] !== '"') { if (code[j] === '\\') j++; j++; }
+          if (j >= n) { err = err || { line, msg: 'Kapanmamış metin (")' }; j = n - 1; }
+          const s = code.slice(i, j + 1); noCom += s; bare += blank(s); line += nl(s); i = j + 1; continue;
+        }
+        if (c === '(') { stack.push(line); depth++; }
+        else if (c === ')') {
+          if (depth === 0) err = err || { line, msg: 'Fazla kapatma parantezi' };
+          else { depth--; stack.pop(); }
+        }
+        if (c === '\n') line++;
+        noCom += c; bare += c; i++;
+      }
+      if (!err && depth > 0) err = { line: stack[0], msg: depth + ' adet parantez kapanmamış' };
+      return { err, noCom, bare };
+    }
+
+    const proAnCache = new Map();
+    function lispAnalyze(code) {
+      code = code || '';
+      const key = code.length + ':' + code.slice(0, 40) + code.slice(-40);
+      if (proAnCache.has(key)) return proAnCache.get(key);
+      const s = lispScan(code), b = s.bare, t = s.noCom, warn = [], risks = [], deps = [];
+      const cmds = [...b.matchAll(/\(\s*defun\s+(c:[^\s()]+)/gi)].map(m => m[1]);
+      const hasErr = /\(\s*defun\s+\*error\*|\(\s*setq\s+\*error\*/i.test(b);
+      const setNames = [...new Set([...t.matchAll(/\(\s*setvar\s+"([^"]+)"/gi)].map(m => m[1].toUpperCase()))];
+      const getNames = new Set([...t.matchAll(/\(\s*getvar\s+"([^"]+)"/gi)].map(m => m[1].toUpperCase()));
+      const unrestored = setNames.filter(x => !getNames.has(x));
+
+      if (setNames.length && !hasErr) warn.push('setvar kullanıyor ama *error* yok: iptal/hata durumunda sistem değişkenleri geri yüklenmez.');
+      if (unrestored.length) warn.push('Okunmadan değiştirilen değişkenler (geri yüklenemez): ' + unrestored.join(', '));
+      if (/\b(vlax-|vla-)/i.test(b) && !/vl-load-com/i.test(b)) warn.push('vla-/vlax- kullanıyor ama (vl-load-com) yok; eklenmesi önerilir.');
+      if (cmds.length === 0 && /\(\s*defun\b/i.test(b)) warn.push('c: ile başlayan komut yok; komut satırından çalıştırılamaz (yardımcı fonksiyon olabilir).');
+
+      if (/\(\s*acet-/i.test(b)) deps.push('Express Tools');
+      if (/\(\s*dos_/i.test(b)) deps.push('DOSLib (3. parti)');
+      if (/load_dialog/i.test(b)) deps.push('DCL dosyası');
+      if (/\(\s*load\s+"/i.test(t)) deps.push('Harici LISP');
+      if (/\b(vlax-|vla-)/i.test(b)) deps.push('Visual LISP/ActiveX');
+      if (/\(\s*vlr-/i.test(b)) deps.push('Reactor');
+
+      if (/\(\s*startapp\b/i.test(b)) risks.push('startapp: harici program çalıştırır');
+      if (/\(\s*vl-registry-(write|delete)\b/i.test(b)) risks.push('Windows kayıt defterine yazma/silme');
+      if (/\(\s*vl-file-(delete|rename)\b/i.test(b)) risks.push('Dosya silme/yeniden adlandırma');
+      if (/WScript\.Shell|Scripting\.FileSystemObject|Shell\.Application|XMLHTTP|WinHttp/i.test(t)) risks.push('Windows COM/Shell nesnesi kullanımı');
+      if (/https?:\/\//i.test(t)) risks.push('Dış bağlantı (URL) içeriyor');
+      if (/\(\s*command(-s)?\s+"_?\.?(shell|sh)"/i.test(t)) risks.push('SHELL komutu ile dış program çağrısı');
+      if (/\(\s*setvar\s+"(secureload|trustedpaths|trustedDomains)"/i.test(t)) risks.push('AutoCAD güvenlik değişkeni değiştiriliyor');
+
+      const res = { balanced: !s.err, err: s.err, cmds, hasErr, warn, risks, deps, lines: code.split('\n').length };
+      if (proAnCache.size > 400) proAnCache.clear();
+      proAnCache.set(key, res);
+      return res;
+    }
+
+    function proDupeMap() {
+      const m = {};
+      lisps.forEach(x => {
+        const c = (x.command || '').toLowerCase().replace(/^c:/, '');
+        if (c) (m[c] = m[c] || []).push(x.title);
+      });
+      return m;
+    }
+
+    function proHasIssue(item, dupes) {
+      const a = lispAnalyze(item.code);
+      const c = (item.command || '').toLowerCase().replace(/^c:/, '');
+      return !a.balanced || a.risks.length > 0 || (c && dupes[c] && dupes[c].length > 1);
+    }
+
+    function proFilter(list) {
+      const dupes = proDupeMap();
+      return list.filter(x => (!proOnlyFav || proMeta(x.id).fav) && (!proOnlyIssue || proHasIssue(x, dupes)));
+    }
+
+    function proToggleFilter(kind) {
+      if (kind === 'fav') proOnlyFav = !proOnlyFav;
+      else proOnlyIssue = !proOnlyIssue;
+      const on = 'ring-2 ring-indigo-500 bg-indigo-50 dark:bg-indigo-950/60';
+      const favBtn = document.getElementById('pro-fav-btn');
+      const issBtn = document.getElementById('pro-issue-btn');
+      if (favBtn) favBtn.className = favBtn.className.replace(on, '').trim() + (proOnlyFav ? ' ' + on : '');
+      if (issBtn) issBtn.className = issBtn.className.replace(on, '').trim() + (proOnlyIssue ? ' ' + on : '');
+      renderCatalog();
+    }
+
+    function proBadgesHTML(item) {
+      const a = lispAnalyze(item.code), dupes = proDupeMap(), c = (item.command || '').toLowerCase().replace(/^c:/, '');
+      const chip = (cls, txt, tip) => `<span title="${escapeHtml(tip || '')}" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${cls}">${txt}</span>`;
+      const ok = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25';
+      const bad = 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25';
+      const wn = 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25';
+      const nt = 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700';
+      const out = [];
+
+      out.push(a.balanced ? chip(ok, '✔ Parantez OK', a.lines + ' satır tarandı') : chip(bad, '✖ Parantez: satır ' + a.err.line, a.err.msg));
+      out.push(a.hasErr ? chip(ok, '🛡 *error*', '*error* işleyicisi var') : chip(wn, '⚠ *error* yok', a.warn.join('\n') || 'Hata işleyicisi tanımlı değil'));
+      if (a.warn.length) out.push(chip(wn, '⚠ ' + a.warn.length + ' uyarı', a.warn.join('\n')));
+      if (a.risks.length) out.push(chip(bad, '🔒 Güvenlik notu (' + a.risks.length + ')', 'Kurumsal bilgisayar için gözden geçirin:\n' + a.risks.join('\n')));
+      if (c && dupes[c] && dupes[c].length > 1) out.push(chip(wn, '🔁 Komut çakışması', 'Aynı komut adı: ' + dupes[c].join(' | ')));
+      a.deps.forEach(d => out.push(chip(nt, '🔗 ' + d, 'Gerekli bağımlılık')));
+      const u = proMeta(item.id).uses;
+      if (u) out.push(chip(nt, '📊 ' + u + ' kullanım', 'Kopyalama/indirme sayısı'));
+
+      return `<div class="mb-3 flex flex-wrap gap-1.5">${out.join('')}</div>`;
+    }
+
+    function proLiveAnalyze() {
+      const ta = document.getElementById('form-code'), panel = document.getElementById('pro-live-panel');
+      if (!ta || !panel) return;
+      const code = ta.value;
+      if (!code.trim()) {
+        panel.innerHTML = '<span class="text-slate-400">Kod yapıştırıldığında otomatik denetlenir (satır numaralı parantez kontrolü, *error*, sistem değişkenleri, bağımlılıklar, güvenlik).</span>';
+        return;
+      }
+      const a = lispAnalyze(code);
+      const li = (ic, txt, cls) => `<div class="${cls || ''}">${ic} ${escapeHtml(txt)}</div>`;
+      panel.innerHTML = [
+        a.balanced ? li('✔', 'Parantez dengesi doğru (' + a.lines + ' satır).', 'text-emerald-500 font-semibold') : li('✖', 'Satır ' + a.err.line + ': ' + a.err.msg, 'text-rose-500 font-bold'),
+        a.cmds.length ? li('⌨', 'Algılanan Komutlar: ' + a.cmds.join(', '), 'text-indigo-500 font-semibold') : '',
+        a.deps.length ? li('🔗', 'Bağımlılıklar: ' + a.deps.join(', ')) : '',
+        a.hasErr ? li('🛡', '*error* hata yakalayıcısı mevcut.', 'text-emerald-500') : '',
+        ...a.warn.map(w => li('⚠', w, 'text-amber-500')),
+        ...a.risks.map(r => li('🔒', r, 'text-rose-500 font-semibold'))
+      ].join('');
+    }
+
+    /* Tek tıkla AutoCAD 2025 OSMODE & *error* korumalı iskelet ekleme */
+    function injectSafeLispWrapper() {
+      const codeEl = document.getElementById('form-code');
+      const cmdInput = document.getElementById('form-command');
+      const currentCode = codeEl.value.trim();
+      const rawCmd = (cmdInput.value.trim() || 'c:YENI_KOMUT').replace(/^c:/i, '');
+
+      if (!currentCode) {
+        const template = `(defun c:${rawCmd} ( / *error* doc oldos oldcmd ss)\n  (vl-load-com)\n  (setq doc (vla-get-ActiveDocument (vlax-get-acad-object))\n        oldos (getvar "OSMODE")\n        oldcmd (getvar "CMDECHO"))\n\n  ;; Hata veya ESC durumunda çizim ortamını eski hâline döndür\n  (defun *error* (msg)\n    (if oldos (setvar "OSMODE" oldos))\n    (if oldcmd (setvar "CMDECHO" oldcmd))\n    (vla-EndUndoMark doc)\n    (if (and msg (not (wcmatch (strcase msg) "*BREAK*,*CANCEL*,*EXIT*")))\n      (princ (strcat "\\n[HATA]: " msg))\n    )\n    (princ)\n  )\n\n  (vla-StartUndoMark doc)\n  (setvar "CMDECHO" 0)\n\n  ;; --- İŞLEM KODLARINIZI BURAYA YAZIN ---\n  (princ "\\nİşlem yapılacak nesneleri seçin: ")\n  (if (setq ss (ssget))\n    (progn\n      (setvar "OSMODE" 0)\n      (princ (strcat "\\nSeçilen nesne sayısı: " (itoa (sslength ss))))\n    )\n    (princ "\\nNesne seçilmedi.")\n  )\n\n  ;; Sistem değişkenlerini geri yükle\n  (setvar "OSMODE" oldos)\n  (setvar "CMDECHO" oldcmd)\n  (vla-EndUndoMark doc)\n  (princ)\n)`;
+        codeEl.value = template;
+        if (!cmdInput.value.trim()) cmdInput.value = 'c:' + rawCmd;
+        proLiveAnalyze();
+        showToast('🛡️ AutoCAD 2025 OSMODE ve *error* korumalı şablon eklendi!', 'success');
+      } else {
+        if (!/vl-load-com/i.test(currentCode)) {
+          codeEl.value = `(vl-load-com)\n` + currentCode;
+        }
+        proLiveAnalyze();
+        showToast('🛡️ Mevcut kod denetlendi ve ActiveX (vl-load-com) güvencesi eklendi.', 'info');
+      }
+    }
+
+    /* Görünür LISP'leri hatalı olanları atlayarak tek bir .lsp paketinde indir */
+    function proDownloadBundle() {
+      const ids = window.proVisibleIds || [];
+      const items = lisps.filter(x => ids.includes(x.id));
+      if (!items.length) { showToast('✖ Pakete eklenecek kayıt yok.', 'error'); return; }
+      const good = items.filter(x => lispAnalyze(x.code).balanced);
+      const skipped = items.filter(x => !lispAnalyze(x.code).balanced);
+      const seen = {}, dup = [];
+      good.forEach(x => {
+        const c = (x.command || '').toLowerCase();
+        if (c) { if (seen[c]) dup.push(x.command); seen[c] = 1; }
+      });
+      let out = `;;; AutoLISP Katalog Pro Paketi - ${new Date().toLocaleString('tr-TR')}\n;;; ${good.length} dosya birleştirildi.\n`;
+      if (skipped.length) out += ';;; ATLANAN (parantez hatası): ' + skipped.map(x => x.title).join(', ') + '\n';
+      if (dup.length) out += ';;; DİKKAT - aynı komut birden fazla: ' + dup.join(', ') + ' (sonraki tanım öncekini ezer)\n';
+      out += '(vl-load-com)\n\n';
+      good.forEach(x => {
+        out += `;;; ===== ${x.title} ${x.command ? '(' + x.command + ')' : ''} | Kategori: ${x.category} =====\n${(x.code || '').replace(/\s+$/, '')}\n\n`;
+      });
+      const blob = new Blob([out], { type: 'text/plain;charset=utf-8' }), a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'LISP_Paket_' + new Date().toISOString().slice(0, 10) + '.lsp';
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+      showToast(`📦 ${good.length} LISP tek pakette indirildi.` + (skipped.length ? ` (${skipped.length} kayıt parantez hatası nedeniyle atlandı)` : ''), skipped.length ? 'warning' : 'success');
+    }
+
+    /***************************************************************************
+     * 3. YARDIMCI GÜVENLİK, KOPYALAMA VE BİLDİRİM FONKSİYONLARI
+     ***************************************************************************/
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function copyRawTextToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch (err) {}
+      }
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.style.top = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      let ok = false;
+      try {
+        ok = document.execCommand('copy');
+      } catch (e) {
+        ok = false;
+      }
+      document.body.removeChild(ta);
+      return ok;
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        info: 'bg-indigo-600 text-white',
+        success: 'bg-emerald-600 text-white',
+        warning: 'bg-amber-500 text-white',
+        error: 'bg-rose-600 text-white'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 transition-all duration-300 ${colors[type] || colors.info}`;
+      el.innerText = message;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 300);
+      }, 3400);
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes === 0) return '0 KB';
+      const kb = bytes / 1024;
+      return kb < 1024 ? `${kb.toFixed(1)} KB` : `${(kb / 1024).toFixed(2)} MB`;
+    }
+
+    /***************************************************************************
+     * 4. FIREBASE REALTIME DATABASE (/autolisp_katalog_pro) BAĞLANTI MOTORU
+     ***************************************************************************/
+    function getRtdbBaseUrl() {
+      const inputEl = document.getElementById('rtdb-url-input');
+      let val = (inputEl ? inputEl.value.trim() : rtdbUrl) || DEFAULT_RTDB_URL;
+      if (val.endsWith('/')) val = val.slice(0, -1);
+      const u = new URL(val);
+      rtdbUrl = u.origin;
+      localStorage.setItem(STORAGE_KEY_RTDB_URL, rtdbUrl);
+      return rtdbUrl + RTDB_NAMESPACE;
+    }
+
+    function withTimeout(promise, ms = 6500) {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('DB zaman aşımı')), ms))
+      ]);
+    }
+
+    async function rtdbRequest(path, method = 'GET', bodyObj = undefined) {
+      const base = getRtdbBaseUrl();
+      const url = `${base}${path}.json`;
+      const response = await withTimeout(
+        fetch(url, {
+          method,
+          headers: bodyObj !== undefined ? { 'Content-Type': 'application/json' } : { 'Accept': 'application/json' },
+          body: bodyObj !== undefined ? JSON.stringify(bodyObj) : undefined,
+          cache: 'no-store',
+          credentials: 'omit'
+        }),
+        6500
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.json();
+    }
+
+    function setHeaderDBBadge(isConnected) {
+      isCloudDBVerified = isConnected;
+      const badge = document.getElementById('fb-connection-badge');
+      const settingsBadge = document.getElementById('settings-rtdb-badge');
+      if (isConnected) {
+        badge.className = 'cursor-pointer text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20';
+        badge.innerText = '☁️ Bulut DB: ✔ /autolisp_katalog_pro Aktif';
+        if (settingsBadge) {
+          settingsBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30';
+          settingsBadge.innerText = '✔ Bağlantı Hazır (/autolisp_katalog_pro)';
+        }
+      } else {
+        badge.className = 'cursor-pointer text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20';
+        badge.innerText = '☁️ Bulut DB: ✖ İletişim Yok (Yerel Mod)';
+        if (settingsBadge) {
+          settingsBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30';
+          settingsBadge.innerText = '✖ Bağlantı Kurulamadı';
+        }
+      }
+    }
+
+    async function initRealtimeDBConnection() {
+      try {
+        await rtdbRequest('/latest', 'GET');
+        setHeaderDBBadge(true);
+      } catch (err) {
+        setHeaderDBBadge(false);
+      }
+      renderCatalog();
+    }
+
+    async function writeRecordToCloudDB(record) {
+      const payload = { ...record, storageLocation: 'firebase', cloudSynced: true, meta: proMeta(record.id) };
+      await rtdbRequest(`/items/${encodeURIComponent(record.id)}`, 'PUT', payload);
+      setHeaderDBBadge(true);
+      return true;
+    }
+
+    async function deleteRecordFromCloudDB(recordId) {
+      await rtdbRequest(`/items/${encodeURIComponent(recordId)}`, 'DELETE');
+      setHeaderDBBadge(true);
+      return true;
+    }
+
+    function timestampedArchiveId(at = new Date()) {
+      const parts = {};
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Istanbul',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+      }).formatToParts(at).forEach(p => { parts[p.type] = p.value; });
+      const rand = Math.random().toString(36).slice(2, 7);
+      return `${parts.year}-${parts.month}-${parts.day}_${parts.hour}-${parts.minute}-${parts.second}_TR_${rand}`;
+    }
+
+    function mergeIncomingLisps(incomingList, incomingMeta = null) {
+      if (incomingMeta && typeof incomingMeta === 'object') {
+        const currentM = proLoadMeta();
+        Object.entries(incomingMeta).forEach(([id, val]) => {
+          currentM[id] = {
+            fav: Boolean((currentM[id] && currentM[id].fav) || (val && val.fav)),
+            uses: Math.max((currentM[id] && currentM[id].uses) || 0, (val && val.uses) || 0)
+          };
+        });
+        proSaveMeta();
+      }
+
+      let added = 0;
+      let skipped = 0;
+      const makeKey = (item) => `${(item.title || '').trim().toLowerCase()}__${(item.command || '').trim().toLowerCase()}__${(item.code || '').trim()}`;
+      const existingKeys = new Set(lisps.map(makeKey));
+
+      (incomingList || []).forEach(rawItem => {
+        const norm = normalizeLispRecord(rawItem);
+        if (rawItem.meta) {
+          const m = proLoadMeta();
+          m[norm.id] = {
+            fav: Boolean((m[norm.id] && m[norm.id].fav) || rawItem.meta.fav),
+            uses: Math.max((m[norm.id] && m[norm.id].uses) || 0, rawItem.meta.uses || 0)
+          };
+        }
+        const k = makeKey(norm);
+        if (existingKeys.has(k)) {
+          const existingIdx = lisps.findIndex(x => makeKey(x) === k);
+          if (existingIdx > -1 && rawItem.cloudSynced) {
+            lisps[existingIdx].cloudSynced = true;
+            lisps[existingIdx].storageLocation = 'firebase';
+          }
+          skipped++;
+          return;
+        }
+        lisps.unshift(norm);
+        existingKeys.add(k);
+        added++;
+      });
+
+      proSaveMeta();
+      persistLispsLocally();
+      renderCatalog();
+      return { added, skipped };
+    }
+
+    async function runRtdbAction(mode) {
+      const statusEl = document.getElementById('rtdb-status-text');
+      const setStatus = (txt) => { if (statusEl) statusEl.innerText = txt + ' · Hedef yol: /autolisp_katalog_pro'; };
+
+      try {
+        if (mode === 'test') {
+          setStatus('Bağlantı test ediliyor...');
+          const latest = await rtdbRequest('/latest', 'GET');
+          setHeaderDBBadge(true);
+          setStatus(latest ? '✔ Bağlantı başarılı. /autolisp_katalog_pro/latest üzerinde güncel yedek bulundu.' : '✔ Bağlantı başarılı. Henüz tam yedek kaydı yok.');
+          showToast('✔ Firebase Realtime Database (/autolisp_katalog_pro) bağlantısı doğrulandı!', 'success');
+          return;
+        }
+
+        if (mode === 'pull') {
+          setStatus('Bulut DB verileri çekiliyor...');
+          const [latestSnap, itemsMap] = await Promise.all([
+            rtdbRequest('/latest', 'GET'),
+            rtdbRequest('/items', 'GET')
+          ]);
+          setHeaderDBBadge(true);
+
+          let combined = [];
+          let remoteMeta = (latestSnap && latestSnap.meta) ? latestSnap.meta : {};
+          if (latestSnap && Array.isArray(latestSnap.lisps)) {
+            combined = combined.concat(latestSnap.lisps.map(x => ({ ...x, storageLocation: 'firebase', cloudSynced: true })));
+          }
+          if (itemsMap && typeof itemsMap === 'object') {
+            Object.values(itemsMap).forEach(val => {
+              if (val && val.id) combined.push({ ...val, storageLocation: 'firebase', cloudSynced: true });
+            });
+          }
+
+          if (combined.length === 0) {
+            setStatus('Bulutta (/autolisp_katalog_pro) henüz kayıtlı LISP bulunamadı.');
+            showToast('Bulut DB üzerinde henüz kayıtlı LISP bulunamadı.', 'warning');
+            return;
+          }
+
+          const { added, skipped } = mergeIncomingLisps(combined, remoteMeta);
+          setStatus(`✔ Bulut birleştirme tamamlandı: ${added} yeni LISP eklendi, ${skipped} mevcut kayıt korundu.`);
+          showToast(`✔ Bulut DB'den ${added} yeni LISP eklendi (${skipped} tekrar atlandı).`, 'success');
+          return;
+        }
+
+        if (mode === 'push') {
+          const now = new Date();
+          const archiveId = timestampedArchiveId(now);
+          setStatus('Güncel katalog /autolisp_katalog_pro/latest ve tarihli arşive yazılıyor...');
+
+          const syncedLisps = lisps.map(item => ({ ...item, storageLocation: 'firebase', cloudSynced: true, meta: proMeta(item.id) }));
+          const snapshot = {
+            app: 'AutoLISP Katalog Pro',
+            schemaVersion: 2,
+            exportedAt: now.toISOString(),
+            archiveId,
+            lisps: syncedLisps,
+            meta: proLoadMeta()
+          };
+
+          await rtdbRequest(`/backups/${archiveId}`, 'PUT', snapshot);
+          await rtdbRequest('/latest', 'PUT', snapshot);
+
+          const itemsObj = {};
+          syncedLisps.forEach(item => { itemsObj[item.id] = item; });
+          await rtdbRequest('/items', 'PUT', itemsObj);
+
+          lisps = syncedLisps;
+          persistLispsLocally();
+          setHeaderDBBadge(true);
+          renderCatalog();
+
+          setStatus(`✔ Tüm katalog (${lisps.length} LISP) Firebase'e yedeklendi: ${archiveId}`);
+          showToast(`✔ Tüm katalog /autolisp_katalog_pro altına yedeklendi ve tüm kayıtlar (☁️ DB ✔) oldu!`, 'success');
+          return;
+        }
+
+        if (mode === 'list') {
+          setStatus('Tarihli yedekler listeleniyor...');
+          const backupsObj = await rtdbRequest('/backups', 'GET');
+          setHeaderDBBadge(true);
+          const entries = backupsObj && typeof backupsObj === 'object' ? Object.entries(backupsObj) : [];
+          rtdbRemoteBackups = entries.map(([key, val]) => {
+            if (!val || !Array.isArray(val.lisps)) return null;
+            const dStr = val.exportedAt ? new Date(val.exportedAt).toLocaleString('tr-TR') : key;
+            return { key, exportedAt: val.exportedAt || key, label: `${dStr} (${val.lisps.length} LISP)`, lisps: val.lisps, meta: val.meta || {} };
+          }).filter(Boolean).sort((a, b) => String(b.exportedAt).localeCompare(String(a.exportedAt)));
+
+          const sel = document.getElementById('rtdb-remote-backups-select');
+          if (rtdbRemoteBackups.length === 0) {
+            sel.innerHTML = `<option value="">Henüz tarihli yedek bulunamadı.</option>`;
+            setStatus('Firebase /autolisp_katalog_pro/backups altında yedek bulunamadı.');
+            showToast('Henüz tarihli bulut yedeği bulunamadı.', 'warning');
+          } else {
+            sel.innerHTML = rtdbRemoteBackups.map(b => `<option value="${escapeHtml(b.key)}">${escapeHtml(b.label)}</option>`).join('');
+            setStatus(`✔ ${rtdbRemoteBackups.length} adet tarihli yedek listelendi.`);
+            showToast(`✔ ${rtdbRemoteBackups.length} adet tarihli Firebase yedeği bulundu.`, 'success');
+          }
+          return;
+        }
+
+        if (mode === 'restore') {
+          const selKey = document.getElementById('rtdb-remote-backups-select')?.value;
+          const found = rtdbRemoteBackups.find(x => x.key === selKey);
+          if (!found) {
+            showToast('✖ Lütfen önce yedekleri listeleyip bir kayıt seçin.', 'warning');
+            return;
+          }
+          if (!confirm(`Seçilen Firebase yedeği (${found.label}) geri yüklensin mi?`)) return;
+          if (found.meta) {
+            proMetaCache = found.meta;
+            proSaveMeta();
+          }
+          lisps = found.lisps.map(x => normalizeLispRecord({ ...x, storageLocation: 'firebase', cloudSynced: true }));
+          persistLispsLocally();
+          renderCatalog();
+          setStatus(`✔ Seçilen yedek geri yüklendi: ${found.label}`);
+          showToast('✔ Seçilen Firebase yedeği başarıyla geri yüklendi!', 'success');
+        }
+      } catch (err) {
+        setHeaderDBBadge(false);
+        setStatus(`✖ Hata: ${err.message}`);
+        showToast(`✖ Bulut DB iletişim hatası: ${err.message}`, 'error');
+      }
+    }
+
+    /***************************************************************************
+     * 5. VERİ YÜKLEME VE KAYDETME
+     ***************************************************************************/
+    function normalizeLispRecord(item) {
+      const title = item.title || 'İsimsiz LISP';
+      const cmd = item.command || extractCommandFromCode(item.code || '');
+      const fName = item.fileName || (title.replace(/\s+/g, '_') + '.lsp');
+      const shortUse = item.shortUsage || item.desc || '';
+      const codeStr = item.code || '';
+      return {
+        id: item.id || ('lisp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)),
+        title,
+        command: cmd,
+        category: item.category || 'Genel',
+        desc: item.desc || '',
+        shortUsage: shortUse,
+        usageGuideText: item.usageGuideText || buildDefaultGuideText(title, cmd, fName, shortUse, codeStr),
+        guideFiles: Array.isArray(item.guideFiles) ? item.guideFiles : [],
+        code: codeStr,
+        fileName: fName,
+        fileContent: item.fileContent || null,
+        storageLocation: (item.cloudSynced === true && item.storageLocation === 'firebase') ? 'firebase' : 'local',
+        cloudSynced: Boolean(item.cloudSynced === true && item.storageLocation === 'firebase'),
+        updatedAt: item.updatedAt || Date.now()
+      };
+    }
+
+    function loadInitialData() {
+      try {
+        const savedUrl = localStorage.getItem(STORAGE_KEY_RTDB_URL);
+        if (savedUrl) rtdbUrl = savedUrl;
+        const urlInput = document.getElementById('rtdb-url-input');
+        if (urlInput) urlInput.value = rtdbUrl;
+      } catch (e) {}
+
+      try {
+        const savedPrefs = JSON.parse(localStorage.getItem(STORAGE_KEY_PREFS));
+        if (savedPrefs) appPrefs = { ...appPrefs, ...savedPrefs };
+      } catch (e) {}
+
+      if (appPrefs.theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.getElementById('theme-icon').innerText = '☀️';
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.getElementById('theme-icon').innerText = '🌙';
+      }
+
+      document.getElementById('setting-default-storage').value = appPrefs.defaultStorage || 'firebase';
+
+      const savedScale = localStorage.getItem('clk_scale') || appPrefs.clockScale || 2.0;
+      const savedMode  = localStorage.getItem('clk_mode') || appPrefs.clockType || 'digital-sec';
+      appPrefs.clockScale = parseFloat(savedScale);
+      appPrefs.clockType = savedMode;
+      document.documentElement.style.setProperty('--clock-scale', appPrefs.clockScale);
+      document.getElementById('clock-scale-slider').value = appPrefs.clockScale;
+      document.getElementById('clock-scale-label').innerText = appPrefs.clockScale.toFixed(1) + 'x';
+      document.getElementById('clock-type-select').value = appPrefs.clockType;
+
+      try {
+        const rawV2 = localStorage.getItem(STORAGE_KEY_LISPS);
+        const rawV1 = localStorage.getItem('my_lisps');
+        if (rawV2) {
+          lisps = JSON.parse(rawV2).map(normalizeLispRecord);
+        } else if (rawV1) {
+          const parsedV1 = JSON.parse(rawV1);
+          lisps = Array.isArray(parsedV1) ? parsedV1.map(normalizeLispRecord) : DEFAULT_LISPS.map(normalizeLispRecord);
+          persistLispsLocally();
+        } else {
+          lisps = DEFAULT_LISPS.map(normalizeLispRecord);
+          persistLispsLocally();
+        }
+      } catch (e) {
+        lisps = DEFAULT_LISPS.map(normalizeLispRecord);
+      }
+    }
+
+    function persistLispsLocally() {
+      try {
+        localStorage.setItem(STORAGE_KEY_LISPS, JSON.stringify(lisps));
+        return true;
+      } catch (err) {
+        showToast('✖ Tarayıcı yerel hafıza sınırı (5MB) doldu! Çok büyük boyutlu PDF/DOCX dosyalarını azaltın veya Bulut DB yedeği alın.', 'error');
+        return false;
+      }
+    }
+
+    /***************************************************************************
+     * 6. SINIRSIZ ALT KATEGORİ AĞACI (TREE) MOTORU
+     ***************************************************************************/
+    function normalizeCategoryPath(rawPath) {
+      if (!rawPath || !rawPath.trim()) return 'Genel';
+      return rawPath
+        .split(/[\/\>]+/)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .join(' / ');
+    }
+
+    function buildCategoryTree(items) {
+      const root = {};
+      items.forEach(item => {
+        const norm = normalizeCategoryPath(item.category);
+        const parts = norm.split(' / ');
+        let current = root;
+        let pathSoFar = '';
+        parts.forEach(part => {
+          pathSoFar = pathSoFar ? `${pathSoFar} / ${part}` : part;
+          if (!current[part]) {
+            current[part] = { name: part, fullPath: pathSoFar, count: 0, children: {} };
+          }
+          current[part].count++;
+          current = current[part].children;
+        });
+      });
+      return root;
+    }
+
+    function renderCategoryTreeHTML(treeObj, level = 0) {
+      let html = '';
+      const keys = Object.keys(treeObj).sort((a, b) => a.localeCompare(b, 'tr'));
+      keys.forEach(key => {
+        const node = treeObj[key];
+        const hasChildren = Object.keys(node.children).length > 0;
+        const isExpanded = expandedTreeNodes.has(node.fullPath);
+        const isSelected = activeCategoryFilter === node.fullPath;
+
+        const activeClasses = isSelected
+          ? 'bg-indigo-600 text-white font-semibold shadow-sm'
+          : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300';
+
+        html += `
+          <div style="margin-left: ${level * 12}px" class="my-0.5">
+            <div class="flex items-center justify-between px-2.5 py-1.5 rounded-xl cursor-pointer transition ${activeClasses}"
+                 onclick="selectCategoryPath('${escapeHtml(node.fullPath)}')">
+              <div class="flex items-center gap-1.5 min-w-0">
+                ${hasChildren ? `
+                  <button onclick="toggleTreeNode(event, '${escapeHtml(node.fullPath)}')" class="w-4 h-4 flex items-center justify-center text-[10px] rounded hover:bg-black/10 dark:hover:bg-white/10">
+                    ${isExpanded ? '▼' : '▶'}
+                  </button>
+                ` : `<span class="w-4 text-center text-xs opacity-60">•</span>`}
+                <span class="truncate text-xs">📁 ${escapeHtml(node.name)}</span>
+              </div>
+              <span class="text-[10px] px-1.5 py-0.5 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}">
+                ${node.count}
+              </span>
+            </div>
+            ${hasChildren && isExpanded ? `<div>${renderCategoryTreeHTML(node.children, level + 1)}</div>` : ''}
+          </div>
+        `;
+      });
+      return html;
+    }
+
+    function toggleTreeNode(event, fullPath) {
+      event.stopPropagation();
+      if (expandedTreeNodes.has(fullPath)) expandedTreeNodes.delete(fullPath);
+      else expandedTreeNodes.add(fullPath);
+      renderCatalog();
+    }
+
+    function selectCategoryPath(path) {
+      activeCategoryFilter = path;
+      if (path) {
+        const parts = path.split(' / ');
+        let acc = '';
+        parts.forEach(p => {
+          acc = acc ? `${acc} / ${p}` : p;
+          expandedTreeNodes.add(acc);
+        });
+      }
+      renderCatalog();
+    }
+
+    /***************************************************************************
+     * 7. KATALOG LİSTELEME, ARAMA VE FİLTRELEME
+     ***************************************************************************/
+    function setStorageFilter(filterType) {
+      activeStorageFilter = filterType;
+      ['all', 'local', 'firebase'].forEach(t => {
+        const btn = document.getElementById('st-filter-' + t);
+        if (t === filterType) {
+          btn.className = 'py-1.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition';
+        } else {
+          btn.className = 'py-1.5 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 transition';
+        }
+      });
+      renderCatalog();
+    }
+
+    function clearSearch() {
+      document.getElementById('search-input').value = '';
+      renderCatalog();
+    }
+
+    function getFileIcon(fileName) {
+      const lower = (fileName || '').toLowerCase();
+      if (lower.endsWith('.pdf')) return '📕 PDF';
+      if (lower.endsWith('.docx') || lower.endsWith('.doc')) return '📘 DOCX';
+      return '📄 TXT';
+    }
+
+    function renderCatalog() {
+      const cloudVerifiedList = lisps.filter(x => x.cloudSynced === true && x.storageLocation === 'firebase');
+      const localOnlyList = lisps.filter(x => !(x.cloudSynced === true && x.storageLocation === 'firebase'));
+
+      document.getElementById('count-all').innerText = lisps.length;
+      document.getElementById('count-local').innerText = localOnlyList.length;
+      document.getElementById('count-cloud').innerText = cloudVerifiedList.length;
+
+      const treeData = buildCategoryTree(lisps);
+      const treeContainer = document.getElementById('category-tree-container');
+      treeContainer.innerHTML = renderCategoryTreeHTML(treeData) || '<div class="text-xs text-slate-400 py-2">Henüz kategori yok.</div>';
+
+      const breadcrumbEl = document.getElementById('active-category-breadcrumb');
+      if (!activeCategoryFilter) {
+        breadcrumbEl.innerHTML = '📁 Tüm Kategoriler';
+      } else {
+        breadcrumbEl.innerHTML = `📁 ${escapeHtml(activeCategoryFilter)} <button onclick="selectCategoryPath('')" class="ml-1.5 text-rose-500 hover:underline">✕</button>`;
+      }
+
+      const query = document.getElementById('search-input').value.trim().toLowerCase();
+      document.getElementById('clear-search-btn').classList.toggle('hidden', !query);
+
+      let filtered = lisps.filter(item => {
+        const normCat = normalizeCategoryPath(item.category);
+        if (activeCategoryFilter && !(normCat === activeCategoryFilter || normCat.startsWith(activeCategoryFilter + ' / '))) {
+          return false;
+        }
+        const isVerifiedCloud = item.cloudSynced === true && item.storageLocation === 'firebase';
+        if (activeStorageFilter === 'local' && isVerifiedCloud) return false;
+        if (activeStorageFilter === 'firebase' && !isVerifiedCloud) return false;
+
+        if (query) {
+          const guideFilesNames = (item.guideFiles || []).map(g => g.name).join(' ');
+          const hay = `${item.title} ${item.command} ${normCat} ${item.desc} ${item.shortUsage || ''} ${item.usageGuideText || ''} ${item.code} ${item.fileName || ''} ${guideFilesNames}`.toLowerCase();
+          return hay.includes(query);
+        }
+        return true;
+      });
+
+      filtered = proFilter(filtered);
+
+      const sortBy = document.getElementById('sort-select').value;
+      filtered.sort((a, b) => {
+        if (sortBy === 'newest') return (b.updatedAt || 0) - (a.updatedAt || 0);
+        if (sortBy === 'oldest') return (a.updatedAt || 0) - (b.updatedAt || 0);
+        if (sortBy === 'az') return (a.title || '').localeCompare(b.title || '', 'tr');
+        if (sortBy === 'command') return (a.command || '').localeCompare(b.command || '', 'tr');
+        if (sortBy === 'fav') return (proMeta(b.id).fav ? 1 : 0) - (proMeta(a.id).fav ? 1 : 0) || (b.updatedAt || 0) - (a.updatedAt || 0);
+        if (sortBy === 'used') return proMeta(b.id).uses - proMeta(a.id).uses;
+        return 0;
+      });
+
+      window.proVisibleIds = filtered.map(x => x.id);
+      const grid = document.getElementById('lisp-cards-grid');
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-white dark:bg-darksurface rounded-2xl p-12 text-center border border-slate-200 dark:border-darkborder">
+            <div class="text-3xl mb-2">🔍</div>
+            <div class="font-bold text-base mb-1">Eşleşen LISP Kaydı Bulunamadı</div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Arama veya filtre kriterlerinizi temizleyebilir ya da yeni bir AutoLISP kodu ekleyebilirsiniz.</p>
+            <button onclick="openLispModal()" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 transition">
+              ＋ Yeni LISP Ekle
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => {
+        const isCloudSynced = item.cloudSynced === true && item.storageLocation === 'firebase';
+        const normCat = normalizeCategoryPath(item.category);
+        const catBadges = normCat.split(' / ').map((c, idx, arr) => `
+          <span onclick="selectCategoryPath('${escapeHtml(arr.slice(0, idx + 1).join(' / '))}')"
+                class="cursor-pointer hover:underline text-[11px] font-medium text-indigo-600 dark:text-indigo-400">
+            ${escapeHtml(c)}
+          </span>
+        `).join('<span class="text-slate-400 text-[10px] mx-0.5">/</span>');
+
+        const dbStatusBadge = isCloudSynced
+          ? `<span title="Realtime Database (/autolisp_katalog_pro) ile iletişim kuruldu ve buluta kaydedildi." class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">☁️ DB ✔</span>`
+          : `<span title="Bulut DB'de kayıtlı değil (Yalnızca Yerel Hafızada)." class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">☁️ DB ✖</span>`;
+
+        const guideFiles = Array.isArray(item.guideFiles) ? item.guideFiles : [];
+        const guideAttachmentsHTML = guideFiles.length > 0 ? `
+          <div class="mb-3 flex flex-wrap items-center gap-1.5">
+            <span class="text-[10px] font-bold uppercase text-slate-400 mr-1">Ekli Kılavuzlar:</span>
+            ${guideFiles.map((gf, gIdx) => `
+              <button onclick="downloadGuideFile('${escapeHtml(item.id)}', ${gIdx})"
+                title="İndirmek için tıklayın (${formatBytes(gf.size)})"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition">
+                <span>${getFileIcon(gf.name)}</span>
+                <span class="truncate max-w-[140px]">${escapeHtml(gf.name)}</span>
+                <span class="text-indigo-500">⬇</span>
+              </button>
+            `).join('')}
+          </div>
+        ` : '';
+
+        return `
+          <article class="bg-white dark:bg-darksurface rounded-2xl p-5 border border-slate-200 dark:border-darkborder shadow-sm hover:shadow-md hover:border-indigo-500/40 transition flex flex-col justify-between gap-4">
+            <div>
+              <!-- Üst Satır: Kategori Yolu ve Sağa-Sola Çekmeli Yerel/Bulut DB Switch -->
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div class="flex flex-wrap items-center bg-slate-100 dark:bg-slate-800/90 px-2.5 py-1 rounded-lg">
+                  ${catBadges}
+                </div>
+
+                <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/90 px-2.5 py-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <span class="text-[11px] font-bold ${!isCloudSynced ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}">💾 Yerel</span>
+                  <label class="relative inline-flex items-center cursor-pointer" title="Sağa çekince Bulut DB (/autolisp_katalog_pro) üzerine kaydeder, sola çekince sadece Yerelde tutar">
+                    <input type="checkbox" ${isCloudSynced ? 'checked' : ''} onchange="handleCardStorageSwitch(event, '${escapeHtml(item.id)}')" class="sr-only peer">
+                    <div class="w-9 h-5 bg-amber-500/40 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                  ${dbStatusBadge}
+                </div>
+              </div>
+
+              <!-- Başlık, Favori Yıldızı ve Komut Rozeti -->
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <h3 class="font-bold text-base text-slate-900 dark:text-white leading-snug">
+                  <button onclick="toggleFav('${escapeHtml(item.id)}')" title="Favoriye ekle / çıkar" class="mr-1.5 hover:scale-110 transition">${proMeta(item.id).fav ? '⭐' : '☆'}</button>${escapeHtml(item.title)}
+                </h3>
+                ${item.command ? `
+                  <span class="shrink-0 font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    ${escapeHtml(item.command)}
+                  </span>
+                ` : ''}
+              </div>
+
+              <!-- PRO Denetim, Bağımlılık, Çakışma ve Kullanım Rozetleri -->
+              ${proBadgesHTML(item)}
+
+              <!-- Ne İşe Yarıyor & Kısa Kullanım Özeti -->
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-2">
+                ${escapeHtml(item.desc || 'Açıklama belirtilmedi.')}
+              </p>
+              ${item.shortUsage ? `
+                <div class="mb-3 px-3 py-2 rounded-xl bg-indigo-50/70 dark:bg-slate-800/70 border border-indigo-200/60 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-300">
+                  <strong class="text-indigo-600 dark:text-indigo-400">⚡ Kısa Kullanım:</strong> ${escapeHtml(item.shortUsage)}
+                </div>
+              ` : ''}
+
+              <!-- Ekli Çoklu PDF / DOCX Kılavuz Dosyaları -->
+              ${guideAttachmentsHTML}
+
+              <!-- Kod Önizleme Kutusu + Üst Komple Kopyala Butonu -->
+              <div class="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+                <div class="px-3 py-1.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                  <span>📄 ${escapeHtml(item.fileName || 'kod.lsp')} (${(item.code || '').split('\n').length} satır)</span>
+                  <button onclick="copyLispById('${escapeHtml(item.id)}', this)" class="px-2 py-0.5 rounded bg-indigo-600/90 hover:bg-indigo-500 text-white font-sans font-semibold text-[11px] transition">
+                    📋 Komple Kopyala
+                  </button>
+                </div>
+                <pre class="code-preview p-3 text-xs font-mono text-emerald-300 overflow-auto"><code>${escapeHtml(item.code)}</code></pre>
+              </div>
+            </div>
+
+            <!-- Alt Aksiyon Butonları (Komple Kopyala, .LSP İndir, Kılavuzu Oku, Düzenle, Sil) -->
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button onclick="copyLispById('${escapeHtml(item.id)}', this)" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition flex items-center gap-1">
+                  📋 Tüm Kodu Komple Kopyala
+                </button>
+                <button onclick="openGuideReaderModal('${escapeHtml(item.id)}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition flex items-center gap-1">
+                  📖 Kılavuzu Oku ${guideFiles.length > 0 ? `(${guideFiles.length})` : ''}
+                </button>
+                <button onclick="downloadLispById('${escapeHtml(item.id)}')" class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition">
+                  📥 .LSP İndir
+                </button>
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                <button onclick="openLispModal('${escapeHtml(item.id)}')" class="px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold border border-amber-500/20 transition">
+                  ✏️ Düzenle
+                </button>
+                <button onclick="deleteLispById('${escapeHtml(item.id)}')" class="px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold border border-rose-500/20 transition">
+                  🗑️ Sil
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    /***************************************************************************
+     * 8. EKLEME, DÜZENLEME, TOPLU .LSP YÜKLEME VE PRO KAYIT ONAYI
+     ***************************************************************************/
+    function extractCommandFromCode(codeStr) {
+      const match = (codeStr || '').match(/\(defun\s+(c:[a-zA-Z0-9_\-]+|[a-zA-Z0-9_\-]+)/i);
+      return match ? match[1] : '';
+    }
+
+    function autoDetectCommand(codeStr) {
+      const cmdInput = document.getElementById('form-command');
+      if (!cmdInput.value.trim()) {
+        const detected = extractCommandFromCode(codeStr);
+        if (detected) cmdInput.value = detected;
+      }
+    }
+
+    function handleBatchLispFilesUpload(event) {
+      const files = Array.from(event.target.files || []);
+      if (files.length === 0) return;
+
+      let loadedCount = 0;
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          const code = e.target.result || '';
+          const cmd = extractCommandFromCode(code) || ('c:' + file.name.replace(/\.[^/.]+$/, '').toUpperCase());
+          const title = file.name.replace(/\.[^/.]+$/, '');
+          const cat = activeCategoryFilter || 'Toplu Yüklenenler';
+          const shortUsage = `Komut satırına ${cmd.replace(/^c:/i, '')} yazıp Enter tuşuna basın.`;
+
+          const newRec = normalizeLispRecord({
+            id: 'lisp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            title,
+            command: cmd,
+            category: cat,
+            desc: `${file.name} dosyasından otomatik içe aktarılan AutoLISP rutini.`,
+            shortUsage,
+            usageGuideText: buildDefaultGuideText(title, cmd, file.name, shortUsage, code),
+            guideFiles: [],
+            code,
+            fileName: file.name,
+            fileContent: code,
+            storageLocation: 'local',
+            cloudSynced: false,
+            updatedAt: Date.now()
+          });
+
+          if (appPrefs.defaultStorage === 'firebase') {
+            try {
+              await writeRecordToCloudDB(newRec);
+              newRec.storageLocation = 'firebase';
+              newRec.cloudSynced = true;
+            } catch (err) {}
+          }
+
+          lisps.unshift(newRec);
+          loadedCount++;
+          if (loadedCount === files.length) {
+            persistLispsLocally();
+            renderCatalog();
+            showToast(`✔ ${loadedCount} adet .LSP dosyası otomatik analiz edilerek kataloğa eklendi!`, 'success');
+          }
+        };
+        reader.readAsText(file, 'UTF-8');
+      });
+
+      event.target.value = '';
+    }
+
+    async function copyFormCodeComplete(btnEl) {
+      const codeVal = document.getElementById('form-code').value;
+      if (!codeVal.trim()) {
+        showToast('✖ Kopyalanacak metin kodu bulunamadı!', 'warning');
+        return;
+      }
+      const ok = await copyRawTextToClipboard(codeVal);
+      if (ok) {
+        const originalText = btnEl.innerHTML;
+        btnEl.innerHTML = '✔ Komple Kopyalandı!';
+        setTimeout(() => { btnEl.innerHTML = originalText; }, 1800);
+        showToast('✔ Editördeki metin kodu komple panoya kopyalandı!', 'success');
+      } else {
+        showToast('✖ Kopyalama başarısız oldu.', 'error');
+      }
+    }
+
+    function clearFormCode() {
+      document.getElementById('form-code').value = '';
+      proLiveAnalyze();
+      showToast('Metin kodu alanı temizlendi.', 'info');
+    }
+
+    function generateApploadGuideTemplate() {
+      const codeVal = document.getElementById('form-code').value;
+      const title = document.getElementById('form-title').value.trim() || 'AutoLISP Komutu';
+      const cmd   = document.getElementById('form-command').value.trim() || extractCommandFromCode(codeVal) || 'c:KOMUT';
+      const fName = tempAttachedFile.name || (title.replace(/[^a-zA-Z0-9ğüşöçıİĞÜŞÖÇ_\-]/g, '_') + '.lsp');
+      const shortU = document.getElementById('form-short-usage').value.trim() || document.getElementById('form-desc').value.trim();
+
+      document.getElementById('form-guide-text').value = buildDefaultGuideText(title, cmd, fName, shortU, codeVal);
+      showToast('✨ Kod analiz edilerek APPLOAD, Hata Çözümleri ve Test Senaryoları kılavuzu oluşturuldu!', 'success');
+    }
+
+    function loadGuideTextFromFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('form-guide-text').value = e.target.result;
+        showToast(`✔ "${file.name}" içeriği kılavuz metin alanına aktarıldı.`, 'success');
+      };
+      reader.readAsText(file, 'UTF-8');
+      event.target.value = '';
+    }
+
+    function handleGuideFilesUpload(event) {
+      const files = Array.from(event.target.files || []);
+      if (files.length === 0) return;
+
+      files.forEach(file => {
+        if (file.size > 3.5 * 1024 * 1024) {
+          showToast(`✖ "${file.name}" (${formatBytes(file.size)}) çok büyük! Tarayıcı hafızası için 3.5 MB altı dosyalar ekleyin.`, 'error');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          tempGuideFiles.push({
+            id: 'gf_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+            name: file.name,
+            type: file.type || 'application/octet-stream',
+            size: file.size,
+            dataUrl: e.target.result
+          });
+          renderFormGuideFilesList();
+          showToast(`📎 "${file.name}" kılavuz dosyalarına eklendi.`, 'success');
+        };
+        reader.readAsDataURL(file);
+      });
+
+      event.target.value = '';
+    }
+
+    function removeTempGuideFile(index) {
+      tempGuideFiles.splice(index, 1);
+      renderFormGuideFilesList();
+    }
+
+    function renderFormGuideFilesList() {
+      const listEl = document.getElementById('form-guide-files-list');
+      if (tempGuideFiles.length === 0) {
+        listEl.innerHTML = `<div class="text-[11px] text-slate-400 italic">Henüz PDF veya DOCX kılavuz dosyası eklenmedi.</div>`;
+        return;
+      }
+      listEl.innerHTML = tempGuideFiles.map((gf, idx) => `
+        <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="font-bold text-indigo-600 dark:text-indigo-400">${getFileIcon(gf.name)}</span>
+            <span class="truncate font-medium">${escapeHtml(gf.name)}</span>
+            <span class="text-[10px] text-slate-400">(${formatBytes(gf.size)})</span>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <a href="${gf.dataUrl}" download="${escapeHtml(gf.name)}" class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-indigo-600 dark:text-indigo-400 font-semibold text-[11px]">
+              ⬇ İndir
+            </a>
+            <button type="button" onclick="removeTempGuideFile(${idx})" class="px-2 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-semibold text-[11px]">
+              ✕ Kaldır
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function populateCategoryHelperDropdown() {
+      const select = document.getElementById('form-category-helper');
+      const uniquePaths = new Set();
+      lisps.forEach(item => {
+        const norm = normalizeCategoryPath(item.category);
+        const parts = norm.split(' / ');
+        let acc = '';
+        parts.forEach(p => {
+          acc = acc ? `${acc} / ${p}` : p;
+          uniquePaths.add(acc);
+        });
+      });
+      const sorted = Array.from(uniquePaths).sort((a, b) => a.localeCompare(b, 'tr'));
+      select.innerHTML = '<option value="">-- Mevcut Kategoriden Seç --</option>' +
+        sorted.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join('');
+    }
+
+    function applyCategoryHelper(val) {
+      if (!val) return;
+      const input = document.getElementById('form-category');
+      input.value = val + ' / ';
+      input.focus();
+    }
+
+    function handleLispFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      tempAttachedFile.name = file.name;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        tempAttachedFile.content = text;
+        document.getElementById('form-code').value = text;
+        autoDetectCommand(text);
+        proLiveAnalyze();
+
+        const titleInput = document.getElementById('form-title');
+        if (!titleInput.value.trim()) {
+          titleInput.value = file.name.replace(/\.[^/.]+$/, '');
+        }
+
+        document.getElementById('attached-file-info').innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-semibold">✔ Eklenen Dosya: ${escapeHtml(file.name)} (${formatBytes(file.size)})</span>`;
+        document.getElementById('remove-file-btn').classList.remove('hidden');
+        showToast(`✔ ${file.name} dosyası okundu ve metin editörüne aktarıldı.`, 'success');
+      };
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    function clearAttachedFile() {
+      tempAttachedFile = { name: null, content: null };
+      document.getElementById('form-file-input').value = '';
+      document.getElementById('attached-file-info').innerText = 'Dosya seçildiğinde hem dosyayı saklar hem de metin kodunu aşağıdaki editöre aktarır.';
+      document.getElementById('remove-file-btn').classList.add('hidden');
+    }
+
+    function updateModalStorageSwitchUI() {
+      const wantCloud = document.getElementById('form-storage-cloud').checked;
+      const desc = document.getElementById('modal-storage-desc');
+      const badge = document.getElementById('modal-db-check-badge');
+
+      if (wantCloud) {
+        if (isCloudDBVerified) {
+          badge.className = 'px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30';
+          badge.innerText = '☁️ DB ✔ Hazır';
+          desc.className = 'text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-0.5';
+          desc.innerText = '✔ Kaydedildiğinde Realtime Database (/autolisp_katalog_pro) ile iletişim kurulup yazılacak.';
+        } else {
+          badge.className = 'px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30';
+          badge.innerText = '☁️ DB Denenecek';
+          desc.className = 'text-[11px] text-amber-600 dark:text-amber-400 font-medium mt-0.5';
+          desc.innerText = '⏳ Kayıt sırasında /autolisp_katalog_pro ile iletişim kurulacak; başarılı olursa ✔, olmazsa ✖ olarak işaretlenecek.';
+        }
+      } else {
+        badge.className = 'px-2 py-0.5 rounded-md text-[11px] font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30';
+        badge.innerText = '☁️ DB ✖';
+        desc.className = 'text-[11px] text-amber-600 dark:text-amber-400 font-medium mt-0.5';
+        desc.innerText = '💾 Yalnızca Yerel Hafızaya kaydedilecek. (Bulut DB iletişimi kapalı: ✖)';
+      }
+    }
+
+    function openLispModal(editId = null) {
+      populateCategoryHelperDropdown();
+      clearAttachedFile();
+      tempGuideFiles = [];
+
+      if (editId) {
+        const item = lisps.find(x => x.id === editId);
+        if (!item) return;
+        document.getElementById('modal-form-title').innerText = 'LISP Kaydını ve Kılavuzunu Düzenle';
+        document.getElementById('form-id').value = item.id;
+        document.getElementById('form-title').value = item.title || '';
+        document.getElementById('form-command').value = item.command || '';
+        document.getElementById('form-category').value = normalizeCategoryPath(item.category);
+        document.getElementById('form-desc').value = item.desc || '';
+        document.getElementById('form-short-usage').value = item.shortUsage || '';
+        document.getElementById('form-guide-text').value = item.usageGuideText || '';
+        document.getElementById('form-code').value = item.code || '';
+        document.getElementById('form-storage-cloud').checked = (item.cloudSynced === true && item.storageLocation === 'firebase');
+        tempGuideFiles = Array.isArray(item.guideFiles) ? [...item.guideFiles] : [];
+
+        if (item.fileName) {
+          tempAttachedFile = { name: item.fileName, content: item.fileContent || item.code };
+          document.getElementById('attached-file-info').innerHTML = `<span class="text-indigo-500 font-semibold">📎 Mevcut Dosya: ${escapeHtml(item.fileName)}</span>`;
+          document.getElementById('remove-file-btn').classList.remove('hidden');
+        }
+      } else {
+        document.getElementById('modal-form-title').innerText = 'Yeni AutoLISP Kaydı & Kullanım Kılavuzu Ekle';
+        document.getElementById('form-id').value = '';
+        document.getElementById('form-title').value = '';
+        document.getElementById('form-command').value = '';
+        document.getElementById('form-category').value = activeCategoryFilter || '';
+        document.getElementById('form-desc').value = '';
+        document.getElementById('form-short-usage').value = '';
+        document.getElementById('form-guide-text').value = '';
+        document.getElementById('form-code').value = '';
+        document.getElementById('form-storage-cloud').checked = (appPrefs.defaultStorage === 'firebase');
+      }
+
+      renderFormGuideFilesList();
+      updateModalStorageSwitchUI();
+      proLiveAnalyze();
+      document.getElementById('lisp-modal').classList.remove('hidden');
+    }
+
+    function closeLispModal() {
+      document.getElementById('lisp-modal').classList.add('hidden');
+    }
+
+    async function saveLispRecord() {
+      const editId     = document.getElementById('form-id').value.trim();
+      const title      = document.getElementById('form-title').value.trim();
+      const command    = document.getElementById('form-command').value.trim();
+      const category   = normalizeCategoryPath(document.getElementById('form-category').value);
+      const desc       = document.getElementById('form-desc').value.trim();
+      const shortUsage = document.getElementById('form-short-usage').value.trim();
+      const guideText  = document.getElementById('form-guide-text').value.trim();
+      const code       = document.getElementById('form-code').value;
+      const wantCloud  = document.getElementById('form-storage-cloud').checked;
+
+      if (!title || !code.trim()) {
+        showToast('✖ Lütfen en az LISP Başlığı ve Metin Kodu alanlarını doldurun!', 'error');
+        return;
+      }
+
+      // PRO Denetim Onayı: Parantez hatası veya kurumsal güvenlik notu varsa uyar
+      const analysis = lispAnalyze(code);
+      if (!analysis.balanced && !confirm(`⚠ Kodda parantez/metin hatası tespit edildi (Satır ${analysis.err.line}: ${analysis.err.msg}).\nYine de kaydedilsin mi?`)) {
+        return;
+      }
+      if (analysis.risks.length && !confirm(`🔒 Kurumsal Güvenlik Notları:\n- ${analysis.risks.join('\n- ')}\n\nŞirket bilgisayarında kullanılacaksa gözden geçirdiniz mi? Kaydedilsin mi?`)) {
+        return;
+      }
+
+      const saveBtn = document.getElementById('save-record-btn');
+      saveBtn.disabled = true;
+      saveBtn.innerText = '⏳ Kaydediliyor...';
+
+      const cleanFileName = tempAttachedFile.name || (title.replace(/[^a-zA-Z0-9ğüşöçıİĞÜŞÖÇ_\-]/g, '_') + '.lsp');
+      const finalCmd = command || extractCommandFromCode(code);
+      const finalGuideText = guideText || buildDefaultGuideText(title, finalCmd, cleanFileName, shortUsage || desc, code);
+
+      const record = {
+        id: editId || ('lisp_' + Date.now()),
+        title,
+        command: finalCmd,
+        category,
+        desc,
+        shortUsage: shortUsage || desc,
+        usageGuideText: finalGuideText,
+        guideFiles: [...tempGuideFiles],
+        code,
+        fileName: cleanFileName,
+        fileContent: tempAttachedFile.content || code,
+        storageLocation: 'local',
+        cloudSynced: false,
+        updatedAt: Date.now()
+      };
+
+      let cloudSuccess = false;
+      if (wantCloud) {
+        try {
+          await writeRecordToCloudDB(record);
+          record.storageLocation = 'firebase';
+          record.cloudSynced = true;
+          cloudSuccess = true;
+        } catch (err) {
+          record.storageLocation = 'local';
+          record.cloudSynced = false;
+          cloudSuccess = false;
+        }
+      }
+
+      const parts = category.split(' / ');
+      let acc = '';
+      parts.forEach(p => {
+        acc = acc ? `${acc} / ${p}` : p;
+        expandedTreeNodes.add(acc);
+      });
+
+      if (editId) {
+        const idx = lisps.findIndex(x => x.id === editId);
+        if (idx > -1) lisps[idx] = record;
+      } else {
+        lisps.unshift(record);
+      }
+
+      persistLispsLocally();
+      saveBtn.disabled = false;
+      saveBtn.innerText = '💾 Kaydı Tamamla';
+      closeLispModal();
+      renderCatalog();
+
+      if (wantCloud) {
+        if (cloudSuccess) {
+          showToast('✔ Bulut Veritabanı (/autolisp_katalog_pro) ile iletişim kuruldu ve kayıt Buluta eklendi (☁️ DB ✔)!', 'success');
+        } else {
+          showToast('✖ Bulut DB ile iletişim kurulamadı! Buluta kaydedilmedi (☁️ DB ✖), yalnızca Yerel Hafızaya kaydedildi.', 'error');
+        }
+      } else {
+        showToast('💾 Kayıt ve kılavuzlar Yerel Hafızaya kaydedildi (☁️ DB ✖).', 'info');
+      }
+    }
+
+    /***************************************************************************
+     * 9. EDİTÖRSÜZ KILAVUZ OKUYUCU MODAL & DOSYA İNDİRME İŞLEMLERİ
+     ***************************************************************************/
+    function openGuideReaderModal(id) {
+      const item = lisps.find(x => x.id === id);
+      if (!item) return;
+      activeReaderItemId = id;
+      closePdfPreview();
+
+      document.getElementById('reader-title').innerText = item.title || 'Kullanım Kılavuzu';
+      document.getElementById('reader-command').innerText = item.command || 'Komut';
+      document.getElementById('reader-category').innerText = '📁 ' + normalizeCategoryPath(item.category);
+      document.getElementById('reader-desc').innerText = item.desc || 'Açıklama belirtilmemiş.';
+      document.getElementById('reader-short-usage').innerText = item.shortUsage || item.desc || 'Kısa kullanım belirtilmemiş.';
+      document.getElementById('reader-guide-text').innerText = item.usageGuideText || buildDefaultGuideText(item.title, item.command, item.fileName, item.shortUsage, item.code);
+
+      const gFiles = Array.isArray(item.guideFiles) ? item.guideFiles : [];
+      const filesListEl = document.getElementById('reader-files-list');
+      if (gFiles.length === 0) {
+        filesListEl.innerHTML = `<span class="text-xs text-slate-400 italic">Bu kayda eklenmiş harici PDF veya DOCX dosyası bulunmuyor. Aşağıdaki metin kılavuzunu doğrudan okuyabilir veya .TXT olarak indirebilirsiniz.</span>`;
+      } else {
+        filesListEl.innerHTML = gFiles.map((gf, idx) => {
+          const isPdf = (gf.name || '').toLowerCase().endsWith('.pdf');
+          return `
+            <div class="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+              <span class="font-bold">${getFileIcon(gf.name)}</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200">${escapeHtml(gf.name)}</span>
+              <span class="text-[10px] text-slate-400">(${formatBytes(gf.size)})</span>
+              ${isPdf ? `
+                <button onclick="previewGuidePdf('${escapeHtml(item.id)}', ${idx})" class="ml-1 px-2 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-semibold text-[11px]">
+                  👁️ Uygulamada Gör
+                </button>
+              ` : ''}
+              <button onclick="downloadGuideFile('${escapeHtml(item.id)}', ${idx})" class="ml-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[11px]">
+                ⬇ İndir
+              </button>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('guide-reader-modal').classList.remove('hidden');
+    }
+
+    function closeGuideReaderModal() {
+      closePdfPreview();
+      document.getElementById('guide-reader-modal').classList.add('hidden');
+    }
+
+    function previewGuidePdf(itemId, fileIdx) {
+      const item = lisps.find(x => x.id === itemId);
+      if (!item || !item.guideFiles || !item.guideFiles[fileIdx]) return;
+      const gf = item.guideFiles[fileIdx];
+      document.getElementById('reader-pdf-title').innerText = `📕 ${gf.name} - Uygulama İçi Önizleme`;
+      document.getElementById('reader-pdf-frame').src = gf.dataUrl;
+      document.getElementById('reader-pdf-preview-wrap').classList.remove('hidden');
+    }
+
+    function closePdfPreview() {
+      document.getElementById('reader-pdf-frame').src = '';
+      document.getElementById('reader-pdf-preview-wrap').classList.add('hidden');
+    }
+
+    function downloadGuideFile(itemId, fileIdx) {
+      const item = lisps.find(x => x.id === itemId);
+      if (!item || !item.guideFiles || !item.guideFiles[fileIdx]) return;
+      const gf = item.guideFiles[fileIdx];
+      const a = document.createElement('a');
+      a.href = gf.dataUrl;
+      a.download = gf.name || 'Kullanim_Kilavuzu';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast(`📥 "${gf.name}" indirildi.`, 'success');
+    }
+
+    async function copyReaderGuideText(btnEl) {
+      const text = document.getElementById('reader-guide-text').innerText;
+      const ok = await copyRawTextToClipboard(text);
+      if (ok) {
+        const old = btnEl.innerHTML;
+        btnEl.innerHTML = '✔ Kılavuz Kopyalandı!';
+        setTimeout(() => { btnEl.innerHTML = old; }, 1600);
+        showToast('✔ Kullanım kılavuzu metni panoya kopyalandı!', 'success');
+      }
+    }
+
+    function downloadReaderGuideTxt() {
+      const item = lisps.find(x => x.id === activeReaderItemId);
+      const text = document.getElementById('reader-guide-text').innerText;
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = ((item ? item.title : 'LISP').replace(/[^a-zA-Z0-9ğüşöçıİĞÜŞÖÇ_\-]/g, '_')) + '_Kullanim_Kilavuzu.txt';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('📥 Kullanım kılavuzu .TXT olarak indirildi.', 'info');
+    }
+
+    async function handleCardStorageSwitch(event, id) {
+      const checkbox = event.target;
+      const wantCloud = checkbox.checked;
+      const idx = lisps.findIndex(x => x.id === id);
+      if (idx === -1) return;
+
+      if (wantCloud) {
+        showToast('⏳ Bulut Veritabanı (/autolisp_katalog_pro) ile iletişim kuruluyor...', 'info');
+        try {
+          await writeRecordToCloudDB(lisps[idx]);
+          lisps[idx].storageLocation = 'firebase';
+          lisps[idx].cloudSynced = true;
+          lisps[idx].updatedAt = Date.now();
+          persistLispsLocally();
+          renderCatalog();
+          showToast('✔ Veritabanı (DB) onayladı! Kayıt artık Bulutta (☁️ DB ✔).', 'success');
+        } catch (err) {
+          checkbox.checked = false;
+          lisps[idx].storageLocation = 'local';
+          lisps[idx].cloudSynced = false;
+          persistLispsLocally();
+          renderCatalog();
+          showToast('✖ Bulut DB ile iletişim kurulamadı! Kayıt buluta kaydedilmedi (☁️ DB ✖), Yerelde kaldı.', 'error');
+        }
+      } else {
+        try {
+          await deleteRecordFromCloudDB(id);
+        } catch (e) {}
+        lisps[idx].storageLocation = 'local';
+        lisps[idx].cloudSynced = false;
+        lisps[idx].updatedAt = Date.now();
+        persistLispsLocally();
+        renderCatalog();
+        showToast('💾 Kayıt yalnızca Yerel Hafızaya alındı (☁️ DB ✖).', 'warning');
+      }
+    }
+
+    async function copyLispById(id, btnEl = null) {
+      const item = lisps.find(x => x.id === id);
+      if (!item) return;
+      proBump(id);
+      const ok = await copyRawTextToClipboard(item.code);
+      if (ok) {
+        if (btnEl) {
+          const prev = btnEl.innerHTML;
+          btnEl.innerHTML = '✔ Komple Kopyalandı!';
+          setTimeout(() => { btnEl.innerHTML = prev; }, 1600);
+        }
+        showToast(`✔ "${item.title}" metin kodu komple panoya kopyalandı!`, 'success');
+      } else {
+        showToast('✖ Kopyalama sırasında hata oluştu.', 'error');
+      }
+    }
+
+    function downloadLispById(id) {
+      const item = lisps.find(x => x.id === id);
+      if (!item) return;
+      proBump(id);
+      const content = item.fileContent || item.code;
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = item.fileName || (item.title.replace(/\s+/g, '_') + '.lsp');
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast(`📥 ${a.download} dosyası indirildi.`, 'info');
+    }
+
+    async function deleteLispById(id) {
+      const item = lisps.find(x => x.id === id);
+      if (!item) return;
+      if (!confirm(`"${item.title}" kaydını silmek istediğinize emin misiniz?`)) return;
+
+      if (item.cloudSynced) {
+        try {
+          await deleteRecordFromCloudDB(id);
+        } catch (e) {}
+      }
+      lisps = lisps.filter(x => x.id !== id);
+      persistLispsLocally();
+      renderCatalog();
+      showToast('🗑️ Kayıt silindi.', 'warning');
+    }
+
+    /***************************************************************************
+     * 10. AYARLAR, TEMA, KLAVYE KISAYOLLARI VE JSON YEDEKLEME
+     ***************************************************************************/
+    function switchMainTab(tab) {
+      const isCat = tab === 'catalog';
+      document.getElementById('view-catalog').classList.toggle('hidden', !isCat);
+      document.getElementById('view-settings').classList.toggle('hidden', isCat);
+
+      document.getElementById('tab-btn-catalog').className = isCat
+        ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm transition'
+        : 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition';
+
+      document.getElementById('tab-btn-settings').className = !isCat
+        ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm transition'
+        : 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition';
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      appPrefs.theme = isDark ? 'dark' : 'light';
+      document.getElementById('theme-icon').innerText = isDark ? '☀️' : '🌙';
+      localStorage.setItem(STORAGE_KEY_PREFS, JSON.stringify(appPrefs));
+    }
+
+    function saveAppSettings() {
+      appPrefs.defaultStorage = document.getElementById('setting-default-storage').value;
+      localStorage.setItem(STORAGE_KEY_PREFS, JSON.stringify(appPrefs));
+      showToast('✔ Varsayılan ayarlar kaydedildi.', 'success');
+    }
+
+    function exportCatalogJSON() {
+      const payload = {
+        app: 'AutoLISP Katalog Pro',
+        schemaVersion: 2,
+        exportedAt: new Date().toISOString(),
+        lisps,
+        meta: proLoadMeta()
+      };
+      const dataStr = JSON.stringify(payload, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `AutoLISP_Katalog_Yedek_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('✔ Katalog yedeği (.json) indirildi.', 'success');
+    }
+
+    function importCatalogJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.lisps) ? parsed.lisps : null);
+          if (!list) throw new Error('Geçersiz format');
+          const { added, skipped } = mergeIncomingLisps(list, parsed.meta || null);
+          showToast(`✔ JSON yedeğinden ${added} yeni LISP eklendi (${skipped} tekrar atlandı)!`, 'success');
+        } catch (err) {
+          showToast('✖ Geçersiz JSON yedek dosyası!', 'error');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    document.addEventListener('keydown', function (e) {
+      const tag = (document.activeElement && document.activeElement.tagName) || '';
+      if ((e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(tag)) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
+        e.preventDefault();
+        const s = document.getElementById('search-input');
+        if (s) { switchMainTab('catalog'); s.focus(); s.select(); }
+      }
+    });
+
+    /***************************************************************************
+     * 11. SAĞ ALT KÖŞE: AYARLANABİLİR CANLI SAAT WİDGET'I (4 MOD + ÖLÇEKLEME)
+     ***************************************************************************/
+    function toggleClockPopover(event) {
+      event.stopPropagation();
+      document.getElementById('clock-settings-popover').classList.toggle('hidden');
+    }
+
+    function closeAllPopovers() {
+      document.getElementById('clock-settings-popover').classList.add('hidden');
+    }
+
+    document.addEventListener('click', () => closeAllPopovers());
+
+    function updateClockPrefs() {
+      const type = document.getElementById('clock-type-select').value;
+      const scale = parseFloat(document.getElementById('clock-scale-slider').value);
+      appPrefs.clockType = type;
+      appPrefs.clockScale = scale;
+
+      document.documentElement.style.setProperty('--clock-scale', scale);
+      document.getElementById('clock-scale-label').innerText = scale.toFixed(1) + 'x';
+
+      localStorage.setItem('clk_mode', type);
+      localStorage.setItem('clk_scale', scale);
+      localStorage.setItem(STORAGE_KEY_PREFS, JSON.stringify(appPrefs));
+      renderLiveClock();
+    }
+
+    function renderLiveClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      const box = document.getElementById('live-clock-content');
+      const mode = appPrefs.clockType || 'digital-sec';
+
+      if (mode === 'digital-sec') {
+        box.innerHTML = `<span>${hh}:${mm}</span><span class="text-[9px] text-indigo-600 dark:text-indigo-400 font-bold -mb-0.5">:${ss}</span>`;
+      } else if (mode === 'digital-short') {
+        box.innerHTML = `<span>${hh}:${mm}</span>`;
+      } else if (mode === 'analog-digital') {
+        const secAngle = (now.getSeconds() / 60) * 360;
+        const minAngle = (now.getMinutes() / 60) * 360 + (now.getSeconds() / 60) * 6;
+        const hrAngle  = ((now.getHours() % 12) / 12) * 360 + (now.getMinutes() / 60) * 30;
+        box.innerHTML = `
+          <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="6" opacity="0.35"/>
+            <line x1="50" y1="50" x2="50" y2="26" stroke="currentColor" stroke-width="7" stroke-linecap="round" transform="rotate(${hrAngle} 50 50)"/>
+            <line x1="50" y1="50" x2="50" y2="16" stroke="currentColor" stroke-width="5" stroke-linecap="round" transform="rotate(${minAngle} 50 50)"/>
+            <line x1="50" y1="50" x2="50" y2="12" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" transform="rotate(${secAngle} 50 50)"/>
+            <circle cx="50" cy="50" r="4" fill="#f43f5e"/>
+          </svg>
+          <span>${hh}:${mm}</span>
+        `;
+      } else if (mode === 'full-date') {
+        const dStr = now.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', weekday: 'short' });
+        box.innerHTML = `
+          <div class="flex flex-col items-end leading-none">
+            <span class="text-[7px] font-sans font-semibold text-slate-500 dark:text-slate-400 mb-0.5">${dStr}</span>
+            <span>${hh}:${mm}<span class="text-[8px] text-indigo-500 ml-0.5">${ss}</span></span>
+          </div>
+        `;
+      }
+    }
+
+    /***************************************************************************
+     * 12. SOL ALT KÖŞE: ÇEVRİMDIŞI HİCRİ / MİLADİ TAKVİM & ÖZEL GÜNLER MOTORU
+     ***************************************************************************/
+    const HIJRI_MONTH_NAMES = {
+      1: 'Muharrem', 2: 'Safer', 3: 'Rebiülevvel', 4: 'Rebiülahir',
+      5: 'Cemaziyelevvel', 6: 'Cemaziyelahir', 7: 'Recep', 8: 'Şaban',
+      9: 'Ramazan', 10: 'Şevval', 11: 'Zilkade', 12: 'Zilhicce'
+    };
+
+    const GREGORIAN_MONTH_MEANINGS = {
+      0: 'Ocak: Yılın ilk ayıdır; adını başlangıç ve geçişleri simgeleyen Latince Janus’tan alır, kış gündönümü sonrası yenilenmeyi temsil eder.',
+      1: 'Şubat: Kışın son evresini ve bahara hazırlık cemrelerinin (hava, su, toprak) düşmeye başladığı arınma dönemini simgeler.',
+      2: 'Mart: Baharın ve doğanın uyanışının başlangıcıdır; tarımsal takvimde toprağın işlenmeye başlandığı dönemi ifade eder.',
+      3: 'Nisan: Çiçeklerin açtığı, bereket ve büyüme mevsiminin hız kazandığı bahar ayıdır.',
+      4: 'Mayıs: Doğanın en canlı olduğu, Hıdırellez geleneğiyle bolluk ve yaz başlangıcının kutlandığı aydır.',
+      5: 'Haziran: Yaz gündönümünün (21 Haziran) yaşandığı, güneş ışığının en uzun süre dünyayı aydınlattığı sıcak başlangıç ayıdır.',
+      6: 'Temmuz: Hasat ve olgunlaşma döneminin merkezidir; adını antik takvim reformlarından alır.',
+      7: 'Ağustos: Tarımsal hasadın doruğa ulaştığı ve Türk tarihinde büyük zaferlerin kazanıldığı aydır.',
+      8: 'Eylül: Sonbahar ekinoksunun (23 Eylül) yaşandığı, doğanın dinginliğe ve kış hazırlığına geçtiği aydır.',
+      9: 'Ekim: Toprağın yeniden ekildiği, Cumhuriyetimizin ilanıyla taçlanan sonbahar ayıdır.',
+      10: 'Kasım: Geleneksel halk takviminde "Kasım günleri" (kış devresi) başlangıcı olarak kabul edilen dinginlik ayıdır.',
+      11: 'Aralık: Yılın son ayıdır; en uzun gecenin (21 Aralık) ardından günlerin yeniden uzamaya başladığı dönüm noktasıdır.'
+    };
+
+    const HIJRI_MONTH_MEANINGS = {
+      1: 'Muharrem: Hicri yılın ilk ayı ve haram aylardan biridir. 10. günü olan Aşure Günü, paylaşma ve bereketin sembolüdür.',
+      2: 'Safer: Hicri takvimin ikinci ayıdır; hayır, dua ve tefekkürle geçirilmesi tavsiye edilen dönemdir.',
+      3: 'Rebiülevvel: Peygamber Efendimiz Hz. Muhammed’in (s.a.v.) dünyaya teşrif ettiği (Mevlid Kandili) bahar ve nur ayıdır.',
+      4: 'Rebiülahir: Hicri takvimin dördüncü ayıdır; manevi huzur ve istikrar dönemini simgeler.',
+      5: 'Cemaziyelevvel: Üç aylara hazırlık öncesi manevi muhasebe ve ibadet bilincinin tazelendiği beşinci Hicri aydır.',
+      6: 'Cemaziyelahir: Üç ayların müjdecisi olan Recep ayından hemen önceki altıncı Hicri aydır.',
+      7: 'Recep: Mübarek "Üç Aylar"ın başlangıcıdır. Regaib ve Miraç kandillerini barındıran rahmet ve mağfiret ayıdır.',
+      8: 'Şaban: Ramazan-ı Şerif’in müjdecisi ve Berat Kandili’ni içinde barındıran arınma ayıdır.',
+      9: 'Ramazan: On bir ayın sultanı, Kur’an-ı Kerim’in indirildiği, oruç ibadeti ve bin aydan hayırlı Kadir Gecesi’nin bulunduğu aydır.',
+      10: 'Şevval: İlk günü Ramazan Bayramı ile başlayan, birlik, beraberlik ve bayramlaşma ayıdır.',
+      11: 'Zilkade: Hac yolculuğu hazırlıklarının başladığı ve haram aylardan biri olan on birinci Hicri aydır.',
+      12: 'Zilhicce: Hac ibadetinin eda edildiği ve Kurban Bayramı’nın idrak edildiği Hicri yılın son ayıdır.'
+    };
+
+    function getHijriComponents(dateObj) {
+      try {
+        const fmt = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
+          day: 'numeric', month: 'numeric', year: 'numeric'
+        });
+        const parts = fmt.formatToParts(dateObj);
+        const day   = parseInt(parts.find(p => p.type === 'day')?.value || '1', 10);
+        const month = parseInt(parts.find(p => p.type === 'month')?.value || '1', 10);
+        const year  = parseInt(parts.find(p => p.type === 'year')?.value || '1448', 10);
+        return {
+          day,
+          month,
+          year,
+          monthName: HIJRI_MONTH_NAMES[month] || 'Hicri',
+          formatted: `${day} ${HIJRI_MONTH_NAMES[month] || ''} ${year}`
+        };
+      } catch (e) {
+        return { day: 1, month: 1, year: 1448, monthName: 'Muharrem', formatted: '1 Muharrem 1448' };
+      }
+    }
+
+    function getSpecialDayForDate(dateObj) {
+      const mmdd = `${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+      const nationalMap = {
+        '01-01': { name: 'Yılbaşı (Resmi Tatil)', type: 'national', desc: 'Miladi yeni yılın ilk günü ve resmi tatil.' },
+        '04-23': { name: '23 Nisan Ulusal Egemenlik ve Çocuk Bayramı', type: 'national', desc: 'TBMM’nin açılışı ve Gazi Mustafa Kemal Atatürk’ün tüm dünya çocuklarına armağan ettiği ulusal bayramımız.' },
+        '05-01': { name: '1 Mayıs Emek ve Dayanışma Günü', type: 'national', desc: 'Emekçilerin birlik ve dayanışma günü, resmi tatil.' },
+        '05-19': { name: '19 Mayıs Atatürk’ü Anma, Gençlik ve Spor Bayramı', type: 'national', desc: 'Kurtuluş Savaşı’mızın başlangıcı olan 19 Mayıs 1919 Samsun’a çıkışın yıl dönümü.' },
+        '07-15': { name: '15 Temmuz Demokrasi ve Milli Birlik Günü', type: 'national', desc: 'Milli irade ve demokrasi şehitlerimizi anma günü.' },
+        '08-30': { name: '30 Ağustos Zafer Bayramı', type: 'national', desc: 'Büyük Taarruz ve Başkomutanlık Meydan Muharebesi zaferinin yıl dönümü.' },
+        '10-29': { name: '29 Ekim Cumhuriyet Bayramı', type: 'national', desc: 'Türkiye Cumhuriyeti’nin ilan edildiği en büyük ulusal bayramımız.' },
+        '11-10': { name: '10 Kasım Atatürk’ü Anma Günü', type: 'national', desc: 'Cumhuriyetimizin kurucusu Gazi Mustafa Kemal Atatürk’ü saygı, özlem ve minnetle anma günü.' }
+      };
+
+      if (nationalMap[mmdd]) return nationalMap[mmdd];
+
+      const h = getHijriComponents(dateObj);
+      const hKey = `${h.month}-${h.day}`;
+      const religiousMap = {
+        '1-1':  { name: 'Hicri Yılbaşı (1 Muharrem)', type: 'religious', desc: 'İslam dünyasında Hicret’i esas alan Hicri takvimin yeni yıl başlangıcı.' },
+        '1-10': { name: 'Aşure Günü (10 Muharrem)', type: 'religious', desc: 'Muharrem ayının 10. günü; paylaşma, dayanışma ve bereket günü.' },
+        '3-11': { name: 'Mevlid Kandili', type: 'religious', desc: 'Peygamber Efendimiz Hz. Muhammed’in (s.a.v.) dünyayı şereflendirdiği mübarek gece.' },
+        '7-1':  { name: 'Üç Aylar Başlangıcı (1 Recep)', type: 'religious', desc: 'Recep, Şaban ve Ramazan aylarını kapsayan mübarek Üç Ayların başlangıcı.' },
+        '7-26': { name: 'Miraç Kandili', type: 'religious', desc: 'Hz. Muhammed’in (s.a.v.) Mescid-i Haram’dan Mescid-i Aksa’ya ve ilahi huzura yükseliş gecesi.' },
+        '8-14': { name: 'Berat Kandili', type: 'religious', desc: 'Şaban ayının 15. gecesi; günahlardan arınma, af ve mağfiret gecesi.' },
+        '9-1':  { name: 'Ramazan Ayı Başlangıcı', type: 'religious', desc: 'On bir ayın sultanı mübarek Ramazan-ı Şerif’in ilk oruç günü.' },
+        '9-26': { name: 'Kadir Gecesi', type: 'religious', desc: 'Kur’an-ı Kerim’in indirilmeye başlandığı, bin aydan daha hayırlı mübarek gece.' },
+        '10-1': { name: 'Ramazan Bayramı (1. Gün)', type: 'religious', desc: 'Ramazan ayı oruç ibadetinin ardından kutlanan Ramazan Bayramı’nın birinci günü.' },
+        '10-2': { name: 'Ramazan Bayramı (2. Gün)', type: 'religious', desc: 'Ramazan Bayramı’nın ikinci günü.' },
+        '10-3': { name: 'Ramazan Bayramı (3. Gün)', type: 'religious', desc: 'Ramazan Bayramı’nın üçüncü günü.' },
+        '12-9': { name: 'Kurban Bayramı Arefesi', type: 'religious', desc: 'Zilhicce ayının 9. günü; hacıların Arafat’ta vakfe yaptığı mübarek Arefe günü.' },
+        '12-10': { name: 'Kurban Bayramı (1. Gün)', type: 'religious', desc: 'Teslimiyet ve paylaşmanın simgesi Kurban Bayramı’nın birinci günü.' },
+        '12-11': { name: 'Kurban Bayramı (2. Gün)', type: 'religious', desc: 'Kurban Bayramı’nın ikinci günü.' },
+        '12-12': { name: 'Kurban Bayramı (3. Gün)', type: 'religious', desc: 'Kurban Bayramı’nın üçüncü günü.' },
+        '12-13': { name: 'Kurban Bayramı (4. Gün)', type: 'religious', desc: 'Kurban Bayramı’nın dördüncü günü.' }
+      };
+
+      if (religiousMap[hKey]) return religiousMap[hKey];
+
+      if (h.month === 7 && h.day <= 7 && dateObj.getDay() === 4) {
+        return { name: 'Regaib Kandili', type: 'religious', desc: 'Recep ayının ilk Cuma gecesi; rahmet, rağbet ve duaların kabul olduğu mübarek gece.' };
+      }
+
+      return null;
+    }
+
+    let calCurrentMonthDate = new Date();
+    let calSelectedDate = new Date();
+    let activeHolidayFilter = 'all';
+
+    function updateBottomCalendarPill() {
+      const now = new Date();
+      const gregStr = now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+      const hijriObj = getHijriComponents(now);
+
+      document.getElementById('pill-gregorian-text').innerText = gregStr;
+      document.getElementById('pill-hijri-text').innerText = hijriObj.formatted;
+
+      const badge = document.getElementById('pill-upcoming-badge');
+      let foundUpcoming = null;
+      for (let i = 0; i <= 90; i++) {
+        const probe = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+        const sp = getSpecialDayForDate(probe);
+        if (sp) {
+          foundUpcoming = { ...sp, daysLeft: i };
+          break;
+        }
+      }
+      if (foundUpcoming) {
+        const dayText = foundUpcoming.daysLeft === 0 ? 'Bugün!' : `${foundUpcoming.daysLeft} gün sonra`;
+        badge.innerText = `✨ ${foundUpcoming.name} (${dayText})`;
+      }
+    }
+
+    function openCalendarModal() {
+      renderCalendarModal();
+      document.getElementById('calendar-modal').classList.remove('hidden');
+    }
+
+    function closeCalendarModal() {
+      document.getElementById('calendar-modal').classList.add('hidden');
+    }
+
+    function navigateCalendarMonth(offset) {
+      calCurrentMonthDate = new Date(calCurrentMonthDate.getFullYear(), calCurrentMonthDate.getMonth() + offset, 1);
+      renderCalendarModal();
+    }
+
+    function navigateCalendarToday() {
+      calCurrentMonthDate = new Date();
+      calSelectedDate = new Date();
+      renderCalendarModal();
+    }
+
+    function selectCalendarDay(year, month, day) {
+      calSelectedDate = new Date(year, month, day);
+      calCurrentMonthDate = new Date(year, month, 1);
+      renderCalendarModal();
+    }
+
+    function setHolidayFilter(type) {
+      activeHolidayFilter = type;
+      ['all', 'religious', 'national'].forEach(t => {
+        const btn = document.getElementById('hol-filter-' + t);
+        btn.className = (t === type)
+          ? 'py-1.5 rounded-lg font-semibold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm transition'
+          : 'py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition';
+      });
+      renderYearHolidaysList(calCurrentMonthDate.getFullYear());
+    }
+
+    function renderCalendarModal() {
+      const year = calCurrentMonthDate.getFullYear();
+      const month = calCurrentMonthDate.getMonth();
+
+      document.getElementById('cal-header-title').innerText =
+        calCurrentMonthDate.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+      document.getElementById('holiday-year-label').innerText = year;
+
+      const hStart = getHijriComponents(new Date(year, month, 1));
+      const hEnd   = getHijriComponents(new Date(year, month + 1, 0));
+      document.getElementById('cal-header-hijri').innerText =
+        hStart.monthName === hEnd.monthName
+          ? `${hStart.monthName} ${hStart.year}`
+          : `${hStart.monthName} - ${hEnd.monthName} ${hEnd.year}`;
+
+      const grid = document.getElementById('calendar-days-grid');
+      grid.innerHTML = '';
+
+      const firstDayWeek = new Date(year, month, 1).getDay();
+      const mondayOffset = firstDayWeek === 0 ? 6 : firstDayWeek - 1;
+      const daysInMonth  = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < mondayOffset; i++) {
+        grid.innerHTML += `<div class="h-14 rounded-xl bg-slate-50/40 dark:bg-slate-800/20"></div>`;
+      }
+
+      const todayStr = new Date().toDateString();
+      const selectedStr = calSelectedDate.toDateString();
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const cellDate = new Date(year, month, d);
+        const hComp = getHijriComponents(cellDate);
+        const sp = getSpecialDayForDate(cellDate);
+        const isToday = cellDate.toDateString() === todayStr;
+        const isSelected = cellDate.toDateString() === selectedStr;
+
+        let borderClass = 'border-slate-200/70 dark:border-slate-700/70 bg-white dark:bg-slate-800/80';
+        if (isSelected) borderClass = 'border-indigo-600 ring-2 ring-indigo-500/30 bg-indigo-50/80 dark:bg-indigo-950/70';
+        else if (isToday) borderClass = 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/30';
+
+        const dotHTML = sp
+          ? `<span class="w-2 h-2 rounded-full ${sp.type === 'national' ? 'bg-rose-500' : 'bg-emerald-500'}"></span>`
+          : '';
+
+        grid.innerHTML += `
+          <button onclick="selectCalendarDay(${year}, ${month}, ${d})"
+            class="h-14 p-1.5 rounded-xl border ${borderClass} hover:border-indigo-400 transition flex flex-col items-center justify-between relative">
+            <div class="w-full flex items-center justify-between px-0.5">
+              <span class="text-xs font-bold text-slate-900 dark:text-white">${d}</span>
+              ${dotHTML}
+            </div>
+            <span class="text-[10px] font-medium text-indigo-600 dark:text-indigo-400 truncate max-w-full">
+              ${hComp.day} ${hComp.monthName.slice(0, 3)}
+            </span>
+          </button>
+        `;
+      }
+
+      const selH = getHijriComponents(calSelectedDate);
+      const selSp = getSpecialDayForDate(calSelectedDate);
+
+      document.getElementById('meaning-selected-date').innerText =
+        `📌 ${calSelectedDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' })} (${selH.formatted})`;
+
+      const spBox = document.getElementById('meaning-special-day-box');
+      if (selSp) {
+        spBox.classList.remove('hidden');
+        spBox.innerHTML = `<div class="font-bold text-indigo-600 dark:text-indigo-400 mb-0.5">${selSp.type === 'national' ? '🇹🇷' : '🌙'} ${escapeHtml(selSp.name)}</div><div>${escapeHtml(selSp.desc)}</div>`;
+      } else {
+        spBox.classList.add('hidden');
+      }
+
+      document.getElementById('meaning-gregorian-month').innerHTML =
+        `<strong>Miladi Ay (${calSelectedDate.toLocaleDateString('tr-TR', { month: 'long' })}):</strong> ${GREGORIAN_MONTH_MEANINGS[calSelectedDate.getMonth()]}`;
+
+      document.getElementById('meaning-hijri-month').innerHTML =
+        `<strong>Hicri Ay (${selH.monthName}):</strong> ${HIJRI_MONTH_MEANINGS[selH.month]}`;
+
+      renderYearHolidaysList(year);
+    }
+
+    function renderYearHolidaysList(year) {
+      const container = document.getElementById('special-days-list');
+      const items = [];
+      const cursor = new Date(year, 0, 1);
+
+      while (cursor.getFullYear() === year) {
+        const sp = getSpecialDayForDate(cursor);
+        if (sp) {
+          items.push({
+            date: new Date(cursor),
+            hijri: getHijriComponents(cursor).formatted,
+            ...sp
+          });
+        }
+        cursor.setDate(cursor.getDate() + 1);
+      }
+
+      const filtered = items.filter(x => activeHolidayFilter === 'all' || x.type === activeHolidayFilter);
+      container.innerHTML = filtered.map(item => {
+        const y = item.date.getFullYear();
+        const m = item.date.getMonth();
+        const d = item.date.getDate();
+        const isSelected = item.date.toDateString() === calSelectedDate.toDateString();
+        const badgeColor = item.type === 'national'
+          ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'
+          : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
+
+        return `
+          <div onclick="selectCalendarDay(${y}, ${m}, ${d})"
+            class="p-3 rounded-xl border ${isSelected ? 'border-indigo-500 bg-indigo-50/60 dark:bg-indigo-950/50' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/70'} hover:border-indigo-400 cursor-pointer transition">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span class="font-bold text-xs text-slate-900 dark:text-white">
+                ${item.type === 'national' ? '🇹🇷' : '🌙'} ${escapeHtml(item.name)}
+              </span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full border ${badgeColor}">
+                ${item.date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400">${escapeHtml(item.hijri)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /***************************************************************************
+     * 13. BAŞLATMA (INIT)
+     ***************************************************************************/
+    loadInitialData();
+    renderCatalog();
+    renderLiveClock();
+    updateBottomCalendarPill();
+    initRealtimeDBConnection();
+    setInterval(renderLiveClock, 1000);
+    setInterval(updateBottomCalendarPill, 60000);
+  </script>
+</body>
+</html>
