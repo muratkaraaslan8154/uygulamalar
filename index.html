@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Workspace Hub - Yerel Uygulama Portalı & Akıllı Asistan</title>
+  <title>Workspace Hub - Hiyerarşik Klasör Gezgini & Yerel Uygulama Portalı</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -96,6 +96,23 @@
       transform: translateY(0);
       pointer-events: auto;
     }
+
+    /* Windows Gezgini Klasör Ağacı Kılavuz Çizgileri */
+    .tree-branch-guide {
+      position: relative;
+    }
+    .tree-branch-guide::before {
+      content: "";
+      position: absolute;
+      left: 0.75rem;
+      top: 0;
+      bottom: 0.5rem;
+      width: 1px;
+      background-color: rgba(148, 163, 184, 0.28);
+    }
+    .dark .tree-branch-guide::before {
+      background-color: rgba(148, 163, 184, 0.16);
+    }
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans bg-grid-pattern antialiased selection:bg-blue-500 selection:text-white pb-32">
@@ -115,14 +132,14 @@
           <div class="flex items-center gap-2">
             <h1 class="font-bold text-lg tracking-tight text-slate-900 dark:text-white">Workspace Hub</h1>
             <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60">
-              v2.1 • Canlı Portal
+              v3.0 • Klasör Gezgini
             </span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Özelleştirilebilir Uygulamalar, Canlı Saat & Hicri/Miladi Takvim</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Hiyerarşik Klasör Ağacı, 700+ Emoji Kütüphanesi, Canlı Saat & Hicri/Miladi Takvim</p>
         </div>
       </div>
 
-      <!-- Sağ Kontroller: Yönetici Kilidi, Grup Yönetimi, Bulut Senkronizasyonu, Link Rehberi & Tema -->
+      <!-- Sağ Kontroller: Yönetici Kilidi, Emoji Kütüphanesi, Grup Yönetimi, Bulut Senkronizasyonu, Link Rehberi & Tema -->
       <div class="flex items-center gap-2">
         <!-- Yönetici Düzenleme Kilidi Butonu -->
         <button 
@@ -132,6 +149,15 @@
           title="Yönetici Düzenleme Kilidi Ayarları">
           <span id="adminLockIcon" class="text-sm">🔒</span>
           <span id="adminLockText" class="hidden sm:inline">Kilitli</span>
+        </button>
+
+        <!-- Mega Emoji Kütüphanesi Butonu -->
+        <button 
+          onclick="openEmojiLibraryStandalone()"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-xs font-semibold border border-purple-300/40 dark:border-purple-700/50 transition shadow-sm"
+          title="Mega Simge & Emoji Kütüphanesini Aç (780+ Simge)">
+          <span class="text-sm">😊</span>
+          <span class="hidden md:inline">Simge Kütüphanesi</span>
         </button>
 
         <!-- Bulut Senkronizasyonu Butonu & Durum Göstergesi -->
@@ -151,7 +177,7 @@
         <button 
           onclick="openGroupModal()"
           class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition shadow-sm"
-          title="Grupları ve Uygulamaları Yönet">
+          title="Grupları, Alt Klasörleri ve Uygulamaları Yönet">
           <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
           </svg>
@@ -180,7 +206,7 @@
   </header>
 
   <!-- ================= MAIN CONTENT ================= -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-6">
 
     <!-- 1. İSTATİSTİK & BİLGİ ŞERİDİ -->
     <section class="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -196,11 +222,11 @@
 
       <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3.5">
         <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
         </div>
         <div>
           <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Sistem Modu</div>
-          <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400">Kişiselleştirilebilir</div>
+          <div class="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400">Kişiselleştirilebilir</div>
         </div>
       </div>
 
@@ -209,87 +235,203 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
         </div>
         <div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Aktif Gruplar</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Aktif Klasörler</div>
           <div id="statCategories" class="text-xl font-bold text-slate-900 dark:text-white">0 Grup</div>
         </div>
       </div>
 
       <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3.5">
         <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         </div>
         <div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Hicri Motor</div>
-          <div class="text-xl font-bold text-amber-600 dark:text-amber-400">Çevrimdışı Intl</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Simge Kütüphanesi</div>
+          <div id="statEmojiCount" class="text-xl font-bold text-amber-600 dark:text-amber-400">780+ Emoji</div>
         </div>
       </div>
     </section>
 
-    <!-- 2. ARAMA VE DİNAMİK KATEGORİ FİLTRE PANELİ -->
-    <section class="space-y-4">
-      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        
-        <!-- Canlı Arama Inputu -->
-        <div class="relative flex-1 max-w-xl">
-          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-          </div>
-          <input 
-            type="text" 
-            id="searchInput"
-            placeholder="Uygulama adı, grup veya anahtar kelime ara..."
-            class="w-full pl-10 pr-10 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
-            oninput="handleSearch(this.value)"
-          >
-          <button 
-            id="clearSearchBtn" 
-            onclick="clearSearch()"
-            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden"
-            title="Aramayı Temizle">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-          </button>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <span class="text-xs text-slate-500 dark:text-slate-400" id="resultCountBadge">Yükleniyor...</span>
-          <button 
-            onclick="requireAdminAuth(openNewAppModal)"
-            class="px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm shadow-blue-500/30 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            <span>Yeni Uygulama Kartı</span>
-          </button>
-        </div>
-
-      </div>
-
-      <!-- Kategori Hapları (Pills) -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar" id="categoryPillContainer">
-        <!-- JS ile dinamik oluşturulur -->
-      </div>
-    </section>
-
-    <!-- 3. UYGULAMA KARTLARI IZGARASI -->
-    <section>
-      <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Dinamik Kartlar -->
-      </div>
-
-      <!-- Sonuç Bulunamadı Görünümü -->
-      <div id="noResultsState" class="hidden py-16 text-center">
-        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <!-- 2. ÜST ARAMA VE HIZLI AKSİYON BAR -->
+    <section class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      <!-- Canlı Arama Inputu -->
+      <div class="relative flex-1 max-w-xl">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </div>
-        <h3 class="text-base font-semibold text-slate-800 dark:text-slate-200">Aramanıza Uygun Araç Bulunamadı</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">Lütfen arama terimini kontrol edin veya filtreleri temizleyin.</p>
-        <button onclick="resetFilters()" class="mt-4 px-4 py-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
-          Filtreleri Sıfırla
+        <input 
+          type="text" 
+          id="searchInput"
+          placeholder="Uygulama adı, klasör yolu veya anahtar kelime ara..."
+          class="w-full pl-10 pr-10 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+          oninput="handleSearch(this.value)"
+        >
+        <button 
+          id="clearSearchBtn" 
+          onclick="clearSearch()"
+          class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden"
+          title="Aramayı Temizle">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between md:justify-end gap-2.5">
+        <span class="text-xs text-slate-500 dark:text-slate-400 font-medium" id="resultCountBadge">Yükleniyor...</span>
+
+        <!-- Mobil İçin Klasör Ağacı Göster/Gizle -->
+        <button 
+          onclick="toggleMobileExplorer()"
+          class="lg:hidden px-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+          <span>📂 Klasör Ağacı</span>
+        </button>
+
+        <!-- Seçili Klasöre Alt Grup Ekle Butonu -->
+        <button 
+          onclick="requireAdminAuth(() => openQuickSubgroupModal(currentCategory === 'all' ? null : currentCategory))"
+          class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm shadow-emerald-500/20 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+          </svg>
+          <span>Yeni Klasör / Alt Grup</span>
+        </button>
+
+        <!-- Yeni Uygulama Kartı Ekle Butonu -->
+        <button 
+          onclick="requireAdminAuth(openNewAppModal)"
+          class="px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm shadow-blue-500/30 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Yeni Uygulama Kartı</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. WINDOWS GEZGİNİ TARZI 2 SÜTUNLU ANA ÇALIŞMA ALANI -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- SOL PANEL: WINDOWS GEZGİNİ HİYERARŞİK KLASÖR AĞACI (TREEVIEW) -->
+      <aside id="explorerSidebar" class="lg:col-span-4 xl:col-span-3 bg-white dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-4 shadow-sm lg:sticky lg:top-20 space-y-3">
+        
+        <!-- Klasör Gezgini Üst Başlık ve Kontroller -->
+        <div class="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🗂️</span>
+            <div>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">Klasör Gezgini</h2>
+              <p class="text-[10px] text-slate-400">Hiyerarşik Grup Ağacı</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <button 
+              onclick="expandAllFolders()" 
+              class="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-xs"
+              title="Tüm Klasörleri Genişlet">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            <button 
+              onclick="collapseAllFolders()" 
+              class="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-xs"
+              title="Tüm Klasörleri Daralt">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
+            </button>
+            <button 
+              onclick="requireAdminAuth(() => openQuickSubgroupModal(null))" 
+              class="px-2 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/70 dark:hover:bg-blue-900/70 text-blue-600 dark:text-blue-400 font-bold text-[11px] flex items-center gap-1 transition"
+              title="Ana Dizin Altına Yeni Kök Grup Ekle">
+              <span>+ Kök Grup</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Klasör Ağacı İçi Hızlı Filtreleme -->
+        <div class="relative">
+          <input 
+            type="text" 
+            id="treeSearchInput"
+            placeholder="Klasör veya alt grup filtrele..."
+            oninput="handleTreeFilter(this.value)"
+            class="w-full pl-8 pr-7 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+          <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+          </svg>
+        </div>
+
+        <!-- Hiyerarşik Ağaç Listesi -->
+        <div id="folderTreeContainer" class="space-y-0.5 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1 select-none">
+          <!-- JS ile Windows Gezgini TreeView olarak doldurulur -->
+        </div>
+
+        <!-- Alt Bilgi İpucu -->
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+          <span>💡 Satır üzerine gelince: <strong class="text-slate-600 dark:text-slate-300">+ 😊 ✏️ 🗑️</strong></span>
+          <button onclick="openGroupModal()" class="text-blue-500 hover:underline font-semibold">Tümünü Yönet</button>
+        </div>
+      </aside>
+
+      <!-- SAĞ PANEL: GEZGİN YOLU (BREADCRUMB), ALT KLASÖRLER & UYGULAMA KARTLARI -->
+      <div class="lg:col-span-8 xl:col-span-9 space-y-5">
+        
+        <!-- Windows Gezgini Adres Çubuğu (Breadcrumb) ve Klasör İşlemleri -->
+        <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          
+          <!-- Gezgin Yolu (Breadcrumb) -->
+          <div id="explorerBreadcrumb" class="flex items-center flex-wrap gap-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+            <!-- JS ile dinamik oluşturulur -->
+          </div>
+
+          <!-- Seçili Klasör Hızlı Kontrolleri -->
+          <div class="flex items-center gap-2 shrink-0">
+            <label class="inline-flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 cursor-pointer select-none bg-slate-50 dark:bg-slate-800/60 px-2.5 py-1.5 rounded-xl border border-slate-200/70 dark:border-slate-700/60" title="Seçili klasörün altındaki tüm alt klasörlerin uygulamalarını da birlikte listeler">
+              <input type="checkbox" id="includeSubfoldersCheckbox" checked onchange="toggleIncludeSubfolders(this.checked)" class="rounded text-blue-600 focus:ring-blue-500">
+              <span>Alt Klasörleri Dahil Et</span>
+            </label>
+
+            <button 
+              onclick="requireAdminAuth(() => openQuickSubgroupModal(currentCategory === 'all' ? null : currentCategory))"
+              class="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-xs font-semibold flex items-center gap-1 transition"
+              title="Bu Klasörün Altına Alt Klasör Ekle">
+              <span>+ Alt Klasör</span>
+            </button>
+
+            <button 
+              id="currentFolderIconBtn"
+              onclick="requireAdminAuth(() => openEmojiPickerForCategory(currentCategory))"
+              class="hidden px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-xs font-semibold items-center gap-1 transition"
+              title="Bu Klasörün Simgesini Değiştir">
+              <span>😊 Simge</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Yatay/Üst klasör kartları kaldırıldı; klasörleme sol gezgin ağacından yönetilir -->
+        <div id="subfoldersSection" class="hidden"><span id="subfoldersTitle"></span><span id="subfoldersCount"></span><div id="categoryPillContainer" class="hidden"></div></div>
+
+        <!-- Uygulama Kartları Izgarası -->
+        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          <!-- Dinamik Kartlar -->
+        </div>
+
+        <!-- Sonuç Bulunamadı Görünümü -->
+        <div id="noResultsState" class="hidden py-16 text-center bg-white/60 dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center text-2xl">
+            📂
+          </div>
+          <h3 class="text-base font-semibold text-slate-800 dark:text-slate-200">Aramanıza Uygun Araç Bulunamadı</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">Seçili klasöre yeni bir uygulama kartı ekleyebilir, alt klasör oluşturabilir veya filtreleri sıfırlayabilirsiniz.</p>
+          <div class="mt-4 flex items-center justify-center gap-3">
+            <button onclick="resetFilters()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition">
+              Filtreleri Sıfırla
+            </button>
+            <button onclick="requireAdminAuth(openNewAppModal)" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow transition">
+              + Bu Klasöre Uygulama Ekle
+            </button>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -340,6 +482,152 @@
       <!-- Saat İçeriği (JS ile 4 modda dinamik render edilir) -->
       <div id="clockContent" class="flex items-center gap-2">
         <!-- Dinamik Render -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP: MEGA SİMGE & EMOJİ KÜTÜPHANESİ MODALI (780+ SİMGE, 12 KATEGORİ) ================= -->
+  <div id="emojiLibraryModal" class="fixed inset-0 z-[95] bg-black/65 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-5 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl space-y-4 my-auto max-h-[92vh] flex flex-col">
+      
+      <!-- Modal Başlık -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+        <div class="flex items-center gap-3">
+          <div id="emojiModalPreviewBox" class="w-11 h-11 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-300/40 dark:border-purple-700/40 flex items-center justify-center text-2xl shrink-0">
+            📁
+          </div>
+          <div>
+            <h3 id="emojiLibraryModalTitle" class="font-bold text-slate-900 dark:text-white text-base">Mega Simge & Emoji Kütüphanesi</h3>
+            <p id="emojiLibraryModalSubtitle" class="text-xs text-slate-500 dark:text-slate-400">12 Kategoride 780+ Klasör, Mühendislik, CAD, Tarım, Finans ve Sistem Simgesi</p>
+          </div>
+        </div>
+        <button onclick="closeEmojiLibraryModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Türkçe Arama ve Özel Karakter Girişi -->
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 shrink-0">
+        <div class="sm:col-span-8 relative">
+          <input 
+            type="text" 
+            id="emojiSearchInput"
+            placeholder="Türkçe simge ara (örn: klasör, boru, vana, cad, traktör, fındık, para, kilit, video)..."
+            oninput="handleEmojiSearch(this.value)"
+            class="w-full pl-9 pr-20 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-blue-500"
+          >
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <span id="emojiCountBadge" class="absolute right-3 top-2.5 text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+            782 simge
+          </span>
+        </div>
+
+        <!-- Özel Emoji / Metin Simgesi Girişi -->
+        <div class="sm:col-span-4 flex gap-1.5">
+          <input 
+            type="text" 
+            id="customEmojiDirectInput"
+            maxlength="4"
+            placeholder="Özel simge yaz..."
+            class="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-center text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500"
+          >
+          <button 
+            onclick="applyCustomEmojiInput()"
+            class="px-3 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold shrink-0 shadow-sm transition">
+            Seç
+          </button>
+        </div>
+      </div>
+
+      <!-- Son Kullanılan Simgeler Şeridi -->
+      <div id="recentEmojisBar" class="flex items-center gap-2 overflow-x-auto py-1 shrink-0 custom-scrollbar">
+        <!-- JS ile doldurulur -->
+      </div>
+
+      <!-- 12 Kategori Sekmesi -->
+      <div id="emojiCategoryTabs" class="flex items-center gap-1.5 overflow-x-auto pb-1.5 shrink-0 custom-scrollbar">
+        <!-- JS ile doldurulur -->
+      </div>
+
+      <!-- Simgeler Izgarası (Kaydırılabilir Alan) -->
+      <div id="emojiGridContainer" class="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-12 gap-1.5 overflow-y-auto p-2 rounded-2xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800 custom-scrollbar flex-1 min-h-[240px] max-h-[340px]">
+        <!-- JS ile 780+ simge buraya çizilir -->
+      </div>
+
+      <!-- Alt Bilgi & Kapat -->
+      <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 shrink-0 text-xs">
+        <span id="emojiHoveredInfo" class="text-slate-500 dark:text-slate-400 truncate">Bir simgeye tıklayarak doğrudan atayabilirsiniz.</span>
+        <button onclick="closeEmojiLibraryModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-300 dark:hover:bg-slate-700 transition">
+          Kapat
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= POPUP: HIZLI ALT KLASÖR EKLEME / KLASÖR DÜZENLEME MODALI ================= -->
+  <div id="quickSubgroupModal" class="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <button 
+            type="button"
+            id="quickFolderIconBtn"
+            onclick="openEmojiPickerForQuickFolder()"
+            class="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-2xl hover:scale-105 transition shadow-sm"
+            title="Simge Değiştirmek İçin Tıklayın">
+            📁
+          </button>
+          <div>
+            <h3 id="quickSubgroupModalTitle" class="font-bold text-slate-900 dark:text-white text-base">Yeni Klasör / Alt Grup Oluştur</h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Soldaki simgeye tıklayarak 780+ emoji arasından seçim yapın</p>
+          </div>
+        </div>
+        <button onclick="closeQuickSubgroupModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <input type="hidden" id="quickFolderEditKey" value="">
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Üst Klasör (Hiyerarşi Konumu)</label>
+          <select id="quickFolderParentSelect" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
+            <!-- JS ile hiyerarşik olarak doldurulur -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Klasör / Grup Adı *</label>
+          <div class="flex gap-2">
+            <button 
+              type="button"
+              onclick="openEmojiPickerForQuickFolder()"
+              class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 shrink-0">
+              <span id="quickFolderIconInline">📁</span>
+              <span>Simge Seç</span>
+            </button>
+            <input 
+              type="text" 
+              id="quickFolderNameInput" 
+              placeholder="örn: Borulama & İzometrik Araçları" 
+              class="flex-1 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+              onkeydown="if(event.key === 'Enter') saveQuickSubgroup()"
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex justify-end gap-2">
+        <button onclick="closeQuickSubgroupModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold">
+          İptal
+        </button>
+        <button onclick="saveQuickSubgroup()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow">
+          Kaydet
+        </button>
       </div>
     </div>
   </div>
@@ -532,7 +820,7 @@
 
   <!-- ================= POPUP: GRUP & KATEGORİ YÖNETİM MODALI ================= -->
   <div id="groupManagementModal" class="fixed inset-0 z-[85] bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-5 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
       
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
@@ -542,8 +830,8 @@
             </svg>
           </div>
           <div>
-            <h3 class="font-bold text-slate-900 dark:text-white text-base">Grup & Kategori Yönetimi</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Kategorileri yeniden adlandırın, yeni grup ekleyin</p>
+            <h3 class="font-bold text-slate-900 dark:text-white text-base">Hiyerarşik Klasör & Kategori Yönetimi</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Ana grupları, alt klasörleri ve simgelerini özelleştirin</p>
           </div>
         </div>
         <button onclick="closeGroupModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
@@ -551,16 +839,41 @@
         </button>
       </div>
 
-      <!-- Yeni Grup Ekleme Formu -->
+      <!-- Yeni Grup / Alt Grup Ekleme Formu -->
       <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-3">
-        <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Yeni Grup / Kategori Ekle</span>
-        <div class="flex gap-2">
-          <input 
-            type="text" 
-            id="newCategoryInput"
-            placeholder="Grup adı (örn: Yapay Zeka & Otomasyon)"
-            class="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
-          >
+        <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Yeni Klasör veya Alt Grup Ekle</span>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Üst Klasör Seçin</label>
+            <select 
+              id="newCategoryParentSelect"
+              class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
+              <!-- JS ile doldurulur -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Klasör Simgesi & Adı</label>
+            <div class="flex gap-1.5">
+              <button 
+                type="button"
+                id="newCategoryEmojiBtn"
+                onclick="openEmojiPickerForNewCategory()"
+                class="px-2.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-base hover:border-blue-500 transition shrink-0"
+                title="Simge Seç">
+                📁
+              </button>
+              <input 
+                type="text" 
+                id="newCategoryInput"
+                placeholder="Grup adı (örn: AutoCAD LISP)"
+                class="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
           <button 
             onclick="addNewCategory()"
             class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow transition shrink-0">
@@ -569,10 +882,10 @@
         </div>
       </div>
 
-      <!-- Var Olan Kategoriler Listesi & İsim Değiştirme -->
+      <!-- Var Olan Kategoriler Listesi & İsim/Simge/Üst Grup Değiştirme -->
       <div class="space-y-2">
-        <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Mevcut Gruplar (İsmi değiştirmek için tıklayın)</span>
-        <div id="categoryManagerList" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+        <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Mevcut Klasörler (Simgeyi, üst klasörü veya adı düzenleyin)</span>
+        <div id="categoryManagerList" class="space-y-2 max-h-72 overflow-y-auto custom-scrollbar pr-1">
           <!-- JS ile doldurulur -->
         </div>
       </div>
@@ -611,14 +924,25 @@
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Uygulama Adı *</label>
-          <input type="text" id="appInputTitle" placeholder="örn: Pomodoro Çalışma Asistanı" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Uygulama Simgesi & Adı *</label>
+          <div class="flex gap-2">
+            <button 
+              type="button"
+              id="newAppEmojiBtn"
+              onclick="openEmojiPickerForNewApp()"
+              class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-base hover:border-blue-500 transition flex items-center gap-1 shrink-0"
+              title="Mega Kütüphaneden Uygulama Simgesi Seç">
+              <span id="newAppEmojiPreview">🚀</span>
+              <span class="text-[10px] text-slate-400">Seç</span>
+            </button>
+            <input type="text" id="appInputTitle" placeholder="örn: Pomodoro Çalışma Asistanı" class="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Kategori / Grup *</label>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Klasör / Alt Grup *</label>
           <select id="appInputCategory" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
-            <!-- JS ile doldurulur -->
+            <!-- JS ile hiyerarşik doldurulur -->
           </select>
         </div>
 
@@ -671,14 +995,25 @@
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Uygulama Adı *</label>
-          <input type="text" id="editAppTitle" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Uygulama Simgesi & Adı *</label>
+          <div class="flex gap-2">
+            <button 
+              type="button"
+              id="editAppEmojiBtn"
+              onclick="openEmojiPickerForEditApp()"
+              class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-base hover:border-blue-500 transition flex items-center gap-1 shrink-0"
+              title="Mega Kütüphaneden Simge Seç">
+              <span id="editAppEmojiPreview">⚡</span>
+              <span class="text-[10px] text-slate-400">Simge</span>
+            </button>
+            <input type="text" id="editAppTitle" class="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Kategori / Grup *</label>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Klasör / Alt Grup *</label>
           <select id="editAppCategory" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
-            <!-- Dinamik doldurulur -->
+            <!-- Dinamik hiyerarşik doldurulur -->
           </select>
         </div>
 
@@ -742,13 +1077,36 @@
             onkeydown="if(event.key === 'Enter') submitAdminUnlock()"
           >
         </div>
-        <div class="flex items-center justify-end gap-2 pt-1">
-          <button onclick="closeAdminAuthModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold">
-            İptal
+        <div class="flex items-center justify-between gap-2 pt-1">
+          <button type="button" onclick="toggleRecoveryRuleBox()" class="text-[11px] text-slate-400 hover:text-blue-500 font-semibold">
+            Şifreyi Sıfırla / Kaldır
           </button>
-          <button onclick="submitAdminUnlock()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow">
-            Kilidi Aç
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="closeAdminAuthModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold">
+              İptal
+            </button>
+            <button onclick="submitAdminUnlock()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow">
+              Kilidi Aç
+            </button>
+          </div>
+        </div>
+        <!-- Kurala Bağlı Kurtarma / Şifre Kaldırma Alanı -->
+        <div id="adminRecoveryRuleBox" class="hidden pt-3 mt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+            Yetkisiz kişilerin şifreyi kaldırmasını önlemek için <strong>Firebase Proje Kimliği (Project ID)</strong> doğrulaması zorunludur:
+          </p>
+          <div class="flex gap-1.5">
+            <input 
+              type="password" 
+              id="adminRecoveryKeyInput" 
+              placeholder="Kurtarma Anahtarı (Project ID)" 
+              class="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-rose-500"
+              onkeydown="if(event.key === 'Enter') resetAdminPasswordDirectly()"
+            >
+            <button type="button" onclick="resetAdminPasswordDirectly()" class="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shrink-0 shadow">
+              Doğrula & Sıfırla
+            </button>
+          </div>
         </div>
       </div>
 
@@ -769,11 +1127,22 @@
             class="w-full py-2.5 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-400 text-xs font-semibold border border-blue-200 dark:border-blue-800/50 transition">
             <span>🔑 Şifreyi Değiştir</span>
           </button>
-          <button 
-            onclick="removeAdminPassword()"
-            class="w-full py-2 px-3 text-[11px] font-semibold text-rose-600 dark:text-rose-400 hover:underline text-center block">
-            Şifreyi ve Korumayı Tamamen Kaldır
-          </button>
+          <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+            <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400">Şifreyi Kaldırmak İçin Mevcut Şifreyi Doğrulayın:</label>
+            <div class="flex gap-1.5">
+              <input 
+                type="password" 
+                id="adminRemoveConfirmInput" 
+                placeholder="Mevcut şifre veya Project ID" 
+                class="flex-1 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-rose-500"
+              >
+              <button 
+                onclick="removeAdminPassword()"
+                class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-semibold shrink-0 transition">
+                Şifreyi ve Korumayı Tamamen Kaldır
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -818,18 +1187,19 @@
           <div class="p-2 rounded-xl bg-blue-100 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </div>
-          <h3 class="font-bold text-slate-900 dark:text-white text-base">Uygulamaları Bağlama Rehberi</h3>
+          <h3 class="font-bold text-slate-900 dark:text-white text-base">Uygulamaları & Klasörleri Bağlama Rehberi</h3>
         </div>
         <button onclick="closeInfoModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
       <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-        Uygulama kartlarını yerel HTML dosyalarınıza bağlamak için iki yöntem kullanabilirsiniz:
+        Uygulama kartlarını yerel HTML dosyalarınıza bağlamak ve klasör hiyerarşisini yönetmek için:
       </p>
       <ol class="text-xs text-slate-600 dark:text-slate-300 list-decimal list-inside space-y-1.5 leading-relaxed bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/60">
-        <li><strong>Arayüzden:</strong> "Yeni Uygulama Kartı" eklerken veya düzenlerken dosya yolunu (örn: <code class="font-mono text-blue-500">./pid-mto/index.html</code>) girin.</li>
-        <li><strong>Kod Üzerinden:</strong> Bu dosyadaki <code class="font-mono text-blue-500">DEFAULT_APPLICATIONS</code> dizisindeki <code class="font-mono text-emerald-500">filePath</code> değerini güncelleyip <code class="font-mono text-emerald-500">isLinked: true</code> yapın.</li>
+        <li><strong>Alt Klasör Oluşturma:</strong> Sol paneldeki herhangi bir klasörün üzerine gelip <code class="font-mono text-emerald-500">+</code> butonuna tıklayarak sınırsız derinlikte alt grup açabilirsiniz.</li>
+        <li><strong>780+ Simge Atama:</strong> Klasörlerin veya kartların yanındaki <code class="font-mono text-purple-500">😊</code> butonuna tıklayarak Mega Simge Kütüphanesinden emoji seçebilirsiniz.</li>
+        <li><strong>Yerel Dosya Bağlama:</strong> "Yeni Uygulama Kartı" eklerken veya düzenlerken dosya yolunu (örn: <code class="font-mono text-blue-500">./pid-mto/index.html</code>) girin.</li>
       </ol>
       <div class="flex justify-end">
         <button onclick="closeInfoModal()" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs">
@@ -899,7 +1269,7 @@
       <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60">
         <div>
           <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Otomatik Senkronizasyon</div>
-          <div class="text-[11px] text-slate-500 dark:text-slate-400">Grup veya kart değiştiğinde anında buluta yaz ve dinle</div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400">Klasör, alt grup veya kart değiştiğinde anında buluta yaz ve dinle</div>
         </div>
         <label class="relative inline-flex items-center cursor-pointer">
           <input type="checkbox" id="autoSyncCheckbox" onchange="toggleAutoSyncSetting(this.checked)" class="sr-only peer" checked>
@@ -970,7 +1340,7 @@
   </div>
 
   <!-- ================= TOAST BİLDİRİMİ ================= -->
-  <div id="toastNotification" class="fixed top-5 right-5 z-[95] transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none max-w-sm w-full px-4">
+  <div id="toastNotification" class="fixed top-5 right-5 z-[100] transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none max-w-sm w-full px-4">
     <div class="p-4 rounded-2xl bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/80 shadow-2xl backdrop-blur-md flex items-start gap-3">
       <div class="p-2 rounded-xl bg-blue-500/20 text-blue-400 shrink-0">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -992,9 +1362,223 @@
     import { getFirestore, doc as fsDoc, getDoc as fsGetDoc, setDoc as fsSetDoc, onSnapshot as fsOnSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     /* =========================================================================
-       1. VARSAYILAN VERİLER VE TEMEL AYARLAR
+       0. GÜVENLİ LOCALSTORAGE YARDIMCILARI (SANDBOX & TARAYICI UYUMLU)
        ========================================================================= */
-    // Varsayılan gömülü Firebase yapılandırması (muratilactakip)
+    function safeGetStorage(key, fallback = null) {
+      try {
+        const val = localStorage.getItem(key);
+        return val !== null ? val : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function safeSetStorage(key, value) {
+      try {
+        localStorage.setItem(key, value);
+      } catch (e) {}
+    }
+
+    function safeRemoveStorage(key) {
+      try {
+        localStorage.removeItem(key);
+      } catch (e) {}
+    }
+
+    /* =========================================================================
+       1. MEGA SİMGE & EMOJİ KÜTÜPHANESİ VERİTABANI (780+ SİMGE, 12 KATEGORİ)
+       ========================================================================= */
+    const MEGA_EMOJI_DB = {"categories": [{"id": "all", "label": "Tümü", "icon": "🌟"}, {"id": "folder", "label": "Klasör & Arşiv", "icon": "📁"}, {"id": "engineering", "label": "Mühendislik & CAD", "icon": "📐"}, {"id": "system", "label": "Sistem & Yazılım", "icon": "💻"}, {"id": "finance", "label": "Finans & Ticaret", "icon": "💰"}, {"id": "education", "label": "Eğitim & Bilim", "icon": "🎓"}, {"id": "family", "label": "Aile & Yaşam", "icon": "🏠"}, {"id": "nature", "label": "Tarım & Doğa", "icon": "🌿"}, {"id": "media", "label": "Medya & Tasarım", "icon": "🎨"}, {"id": "transport", "label": "Araç & Lojistik", "icon": "🚜"}, {"id": "office", "label": "Ofis & Planlama", "icon": "📋"}, {"id": "symbols", "label": "Semboller & İşaretler", "icon": "⚡"}, {"id": "faces", "label": "Yüzler & Tepkiler", "icon": "😊"}], "items": [{"e": "📁", "c": "folder", "k": "klasör dosya dizin kapalı klasör"}, {"e": "📂", "c": "folder", "k": "açık klasör dosya dizin gezgin"}, {"e": "🗂️", "c": "folder", "k": "klasör ayırıcı indeks arşiv katalog grup"}, {"e": "🗃️", "c": "folder", "k": "kartotek kutusu arşiv dosya kutusu veritabanı"}, {"e": "🗄️", "c": "folder", "k": "dosya dolabı arşiv dolabı sunucu kabin"}, {"e": "📋", "c": "folder", "k": "pano kayıt liste kontrol listesi"}, {"e": "📌", "c": "folder", "k": "raptiye sabitle önemli pin"}, {"e": "📍", "c": "folder", "k": "konum iğne yer imi nokta"}, {"e": "📎", "c": "folder", "k": "ataş ek dosya bağlantı"}, {"e": "🖇️", "c": "folder", "k": "bağlı ataşlar zincir ekler"}, {"e": "🔖", "c": "folder", "k": "yer imi etiket kategori"}, {"e": "🏷️", "c": "folder", "k": "fiyat etiketi kategori etiket"}, {"e": "💼", "c": "folder", "k": "evrak çantası iş portföy proje"}, {"e": "🧳", "c": "folder", "k": "valiz taşıma paket yedek"}, {"e": "📦", "c": "folder", "k": "paket koli kutu modül arşiv"}, {"e": "📫", "c": "folder", "k": "posta kutusu gelen kutusu arşiv"}, {"e": "📪", "c": "folder", "k": "kapalı posta kutusu"}, {"e": "📬", "c": "folder", "k": "mesajlı posta kutusu bildirim"}, {"e": "📭", "c": "folder", "k": "açık posta kutusu"}, {"e": "📮", "c": "folder", "k": "posta kutusu gönderi"}, {"e": "🗳️", "c": "folder", "k": "oy sandığı kutu arşiv"}, {"e": "📜", "c": "folder", "k": "parşömen belge sertifika tarihçe"}, {"e": "📃", "c": "folder", "k": "kıvrık sayfa belge döküman"}, {"e": "📄", "c": "folder", "k": "sayfa belge metin dosya"}, {"e": "📑", "c": "folder", "k": "sekme belgeler yer imli sayfa"}, {"e": "🧾", "c": "folder", "k": "fiş makbuz fatura kayıt"}, {"e": "📓", "c": "folder", "k": "defter not defteri günlük"}, {"e": "📔", "c": "folder", "k": "kapaklı defter ajanda"}, {"e": "📕", "c": "folder", "k": "kırmızı kitap ciltli rehber"}, {"e": "📗", "c": "folder", "k": "yeşil kitap kılavuz"}, {"e": "📘", "c": "folder", "k": "mavi kitap teknik döküman"}, {"e": "📙", "c": "folder", "k": "turuncu kitap el kitabı"}, {"e": "📚", "c": "folder", "k": "kitaplar kütüphane arşiv külliyat"}, {"e": "📖", "c": "folder", "k": "açık kitap okuma kılavuz"}, {"e": "🗞️", "c": "folder", "k": "rulo gazete bülten arşiv"}, {"e": "📰", "c": "folder", "k": "gazete haber bülten"}, {"e": "🗑️", "c": "folder", "k": "çöp kutusu sil geri dönüşüm"}, {"e": "🔒", "c": "folder", "k": "kilit güvenli kapalı kasa"}, {"e": "🔓", "c": "folder", "k": "açık kilit erişim"}, {"e": "🔏", "c": "folder", "k": "kalemli kilit imzalı gizli"}, {"e": "🔐", "c": "folder", "k": "anahtarlı kilit şifreli kasa"}, {"e": "🔑", "c": "folder", "k": "anahtar erişim şifre lisans"}, {"e": "🗝️", "c": "folder", "k": "eski anahtar yönetici kök erişim"}, {"e": "🧰", "c": "folder", "k": "alet çantası araç kutusu toolbox"}, {"e": "🎒", "c": "folder", "k": "sırt çantası okul eğitim paket"}, {"e": "🛍️", "c": "folder", "k": "alışveriş çantası mağaza"}, {"e": "🎁", "c": "folder", "k": "hediye kutusu sürpriz paket"}, {"e": "🧧", "c": "folder", "k": "zarf kırmızı paket"}, {"e": "✉️", "c": "folder", "k": "zarf mektup e-posta"}, {"e": "📧", "c": "folder", "k": "e-posta elektronik posta mail"}, {"e": "📨", "c": "folder", "k": "gelen zarf mesaj"}, {"e": "📩", "c": "folder", "k": "oklu zarf indirilen mesaj"}, {"e": "📤", "c": "folder", "k": "giden tepsi dışa aktar export"}, {"e": "📥", "c": "folder", "k": "gelen tepsi içe aktar import"}, {"e": "🗃", "c": "folder", "k": "arşiv kutusu"}, {"e": "🗀", "c": "folder", "k": "klasör simgesi teknik"}, {"e": "🗁", "c": "folder", "k": "açık klasör simgesi teknik"}, {"e": "🗎", "c": "folder", "k": "metin belgesi"}, {"e": "🗏", "c": "folder", "k": "dolu sayfa"}, {"e": "🗐", "c": "folder", "k": "çoklu sayfalar"}, {"e": "📐", "c": "engineering", "k": "gönye üçgen cetvel cad mimari mühendislik çizim açı"}, {"e": "📏", "c": "engineering", "k": "cetvel ölçü uzunluk metrik cad ölçek"}, {"e": "🔧", "c": "engineering", "k": "ingiliz anahtarı tamir montaj mekanik boru vana"}, {"e": "🔨", "c": "engineering", "k": "çekiç inşaat yapı darbe"}, {"e": "⚒️", "c": "engineering", "k": "çekiç ve kazma maden saha mühendislik"}, {"e": "🛠️", "c": "engineering", "k": "çekiç ve anahtar mühendislik bakım onarım"}, {"e": "⛏️", "c": "engineering", "k": "kazma hafriyat maden jeoloji"}, {"e": "🔩", "c": "engineering", "k": "somun ve cıvata bağlantı elemanı mekanik montaj"}, {"e": "⚙️", "c": "engineering", "k": "dişli çark makine mekanizma sistem ayar mühendislik"}, {"e": "🗜️", "c": "engineering", "k": "mengene sıkıştırma pres mekanik"}, {"e": "⚖️", "c": "engineering", "k": "terazi denge kütle tartı hukuk"}, {"e": "⛓️", "c": "engineering", "k": "zincir bağlantı kaldırma mukavemet"}, {"e": "🪝", "c": "engineering", "k": "kanca vinç kaldırma ekipman"}, {"e": "🧰", "c": "engineering", "k": "takım çantası ekipman saha"}, {"e": "🧲", "c": "engineering", "k": "mıknatıs manyetik fizik çekim"}, {"e": "🪛", "c": "engineering", "k": "tornavida montaj elektrik pano"}, {"e": "🪚", "c": "engineering", "k": "el testeresi kesim ahşap imalat"}, {"e": "🪜", "c": "engineering", "k": "merdiven saha bakım şantiye"}, {"e": "🧱", "c": "engineering", "k": "tuğla duvar inşaat yapı malzemesi"}, {"e": "🪨", "c": "engineering", "k": "kaya taş zemin mekaniği jeoloji"}, {"e": "🪵", "c": "engineering", "k": "kütük ahşap kereste malzeme"}, {"e": "🏗️", "c": "engineering", "k": "kule vinç şantiye inşaat mühendislik yapı"}, {"e": "🏭", "c": "engineering", "k": "fabrika endüstri tesis proses sanayi"}, {"e": "⚡", "c": "engineering", "k": "yıldırım yüksek gerilim elektrik enerji güç"}, {"e": "🔌", "c": "engineering", "k": "elektrik fişi enerji bağlantı kablo"}, {"e": "🔋", "c": "engineering", "k": "pil batarya enerji depolama akü"}, {"e": "🪫", "c": "engineering", "k": "düşük pil enerji"}, {"e": "💡", "c": "engineering", "k": "ampul aydınlatma fikir proje elektrik"}, {"e": "🔦", "c": "engineering", "k": "el feneri saha kontrol"}, {"e": "🕯️", "c": "engineering", "k": "mum ışık"}, {"e": "🧯", "c": "engineering", "k": "yangın söndürücü iş güvenliği isg hse"}, {"e": "🛢️", "c": "engineering", "k": "varil petrol yakıt kimya tank depolama"}, {"e": "⛽", "c": "engineering", "k": "akaryakıt pompası yakıt istasyon vana"}, {"e": "🚧", "c": "engineering", "k": "şantiye bariyeri yol çalışması iş güvenliği"}, {"e": "🦺", "c": "engineering", "k": "reflektörlü yelek iş güvenliği isg mühendis"}, {"e": "🪖", "c": "engineering", "k": "baret kask koruyucu şantiye"}, {"e": "🥽", "c": "engineering", "k": "koruyucu gözlük laboratuvar kaynak isg"}, {"e": "🧤", "c": "engineering", "k": "iş eldiveni koruyucu"}, {"e": "🌡️", "c": "engineering", "k": "termometre sıcaklık ısı termodinamik sensör"}, {"e": "🧭", "c": "engineering", "k": "pusula yön harita topoğrafya"}, {"e": "⏱️", "c": "engineering", "k": "kronometre zaman ölçüm kalibrasyon"}, {"e": "⏲️", "c": "engineering", "k": "zamanlayıcı sensör sayaç"}, {"e": "📡", "c": "engineering", "k": "uydu anteni haberleşme sinyal radar"}, {"e": "🔭", "c": "engineering", "k": "teleskop optik gözlem"}, {"e": "🔬", "c": "engineering", "k": "mikroskop malzeme bilimi analiz laboratuvar"}, {"e": "🧪", "c": "engineering", "k": "deney tüpü kimya proses analiz"}, {"e": "🧫", "c": "engineering", "k": "petri kabı biyoloji kültür"}, {"e": "🧬", "c": "engineering", "k": "dna genetik biyomühendislik"}, {"e": "⚗️", "c": "engineering", "k": "imbik damıtma kimya mühendisliği"}, {"e": "🚰", "c": "engineering", "k": "musluk vana su tesisatı boru akışkan"}, {"e": "🚿", "c": "engineering", "k": "duş başlığı sprey nozul"}, {"e": "🛁", "c": "engineering", "k": "küvet hazne tank"}, {"e": "🚽", "c": "engineering", "k": "sıhhi tesisat gider"}, {"e": "🪠", "c": "engineering", "k": "pompa basınç vakum"}, {"e": "🔑", "c": "engineering", "k": "vana anahtarı kilit"}, {"e": "🪤", "c": "engineering", "k": "mekanizma kapan"}, {"e": "⛓", "c": "engineering", "k": "çelik zincir"}, {"e": "⚙", "c": "engineering", "k": "teknik dişli"}, {"e": "⚛️", "c": "engineering", "k": "atom nükleer enerji fizik mühendislik"}, {"e": "♾️", "c": "engineering", "k": "sonsuzluk döngü sürekli proses"}, {"e": "💻", "c": "system", "k": "dizüstü bilgisayar laptop yazılım kodlama sistem"}, {"e": "🖥️", "c": "system", "k": "masaüstü bilgisayar monitör ekran iş istasyonu cad"}, {"e": "🖨️", "c": "system", "k": "yazıcı printer çıktı plotter"}, {"e": "⌨️", "c": "system", "k": "klavye tuş takımı yazılım kısayol"}, {"e": "🖱️", "c": "system", "k": "bilgisayar faresi mouse tıklama cad"}, {"e": "🖲️", "c": "system", "k": "iztopu trackball kontrol"}, {"e": "🕹️", "c": "system", "k": "oyun kolu joystick simülasyon kontrol"}, {"e": "🗜", "c": "system", "k": "dosya sıkıştırma zip arşiv"}, {"e": "💽", "c": "system", "k": "minidisk veri depolama"}, {"e": "💾", "c": "system", "k": "disket kaydet yedekleme depolama"}, {"e": "💿", "c": "system", "k": "optik disk cd kurulum"}, {"e": "📀", "c": "system", "k": "dvd disk medya"}, {"e": "📼", "c": "system", "k": "video kaseti yedek bant"}, {"e": "📱", "c": "system", "k": "akıllı telefon mobil uygulama"}, {"e": "📲", "c": "system", "k": "gelen çağrı mobil bildirim"}, {"e": "☎️", "c": "system", "k": "klasik telefon iletişim santral"}, {"e": "📞", "c": "system", "k": "telefon ahizesi destek hattı"}, {"e": "📟", "c": "system", "k": "çağrı cihazı bildirim"}, {"e": "📠", "c": "system", "k": "faks cihazı belge iletim"}, {"e": "📺", "c": "system", "k": "televizyon monitör izleme ekranı"}, {"e": "📻", "c": "system", "k": "radyo frekans alıcı"}, {"e": "🎙️", "c": "system", "k": "stüdyo mikrofonu ses kayıt"}, {"e": "🎚️", "c": "system", "k": "seviye kaydırıcı mikser ayar"}, {"e": "🎛️", "c": "system", "k": "kontrol düğmeleri panel otomasyon plc"}, {"e": "🧭", "c": "system", "k": "tarayıcı navigasyon"}, {"e": "⏰", "c": "system", "k": "çalar saat alarm zamanlanmış görev"}, {"e": "⌚", "c": "system", "k": "kol saati akıllı saat giyilebilir"}, {"e": "📡", "c": "system", "k": "sunucu anten ağ network"}, {"e": "🔋", "c": "system", "k": "ups güç kaynağı"}, {"e": "🔌", "c": "system", "k": "port soket api bağlantı"}, {"e": "🛜", "c": "system", "k": "kablosuz ağ wifi internet sinyal"}, {"e": "📶", "c": "system", "k": "sinyal gücü şebeke veri"}, {"e": "📳", "c": "system", "k": "titreşim modu"}, {"e": "📴", "c": "system", "k": "kapalı telefon çevrimdışı"}, {"e": "🌐", "c": "system", "k": "küre dünya web internet tarayıcı"}, {"e": "☁️", "c": "system", "k": "bulut sunucu cloud firebase depolama"}, {"e": "⛈️", "c": "system", "k": "bulut veri akışı"}, {"e": "🛡️", "c": "system", "k": "kalkan güvenlik antivirüs güvenlik duvarı firewall"}, {"e": "⚔️", "c": "system", "k": "test çakışma kontrol"}, {"e": "🔐", "c": "system", "k": "şifreleme kriptografi güvenlik kasası vault"}, {"e": "🔑", "c": "system", "k": "api anahtarı token şifre"}, {"e": "🕵️", "c": "system", "k": "gizlilik denetim log izleme"}, {"e": "🤖", "c": "system", "k": "robot yapay zeka ai bot otomasyon"}, {"e": "👾", "c": "system", "k": "oyun piksel algoritma"}, {"e": "🧠", "c": "system", "k": "yapay zeka sinir ağı derin öğrenme"}, {"e": "⚡", "c": "system", "k": "hızlı çalışma performans"}, {"e": "🔥", "c": "system", "k": "firebase popüler trend"}, {"e": "🐛", "c": "system", "k": "hata bug yazılım testi debug"}, {"e": "🚀", "c": "system", "k": "roket başlatma performans deploy"}, {"e": "🛸", "c": "system", "k": "gelecek teknoloji"}, {"e": "🧩", "c": "system", "k": "yapboz eklenti plugin modül entegrasyon"}, {"e": "🔗", "c": "system", "k": "bağlantı link url kısayol"}, {"e": "📎", "c": "system", "k": "dosya eki"}, {"e": "🔍", "c": "system", "k": "büyüteç sola arama bul sorgu"}, {"e": "🔎", "c": "system", "k": "büyüteç sağa detaylı inceleme analiz"}, {"e": "⚙️", "c": "system", "k": "sistem ayarları yapılandırma"}, {"e": "📊", "c": "system", "k": "sistem izleme gösterge"}, {"e": "📈", "c": "system", "k": "performans artışı"}, {"e": "📉", "c": "system", "k": "bellek kullanımı"}, {"e": "♻️", "c": "system", "k": "geri dönüşüm önbellek temizleme"}, {"e": "💰", "c": "finance", "k": "para torbası finans kasa sermaye bütçe"}, {"e": "💵", "c": "finance", "k": "dolar banknot nakit para döviz"}, {"e": "💴", "c": "finance", "k": "yen banknot döviz"}, {"e": "💶", "c": "finance", "k": "euro banknot döviz avro"}, {"e": "💷", "c": "finance", "k": "sterlin banknot döviz"}, {"e": "💸", "c": "finance", "k": "kanatlı para gider harcama transfer ödeme"}, {"e": "💳", "c": "finance", "k": "kredi kartı banka kartı ödeme pos"}, {"e": "🪙", "c": "finance", "k": "madeni para altın bozuk para jeton"}, {"e": "💹", "c": "finance", "k": "yükselen grafik borsa yatırım döviz"}, {"e": "📈", "c": "finance", "k": "yükselen trend artış gelir kar büyüme"}, {"e": "📉", "c": "finance", "k": "düşen trend gider maliyet zarar"}, {"e": "📊", "c": "finance", "k": "çubuk grafik istatistik bilanço rapor"}, {"e": "🧾", "c": "finance", "k": "fatura fiş muhasebe vergi"}, {"e": "🏦", "c": "finance", "k": "banka finans kurumu merkez bankası"}, {"e": "🏧", "c": "finance", "k": "atm para çekme vezne"}, {"e": "💱", "c": "finance", "k": "döviz bürosu kur değişimi"}, {"e": "💲", "c": "finance", "k": "dolar işareti fiyat ücret maliyet"}, {"e": "⚖️", "c": "finance", "k": "bütçe dengesi kar zarar"}, {"e": "🧮", "c": "finance", "k": "abaküs hesaplama muhasebe matematik"}, {"e": "💎", "c": "finance", "k": "elmas değerli taş kıymetli maden yatırım"}, {"e": "💍", "c": "finance", "k": "altın yüzük mücevher"}, {"e": "👑", "c": "finance", "k": "프리미엄 vip servet"}, {"e": "🏆", "c": "finance", "k": "ödül hedef başarı prim"}, {"e": "🥇", "c": "finance", "k": "birincilik altın madalya"}, {"e": "🥈", "c": "finance", "k": "ikincilik gümüş madalya"}, {"e": "🥉", "c": "finance", "k": "üçüncülük bronz madalya"}, {"e": "🎯", "c": "finance", "k": "hedef bütçe hedefi kpi"}, {"e": "🛒", "c": "finance", "k": "alışveriş arabası e-ticaret satın alma tedarik"}, {"e": "🛍️", "c": "finance", "k": "mağaza perakende satış"}, {"e": "🏷️", "c": "finance", "k": "fiyat etiketi indirim kampanya"}, {"e": "📦", "c": "finance", "k": "stok envanter malzeme"}, {"e": "🚚", "c": "finance", "k": "sevkiyat tedarik zinciri"}, {"e": "🤝", "c": "finance", "k": "el sıkışma anlaşma sözleşme ortaklık"}, {"e": "✍️", "c": "finance", "k": "imza sözleşme onay"}, {"e": "📑", "c": "finance", "k": "mali rapor beyanname"}, {"e": "💼", "c": "finance", "k": "yatırım portföyü iş"}, {"e": "🏢", "c": "finance", "k": "şirket holding kurumsal"}, {"e": "🏬", "c": "finance", "k": "avm mağaza ticaret merkezi"}, {"e": "🏪", "c": "finance", "k": "market dükkan esnaf"}, {"e": "🏭", "c": "finance", "k": "üretim tesisi sanayi"}, {"e": "🛢️", "c": "finance", "k": "emtia petrol varil"}, {"e": "🌾", "c": "finance", "k": "tarımsal emtia hasat"}, {"e": "🔐", "c": "finance", "k": "güvenli kasa"}, {"e": "🔐", "c": "finance", "k": "kilitli kasa"}, {"e": "⏳", "c": "finance", "k": "vade zaman"}, {"e": "📅", "c": "finance", "k": "ödeme takvimi vade"}, {"e": "🔔", "c": "finance", "k": "ödeme hatırlatıcı"}, {"e": "📢", "c": "finance", "k": "ihale duyuru"}, {"e": "🪪", "c": "finance", "k": "vergi kimlik kartı"}, {"e": "🧿", "c": "finance", "k": "bereket nazar boncuğu"}, {"e": "💶", "c": "finance", "k": "avro"}, {"e": "💷", "c": "finance", "k": "pound"}, {"e": "💴", "c": "finance", "k": "yen"}, {"e": "💹", "c": "finance", "k": "piyasa"}, {"e": "🏦", "c": "finance", "k": "hazine"}, {"e": "🪙", "c": "finance", "k": "çeyrek altın"}, {"e": "💸", "c": "finance", "k": "havale eft"}, {"e": "🧾", "c": "finance", "k": "irsaliye"}, {"e": "📊", "c": "finance", "k": "analiz"}, {"e": "🧮", "c": "finance", "k": "maliyet hesabı"}, {"e": "🎓", "c": "education", "k": "mezuniyet kepi üniversite eğitim akademi okul"}, {"e": "📚", "c": "education", "k": "kitap yığını ders kitapları kütüphane"}, {"e": "📖", "c": "education", "k": "açık kitap okuma çalışma ders"}, {"e": "📘", "c": "education", "k": "ders kitabı mavi"}, {"e": "📗", "c": "education", "k": "ders kitabı yeşil"}, {"e": "📕", "c": "education", "k": "ders kitabı kırmızı"}, {"e": "📙", "c": "education", "k": "ders kitabı turuncu"}, {"e": "📓", "c": "education", "k": "ders notu defter"}, {"e": "📝", "c": "education", "k": "not alma sınav ödev yazılı"}, {"e": "✏️", "c": "education", "k": "kurşun kalem çizim yazma"}, {"e": "✒️", "c": "education", "k": "dolma kalem ucu edebiyat"}, {"e": "🖊️", "c": "education", "k": "tükenmez kalem imza"}, {"e": "🖋️", "c": "education", "k": "dolma kalem resmi yazı"}, {"e": "🖌️", "c": "education", "k": "boya fırçası sanat resim"}, {"e": "🖍️", "c": "education", "k": "pastel boya anaokulu"}, {"e": "📐", "c": "education", "k": "geometri üçgen gönye"}, {"e": "📏", "c": "education", "k": "matematik cetvel"}, {"e": "🧮", "c": "education", "k": "abaküs aritmetik hesap"}, {"e": "🔬", "c": "education", "k": "mikroskop biyoloji fen laboratuvar"}, {"e": "🔭", "c": "education", "k": "teleskop astronomi uzay"}, {"e": "🧪", "c": "education", "k": "kimya deney tüpü"}, {"e": "🧫", "c": "education", "k": "bakteri kültürü biyoloji"}, {"e": "🧬", "c": "education", "k": "genetik dna moleküler"}, {"e": "⚗️", "c": "education", "k": "kimya deneyi"}, {"e": "⚛️", "c": "education", "k": "fizik atom çekirdek"}, {"e": "🧲", "c": "education", "k": "fizik manyetizma"}, {"e": "🌍", "c": "education", "k": "coğrafya dünya avrupa afrika"}, {"e": "🌎", "c": "education", "k": "coğrafya amerika küre"}, {"e": "🌏", "c": "education", "k": "coğrafya asya avustralya"}, {"e": "🗺️", "c": "education", "k": "dünya haritası atlas coğrafya"}, {"e": "🧭", "c": "education", "k": "pusula keşif yön"}, {"e": "🏛️", "c": "education", "k": "tarih müze antik yapı kültür"}, {"e": "🏺", "c": "education", "k": "arkeoloji antik vazo tarih"}, {"e": "📜", "c": "education", "k": "tarihi belge ferman"}, {"e": "🧠", "c": "education", "k": "psikoloji zeka hafıza öğrenme"}, {"e": "💡", "c": "education", "k": "fikir buluş inovasyon"}, {"e": "🏫", "c": "education", "k": "okul binası lise ilkokul"}, {"e": "🎒", "c": "education", "k": "okul çantası öğrenci"}, {"e": "🧑‍🎓", "c": "education", "k": "öğrenci mezun"}, {"e": "👩‍🏫", "c": "education", "k": "öğretmen eğitmen kadın"}, {"e": "👨‍🏫", "c": "education", "k": "öğretmen eğitmen erkek"}, {"e": "🧑‍🔬", "c": "education", "k": "bilim insanı araştırmacı"}, {"e": "⏱️", "c": "education", "k": "pomodoro çalışma sayacı süre"}, {"e": "⏰", "c": "education", "k": "ders zili sınav süresi"}, {"e": "📅", "c": "education", "k": "ders programı akademik takvim"}, {"e": "📊", "c": "education", "k": "not çizelgesi karne başarı"}, {"e": "🏆", "c": "education", "k": "başarı kupası derece"}, {"e": "🥇", "c": "education", "k": "birincilik ödülü"}, {"e": "🎖️", "c": "education", "k": "onur madalyası sertifika"}, {"e": "🎗️", "c": "education", "k": "kurdele başarı"}, {"e": "🗣️", "c": "education", "k": "yabancı dil konuşma diksiyon"}, {"e": "💬", "c": "education", "k": "soru cevap tartışma"}, {"e": "❓", "c": "education", "k": "soru bankası test"}, {"e": "✅", "c": "education", "k": "doğru cevap onay"}, {"e": "❌", "c": "education", "k": "yanlış cevap"}, {"e": "🎼", "c": "education", "k": "müzik dersi nota"}, {"e": "🎨", "c": "education", "k": "görsel sanatlar"}, {"e": "🎭", "c": "education", "k": "tiyatro drama"}, {"e": "🏀", "c": "education", "k": "beden eğitimi spor"}, {"e": "♟️", "c": "education", "k": "satranç strateji zeka"}, {"e": "🏠", "c": "family", "k": "ev konut yuva ana sayfa"}, {"e": "🏡", "c": "family", "k": "bahçeli ev müstakil yaşam"}, {"e": "🏘️", "c": "family", "k": "evler mahalle site"}, {"e": "🏢", "c": "family", "k": "apartman rezidans"}, {"e": "🛋️", "c": "family", "k": "kanepe oturma odası mobilya"}, {"e": "🪑", "c": "family", "k": "sandalye masa mobilya"}, {"e": "🛏️", "c": "family", "k": "yatak uyku dinlenme"}, {"e": "🚪", "c": "family", "k": "kapı giriş çıkış"}, {"e": "🪟", "c": "family", "k": "pencere havalandırma"}, {"e": "🪞", "c": "family", "k": "ayna dekorasyon"}, {"e": "🖼️", "c": "family", "k": "tablo çerçeve aile fotoğrafı"}, {"e": "🕰️", "c": "family", "k": "masa saati antika"}, {"e": "🧹", "c": "family", "k": "süpürge temizlik ev işi"}, {"e": "🧺", "c": "family", "k": "çamaşır sepeti düzen"}, {"e": "🧻", "c": "family", "k": "kağıt havlu hijyen"}, {"e": "🧼", "c": "family", "k": "sabun temizlik sağlık"}, {"e": "🧽", "c": "family", "k": "sünger bulaşık temizlik"}, {"e": "🛒", "c": "family", "k": "market alışverişi mutfak"}, {"e": "🍳", "c": "family", "k": "yemek pişirme mutfak kahvaltı"}, {"e": "🍲", "c": "family", "k": "tencere yemek akşam yemeği"}, {"e": "🥗", "c": "family", "k": "salata sağlıklı beslenme diyet"}, {"e": "🍎", "c": "family", "k": "elma meyve sağlık"}, {"e": "🥖", "c": "family", "k": "ekmek fırın"}, {"e": "☕", "c": "family", "k": "kahve çay mola sohbet"}, {"e": "🫖", "c": "family", "k": "çaydanlık demlik Türk çayı"}, {"e": "🍼", "c": "family", "k": "biberon bebek bakım"}, {"e": "🧸", "c": "family", "k": "oyuncak ayı çocuk odası"}, {"e": "🎈", "c": "family", "k": "balon kutlama doğum günü"}, {"e": "🎂", "c": "family", "k": "doğum günü pastası kutlama"}, {"e": "🎁", "c": "family", "k": "hediye yıldönümü"}, {"e": "🎉", "c": "family", "k": "konfeti parti bayram"}, {"e": "🎊", "c": "family", "k": "kutlama eğlence"}, {"e": "❤️", "c": "family", "k": "kırmızı kalp sevgi aile sağlık"}, {"e": "🧡", "c": "family", "k": "turuncu kalp sıcaklık"}, {"e": "💛", "c": "family", "k": "sarı kalp dostluk"}, {"e": "💚", "c": "family", "k": "yeşil kalp huzur"}, {"e": "💙", "c": "family", "k": "mavi kalp güven"}, {"e": "💜", "c": "family", "k": "mor kalp"}, {"e": "👨‍👩‍👧‍👦", "c": "family", "k": "aile anne baba çocuklar"}, {"e": "👶", "c": "family", "k": "bebek çocuk"}, {"e": "🧒", "c": "family", "k": "çocuk"}, {"e": "👵", "c": "family", "k": "büyükanne anneanne babaanne"}, {"e": "👴", "c": "family", "k": "büyükbaba dede"}, {"e": "🩺", "c": "family", "k": "stetoskop doktor sağlık muayene"}, {"e": "💊", "c": "family", "k": "ilaç hap vitamin sağlık takip"}, {"e": "🩹", "c": "family", "k": "yara bandı ilk yardım"}, {"e": "🏥", "c": "family", "k": "hastane klinik sağlık ocağı"}, {"e": "🚑", "c": "family", "k": "ambulans acil sağlık"}, {"e": "🧘", "c": "family", "k": "meditasyon yoga huzur"}, {"e": "🏃", "c": "family", "k": "koşu yürüyüş egzersiz"}, {"e": "🚲", "c": "family", "k": "bisiklet gezi"}, {"e": "🏕️", "c": "family", "k": "kamp çadır tatil"}, {"e": "🏖️", "c": "family", "k": "plaj yaz tatili deniz"}, {"e": "🕌", "c": "family", "k": "cami ibadet dini günler"}, {"e": "📿", "c": "family", "k": "tesbih dua maneviyat"}, {"e": "🌙", "c": "family", "k": "hilal ramazan bayram"}, {"e": "⭐", "c": "family", "k": "yıldız"}, {"e": "🐾", "c": "family", "k": "evcil hayvan pati"}, {"e": "🐱", "c": "family", "k": "kedi evcil hayvan"}, {"e": "🐶", "c": "family", "k": "köpek evcil hayvan"}, {"e": "🌿", "c": "nature", "k": "bitki yaprak doğa tarım botanik"}, {"e": "🌱", "c": "nature", "k": "filiz fide tohum başlangıç ekim"}, {"e": "🌲", "c": "nature", "k": "çam ağacı orman doğa"}, {"e": "🌳", "c": "nature", "k": "ağaç meyve ağacı fındık bahçesi"}, {"e": "🌴", "c": "nature", "k": "palmiye ağacı"}, {"e": "🌵", "c": "nature", "k": "kaktüs çöl bitkisi"}, {"e": "🌾", "c": "nature", "k": "başak buğday tahıl hasat tarla ziraat"}, {"e": "🌷", "c": "nature", "k": "lale çiçek bahçe"}, {"e": "🌹", "c": "nature", "k": "gül çiçek"}, {"e": "🌻", "c": "nature", "k": "ayçiçeği tarla güneş"}, {"e": "🌼", "c": "nature", "k": "papatya çiçek"}, {"e": "🌸", "c": "nature", "k": "bahar çiçeği meyve çiçeği"}, {"e": "🌺", "c": "nature", "k": "hibiskus çiçek"}, {"e": "🍀", "c": "nature", "k": "dört yapraklı yonca şans mera"}, {"e": "🍁", "c": "nature", "k": "akçaağaç yaprağı sonbahar"}, {"e": "🍂", "c": "nature", "k": "dökülen yapraklar sonbahar kasım"}, {"e": "🍃", "c": "nature", "k": "rüzgarda yaprak doğa"}, {"e": "🌰", "c": "nature", "k": "fındık kestane kabuklu yemiş karadeniz hasat çuval"}, {"e": "🥜", "c": "nature", "k": "yer fıstığı kuruyemiş"}, {"e": "🫘", "c": "nature", "k": "fasulye bakliyat tohum"}, {"e": "🍄", "c": "nature", "k": "mantar orman"}, {"e": "🍇", "c": "nature", "k": "üzüm bağcılık"}, {"e": "🍈", "c": "nature", "k": "kavun bostan"}, {"e": "🍉", "c": "nature", "k": "karpuz bostan"}, {"e": "🍊", "c": "nature", "k": "mandalina portakal narenciye"}, {"e": "🍋", "c": "nature", "k": "limon narenciye"}, {"e": "🍌", "c": "nature", "k": "muz meyve"}, {"e": "🍍", "c": "nature", "k": "ananas"}, {"e": "🥭", "c": "nature", "k": "mango"}, {"e": "🍎", "c": "nature", "k": "kırmızı elma bahçe"}, {"e": "🍏", "c": "nature", "k": "yeşil elma"}, {"e": "🍐", "c": "nature", "k": "armut bahçe"}, {"e": "🍑", "c": "nature", "k": "şeftali kayısı"}, {"e": "🍒", "c": "nature", "k": "kiraz vişne"}, {"e": "🍓", "c": "nature", "k": "çilek"}, {"e": "🫐", "c": "nature", "k": "yaban mersini"}, {"e": "🥝", "c": "nature", "k": "kivi"}, {"e": "🍅", "c": "nature", "k": "domates sera sebze"}, {"e": "🫒", "c": "nature", "k": "zeytin zeytinyağı Ege"}, {"e": "🥥", "c": "nature", "k": "hindistan cevizi"}, {"e": "🥑", "c": "nature", "k": "avokado"}, {"e": "🍆", "c": "nature", "k": "patlıcan sebze"}, {"e": "🥔", "c": "nature", "k": "patates tarla yumru"}, {"e": "🥕", "c": "nature", "k": "havuç sebze"}, {"e": "🌽", "c": "nature", "k": "mısır koçanı tarla Karadeniz"}, {"e": "🌶️", "c": "nature", "k": "acı biber sera"}, {"e": "🫑", "c": "nature", "k": "dolmalık biber"}, {"e": "🥒", "c": "nature", "k": "salatalık hıyar"}, {"e": "🥬", "c": "nature", "k": "marul lahana karalahana"}, {"e": "🥦", "c": "nature", "k": "brokoli"}, {"e": "🧄", "c": "nature", "k": "sarımsak"}, {"e": "🧅", "c": "nature", "k": "soğan"}, {"e": "🍯", "c": "nature", "k": "bal peteği arıcılık"}, {"e": "🐝", "c": "nature", "k": "bal arısı arıcılık tozlaşma"}, {"e": "🐄", "c": "nature", "k": "inek hayvancılık süt"}, {"e": "🐑", "c": "nature", "k": "koyun küçükbaş hayvancılık"}, {"e": "🐐", "c": "nature", "k": "keçi"}, {"e": "🐓", "c": "nature", "k": "horoz tavuk kümes"}, {"e": "☀️", "c": "nature", "k": "güneş hava durumu açık"}, {"e": "🌧️", "c": "nature", "k": "yağmur sulama bereket"}, {"e": "🎨", "c": "media", "k": "boya paleti tasarım grafik sanat renk"}, {"e": "🎬", "c": "media", "k": "klaket sinema video kurgu film"}, {"e": "🎥", "c": "media", "k": "film kamerası video çekim prodüksiyon"}, {"e": "📹", "c": "media", "k": "video kamera kayıt yayın"}, {"e": "📷", "c": "media", "k": "fotoğraf makinesi görsel çekim"}, {"e": "📸", "c": "media", "k": "flaşlı kamera fotoğraf"}, {"e": "🖼️", "c": "media", "k": "resim çerçevesi galeri görsel"}, {"e": "🎞️", "c": "media", "k": "film şeridi sinema arşiv"}, {"e": "📽️", "c": "media", "k": "film projektörü sunum sinema"}, {"e": "📺", "c": "media", "k": "yayın ekran televizyon"}, {"e": "🎧", "c": "media", "k": "kulaklık ses müzik podcast"}, {"e": "🎵", "c": "media", "k": "müzik notası ses dosyası"}, {"e": "🎶", "c": "media", "k": "notalar melodi müzik"}, {"e": "🎼", "c": "media", "k": "sol anahtarı beste"}, {"e": "🎹", "c": "media", "k": "piyano klavye müzik"}, {"e": "🥁", "c": "media", "k": "davul ritim"}, {"e": "🎸", "c": "media", "k": "gitar müzik"}, {"e": "🎺", "c": "media", "k": "trompet"}, {"e": "🎻", "c": "media", "k": "keman klasik müzik"}, {"e": "🎤", "c": "media", "k": "mikrofon seslendirme kayıt"}, {"e": "🎙️", "c": "media", "k": "podcast mikrofonu radyo"}, {"e": "📻", "c": "media", "k": "radyo yayın"}, {"e": "🔊", "c": "media", "k": "yüksek ses hoparlör"}, {"e": "🔉", "c": "media", "k": "orta ses"}, {"e": "🔈", "c": "media", "k": "kısık ses"}, {"e": "🔇", "c": "media", "k": "sessiz sustur"}, {"e": "📢", "c": "media", "k": "megafon duyuru tanıtım"}, {"e": "📣", "c": "media", "k": "tezahürat megafonu pazarlama"}, {"e": "🔔", "c": "media", "k": "zil bildirim ses"}, {"e": "🔕", "c": "media", "k": "sessiz bildirim"}, {"e": "🎭", "c": "media", "k": "tiyatro maskeleri sahne sanat"}, {"e": "🎪", "c": "media", "k": "etkinlik çadırı festival"}, {"e": "🎟️", "c": "media", "k": "sinema bileti etkinlik"}, {"e": "🎫", "c": "media", "k": "bilet giriş"}, {"e": "🎮", "c": "media", "k": "oyun kumandası video oyunu"}, {"e": "🕹️", "c": "media", "k": "arcade joystick oyun"}, {"e": "🎲", "c": "media", "k": "zar oyun şans"}, {"e": "🎯", "c": "media", "k": "dart hedef oyun"}, {"e": "🎳", "c": "media", "k": "bowling"}, {"e": "🧩", "c": "media", "k": "bulmaca tasarım parçası"}, {"e": "✨", "c": "media", "k": "parıltı efekt animasyon"}, {"e": "🌈", "c": "media", "k": "gökkuşağı renk spektrumu"}, {"e": "🎆", "c": "media", "k": "havai fişek kutlama efekt"}, {"e": "🎇", "c": "media", "k": "maytap ışık efekti"}, {"e": "🪄", "c": "media", "k": "sihirli değnek otomatik düzenleme"}, {"e": "✂️", "c": "media", "k": "makas video kesim kırpma kurgu"}, {"e": "📐", "c": "media", "k": "mizanpaj ölçek tasarım"}, {"e": "🖋️", "c": "media", "k": "vektör çizim illüstrasyon"}, {"e": "🖌️", "c": "media", "k": "dijital boyama fırça"}, {"e": "🖍️", "c": "media", "k": "renklendirme"}, {"e": "💎", "c": "media", "k": "3d modelleme render"}, {"e": "👁️", "c": "media", "k": "önizleme görünüm"}, {"e": "🕶️", "c": "media", "k": "stil moda"}, {"e": "👑", "c": "media", "k": "marka tasarım"}, {"e": "🌐", "c": "media", "k": "web tasarım ui ux"}, {"e": "📱", "c": "media", "k": "mobil arayüz"}, {"e": "💻", "c": "media", "k": "dijital stüdyo"}, {"e": "💿", "c": "media", "k": "medya diski"}, {"e": "📀", "c": "media", "k": "arşiv diski"}, {"e": "▶️", "c": "media", "k": "oynat video başlat"}, {"e": "🚜", "c": "transport", "k": "traktör tarım aracı ziraat bahçe patpat"}, {"e": "🚗", "c": "transport", "k": "otomobil binek araç araba"}, {"e": "🚕", "c": "transport", "k": "taksi ulaşım"}, {"e": "🚙", "c": "transport", "k": "suv arazi aracı jip"}, {"e": "🚌", "c": "transport", "k": "otobüs toplu taşıma servis"}, {"e": "🚎", "c": "transport", "k": "troleybüs"}, {"e": "🏎️", "c": "transport", "k": "yarış arabası hız"}, {"e": "🚓", "c": "transport", "k": "polis aracı güvenlik"}, {"e": "🚑", "c": "transport", "k": "ambulans acil yardım"}, {"e": "🚒", "c": "transport", "k": "itfaiye aracı yangın"}, {"e": "🚐", "c": "transport", "k": "minibüs panelvan servis"}, {"e": "🛻", "c": "transport", "k": "pikap kamyonet arazi taşıma"}, {"e": "🚚", "c": "transport", "k": "nakliye kamyonu kargo lojistik dağıtım"}, {"e": "🚛", "c": "transport", "k": "tır çekici ağır vasıta uluslararası nakliyat"}, {"e": "🏍️", "c": "transport", "k": "motosiklet kurye"}, {"e": "🛵", "c": "transport", "k": "scooter motor kurye"}, {"e": "🚲", "c": "transport", "k": "bisiklet ulaşım"}, {"e": "🛴", "c": "transport", "k": "elektrikli scooter"}, {"e": "🚨", "c": "transport", "k": "tepe lambası acil durum uyarı"}, {"e": "🚔", "c": "transport", "k": "devriye"}, {"e": "🚍", "c": "transport", "k": "hat otobüsü"}, {"e": "🚘", "c": "transport", "k": "araç"}, {"e": "🚖", "c": "transport", "k": "ticari taksi"}, {"e": "🚡", "c": "transport", "k": "teleferik dağ ulaşımı"}, {"e": "🚠", "c": "transport", "k": "kabinli teleferik"}, {"e": "🚟", "c": "transport", "k": "askılı tren"}, {"e": "🚃", "c": "transport", "k": "vagon demiryolu"}, {"e": "🚋", "c": "transport", "k": "tramvay şehir içi"}, {"e": "🚞", "c": "transport", "k": "dağ treni"}, {"e": "🚝", "c": "transport", "k": "monoray"}, {"e": "🚄", "c": "transport", "k": "yüksek hızlı tren yht"}, {"e": "🚅", "c": "transport", "k": "hızlı tren"}, {"e": "🚈", "c": "transport", "k": "hafif raylı sistem metro"}, {"e": "🚂", "c": "transport", "k": "buharlı lokomotif tren"}, {"e": "🚆", "c": "transport", "k": "yolcu treni"}, {"e": "🚇", "c": "transport", "k": "metro yeraltı treni"}, {"e": "🚊", "c": "transport", "k": "tramvay"}, {"e": "🚉", "c": "transport", "k": "tren istasyonu gar"}, {"e": "✈️", "c": "transport", "k": "uçak havacılık seyahat"}, {"e": "🛫", "c": "transport", "k": "uçak kalkış"}, {"e": "🛬", "c": "transport", "k": "uçak iniş"}, {"e": "🛩️", "c": "transport", "k": "küçük uçak özel jet"}, {"e": "🚁", "c": "transport", "k": "helikopter hava ulaşımı"}, {"e": "🚀", "c": "transport", "k": "roket uzay aracı"}, {"e": "🛸", "c": "transport", "k": "drone insansız hava aracı"}, {"e": "⛵", "c": "transport", "k": "yelkenli tekne deniz"}, {"e": "🚤", "c": "transport", "k": "sürat teknesi"}, {"e": "🛥️", "c": "transport", "k": "motor yat tekne"}, {"e": "🛳️", "c": "transport", "k": "yolcu gemisi kruvaziyer"}, {"e": "⛴️", "c": "transport", "k": "feribot arabalı vapur"}, {"e": "🚢", "c": "transport", "k": "yük gemisi deniz ticareti liman"}, {"e": "⚓", "c": "transport", "k": "çapa liman denizcilik"}, {"e": "⛽", "c": "transport", "k": "akaryakıt istasyonu mazot benzin"}, {"e": "🚧", "c": "transport", "k": "yol çalışması"}, {"e": "🚦", "c": "transport", "k": "trafik ışığı dikey"}, {"e": "🚥", "c": "transport", "k": "trafik ışığı yatay"}, {"e": "🚏", "c": "transport", "k": "otobüs durağı"}, {"e": "🗺️", "c": "transport", "k": "rota navigasyon harita"}, {"e": "🧭", "c": "transport", "k": "konum gps"}, {"e": "🛞", "c": "transport", "k": "tekerlek lastik bakım"}, {"e": "📋", "c": "office", "k": "görev listesi pano iş planı"}, {"e": "📅", "c": "office", "k": "takvim günlük planlama tarih"}, {"e": "📆", "c": "office", "k": "yapraklı takvim ajanda"}, {"e": "🗓️", "c": "office", "k": "masa takvimi program"}, {"e": "📇", "c": "office", "k": "kartvizitlik rehber müşteri"}, {"e": "📈", "c": "office", "k": "büyüme grafiği sunum"}, {"e": "📉", "c": "office", "k": "düşüş grafiği analiz"}, {"e": "📊", "c": "office", "k": "veri tablosu grafik"}, {"e": "📌", "c": "office", "k": "sabitleme raptiye duyuru"}, {"e": "📍", "c": "office", "k": "lokasyon merkez ofis"}, {"e": "📎", "c": "office", "k": "ataş evrak eki"}, {"e": "🖇️", "c": "office", "k": "bağlı ataşlar"}, {"e": "📏", "c": "office", "k": "cetvel tablo çizimi"}, {"e": "📐", "c": "office", "k": "planlama gönyesi"}, {"e": "✂️", "c": "office", "k": "makas evrak kesim"}, {"e": "🗃️", "c": "office", "k": "evrak kutusu"}, {"e": "🗄️", "c": "office", "k": "dosya dolabı"}, {"e": "🗑️", "c": "office", "k": "çöp sepeti"}, {"e": "🔒", "c": "office", "k": "gizli evrak"}, {"e": "🔓", "c": "office", "k": "açık erişim"}, {"e": "🔑", "c": "office", "k": "ofis anahtarı"}, {"e": "📝", "c": "office", "k": "toplantı notu tutanak"}, {"e": "✏️", "c": "office", "k": "düzenleme kalem"}, {"e": "✒️", "c": "office", "k": "resmi imza"}, {"e": "🖊️", "c": "office", "k": "kalem"}, {"e": "🖋️", "c": "office", "k": "imza kalemi"}, {"e": "🔍", "c": "office", "k": "evrak arama"}, {"e": "🔎", "c": "office", "k": "detaylı inceleme"}, {"e": "💼", "c": "office", "k": "iş çantası mesai"}, {"e": "👔", "c": "office", "k": "kravat resmiyet kurumsal"}, {"e": "🪪", "c": "office", "k": "personel kimlik kartı yaka kartı"}, {"e": "⏰", "c": "office", "k": "mesai saati hatırlatıcı"}, {"e": "⏱️", "c": "office", "k": "süre takibi"}, {"e": "⏳", "c": "office", "k": "kum saati teslim süresi deadline"}, {"e": "⌛", "c": "office", "k": "süre doldu"}, {"e": "📞", "c": "office", "k": "ofis telefonu görüşme"}, {"e": "☎️", "c": "office", "k": "santral"}, {"e": "📠", "c": "office", "k": "faks"}, {"e": "📧", "c": "office", "k": "kurumsal e-posta"}, {"e": "📨", "c": "office", "k": "gelen evrak"}, {"e": "📩", "c": "office", "k": "onaylı mesaj"}, {"e": "📤", "c": "office", "k": "gönderilen evrak"}, {"e": "📥", "c": "office", "k": "gelen kutusu"}, {"e": "📦", "c": "office", "k": "ofis malzemesi kargo"}, {"e": "🏷️", "c": "office", "k": "kategori etiketi"}, {"e": "🔖", "c": "office", "k": "ayraç"}, {"e": "🖨️", "c": "office", "k": "fotokopi yazıcı"}, {"e": "💻", "c": "office", "k": "ofis bilgisayarı"}, {"e": "🖥️", "c": "office", "k": "monitör"}, {"e": "⌨️", "c": "office", "k": "klavye"}, {"e": "🖱️", "c": "office", "k": "mouse"}, {"e": "☕", "c": "office", "k": "kahve molası"}, {"e": "🤝", "c": "office", "k": "toplantı anlaşma"}, {"e": "👥", "c": "office", "k": "ekip çalışma grubu"}, {"e": "👤", "c": "office", "k": "kullanıcı profil"}, {"e": "🗣️", "c": "office", "k": "sunum brifing"}, {"e": "💡", "c": "office", "k": "beyin fırtınası proje"}, {"e": "🎯", "c": "office", "k": "hedef strateji"}, {"e": "✅", "c": "office", "k": "tamamlanan görev"}, {"e": "☑️", "c": "office", "k": "işaretli kutu"}, {"e": "⚡", "c": "symbols", "k": "şimşek hız enerji güç"}, {"e": "🔥", "c": "symbols", "k": "ateş popüler önemli acil"}, {"e": "✨", "c": "symbols", "k": "yıldızlar yeni özellik parlak"}, {"e": "🌟", "c": "symbols", "k": "parlayan yıldız favori özel"}, {"e": "⭐", "c": "symbols", "k": "yıldız yer imi puan"}, {"e": "💫", "c": "symbols", "k": "yıldız kayması"}, {"e": "💥", "c": "symbols", "k": "patlama etki vurgu"}, {"e": "💢", "c": "symbols", "k": "uyarı vurgu"}, {"e": "💦", "c": "symbols", "k": "su damlaları sıvı akışkan"}, {"e": "💨", "c": "symbols", "k": "rüzgar hız hava akışı"}, {"e": "🕳️", "c": "symbols", "k": "boşluk"}, {"e": "✅", "c": "symbols", "k": "yeşil onay kutusu başarılı tamam"}, {"e": "☑️", "c": "symbols", "k": "onay kutusu seçili"}, {"e": "✔️", "c": "symbols", "k": "onay işareti tik"}, {"e": "❌", "c": "symbols", "k": "çarpı işareti iptal hata kapalı"}, {"e": "❎", "c": "symbols", "k": "yeşil çarpı"}, {"e": "➕", "c": "symbols", "k": "artı ekle yeni"}, {"e": "➖", "c": "symbols", "k": "eksi çıkar azalt"}, {"e": "➗", "c": "symbols", "k": "bölme matematik"}, {"e": "✖️", "c": "symbols", "k": "çarpma"}, {"e": "♾️", "c": "symbols", "k": "sonsuzluk sınırsız"}, {"e": "❓", "c": "symbols", "k": "soru işareti yardım bilinmeyen"}, {"e": "❔", "c": "symbols", "k": "beyaz soru işareti"}, {"e": "❕", "c": "symbols", "k": "beyaz ünlem"}, {"e": "❗", "c": "symbols", "k": "kırmızı ünlem önemli dikkat"}, {"e": "‼️", "c": "symbols", "k": "çift ünlem çok acil"}, {"e": "⁉️", "c": "symbols", "k": "ünlem ve soru"}, {"e": "⚠️", "c": "symbols", "k": "uyarı işareti dikkat tehlike"}, {"e": "🚸", "c": "symbols", "k": "okul geçidi dikkat"}, {"e": "⛔", "c": "symbols", "k": "giriş yasak engelli"}, {"e": "🚫", "c": "symbols", "k": "yasak iptal kullanılamaz"}, {"e": "🚳", "c": "symbols", "k": "bisiklet giremez"}, {"e": "🚭", "c": "symbols", "k": "sigara içilmez"}, {"e": "🚯", "c": "symbols", "k": "çöp atılmaz"}, {"e": "🚱", "c": "symbols", "k": "içilmez su"}, {"e": "🚷", "c": "symbols", "k": "yaya giremez"}, {"e": "📵", "c": "symbols", "k": "telefon yasak"}, {"e": "🔞", "c": "symbols", "k": "yaş sınırı"}, {"e": "☢️", "c": "symbols", "k": "radyasyon tehlike"}, {"e": "☣️", "c": "symbols", "k": "biyolojik tehlike"}, {"e": "⬆️", "c": "symbols", "k": "yukarı ok artış"}, {"e": "↗️", "c": "symbols", "k": "sağ yukarı ok"}, {"e": "➡️", "c": "symbols", "k": "sağ ok ileri"}, {"e": "↘️", "c": "symbols", "k": "sağ aşağı ok"}, {"e": "⬇️", "c": "symbols", "k": "aşağı ok indir"}, {"e": "↙️", "c": "symbols", "k": "sol aşağı ok"}, {"e": "⬅️", "c": "symbols", "k": "sol ok geri"}, {"e": "↖️", "c": "symbols", "k": "sol yukarı ok"}, {"e": "↕️", "c": "symbols", "k": "dikey çift ok"}, {"e": "↔️", "c": "symbols", "k": "yatay çift ok"}, {"e": "↩️", "c": "symbols", "k": "geri dön"}, {"e": "↪️", "c": "symbols", "k": "ileri yönlendir"}, {"e": "⤴️", "c": "symbols", "k": "yukarı kıvrık ok"}, {"e": "⤵️", "c": "symbols", "k": "aşağı kıvrık ok"}, {"e": "🔃", "c": "symbols", "k": "yenile senkronize et"}, {"e": "🔄", "c": "symbols", "k": "döngü güncelle yenile"}, {"e": "🔙", "c": "symbols", "k": "geri"}, {"e": "🔚", "c": "symbols", "k": "son"}, {"e": "🔛", "c": "symbols", "k": "açık aktif"}, {"e": "🔜", "c": "symbols", "k": "yakında"}, {"e": "🔝", "c": "symbols", "k": "en üst zirve"}, {"e": "🔱", "c": "symbols", "k": "amblem sembol"}, {"e": "⚜️", "c": "symbols", "k": "zambak sembol"}, {"e": "🔰", "c": "symbols", "k": "başlangıç seviyesi yeni"}, {"e": "♻️", "c": "symbols", "k": "geri dönüşüm çevre"}, {"e": "🌐", "c": "symbols", "k": "küresel ağ"}, {"e": "💠", "c": "symbols", "k": "elmas desen"}, {"e": "🔘", "c": "symbols", "k": "radyo butonu"}, {"e": "🔴", "c": "symbols", "k": "kırmızı daire durum"}, {"e": "🟠", "c": "symbols", "k": "turuncu daire durum"}, {"e": "🟡", "c": "symbols", "k": "sarı daire durum"}, {"e": "🟢", "c": "symbols", "k": "yeşil daire aktif"}, {"e": "🔵", "c": "symbols", "k": "mavi daire bilgi"}, {"e": "🟣", "c": "symbols", "k": "mor daire"}, {"e": "⚫", "c": "symbols", "k": "siyah daire"}, {"e": "⚪", "c": "symbols", "k": "beyaz daire"}, {"e": "🟥", "c": "symbols", "k": "kırmızı kare"}, {"e": "🟧", "c": "symbols", "k": "turuncu kare"}, {"e": "🟨", "c": "symbols", "k": "sarı kare"}, {"e": "🟩", "c": "symbols", "k": "yeşil kare"}, {"e": "🟦", "c": "symbols", "k": "mavi kare"}, {"e": "🟪", "c": "symbols", "k": "mor kare"}, {"e": "😊", "c": "faces", "k": "gülümseyen yüz mutlu memnun"}, {"e": "😀", "c": "faces", "k": "gülen yüz neşeli"}, {"e": "😃", "c": "faces", "k": "büyük gözlü gülen yüz"}, {"e": "😄", "c": "faces", "k": "gözleri kısık gülen yüz"}, {"e": "😁", "c": "faces", "k": "dişlerini göstererek gülen yüz"}, {"e": "😆", "c": "faces", "k": "kahkaha atan yüz"}, {"e": "😅", "c": "faces", "k": "soğuk ter döken gülen yüz"}, {"e": "🤣", "c": "faces", "k": "gülmekten yıkılan yüz"}, {"e": "😂", "c": "faces", "k": "sevinç gözyaşları"}, {"e": "🙂", "c": "faces", "k": "hafif gülümseyen yüz"}, {"e": "🙃", "c": "faces", "k": "ters yüz şakacı"}, {"e": "😉", "c": "faces", "k": "göz kırpan yüz"}, {"e": "😇", "c": "faces", "k": "melek haleli yüz masum"}, {"e": "🥰", "c": "faces", "k": "kalpli gülümseyen yüz sevgi"}, {"e": "😍", "c": "faces", "k": "kalp gözlü yüz hayran"}, {"e": "🤩", "c": "faces", "k": "yıldız gözlü yüz heyecanlı harika"}, {"e": "😘", "c": "faces", "k": "öpücük gönderen yüz"}, {"e": "😗", "c": "faces", "k": "öpen yüz"}, {"e": "😚", "c": "faces", "k": "kızarmış öpen yüz"}, {"e": "😙", "c": "faces", "k": "gülümseyerek öpen yüz"}, {"e": "😋", "c": "faces", "k": "lezzetli yemek beğenen yüz"}, {"e": "😛", "c": "faces", "k": "dil çıkaran yüz"}, {"e": "😜", "c": "faces", "k": "göz kırpıp dil çıkaran yüz"}, {"e": "🤪", "c": "faces", "k": "çılgın yüz eğlenceli"}, {"e": "😝", "c": "faces", "k": "gözleri kapalı dil çıkaran yüz"}, {"e": "🤑", "c": "faces", "k": "para gözlü yüz zengin finans"}, {"e": "🤗", "c": "faces", "k": "kucaklayan yüz sıcak"}, {"e": "🤭", "c": "faces", "k": "eliyle ağzını kapatan yüz"}, {"e": "🤫", "c": "faces", "k": "sus işareti yapan yüz gizli"}, {"e": "🤔", "c": "faces", "k": "düşünen yüz analiz soru"}, {"e": "🫡", "c": "faces", "k": "selam duran yüz saygı görev"}, {"e": "🤐", "c": "faces", "k": "ağzı fermuarlı yüz sır"}, {"e": "🤨", "c": "faces", "k": "tek kaşı kalkık yüz şüphe"}, {"e": "😐", "c": "faces", "k": "ifadesiz yüz nötr"}, {"e": "😑", "c": "faces", "k": "düz yüz"}, {"e": "😶", "c": "faces", "k": "ağzı olmayan yüz sessiz"}, {"e": "😏", "c": "faces", "k": "imalı gülümseyen yüz"}, {"e": "😒", "c": "faces", "k": "memnuniyetsiz yüz"}, {"e": "🙄", "c": "faces", "k": "göz deviren yüz"}, {"e": "😬", "c": "faces", "k": "dişlerini sıkan yüz stres"}, {"e": "😮‍💨", "c": "faces", "k": "rahatlayan nefes veren yüz"}, {"e": "🤥", "c": "faces", "k": "uzun burunlu yüz"}, {"e": "😌", "c": "faces", "k": "huzurlu yüz rahat"}, {"e": "😔", "c": "faces", "k": "düşünceli üzgün yüz"}, {"e": "😪", "c": "faces", "k": "uykulu yüz"}, {"e": "🤤", "c": "faces", "k": "ağzı sulanan yüz"}, {"e": "😴", "c": "faces", "k": "uyuyan yüz dinlenme"}, {"e": "😷", "c": "faces", "k": "maskeli yüz sağlık"}, {"e": "🤒", "c": "faces", "k": "ateşli hasta yüz"}, {"e": "🤕", "c": "faces", "k": "baş sargılı yüz"}, {"e": "🤢", "c": "faces", "k": "midesi bulanan yüz"}, {"e": "🤮", "c": "faces", "k": "kusan yüz"}, {"e": "🤧", "c": "faces", "k": "hapşıran yüz"}, {"e": "🥵", "c": "faces", "k": "çok sıcaklamış yüz"}, {"e": "🥶", "c": "faces", "k": "üşümüş donmuş yüz"}, {"e": "🥴", "c": "faces", "k": "başı dönen yüz"}, {"e": "😵", "c": "faces", "k": "sersemlemiş yüz"}, {"e": "🤯", "c": "faces", "k": "aklı başından gitmiş yüz şok"}, {"e": "🤠", "c": "faces", "k": "kovboy şapkalı yüz"}, {"e": "🥳", "c": "faces", "k": "kutlama yapan parti yüzü"}, {"e": "🥸", "c": "faces", "k": "kılık değiştirmiş yüz"}, {"e": "😎", "c": "faces", "k": "güneş gözlüklü havalı yüz"}, {"e": "🤓", "c": "faces", "k": "gözlüklü zeki uzman yüz"}, {"e": "🧐", "c": "faces", "k": "tek gözlüklü inceleyen yüz"}, {"e": "😕", "c": "faces", "k": "kafası karışık yüz"}, {"e": "😟", "c": "faces", "k": "endişeli yüz"}, {"e": "🙁", "c": "faces", "k": "hafif somurtan yüz"}, {"e": "😮", "c": "faces", "k": "şaşıran yüz"}, {"e": "😯", "c": "faces", "k": "sürpriz şaşkın yüz"}, {"e": "😲", "c": "faces", "k": "çok şaşırmış yüz"}, {"e": "😳", "c": "faces", "k": "utanan kızaran yüz"}, {"e": "🥺", "c": "faces", "k": "yalvaran gözler"}, {"e": "😦", "c": "faces", "k": "açık ağızlı somurtan"}, {"e": "😧", "c": "faces", "k": "kaygılı yüz"}, {"e": "😨", "c": "faces", "k": "korkmuş yüz"}, {"e": "😰", "c": "faces", "k": "endişeli terleyen yüz"}, {"e": "😥", "c": "faces", "k": "üzgün ama rahatlamış"}, {"e": "😢", "c": "faces", "k": "ağlayan yüz"}, {"e": "😭", "c": "faces", "k": "hüngür hüngür ağlayan yüz"}, {"e": "😱", "c": "faces", "k": "çığlık atan yüz"}, {"e": "😖", "c": "faces", "k": "bunalan yüz"}, {"e": "😣", "c": "faces", "k": "sabreden yüz"}, {"e": "😞", "c": "faces", "k": "hayal kırıklığı"}, {"e": "😓", "c": "faces", "k": "terleyen üzgün yüz"}, {"e": "😩", "c": "faces", "k": "yorgun yüz"}, {"e": "😫", "c": "faces", "k": "bitkin yüz"}, {"e": "🥱", "c": "faces", "k": "esneyen yüz"}, {"e": "😤", "c": "faces", "k": "burnundan soluyan kararlı yüz"}, {"e": "😡", "c": "faces", "k": "kızgın kırmızı yüz"}, {"e": "😠", "c": "faces", "k": "öfkeli yüz"}, {"e": "🤬", "c": "faces", "k": "sansürlü kızgın yüz"}, {"e": "👍", "c": "faces", "k": "başparmak yukarı onay beğeni"}, {"e": "👎", "c": "faces", "k": "başparmak aşağı ret"}, {"e": "👏", "c": "faces", "k": "alkış tebrik"}, {"e": "🙌", "c": "faces", "k": "eller havada kutlama"}, {"e": "🤝", "c": "faces", "k": "tokalaşma anlaşma"}, {"e": "🙏", "c": "faces", "k": "dua teşekkür rica"}, {"e": "💪", "c": "faces", "k": "güçlü kol kas"}, {"e": "👋", "c": "faces", "k": "el sallama merhaba"}, {"e": "👌", "c": "faces", "k": "tamam kusursuz işareti"}]};
+
+    let activeEmojiCategory = "all";
+    let emojiSearchQuery = "";
+    let emojiPickerCallback = null;
+    let recentEmojis = [];
+    let newCategorySelectedIcon = "📁";
+    let quickFolderSelectedIcon = "📁";
+    let newAppSelectedEmoji = "🚀";
+    let editAppSelectedEmoji = "⚡";
+
+    function initEmojiLibrary() {
+      const savedRecent = safeGetStorage('hub_recent_emojis');
+      if (savedRecent) {
+        try {
+          recentEmojis = JSON.parse(savedRecent);
+        } catch (e) {
+          recentEmojis = ["📁", "📐", "🔧", "⚙️", "💻", "💰", "🎓", "🌿", "🚜", "🌰", "🔐", "🎬"];
+        }
+      } else {
+        recentEmojis = ["📁", "📐", "🔧", "⚙️", "💻", "💰", "🎓", "🌿", "🚜", "🌰", "🔐", "🎬"];
+      }
+      const statEmojiEl = document.getElementById('statEmojiCount');
+      if (statEmojiEl) {
+        statEmojiEl.innerText = `${MEGA_EMOJI_DB.items.length}+ Simge`;
+      }
+    }
+
+    function addRecentEmoji(emoji) {
+      if (!emoji) return;
+      recentEmojis = [emoji, ...recentEmojis.filter(e => e !== emoji)].slice(0, 18);
+      safeSetStorage('hub_recent_emojis', JSON.stringify(recentEmojis));
+    }
+
+    function openEmojiPicker(callback, currentEmoji = "📁", titleText = "Simge & Emoji Seçin") {
+      emojiPickerCallback = callback;
+      document.getElementById('emojiModalPreviewBox').innerText = currentEmoji || "📁";
+      document.getElementById('emojiLibraryModalTitle').innerText = titleText;
+      document.getElementById('customEmojiDirectInput').value = currentEmoji || "";
+      document.getElementById('emojiSearchInput').value = "";
+      emojiSearchQuery = "";
+      activeEmojiCategory = "all";
+
+      renderRecentEmojisBar();
+      renderEmojiCategoryTabs();
+      renderEmojiGrid();
+
+      const modal = document.getElementById('emojiLibraryModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => document.getElementById('emojiSearchInput').focus(), 100);
+    }
+
+    function openEmojiLibraryStandalone() {
+      openEmojiPicker((selectedEmoji) => {
+        if (currentCategory && currentCategory !== 'all') {
+          const cat = categories.find(c => c.key === currentCategory);
+          if (cat) {
+            cat.icon = selectedEmoji;
+            saveData();
+            renderAllExplorerViews();
+            showToast("Klasör Simgesi Güncellendi", `"${cat.label}" klasörüne ${selectedEmoji} simgesi atandı.`);
+            return;
+          }
+        }
+        showToast("Simge Seçildi", `Seçilen simge: ${selectedEmoji} (Bir klasöre atamak için klasör satırındaki 😊 butonuna tıklayın).`);
+      }, "😊", "Mega Simge & Emoji Kütüphanesi (780+ Simge)");
+    }
+
+    function closeEmojiLibraryModal() {
+      const modal = document.getElementById('emojiLibraryModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      emojiPickerCallback = null;
+    }
+
+    function renderRecentEmojisBar() {
+      const bar = document.getElementById('recentEmojisBar');
+      if (!bar) return;
+      bar.innerHTML = `
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mr-1">Son Kullanılanlar:</span>
+        ${recentEmojis.map(em => `
+          <button 
+            type="button"
+            onclick="selectEmojiFromLibrary('${escapeHtml(em)}')"
+            class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-blue-100 dark:bg-slate-800 dark:hover:bg-blue-950/80 flex items-center justify-center text-sm shrink-0 transition hover:scale-110"
+            title="Hızlı Seç: ${escapeHtml(em)}">
+            ${escapeHtml(em)}
+          </button>
+        `).join('')}
+      `;
+    }
+
+    function renderEmojiCategoryTabs() {
+      const container = document.getElementById('emojiCategoryTabs');
+      if (!container) return;
+      container.innerHTML = MEGA_EMOJI_DB.categories.map(cat => {
+        const isActive = activeEmojiCategory === cat.id;
+        return `
+          <button 
+            type="button"
+            onclick="setEmojiCategoryTab('${cat.id}')"
+            class="whitespace-nowrap px-2.5 py-1.5 rounded-xl text-[11px] font-semibold flex items-center gap-1.5 border transition ${
+              isActive 
+                ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
+                : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400'
+            }">
+            <span>${cat.icon}</span>
+            <span>${escapeHtml(cat.label)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function setEmojiCategoryTab(catId) {
+      activeEmojiCategory = catId;
+      renderEmojiCategoryTabs();
+      renderEmojiGrid();
+    }
+
+    function handleEmojiSearch(val) {
+      emojiSearchQuery = val.trim().toLowerCase();
+      renderEmojiGrid();
+    }
+
+    function renderEmojiGrid() {
+      const grid = document.getElementById('emojiGridContainer');
+      const badge = document.getElementById('emojiCountBadge');
+      if (!grid) return;
+
+      const filtered = MEGA_EMOJI_DB.items.filter(item => {
+        const matchCat = activeEmojiCategory === 'all' || item.c === activeEmojiCategory;
+        const matchQuery = !emojiSearchQuery || item.k.toLowerCase().includes(emojiSearchQuery) || item.e.includes(emojiSearchQuery);
+        return matchCat && matchQuery;
+      });
+
+      if (badge) {
+        badge.innerText = `${filtered.length} simge`;
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-xs text-slate-400">
+            Aramanızla eşleşen simge bulunamadı. Sağ üstteki "Özel simge yaz" kutusuna istediğiniz emojiyi yapıştırabilirsiniz.
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => `
+        <button 
+          type="button"
+          onclick="selectEmojiFromLibrary('${escapeHtml(item.e)}')"
+          onmouseenter="updateEmojiHoverInfo('${escapeHtml(item.e)}', '${escapeHtml(item.k)}')"
+          class="h-10 rounded-xl bg-white dark:bg-slate-900 hover:bg-blue-50 dark:hover:bg-blue-950/80 border border-slate-200/70 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500 flex items-center justify-center text-xl transition transform hover:scale-110 active:scale-95"
+          title="${escapeHtml(item.k)}">
+          ${escapeHtml(item.e)}
+        </button>
+      `).join('');
+    }
+
+    function updateEmojiHoverInfo(emoji, keywords) {
+      const info = document.getElementById('emojiHoveredInfo');
+      const preview = document.getElementById('emojiModalPreviewBox');
+      if (info) info.innerText = `${emoji} — Anahtar Kelimeler: ${keywords}`;
+      if (preview) preview.innerText = emoji;
+    }
+
+    function selectEmojiFromLibrary(emoji) {
+      addRecentEmoji(emoji);
+      if (typeof emojiPickerCallback === 'function') {
+        const cb = emojiPickerCallback;
+        closeEmojiLibraryModal();
+        cb(emoji);
+      } else {
+        closeEmojiLibraryModal();
+      }
+    }
+
+    function applyCustomEmojiInput() {
+      const val = document.getElementById('customEmojiDirectInput').value.trim();
+      if (!val) {
+        showToast("Uyarı", "Lütfen bir emoji veya kısa simge karakteri girin.");
+        return;
+      }
+      selectEmojiFromLibrary(val);
+    }
+
+    /* =========================================================================
+       2. VARSAYILAN VERİLER VE HİYERARŞİK KATEGORİ MODELİ (parentId & icon)
+       ========================================================================= */
     const DEFAULT_FIREBASE_CONFIG = {
       apiKey: "AIzaSyAhjq7KL_e80LiW8fC-wttmn8gba5UvhVE",
       authDomain: "muratilactakip.firebaseapp.com",
@@ -1007,71 +1591,84 @@
     };
 
     const DEFAULT_CATEGORIES = [
-      { key: "all", label: "Tümü", isPermanent: true },
-      { key: "engineering", label: "Mühendislik & CAD", isPermanent: false },
-      { key: "system", label: "Sistem & Araçlar", isPermanent: false },
-      { key: "finance", label: "Finans", isPermanent: false },
-      { key: "family", label: "Aile & Eğitim", isPermanent: false }
+      { key: "all", label: "Tümü", icon: "🏠", parentId: null, isPermanent: true },
+      { key: "engineering", label: "Mühendislik & CAD", icon: "📐", parentId: null, isPermanent: false },
+      { key: "eng_piping", label: "Borulama & P&ID", icon: "🔧", parentId: "engineering", isPermanent: false },
+      { key: "eng_cad", label: "AutoCAD & LISP", icon: "📏", parentId: "engineering", isPermanent: false },
+      { key: "system", label: "Sistem & Araçlar", icon: "⚙️", parentId: null, isPermanent: false },
+      { key: "sys_security", label: "Güvenlik & Kasa", icon: "🔐", parentId: "system", isPermanent: false },
+      { key: "sys_storage", label: "Disk & Dosya Araçları", icon: "💾", parentId: "system", isPermanent: false },
+      { key: "finance", label: "Finans", icon: "💰", parentId: null, isPermanent: false },
+      { key: "fin_budget", label: "Bütçe & Nakit Akışı", icon: "📊", parentId: "finance", isPermanent: false },
+      { key: "family", label: "Aile & Eğitim", icon: "🎓", parentId: null, isPermanent: false },
+      { key: "fam_study", label: "Ders & Pomodoro", icon: "⏱️", parentId: "family", isPermanent: false },
+      { key: "fam_media", label: "Eğitim Video & Arşiv", icon: "🎬", parentId: "family", isPermanent: false }
     ];
 
     const DEFAULT_APPLICATIONS = [
       {
         id: "mto-parser",
         title: "P&ID MTO Ayrıştırıcı & Malzeme Listesi",
-        categoryKey: "engineering",
+        categoryKey: "eng_piping",
         description: "P&ID borulama izometriklerinden vana, boru ve enstrüman MTO listelerini regex ile ayrıştıran ve Excel'e aktaran mühendislik aracı.",
         badge: "v2.4 Yerel",
         iconType: "engineering",
+        iconEmoji: "🔧",
         filePath: null,
         isLinked: false
       },
       {
         id: "vault-manager",
         title: "Şifre & Kimlik Yöneticisi (Vault)",
-        categoryKey: "system",
+        categoryKey: "sys_security",
         description: "Kriptografik WebCrypto API ile istemci tarafında AES-256 şifreli, internet gerektirmeyen güvenli parola kasası ve güçlü şifre üretici.",
         badge: "AES-256",
         iconType: "security",
+        iconEmoji: "🔐",
         filePath: null,
         isLinked: false
       },
       {
         id: "finance-tracker",
         title: "Kasa & Finans Takip Sistemi",
-        categoryKey: "finance",
+        categoryKey: "fin_budget",
         description: "Gelir-gider tabloları, aylık bütçe simülasyonları ve görsel analizlerle kişisel nakit akışı ve tasarruf analiz panosu.",
         badge: "Offline DB",
         iconType: "finance",
+        iconEmoji: "💰",
         filePath: null,
         isLinked: false
       },
       {
         id: "habit-study",
         title: "Ders & Alışkanlık Takipçisi",
-        categoryKey: "family",
+        categoryKey: "fam_study",
         description: "Pomodoro çalışma seansları, haftalık konu takip çizelgeleri ve puan mekanizmalı alışkanlık ve başarı panosu.",
         badge: "Pomodoro",
         iconType: "education",
+        iconEmoji: "⏱️",
         filePath: null,
         isLinked: false
       },
       {
         id: "file-cleaner",
         title: "Çift Dosya & Depolama Temizleyici",
-        categoryKey: "system",
+        categoryKey: "sys_storage",
         description: "Seçilen dizindeki mükerrer dosyaları hash karşılaştırmasıyla tespit eden yerel disk temizleme asistanı.",
         badge: "Web File API",
         iconType: "storage",
+        iconEmoji: "💾",
         filePath: null,
         isLinked: false
       },
       {
         id: "edu-video",
         title: "Eğitim Video & Arşiv Portalı",
-        categoryKey: "family",
+        categoryKey: "fam_media",
         description: "Yerel diskteki eğitim videolarını, ders anlatımlarını ve belgeselleri güvenli, reklamsız ve kategorize bir oynatıcıda toplayan arşiv arayüzü.",
         badge: "Yerel Medya",
         iconType: "media",
+        iconEmoji: "🎬",
         filePath: null,
         isLinked: false
       }
@@ -1081,11 +1678,14 @@
     let applications = [];
     let currentCategory = "all";
     let searchQuery = "";
+    let treeFilterQuery = "";
+    let includeSubfolderApps = true;
+    let expandedFolders = new Set(["engineering", "system", "finance", "family"]);
     let toastTimeout = null;
 
     // Yönetici Düzenleme Kilidi Durumu
-    let adminPasswordHash = localStorage.getItem('hub_admin_pwd_hash') || '';
-    let isAdminUnlocked = !adminPasswordHash; // Şifre yoksa serbest mod
+    let adminPasswordHash = safeGetStorage('hub_admin_pwd_hash', '');
+    let isAdminUnlocked = !adminPasswordHash;
     let pendingAdminAction = null;
 
     // Firebase Bağlantı Durumu & Servisleri
@@ -1094,33 +1694,98 @@
     let auth = null;
     let rtdbInstance = null;
     let firestoreInstance = null;
-    let activeDbType = 'none'; // 'rtdb' | 'firestore' | 'none'
+    let activeDbType = 'none';
     let currentUser = null;
     let isSyncing = false;
-    let autoSyncEnabled = localStorage.getItem('hub_auto_sync') !== 'false';
+    let autoSyncEnabled = safeGetStorage('hub_auto_sync') !== 'false';
     let unsubscribeSnapshot = null;
 
+    // Mevcut localStorage ve Firebase verilerini yeni parentId + icon yapısına bozulmadan uyarlar
+    function normalizeCategories(rawCats) {
+      if (!Array.isArray(rawCats) || rawCats.length === 0) {
+        return JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+      }
+      const defaultIconMap = {
+        all: "🏠",
+        engineering: "📐",
+        system: "⚙️",
+        finance: "💰",
+        family: "🎓"
+      };
+      const normalized = rawCats.map(c => ({
+        key: c.key,
+        label: c.label || "İsimsiz Klasör",
+        icon: c.icon || defaultIconMap[c.key] || "📁",
+        parentId: (c.key === 'all' || !c.parentId || c.parentId === 'all') ? null : c.parentId,
+        isPermanent: c.key === 'all' ? true : !!c.isPermanent
+      }));
+
+      if (!normalized.some(c => c.key === 'all')) {
+        normalized.unshift({ key: "all", label: "Tümü", icon: "🏠", parentId: null, isPermanent: true });
+      }
+
+      const validKeys = new Set(normalized.map(c => c.key));
+      normalized.forEach(c => {
+        if (c.parentId && (!validKeys.has(c.parentId) || c.parentId === c.key)) {
+          c.parentId = null;
+        }
+      });
+
+      return normalized;
+    }
+
+    function normalizeApplications(rawApps) {
+      if (!Array.isArray(rawApps)) {
+        return JSON.parse(JSON.stringify(DEFAULT_APPLICATIONS));
+      }
+      const fallbackEmojiByType = {
+        engineering: "🔧",
+        security: "🔐",
+        finance: "💰",
+        education: "🎓",
+        storage: "💾",
+        media: "🎬"
+      };
+      return rawApps.map(app => ({
+        ...app,
+        iconEmoji: app.iconEmoji || fallbackEmojiByType[app.iconType] || "🚀"
+      }));
+    }
+
     function initData() {
-      const savedCats = localStorage.getItem('hub_categories_v2');
-      const savedApps = localStorage.getItem('hub_applications_v2');
+      const savedCats = safeGetStorage('hub_categories_v2');
+      const savedApps = safeGetStorage('hub_applications_v2');
 
       if (savedCats) {
-        try { categories = JSON.parse(savedCats); } catch(e) { categories = [...DEFAULT_CATEGORIES]; }
+        try {
+          categories = normalizeCategories(JSON.parse(savedCats));
+        } catch(e) {
+          categories = normalizeCategories(DEFAULT_CATEGORIES);
+        }
       } else {
-        categories = [...DEFAULT_CATEGORIES];
+        categories = normalizeCategories(DEFAULT_CATEGORIES);
       }
 
       if (savedApps) {
-        try { applications = JSON.parse(savedApps); } catch(e) { applications = [...DEFAULT_APPLICATIONS]; }
+        try {
+          applications = normalizeApplications(JSON.parse(savedApps));
+        } catch(e) {
+          applications = normalizeApplications(DEFAULT_APPLICATIONS);
+        }
       } else {
-        applications = [...DEFAULT_APPLICATIONS];
+        applications = normalizeApplications(DEFAULT_APPLICATIONS);
       }
+
+      categories.forEach(c => {
+        if (c.key !== 'all') expandedFolders.add(c.key);
+      });
+
       saveLocalDataOnly();
     }
 
     function saveLocalDataOnly() {
-      localStorage.setItem('hub_categories_v2', JSON.stringify(categories));
-      localStorage.setItem('hub_applications_v2', JSON.stringify(applications));
+      safeSetStorage('hub_categories_v2', JSON.stringify(categories));
+      safeSetStorage('hub_applications_v2', JSON.stringify(applications));
       updateStats();
     }
 
@@ -1132,7 +1797,77 @@
     }
 
     /* =========================================================================
-       1.5. YÖNETİCİ DÜZENLEME KİLİDİ & ŞİFRE GÜVENLİK MOTORU
+       3. HİYERARŞİK KLASÖR AĞACI (TREEVIEW) YARDIMCI FONKSİYONLARI
+       ========================================================================= */
+    function getDescendantCategoryKeys(rootKey) {
+      if (rootKey === 'all') {
+        return categories.map(c => c.key);
+      }
+      const result = new Set([rootKey]);
+      const queue = [rootKey];
+      let guard = 0;
+
+      while (queue.length > 0 && guard < 1000) {
+        guard++;
+        const current = queue.shift();
+        categories.forEach(c => {
+          if (c.key !== 'all' && c.parentId === current && !result.has(c.key)) {
+            result.add(c.key);
+            queue.push(c.key);
+          }
+        });
+      }
+      return Array.from(result);
+    }
+
+    function getDirectChildCategories(parentKey) {
+      const targetParent = (!parentKey || parentKey === 'all') ? null : parentKey;
+      return categories.filter(c => c.key !== 'all' && (c.parentId || null) === targetParent);
+    }
+
+    function getCategoryBreadcrumbChain(catKey) {
+      const allCat = categories.find(c => c.key === 'all') || { key: 'all', label: 'Tümü', icon: '🏠' };
+      if (!catKey || catKey === 'all') return [allCat];
+
+      const chain = [];
+      let current = categories.find(c => c.key === catKey);
+      const visited = new Set();
+
+      while (current && current.key !== 'all' && !visited.has(current.key)) {
+        visited.add(current.key);
+        chain.unshift(current);
+        current = current.parentId ? categories.find(c => c.key === current.parentId) : null;
+      }
+      chain.unshift(allCat);
+      return chain;
+    }
+
+    function getCategoryFullPathText(catKey) {
+      const chain = getCategoryBreadcrumbChain(catKey).filter(c => c.key !== 'all');
+      if (chain.length === 0) return "Genel";
+      return chain.map(c => `${c.icon || '📁'} ${c.label}`).join(' › ');
+    }
+
+    function getRecursiveAppCount(catKey) {
+      if (catKey === 'all') return applications.length;
+      const keys = new Set(getDescendantCategoryKeys(catKey));
+      return applications.filter(a => keys.has(a.categoryKey)).length;
+    }
+
+    function getFlattenedCategoryTree(parentId = null, depth = 0, visited = new Set()) {
+      let list = [];
+      const children = categories.filter(c => c.key !== 'all' && (c.parentId || null) === parentId);
+      for (const child of children) {
+        if (visited.has(child.key)) continue;
+        visited.add(child.key);
+        list.push({ ...child, depth });
+        list = list.concat(getFlattenedCategoryTree(child.key, depth + 1, visited));
+      }
+      return list;
+    }
+
+    /* =========================================================================
+       4. YÖNETİCİ DÜZENLEME KİLİDİ & ŞİFRE GÜVENLİK MOTORU
        ========================================================================= */
     async function hashPassword(str) {
       if (!str) return '';
@@ -1285,7 +2020,7 @@
       }
 
       adminPasswordHash = await hashPassword(p1);
-      localStorage.setItem('hub_admin_pwd_hash', adminPasswordHash);
+      safeSetStorage('hub_admin_pwd_hash', adminPasswordHash);
       isAdminUnlocked = true;
       updateAdminLockUI();
       saveData();
@@ -1293,35 +2028,96 @@
       showToast("Şifre Belirlendi", "Yönetici şifresi kaydedildi ve bulutla eşitlendi.");
     }
 
-    function removeAdminPassword() {
-      adminPasswordHash = '';
-      localStorage.removeItem('hub_admin_pwd_hash');
+        function getMasterRecoveryKey() {
+      const savedCfg = safeGetStorage("hub_custom_firebase_config");
+      if (savedCfg) {
+        try {
+          const parsed = JSON.parse(savedCfg);
+          if (parsed && parsed.projectId) return String(parsed.projectId).trim();
+        } catch (e) {}
+      }
+      return DEFAULT_FIREBASE_CONFIG.projectId || "muratilactakip";
+    }
+
+    function toggleRecoveryRuleBox() {
+      const box = document.getElementById("adminRecoveryRuleBox");
+      if (!box) return;
+      box.classList.toggle("hidden");
+      if (!box.classList.contains("hidden")) {
+        const inp = document.getElementById("adminRecoveryKeyInput");
+        if (inp) {
+          inp.value = "";
+          inp.focus();
+        }
+      }
+    }
+
+    async function resetAdminPasswordDirectly() {
+      const inp = document.getElementById("adminRecoveryKeyInput");
+      const val = inp ? inp.value.trim() : "";
+      if (!val) {
+        showToast("Doğrulama Gerekli", "Şifreyi sıfırlamak için Kurtarma Anahtarını (Project ID) girmelisiniz.");
+        return;
+      }
+      const masterKey = getMasterRecoveryKey();
+      const valHash = await hashPassword(val);
+      if (val !== masterKey && valHash !== adminPasswordHash) {
+        if (inp) inp.value = "";
+        showToast("Yetkisiz İşlem", "Girdiğiniz Kurtarma Anahtarı (Project ID) hatalı! Şifre kaldırılamadı.");
+        return;
+      }
+      adminPasswordHash = "";
+      safeRemoveStorage("hub_admin_pwd_hash");
       isAdminUnlocked = true;
       updateAdminLockUI();
       saveData();
       closeAdminAuthModal();
-      showToast("Kilit Kaldırıldı", "Yönetici şifresi ve koruma kaldırıldı.");
+      showToast("Doğrulandı & Sıfırlandı", "Kurtarma kuralı doğrulandı ve yönetici şifresi kaldırıldı.");
+    }
+
+    async function removeAdminPassword() {
+      const confirmInp = document.getElementById("adminRemoveConfirmInput");
+      const val = confirmInp ? confirmInp.value.trim() : "";
+      if (!val) {
+        showToast("Şifre Doğrulaması Gerekli", "Korumayı kaldırmak için mevcut şifrenizi veya Project ID değerini girin.");
+        return;
+      }
+      const valHash = await hashPassword(val);
+      const masterKey = getMasterRecoveryKey();
+      if (valHash !== adminPasswordHash && val !== masterKey) {
+        if (confirmInp) confirmInp.value = "";
+        showToast("Hatalı Doğrulama", "Mevcut şifre yanlış! Koruma kaldırılmadı.");
+        return;
+      }
+      adminPasswordHash = "";
+      safeRemoveStorage("hub_admin_pwd_hash");
+      isAdminUnlocked = true;
+      updateAdminLockUI();
+      saveData();
+      closeAdminAuthModal();
+      showToast("Kilit Kaldırıldı", "Şifre doğrulandı ve koruma tamamen kaldırıldı.");
     }
 
     function updateStats() {
       document.getElementById('statTotalApps').innerText = applications.length;
-      document.getElementById('statCategories').innerText = `${categories.filter(c => c.key !== 'all').length} Grup`;
+      const totalFolders = categories.filter(c => c.key !== 'all').length;
+      const subFolders = categories.filter(c => c.key !== 'all' && c.parentId).length;
+      document.getElementById('statCategories').innerText = subFolders > 0 
+        ? `${totalFolders} Klasör (${subFolders} Alt)` 
+        : `${totalFolders} Klasör`;
     }
 
     /* =========================================================================
-       2. AKILLI YAPILANDIRMA AYRIŞTIRICI & HATA TEŞHİS MOTORU
+       5. AKILLI YAPILANDIRMA AYRIŞTIRICI & FİREBASE SENKRONİZASYON MOTORU
        ========================================================================= */
-    // Kullanıcının yapıştırdığı JS kodunu veya JSON nesnesini güvenle ayıklar (URL'yi bozmaz)
     function smartParseFirebaseConfig(rawInput) {
       if (!rawInput) return { ...DEFAULT_FIREBASE_CONFIG };
       let text = typeof rawInput === 'string' ? rawInput.trim() : JSON.stringify(rawInput);
 
-      // Yalnızca satır başındaki // yorumlarını temizle; https:// adresindeki // karakterlerine ASLA dokunma!
       text = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '').trim();
 
       let parsedObj = null;
 
-      // Doğrudan JSON ise ayrıştır
       try {
         const directJson = JSON.parse(text);
         if (directJson && typeof directJson === 'object') {
@@ -1329,14 +2125,12 @@
         }
       } catch(e) {}
 
-      // Regex ile anahtarları güvenli şekilde çıkar
       if (!parsedObj) {
         const keys = ['apiKey', 'authDomain', 'databaseURL', 'projectId', 'storageBucket', 'messagingSenderId', 'appId', 'measurementId'];
         const extracted = {};
         let hitCount = 0;
 
         keys.forEach(key => {
-          // Değer satır sonuna veya tırnağa kadar güvenle alınır (URL içindeki // korunur)
           const pattern = new RegExp(`["']?${key}["']?\\s*:\\s*["']([^"'\r\n]+)["']`, 'i');
           const match = text.match(pattern);
           if (match && match[1]) {
@@ -1350,7 +2144,6 @@
         }
       }
 
-      // Parantezler arasını ({ ... }) alarak anahtarları tırnak içine almayı dene
       if (!parsedObj) {
         const start = text.indexOf('{');
         const end = text.lastIndexOf('}');
@@ -1370,8 +2163,6 @@
         parsedObj = { ...DEFAULT_FIREBASE_CONFIG };
       }
 
-      // OTOMATİK URL ONARIM MOTORU:
-      // databaseURL bozulmuşsa (örn: "https:" veya yarım kaldıysa), projectId ile anında onar
       const prjId = parsedObj.projectId || "muratilactakip";
       if (!parsedObj.databaseURL || parsedObj.databaseURL.length < 15 || !parsedObj.databaseURL.includes('firebaseio.com')) {
         parsedObj.databaseURL = `https://${prjId}-default-rtdb.firebaseio.com`;
@@ -1380,7 +2171,6 @@
       return parsedObj;
     }
 
-    // Firebase hata kodlarını Türkçe ve eyleme dönüştürülebilir rehber mesaja çevirir
     function diagnoseFirebaseError(error) {
       if (!error) return "Bilinmeyen bir hata oluştu.";
       const code = (error.code || '').toLowerCase();
@@ -1421,9 +2211,6 @@
       if (box) box.classList.add('hidden');
     }
 
-    /* =========================================================================
-       3. REALTIME DATABASE & FIRESTORE ÇİFT DESTEKLİ BULUT MOTORU
-       ========================================================================= */
     async function initFirebaseConnection() {
       if (unsubscribeSnapshot) {
         unsubscribeSnapshot();
@@ -1432,7 +2219,7 @@
       hideDiagnosticAlert();
 
       let configToUse = null;
-      const userSavedConfig = localStorage.getItem('hub_custom_firebase_config');
+      const userSavedConfig = safeGetStorage('hub_custom_firebase_config');
 
       if (userSavedConfig) {
         try {
@@ -1442,7 +2229,6 @@
         }
       }
 
-      // Yapılandırma yoksa veya bozuksa gömülü varsayılan projeyi kullan
       if (!configToUse || !configToUse.apiKey) {
         configToUse = { ...DEFAULT_FIREBASE_CONFIG };
       }
@@ -1450,11 +2236,9 @@
       try {
         updateSyncStatus('syncing', 'Bağlanıyor...');
 
-        // 1. Firebase Uygulamasını Başlat
         firebaseApp = initializeApp(configToUse, 'hub-app-' + Date.now());
         auth = getAuth(firebaseApp);
 
-        // 2. Veritabanı Türünü Otomatik Seç: databaseURL varsa Realtime Database, yoksa Firestore
         if (configToUse.databaseURL && configToUse.databaseURL.includes('firebaseio.com')) {
           activeDbType = 'rtdb';
           rtdbInstance = getDatabase(firebaseApp, configToUse.databaseURL);
@@ -1465,7 +2249,6 @@
           document.getElementById('modalDbTypeDisplay').innerText = 'Cloud Firestore';
         }
 
-        // 3. Anonim Kimlik Doğrulama Denemesi (Esnek Fallback ile)
         try {
           let userCredential;
           if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -1482,15 +2265,13 @@
         } catch (authError) {
           console.warn("Anonim oturum hatası:", authError);
           const authDiag = diagnoseFirebaseError(authError);
-          // Anonim giriş kapalıysa teşhis kutusunda göster ama işlemi durdurma; açık kural varsa RTDB doğrudan çalışabilir!
           showDiagnosticAlert(authDiag, "Kimlik Doğrulama Bilgisi");
           document.getElementById('modalUserIdDisplay').innerText = 'Anonim Giriş Kapalı (Doğrudan Erişim Modu)';
         }
 
-        const lastSync = localStorage.getItem('hub_last_sync_time');
+        const lastSync = safeGetStorage('hub_last_sync_time');
         if (lastSync) updateLastSyncTimeDisplay(parseInt(lastSync, 10));
 
-        // 4. Canlı Dinleyiciyi Başlat
         setupRealtimeListener();
 
       } catch (fatalError) {
@@ -1508,7 +2289,6 @@
         unsubscribeSnapshot = null;
       }
 
-      // A) Realtime Database Dinleyicisi
       if (activeDbType === 'rtdb' && rtdbInstance) {
         const dbRef = rtdbRef(rtdbInstance, 'workspace_hub_data');
         const unsub = rtdbOnValue(dbRef, (snapshot) => {
@@ -1529,8 +2309,6 @@
         unsubscribeSnapshot = () => unsub();
         updateSyncStatus('connected', 'RTDB: Bağlı');
       }
-      
-      // B) Cloud Firestore Dinleyicisi
       else if (activeDbType === 'firestore' && firestoreInstance) {
         const docRef = fsDoc(firestoreInstance, 'artifacts', appId, 'public', 'data', 'portal_config', 'main');
         unsubscribeSnapshot = fsOnSnapshot(docRef, (snapshot) => {
@@ -1553,11 +2331,11 @@
 
     function handleIncomingCloudData(cloudData) {
       if (!cloudData || isSyncing) return;
-      const localUpdatedAt = parseInt(localStorage.getItem('hub_last_sync_time') || '0', 10);
+      const localUpdatedAt = parseInt(safeGetStorage('hub_last_sync_time', '0'), 10);
       if (cloudData.updatedAt && cloudData.updatedAt > localUpdatedAt) {
         const applied = applyCloudData(cloudData);
         if (applied) {
-          localStorage.setItem('hub_last_sync_time', cloudData.updatedAt.toString());
+          safeSetStorage('hub_last_sync_time', cloudData.updatedAt.toString());
           updateLastSyncTimeDisplay(cloudData.updatedAt);
           updateSyncStatus('connected', activeDbType === 'rtdb' ? 'RTDB: Bağlı' : 'Firestore: Bağlı');
           hideDiagnosticAlert();
@@ -1581,7 +2359,7 @@
           adminPasswordHash: adminPasswordHash || "",
           updatedAt: timestamp,
           appId: appId,
-          version: "2.1"
+          version: "3.0"
         };
 
         if (activeDbType === 'rtdb') {
@@ -1592,13 +2370,13 @@
           await fsSetDoc(docRef, payload);
         }
 
-        localStorage.setItem('hub_last_sync_time', timestamp.toString());
+        safeSetStorage('hub_last_sync_time', timestamp.toString());
         updateLastSyncTimeDisplay(timestamp);
         updateSyncStatus('connected', activeDbType === 'rtdb' ? 'RTDB: Bağlı' : 'Firestore: Bağlı');
         hideDiagnosticAlert();
 
         if (notify) {
-          showToast("Buluta Yüklendi", `Tüm veriler ${activeDbType === 'rtdb' ? 'Realtime Database' : 'Firestore'}'a başarıyla kaydedildi.`);
+          showToast("Buluta Yüklendi", `Tüm hiyerarşik klasörler ve kartlar ${activeDbType === 'rtdb' ? 'Realtime Database' : 'Firestore'}'a kaydedildi.`);
         }
       } catch (err) {
         console.error("Bulut yazma hatası:", err);
@@ -1636,7 +2414,7 @@
           const applied = applyCloudData(cloudData);
           if (applied) {
             const time = cloudData.updatedAt || Date.now();
-            localStorage.setItem('hub_last_sync_time', time.toString());
+            safeSetStorage('hub_last_sync_time', time.toString());
             updateLastSyncTimeDisplay(time);
             updateSyncStatus('connected', activeDbType === 'rtdb' ? 'RTDB: Bağlı' : 'Firestore: Bağlı');
             hideDiagnosticAlert();
@@ -1664,29 +2442,27 @@
       if (Array.isArray(cloudData.categories) && cloudData.categories.length > 0) {
         const validCats = cloudData.categories.filter(c => c && typeof c.key === 'string' && typeof c.label === 'string');
         if (validCats.length > 0) {
-          categories = validCats;
+          categories = normalizeCategories(validCats);
           changed = true;
         }
       }
 
       if (Array.isArray(cloudData.applications)) {
         const validApps = cloudData.applications.filter(a => a && typeof a.id === 'string' && typeof a.title === 'string');
-        applications = validApps;
+        applications = normalizeApplications(validApps);
         changed = true;
       }
 
-      // Buluttaki şifre hash'ini eşitle
       if (typeof cloudData.adminPasswordHash === 'string' && cloudData.adminPasswordHash !== adminPasswordHash) {
         adminPasswordHash = cloudData.adminPasswordHash;
-        localStorage.setItem('hub_admin_pwd_hash', adminPasswordHash);
+        safeSetStorage('hub_admin_pwd_hash', adminPasswordHash);
         isAdminUnlocked = !adminPasswordHash;
         updateAdminLockUI();
       }
 
       if (changed) {
         saveLocalDataOnly();
-        renderCategoryPills();
-        renderAppCards();
+        renderAllExplorerViews();
         return true;
       }
       return false;
@@ -1728,7 +2504,7 @@
 
     function openCloudSyncModal() {
       const textarea = document.getElementById('firebaseConfigTextarea');
-      const saved = localStorage.getItem('hub_custom_firebase_config');
+      const saved = safeGetStorage('hub_custom_firebase_config');
       try {
         if (saved) {
           const parsed = smartParseFirebaseConfig(saved);
@@ -1751,7 +2527,7 @@
 
     function toggleAutoSyncSetting(enabled) {
       autoSyncEnabled = enabled;
-      localStorage.setItem('hub_auto_sync', enabled ? 'true' : 'false');
+      safeSetStorage('hub_auto_sync', enabled ? 'true' : 'false');
       if (enabled && activeDbType !== 'none') {
         setupRealtimeListener();
         pushDataToCloud(false);
@@ -1779,9 +2555,8 @@
           return;
         }
 
-        // Temizlenmiş ve eksiksiz URL içeren JSON'u kutuda göster ve hafızaya al
         document.getElementById('firebaseConfigTextarea').value = JSON.stringify(parsed, null, 2);
-        localStorage.setItem('hub_custom_firebase_config', JSON.stringify(parsed));
+        safeSetStorage('hub_custom_firebase_config', JSON.stringify(parsed));
         showToast("Yapılandırma Onarıldı & Kaydedildi", "Veritabanı URL'si korundu ve Firebase'e bağlanılıyor...");
         initFirebaseConnection();
       } catch (err) {
@@ -1792,7 +2567,7 @@
     }
 
     function resetFirebaseCustomConfig() {
-      localStorage.removeItem('hub_custom_firebase_config');
+      safeRemoveStorage('hub_custom_firebase_config');
       document.getElementById('firebaseConfigTextarea').value = JSON.stringify(DEFAULT_FIREBASE_CONFIG, null, 2);
       hideDiagnosticAlert();
       showToast("Varsayılana Döndü", "Özel yapılandırma silindi, gömülü projeye bağlanılıyor.");
@@ -1800,42 +2575,303 @@
     }
 
     /* =========================================================================
-       4. KATEGORİ & UYGULAMA KARTLARI İŞLEYİŞİ
+       6. WINDOWS GEZGİNİ KLASÖR AĞACI, BREADCRUMB VE ALT KLASÖR RENDER MOTORU
        ========================================================================= */
-    function renderCategoryPills() {
-      const container = document.getElementById('categoryPillContainer');
-      container.innerHTML = categories.map(cat => {
-        const count = cat.key === 'all' 
-          ? applications.length 
-          : applications.filter(a => a.categoryKey === cat.key).length;
-        
-        const isActive = currentCategory === cat.key;
-        return `
-          <button 
-            onclick="setCategory('${cat.key}')"
-            class="whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border transition duration-150 ${
-              isActive 
-                ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/30' 
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-            }"
-          >
-            <span>${escapeHtml(cat.label)}</span>
+    function renderAllExplorerViews() {
+      renderFolderTree();
+      renderBreadcrumbBar();
+      renderCategoryPills();
+      renderAppCards();
+    }
+
+    function toggleMobileExplorer() {
+      const sidebar = document.getElementById('explorerSidebar');
+      if (!sidebar) return;
+      sidebar.classList.toggle('hidden');
+    }
+
+    function handleTreeFilter(val) {
+      treeFilterQuery = val.trim().toLowerCase();
+      renderFolderTree();
+    }
+
+    function toggleFolderExpand(catKey, event) {
+      if (event) event.stopPropagation();
+      if (expandedFolders.has(catKey)) {
+        expandedFolders.delete(catKey);
+      } else {
+        expandedFolders.add(catKey);
+      }
+      renderFolderTree();
+    }
+
+    function expandAllFolders() {
+      categories.forEach(c => {
+        if (c.key !== 'all') expandedFolders.add(c.key);
+      });
+      renderFolderTree();
+    }
+
+    function collapseAllFolders() {
+      expandedFolders.clear();
+      renderFolderTree();
+    }
+
+    function toggleIncludeSubfolders(checked) {
+      includeSubfolderApps = checked;
+      renderAppCards();
+    }
+
+    function renderFolderTree() {
+      const container = document.getElementById('folderTreeContainer');
+      if (!container) return;
+
+      const allCat = categories.find(c => c.key === 'all') || { key: 'all', label: 'Tümü', icon: '🏠' };
+      const isAllActive = currentCategory === 'all';
+
+      let html = `
+        <div 
+          onclick="setCategory('all')"
+          class="group/treeitem flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition ${
+            isAllActive 
+              ? 'bg-blue-600 text-white font-bold shadow-sm shadow-blue-500/25' 
+              : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-semibold'
+          }">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="w-4 text-center text-xs opacity-70">🏠</span>
+            <span class="text-xs truncate">${escapeHtml(allCat.label)} (Ana Dizin)</span>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button 
+              type="button"
+              onclick="event.stopPropagation(); requireAdminAuth(() => openQuickSubgroupModal(null))"
+              class="opacity-0 group-hover/treeitem:opacity-100 px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                isAllActive ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
+              } transition"
+              title="Ana Dizin Altına Yeni Grup Ekle">
+              +
+            </button>
             <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
-              isActive 
-                ? 'bg-white/20 text-white' 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+              isAllActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
             }">
-              ${count}
+              ${applications.length}
             </span>
-          </button>
+          </div>
+        </div>
+      `;
+
+      function renderTreeBranch(parentId, depth, visited = new Set()) {
+        const children = categories.filter(c => c.key !== 'all' && (c.parentId || null) === parentId);
+        if (children.length === 0) return '';
+
+        let branchHtml = `<div class="${depth > 0 ? 'pl-3.5 ml-2 tree-branch-guide space-y-0.5 mt-0.5' : 'space-y-0.5 mt-1'}">`;
+
+        for (const cat of children) {
+          if (visited.has(cat.key)) continue;
+          visited.add(cat.key);
+
+          const descendantKeys = getDescendantCategoryKeys(cat.key);
+          const matchesFilter = !treeFilterQuery || descendantKeys.some(k => {
+            const cObj = categories.find(x => x.key === k);
+            return cObj && cObj.label.toLowerCase().includes(treeFilterQuery);
+          });
+          if (!matchesFilter) continue;
+
+          const subChildren = getDirectChildCategories(cat.key);
+          const hasSub = subChildren.length > 0;
+          const isExpanded = treeFilterQuery ? true : expandedFolders.has(cat.key);
+          const isActive = currentCategory === cat.key;
+          const totalApps = getRecursiveAppCount(cat.key);
+
+          branchHtml += `
+            <div>
+              <div 
+                onclick="setCategory('${cat.key}')"
+                class="group/treeitem flex items-center justify-between px-2 py-1.5 rounded-xl cursor-pointer transition ${
+                  isActive 
+                    ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/20' 
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80'
+                }">
+                
+                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                  ${hasSub ? `
+                    <button 
+                      type="button"
+                      onclick="toggleFolderExpand('${cat.key}', event)"
+                      class="w-4 h-4 rounded flex items-center justify-center text-[10px] ${
+                        isActive ? 'text-white hover:bg-white/20' : 'text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
+                      } shrink-0 transition"
+                      title="${isExpanded ? 'Alt Klasörleri Daralt' : 'Alt Klasörleri Aç'}">
+                      ${isExpanded ? '▼' : '▶'}
+                    </button>
+                  ` : `
+                    <span class="w-4 h-4 flex items-center justify-center text-[9px] opacity-30 shrink-0">•</span>
+                  `}
+                  <span class="text-sm shrink-0">${escapeHtml(cat.icon || '📁')}</span>
+                  <span class="text-xs truncate" title="${escapeHtml(cat.label)}">${escapeHtml(cat.label)}</span>
+                </div>
+
+                <!-- Sağ Taraf: Hızlı Aksiyon Butonları (+ Alt Grup, 😊 Simge, ✏️ Düzenle, 🗑️ Sil) ve Sayı Rozeti -->
+                <div class="flex items-center gap-0.5 shrink-0 ml-1">
+                  <div class="hidden group-hover/treeitem:flex items-center gap-0.5 mr-1">
+                    <button 
+                      type="button"
+                      onclick="event.stopPropagation(); requireAdminAuth(() => openQuickSubgroupModal('${cat.key}'))"
+                      class="w-5 h-5 rounded flex items-center justify-center text-[11px] font-bold ${
+                        isActive ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-emerald-100 dark:bg-emerald-950/90 text-emerald-700 dark:text-emerald-300 hover:scale-110'
+                      }"
+                      title="'${escapeHtml(cat.label)}' Altına Alt Klasör Ekle (+)">
+                      +
+                    </button>
+                    <button 
+                      type="button"
+                      onclick="event.stopPropagation(); requireAdminAuth(() => openEmojiPickerForCategory('${cat.key}'))"
+                      class="w-5 h-5 rounded flex items-center justify-center text-[11px] ${
+                        isActive ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-purple-100 dark:bg-purple-950/90 hover:scale-110'
+                      }"
+                      title="Klasör Simgesini Değiştir (😊)">
+                      😊
+                    </button>
+                    <button 
+                      type="button"
+                      onclick="event.stopPropagation(); requireAdminAuth(() => openQuickEditFolderModal('${cat.key}'))"
+                      class="w-5 h-5 rounded flex items-center justify-center text-[10px] ${
+                        isActive ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-amber-100 dark:bg-amber-950/90 hover:scale-110'
+                      }"
+                      title="Klasör Adını / Üst Klasörünü Düzenle (✏️)">
+                      ✏️
+                    </button>
+                    <button 
+                      type="button"
+                      onclick="event.stopPropagation(); requireAdminAuth(() => deleteCategory('${cat.key}'))"
+                      class="w-5 h-5 rounded flex items-center justify-center text-[10px] ${
+                        isActive ? 'bg-white/20 hover:bg-rose-500 text-white' : 'bg-rose-100 dark:bg-rose-950/90 hover:scale-110'
+                      }"
+                      title="Klasörü Sil (🗑️)">
+                      🗑️
+                    </button>
+                  </div>
+
+                  <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
+                    isActive 
+                      ? 'bg-white/20 text-white' 
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                  }">
+                    ${totalApps}
+                  </span>
+                </div>
+              </div>
+              ${hasSub && isExpanded ? renderTreeBranch(cat.key, depth + 1, visited) : ''}
+            </div>
+          `;
+        }
+
+        branchHtml += `</div>`;
+        return branchHtml;
+      }
+
+      html += renderTreeBranch(null, 0);
+      container.innerHTML = html;
+    }
+
+    function renderBreadcrumbBar() {
+      const container = document.getElementById('explorerBreadcrumb');
+      const folderIconBtn = document.getElementById('currentFolderIconBtn');
+      if (!container) return;
+
+      const chain = getCategoryBreadcrumbChain(currentCategory);
+      container.innerHTML = chain.map((cat, idx) => {
+        const isLast = idx === chain.length - 1;
+        return `
+          <div class="flex items-center gap-1">
+            ${idx > 0 ? `<span class="text-slate-300 dark:text-slate-600 px-0.5">›</span>` : ''}
+            <button 
+              type="button"
+              onclick="setCategory('${cat.key}')"
+              class="px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition ${
+                isLast 
+                  ? 'bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-bold border border-blue-200/70 dark:border-blue-800/60' 
+                  : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
+              }">
+              <span>${escapeHtml(cat.icon || '📁')}</span>
+              <span>${escapeHtml(cat.label)}</span>
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      if (folderIconBtn) {
+        if (currentCategory !== 'all') {
+          folderIconBtn.classList.remove('hidden');
+          folderIconBtn.classList.add('flex');
+        } else {
+          folderIconBtn.classList.add('hidden');
+          folderIconBtn.classList.remove('flex');
+        }
+      }
+    }
+
+    function renderCategoryPills() {
+      const section = document.getElementById('subfoldersSection');
+      const container = document.getElementById('categoryPillContainer');
+      const titleEl = document.getElementById('subfoldersTitle');
+      const countEl = document.getElementById('subfoldersCount');
+      if (!container || !section) return;
+
+      const childFolders = getDirectChildCategories(currentCategory);
+
+      if (childFolders.length === 0) {
+        section.classList.add('hidden');
+        container.innerHTML = '';
+        return;
+      }
+
+      section.classList.add('hidden'); return;
+      const currentCatObj = categories.find(c => c.key === currentCategory);
+      if (titleEl) {
+        titleEl.innerText = currentCategory === 'all' 
+          ? 'Ana Klasörler' 
+          : `"${currentCatObj ? currentCatObj.label : ''}" Alt Klasörleri`;
+      }
+      if (countEl) {
+        countEl.innerText = `${childFolders.length} alt klasör`;
+      }
+
+      container.innerHTML = childFolders.map(cat => {
+        const count = getRecursiveAppCount(cat.key);
+        const subCount = getDirectChildCategories(cat.key).length;
+        return `
+          <div 
+            onclick="setCategory('${cat.key}')"
+            class="group/subcard cursor-pointer px-3.5 py-2 rounded-2xl bg-white dark:bg-slate-900 hover:bg-blue-50/70 dark:hover:bg-slate-800/90 border border-slate-200/90 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500/70 flex items-center gap-2.5 shadow-sm transition duration-150">
+            <span class="text-lg group-hover/subcard:scale-110 transition">${escapeHtml(cat.icon || '📁')}</span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover/subcard:text-blue-600 dark:group-hover/subcard:text-blue-400 truncate">
+                ${escapeHtml(cat.label)}
+              </div>
+              <div class="text-[10px] text-slate-400">
+                ${count} araç${subCount > 0 ? ` • ${subCount} alt grup` : ''}
+              </div>
+            </div>
+            <button 
+              type="button"
+              onclick="event.stopPropagation(); requireAdminAuth(() => openQuickSubgroupModal('${cat.key}'))"
+              class="opacity-0 group-hover/subcard:opacity-100 ml-1 w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 text-xs font-bold flex items-center justify-center transition"
+              title="Alt Klasör Ekle (+)">
+              +
+            </button>
+          </div>
         `;
       }).join('');
     }
 
     function setCategory(catKey) {
       currentCategory = catKey;
-      renderCategoryPills();
-      renderAppCards();
+      const chain = getCategoryBreadcrumbChain(catKey);
+      chain.forEach(c => {
+        if (c.key !== 'all') expandedFolders.add(c.key);
+      });
+      renderAllExplorerViews();
     }
 
     function handleSearch(val) {
@@ -1863,14 +2899,19 @@
       const noResults = document.getElementById('noResultsState');
       const badge = document.getElementById('resultCountBadge');
 
+      const allowedCategoryKeys = new Set(
+        currentCategory === 'all'
+          ? categories.map(c => c.key)
+          : (includeSubfolderApps ? getDescendantCategoryKeys(currentCategory) : [currentCategory])
+      );
+
       const filtered = applications.filter(app => {
-        const matchCategory = currentCategory === 'all' || app.categoryKey === currentCategory;
-        const catObj = categories.find(c => c.key === app.categoryKey);
-        const catLabel = catObj ? catObj.label.toLowerCase() : '';
+        const matchCategory = currentCategory === 'all' || allowedCategoryKeys.has(app.categoryKey);
+        const fullPath = getCategoryFullPathText(app.categoryKey).toLowerCase();
         const matchSearch = !searchQuery || 
           app.title.toLowerCase().includes(searchQuery) ||
           app.description.toLowerCase().includes(searchQuery) ||
-          catLabel.includes(searchQuery);
+          fullPath.includes(searchQuery);
         return matchCategory && matchSearch;
       });
 
@@ -1885,8 +2926,7 @@
       noResults.classList.add('hidden');
 
       container.innerHTML = filtered.map(app => {
-        const catObj = categories.find(c => c.key === app.categoryKey);
-        const catName = catObj ? catObj.label : 'Genel';
+        const catPathText = getCategoryFullPathText(app.categoryKey);
         const hasLink = !!(app.filePath && app.isLinked);
 
         return `
@@ -1894,9 +2934,13 @@
             
             <div>
               <div class="flex items-start justify-between gap-3 mb-4">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-900/40 flex items-center justify-center shrink-0 group-hover/card:scale-105 transition">
-                  ${getAppSvgIcon(app.iconType)}
-                </div>
+                <button 
+                  type="button"
+                  onclick="requireAdminAuth(() => openEmojiPickerForAppCard('${app.id}'))"
+                  class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-900/40 flex items-center justify-center shrink-0 group-hover/card:scale-105 transition text-2xl relative"
+                  title="Uygulama Simgesini Değiştirmek İçin Tıklayın">
+                  ${app.iconEmoji ? `<span>${escapeHtml(app.iconEmoji)}</span>` : getAppSvgIcon(app.iconType)}
+                </button>
                 <div class="flex items-center gap-1.5">
                   <span class="text-[11px] font-medium px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60">
                     ${escapeHtml(app.badge || 'Hazır')}
@@ -1904,9 +2948,13 @@
                 </div>
               </div>
 
-              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                ${escapeHtml(catName)}
-              </span>
+              <button 
+                type="button"
+                onclick="setCategory('${app.categoryKey}')"
+                class="text-[10px] font-bold tracking-wide text-blue-600 dark:text-blue-400 hover:underline text-left block truncate max-w-full"
+                title="Klasöre Git: ${escapeHtml(catPathText)}">
+                ${escapeHtml(catPathText)}
+              </button>
 
               <h3 class="text-base font-bold text-slate-900 dark:text-white mt-1 group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition leading-snug">
                 ${escapeHtml(app.title)}
@@ -1923,17 +2971,17 @@
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </span>
 
-<!-- Zengin Floating Tooltip (Popover Tips) -->
+                <!-- Zengin Floating Tooltip (Popover Tips) -->
                 <div class="card-tooltip absolute left-0 right-0 bottom-full mb-0 pb-2 z-50">
                   <div class="p-4 rounded-2xl bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/80 shadow-2xl backdrop-blur-md space-y-2 text-xs max-h-56 overflow-y-auto">
                     <div class="flex items-center justify-between border-b border-slate-700/60 pb-1.5">
-                      <span class="font-bold text-blue-400">${escapeHtml(app.title)}</span>
+                      <span class="font-bold text-blue-400">${escapeHtml(app.iconEmoji || '🚀')} ${escapeHtml(app.title)}</span>
                       <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">${escapeHtml(app.badge || 'Hazır')}</span>
                     </div>
                     <p class="text-slate-200 leading-relaxed font-normal whitespace-pre-line">${escapeHtml(app.description)}</p>
-                    <div class="pt-1 border-t border-slate-700/60 flex items-center justify-between text-[11px] text-slate-400">
-                      <span>Grup: <strong class="text-slate-200">${escapeHtml(catName)}</strong></span>
-                      <span class="font-mono text-[10px] ${hasLink ? 'text-emerald-400' : 'text-amber-400'}">
+                    <div class="pt-1 border-t border-slate-700/60 flex items-center justify-between text-[11px] text-slate-400 gap-2">
+                      <span class="truncate">Klasör: <strong class="text-slate-200">${escapeHtml(catPathText)}</strong></span>
+                      <span class="font-mono text-[10px] shrink-0 ${hasLink ? 'text-emerald-400' : 'text-amber-400'}">
                         ${hasLink ? '🔗 ' + escapeHtml(app.filePath) : '⚠️ Linklenmemiş'}
                       </span>
                     </div>
@@ -1952,6 +3000,15 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
+              </button>
+
+              <!-- Kart Simge Değiştirme Butonu -->
+              <button 
+                onclick="requireAdminAuth(() => openEmojiPickerForAppCard('${app.id}'))"
+                class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition text-xs"
+                title="Kart Simgesini Değiştir"
+              >
+                😊
               </button>
 
               <!-- Kart Düzenleme Butonu (Yönetici Korumalı) -->
@@ -1998,15 +3055,173 @@
       if (!app) return;
       applications = applications.filter(a => a.id !== id);
       saveData();
-      renderCategoryPills();
-      renderAppCards();
+      renderAllExplorerViews();
       showToast("Kart Kaldırıldı", `"${app.title}" portal listenizden silindi.`);
     }
 
+    function openEmojiPickerForAppCard(appId) {
+      const app = applications.find(a => a.id === appId);
+      if (!app) return;
+      openEmojiPicker((emoji) => {
+        app.iconEmoji = emoji;
+        saveData();
+        renderAppCards();
+        showToast("Simge Güncellendi", `"${app.title}" kartına ${emoji} simgesi atandı.`);
+      }, app.iconEmoji || "🚀", `"${app.title}" İçin Simge Seçin`);
+    }
+
     /* =========================================================================
-       5. GRUP & KATEGORİ YÖNETİMİ
+       7. HIZLI ALT KLASÖR OLUŞTURMA & HİYERARŞİK GRUP YÖNETİMİ
        ========================================================================= */
+    function populateHierarchicalCategorySelect(selectEl, includeRootOption = true, excludeKey = null, selectedValue = null) {
+      if (!selectEl) return;
+      const flatList = getFlattenedCategoryTree();
+      const forbiddenKeys = excludeKey ? new Set(getDescendantCategoryKeys(excludeKey)) : new Set();
+
+      let html = '';
+      if (includeRootOption) {
+        html += `<option value="">🏠 Ana Dizin (Kök Klasör)</option>`;
+      }
+
+      flatList.forEach(cat => {
+        if (forbiddenKeys.has(cat.key)) return;
+        const indent = '— '.repeat(cat.depth);
+        const isSel = selectedValue !== null && selectedValue === cat.key ? 'selected' : '';
+        html += `<option value="${cat.key}" ${isSel}>${indent}${escapeHtml(cat.icon || '📁')} ${escapeHtml(cat.label)}</option>`;
+      });
+
+      selectEl.innerHTML = html;
+      if (selectedValue !== null) {
+        selectEl.value = selectedValue;
+      }
+    }
+
+    function openQuickSubgroupModal(parentKey = null) {
+      document.getElementById('quickFolderEditKey').value = "";
+      document.getElementById('quickSubgroupModalTitle').innerText = parentKey 
+        ? "Alt Klasör / Alt Grup Oluştur" 
+        : "Yeni Klasör / Grup Oluştur";
+
+      quickFolderSelectedIcon = "📁";
+      document.getElementById('quickFolderIconBtn').innerText = quickFolderSelectedIcon;
+      document.getElementById('quickFolderIconInline').innerText = quickFolderSelectedIcon;
+      document.getElementById('quickFolderNameInput').value = "";
+
+      const selectEl = document.getElementById('quickFolderParentSelect');
+      populateHierarchicalCategorySelect(selectEl, true, null, parentKey || "");
+
+      const modal = document.getElementById('quickSubgroupModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => document.getElementById('quickFolderNameInput').focus(), 100);
+    }
+
+    function openQuickEditFolderModal(catKey) {
+      const cat = categories.find(c => c.key === catKey);
+      if (!cat || cat.key === 'all') return;
+
+      document.getElementById('quickFolderEditKey').value = cat.key;
+      document.getElementById('quickSubgroupModalTitle').innerText = `"${cat.label}" Klasörünü Düzenle`;
+
+      quickFolderSelectedIcon = cat.icon || "📁";
+      document.getElementById('quickFolderIconBtn').innerText = quickFolderSelectedIcon;
+      document.getElementById('quickFolderIconInline').innerText = quickFolderSelectedIcon;
+      document.getElementById('quickFolderNameInput').value = cat.label;
+
+      const selectEl = document.getElementById('quickFolderParentSelect');
+      populateHierarchicalCategorySelect(selectEl, true, cat.key, cat.parentId || "");
+
+      const modal = document.getElementById('quickSubgroupModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => document.getElementById('quickFolderNameInput').focus(), 100);
+    }
+
+    function closeQuickSubgroupModal() {
+      const modal = document.getElementById('quickSubgroupModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function openEmojiPickerForQuickFolder() {
+      openEmojiPicker((emoji) => {
+        quickFolderSelectedIcon = emoji;
+        document.getElementById('quickFolderIconBtn').innerText = emoji;
+        document.getElementById('quickFolderIconInline').innerText = emoji;
+      }, quickFolderSelectedIcon, "Klasör Simgesi Seçin");
+    }
+
+    function saveQuickSubgroup() {
+      const editKey = document.getElementById('quickFolderEditKey').value;
+      const parentVal = document.getElementById('quickFolderParentSelect').value || null;
+      const nameVal = document.getElementById('quickFolderNameInput').value.trim();
+
+      if (!nameVal) {
+        showToast("Eksik Bilgi", "Lütfen klasör / grup adını girin.");
+        return;
+      }
+
+      if (editKey) {
+        const cat = categories.find(c => c.key === editKey);
+        if (cat) {
+          cat.label = nameVal;
+          cat.icon = quickFolderSelectedIcon || "📁";
+          cat.parentId = parentVal;
+          if (parentVal) expandedFolders.add(parentVal);
+          saveData();
+          renderAllExplorerViews();
+          closeQuickSubgroupModal();
+          showToast("Klasör Güncellendi", `"${nameVal}" klasörü başarıyla güncellendi.`);
+        }
+        return;
+      }
+
+      const newKey = 'grp_' + Date.now();
+      categories.push({
+        key: newKey,
+        label: nameVal,
+        icon: quickFolderSelectedIcon || "📁",
+        parentId: parentVal,
+        isPermanent: false
+      });
+
+      if (parentVal) expandedFolders.add(parentVal);
+      expandedFolders.add(newKey);
+      currentCategory = newKey;
+
+      saveData();
+      renderAllExplorerViews();
+      closeQuickSubgroupModal();
+      showToast("Alt Klasör Oluşturuldu", `${quickFolderSelectedIcon} "${nameVal}" klasörü gezgine eklendi.`);
+    }
+
+    function openEmojiPickerForCategory(catKey) {
+      if (!catKey || catKey === 'all') return;
+      const cat = categories.find(c => c.key === catKey);
+      if (!cat) return;
+      openEmojiPicker((emoji) => {
+        cat.icon = emoji;
+        saveData();
+        renderAllExplorerViews();
+        if (!document.getElementById('groupManagementModal').classList.contains('hidden')) {
+          renderCategoryManagerList();
+        }
+        showToast("Simge Değiştirildi", `"${cat.label}" klasör simgesi ${emoji} olarak güncellendi.`);
+      }, cat.icon || "📁", `"${cat.label}" Klasörü İçin Simge Seçin`);
+    }
+
+    function openEmojiPickerForNewCategory() {
+      openEmojiPicker((emoji) => {
+        newCategorySelectedIcon = emoji;
+        document.getElementById('newCategoryEmojiBtn').innerText = emoji;
+      }, newCategorySelectedIcon, "Yeni Klasör Simgesi Seçin");
+    }
+
     function openGroupModal() {
+      newCategorySelectedIcon = "📁";
+      document.getElementById('newCategoryEmojiBtn').innerText = "📁";
+      const parentSelect = document.getElementById('newCategoryParentSelect');
+      populateHierarchicalCategorySelect(parentSelect, true, null, currentCategory === 'all' ? "" : currentCategory);
       renderCategoryManagerList();
       document.getElementById('groupManagementModal').classList.remove('hidden');
       document.getElementById('groupManagementModal').classList.add('flex');
@@ -2019,23 +3234,58 @@
 
     function renderCategoryManagerList() {
       const listContainer = document.getElementById('categoryManagerList');
-      const editableCats = categories.filter(c => c.key !== 'all');
+      const flatCats = getFlattenedCategoryTree();
 
-      listContainer.innerHTML = editableCats.map(cat => {
-        const count = applications.filter(a => a.categoryKey === cat.key).length;
+      listContainer.innerHTML = flatCats.map(cat => {
+        const count = getRecursiveAppCount(cat.key);
+        const indentPx = cat.depth * 16;
+
+        const forbidden = new Set(getDescendantCategoryKeys(cat.key));
+        const parentOptions = [
+          `<option value="" ${!cat.parentId ? 'selected' : ''}>🏠 Ana Dizin</option>`,
+          ...flatCats
+            .filter(p => !forbidden.has(p.key))
+            .map(p => `<option value="${p.key}" ${cat.parentId === p.key ? 'selected' : ''}>${'— '.repeat(p.depth)}${escapeHtml(p.icon || '📁')} ${escapeHtml(p.label)}</option>`)
+        ].join('');
+
         return `
-          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between gap-2">
-            <div class="flex-1">
-              <input 
-                type="text" 
-                value="${escapeHtml(cat.label)}" 
-                id="catInput-${cat.key}"
-                class="w-full bg-transparent font-semibold text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-1 focus:ring-blue-500 rounded px-1"
-                onchange="renameCategory('${cat.key}', this.value)"
-              >
-              <div class="text-[10px] text-slate-400 mt-0.5 px-1">${count} uygulama bu grupta</div>
+          <div style="margin-left: ${indentPx}px" class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-2 flex-1 min-w-0">
+              <button 
+                type="button"
+                onclick="openEmojiPickerForCategory('${cat.key}')"
+                class="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-lg hover:border-blue-500 transition shrink-0"
+                title="Simgeyi Değiştir">
+                ${escapeHtml(cat.icon || '📁')}
+              </button>
+              <div class="flex-1 min-w-0">
+                <input 
+                  type="text" 
+                  value="${escapeHtml(cat.label)}" 
+                  id="catInput-${cat.key}"
+                  class="w-full bg-transparent font-semibold text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-1 focus:ring-blue-500 rounded px-1"
+                  onchange="renameCategory('${cat.key}', this.value)"
+                >
+                <div class="text-[10px] text-slate-400 px-1">${count} uygulama (alt gruplar dahil)</div>
+              </div>
             </div>
-            <div class="flex items-center gap-1">
+
+            <div class="flex items-center gap-1.5 shrink-0">
+              <select 
+                onchange="changeCategoryParent('${cat.key}', this.value)"
+                class="px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-300 outline-none max-w-[140px]"
+                title="Üst Klasörü Değiştir">
+                ${parentOptions}
+              </select>
+
+              <button 
+                onclick="openQuickSubgroupModal('${cat.key}')" 
+                class="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 rounded-lg transition text-xs font-bold"
+                title="Alt Klasör Ekle (+)"
+              >
+                +Alt
+              </button>
+
               <button 
                 onclick="document.getElementById('catInput-${cat.key}').focus()" 
                 class="p-1.5 text-slate-400 hover:text-blue-500 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition"
@@ -2046,7 +3296,7 @@
               <button 
                 onclick="deleteCategory('${cat.key}')" 
                 class="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition"
-                title="Grubu Sil"
+                title="Klasörü Sil"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
               </button>
@@ -2058,16 +3308,32 @@
 
     function addNewCategory() {
       const input = document.getElementById('newCategoryInput');
+      const parentSelect = document.getElementById('newCategoryParentSelect');
       const val = input.value.trim();
-      if (!val) return;
+      if (!val) {
+        showToast("Eksik Bilgi", "Lütfen yeni klasör için bir isim girin.");
+        return;
+      }
 
+      const parentId = parentSelect && parentSelect.value ? parentSelect.value : null;
       const key = 'grp_' + Date.now();
-      categories.push({ key, label: val, isPermanent: false });
+      categories.push({
+        key,
+        label: val,
+        icon: newCategorySelectedIcon || "📁",
+        parentId: parentId,
+        isPermanent: false
+      });
+
+      if (parentId) expandedFolders.add(parentId);
+      expandedFolders.add(key);
+
       input.value = "";
       saveData();
+      populateHierarchicalCategorySelect(parentSelect, true, null, parentId || "");
       renderCategoryManagerList();
-      renderCategoryPills();
-      showToast("Grup Eklendi", `"${val}" kategorisi başarıyla oluşturuldu.`);
+      renderAllExplorerViews();
+      showToast("Klasör Eklendi", `${newCategorySelectedIcon} "${val}" klasörü oluşturuldu.`);
     }
 
     function renameCategory(key, newName) {
@@ -2075,50 +3341,88 @@
       if (cat && newName.trim()) {
         cat.label = newName.trim();
         saveData();
-        renderCategoryPills();
-        renderAppCards();
-        showToast("Grup Güncellendi", `Grup ismi "${cat.label}" olarak değiştirildi.`);
+        renderAllExplorerViews();
+        showToast("Klasör Güncellendi", `Klasör ismi "${cat.label}" olarak değiştirildi.`);
       }
+    }
+
+    function changeCategoryParent(key, newParentId) {
+      const cat = categories.find(c => c.key === key);
+      if (!cat || cat.key === 'all') return;
+      const targetParent = newParentId ? newParentId : null;
+
+      if (targetParent) {
+        const descendants = getDescendantCategoryKeys(key);
+        if (descendants.includes(targetParent)) {
+          showToast("Geçersiz Taşıma", "Bir klasör kendi alt klasörünün içine taşınamaz.");
+          renderCategoryManagerList();
+          return;
+        }
+        expandedFolders.add(targetParent);
+      }
+
+      cat.parentId = targetParent;
+      saveData();
+      renderCategoryManagerList();
+      renderAllExplorerViews();
+      showToast("Hiyerarşi Güncellendi", `"${cat.label}" klasörünün konumu güncellendi.`);
     }
 
     function deleteCategory(key) {
       const cat = categories.find(c => c.key === key);
-      if (!cat) return;
-      
-      categories = categories.filter(c => c.key !== key);
-      applications.forEach(app => {
-        if (app.categoryKey === key) {
-          app.categoryKey = categories[1] ? categories[1].key : 'all';
+      if (!cat || cat.key === 'all') return;
+
+      const fallbackParent = cat.parentId || null;
+      categories.forEach(c => {
+        if (c.parentId === key) {
+          c.parentId = fallbackParent;
         }
       });
 
-      if (currentCategory === key) currentCategory = 'all';
+      categories = categories.filter(c => c.key !== key);
+
+      const targetAppCat = fallbackParent || (categories.find(c => c.key !== 'all')?.key || 'all');
+      applications.forEach(app => {
+        if (app.categoryKey === key) {
+          app.categoryKey = targetAppCat;
+        }
+      });
+
+      if (currentCategory === key) {
+        currentCategory = fallbackParent || 'all';
+      }
+
       saveData();
-      renderCategoryManagerList();
-      renderCategoryPills();
-      renderAppCards();
-      showToast("Grup Silindi", `"${cat.label}" grubu silindi, araçlar diğer gruplara aktarıldı.`);
+      if (!document.getElementById('groupManagementModal').classList.contains('hidden')) {
+        renderCategoryManagerList();
+      }
+      renderAllExplorerViews();
+      showToast("Klasör Silindi", `"${cat.label}" silindi; alt klasörler ve araçlar üst dizine aktarıldı.`);
     }
 
     function resetAllDataToDefaults() {
-      categories = [...DEFAULT_CATEGORIES];
-      applications = [...DEFAULT_APPLICATIONS];
+      categories = normalizeCategories(DEFAULT_CATEGORIES);
+      applications = normalizeApplications(DEFAULT_APPLICATIONS);
       currentCategory = 'all';
+      categories.forEach(c => {
+        if (c.key !== 'all') expandedFolders.add(c.key);
+      });
       saveData();
       renderCategoryManagerList();
-      renderCategoryPills();
-      renderAppCards();
-      showToast("Sıfırlandı", "Tüm gruplar ve uygulama kartları fabrika ayarlarına döndürüldü.");
+      renderAllExplorerViews();
+      showToast("Sıfırlandı", "Tüm klasör hiyerarşisi ve uygulama kartları fabrika ayarlarına döndürüldü.");
     }
 
     /* =========================================================================
-       6. YENİ UYGULAMA KARTI EKLEME MODALI
+       8. YENİ UYGULAMA KARTI EKLEME & DÜZENLEME MODALLARI
        ========================================================================= */
     function openNewAppModal() {
       const catSelect = document.getElementById('appInputCategory');
-      const validCats = categories.filter(c => c.key !== 'all');
-      catSelect.innerHTML = validCats.map(c => `<option value="${c.key}">${escapeHtml(c.label)}</option>`).join('');
+      const defaultCat = currentCategory !== 'all' ? currentCategory : (categories.find(c => c.key !== 'all')?.key || '');
+      populateHierarchicalCategorySelect(catSelect, false, null, defaultCat);
 
+      newAppSelectedEmoji = "🚀";
+      document.getElementById('newAppEmojiPreview').innerText = newAppSelectedEmoji;
       document.getElementById('appInputTitle').value = "";
       document.getElementById('appInputDesc').value = "";
       document.getElementById('appInputBadge').value = "Yerel Araç";
@@ -2131,6 +3435,13 @@
     function closeNewAppModal() {
       document.getElementById('newAppModal').classList.add('hidden');
       document.getElementById('newAppModal').classList.remove('flex');
+    }
+
+    function openEmojiPickerForNewApp() {
+      openEmojiPicker((emoji) => {
+        newAppSelectedEmoji = emoji;
+        document.getElementById('newAppEmojiPreview').innerText = emoji;
+      }, newAppSelectedEmoji, "Yeni Uygulama Simgesi Seçin");
     }
 
     function saveNewApp() {
@@ -2152,32 +3463,29 @@
         description: desc,
         badge: badge,
         iconType: "custom",
+        iconEmoji: newAppSelectedEmoji || "🚀",
         filePath: path || null,
         isLinked: !!path
       };
 
       applications.unshift(newApp);
       saveData();
-      renderCategoryPills();
-      renderAppCards();
+      renderAllExplorerViews();
       closeNewAppModal();
-      showToast("Uygulama Eklendi", `"${title}" kartı portalınıza eklendi.`);
+      showToast("Uygulama Eklendi", `${newApp.iconEmoji} "${title}" kartı portalınıza eklendi.`);
     }
 
-    /* =========================================================================
-       6.5. KART DÜZENLEME (EDIT) MOTORU
-       ========================================================================= */
     function openEditAppModal(id) {
       const app = applications.find(a => a.id === id);
       if (!app) return;
 
       const catSelect = document.getElementById('editAppCategory');
-      const validCats = categories.filter(c => c.key !== 'all');
-      catSelect.innerHTML = validCats.map(c => `<option value="${c.key}">${escapeHtml(c.label)}</option>`).join('');
+      populateHierarchicalCategorySelect(catSelect, false, null, app.categoryKey);
 
+      editAppSelectedEmoji = app.iconEmoji || "⚡";
+      document.getElementById('editAppEmojiPreview').innerText = editAppSelectedEmoji;
       document.getElementById('editAppId').value = app.id;
       document.getElementById('editAppTitle').value = app.title || '';
-      document.getElementById('editAppCategory').value = app.categoryKey || validCats[0]?.key;
       document.getElementById('editAppDesc').value = app.description || '';
       document.getElementById('editAppBadge').value = app.badge || '';
       document.getElementById('editAppPath').value = app.filePath || '';
@@ -2189,6 +3497,13 @@
     function closeEditAppModal() {
       document.getElementById('editAppModal').classList.add('hidden');
       document.getElementById('editAppModal').classList.remove('flex');
+    }
+
+    function openEmojiPickerForEditApp() {
+      openEmojiPicker((emoji) => {
+        editAppSelectedEmoji = emoji;
+        document.getElementById('editAppEmojiPreview').innerText = emoji;
+      }, editAppSelectedEmoji, "Uygulama Simgesini Değiştirin");
     }
 
     function saveEditedApp() {
@@ -2211,27 +3526,29 @@
       app.categoryKey = catKey;
       app.description = desc;
       app.badge = badge || 'Hazır';
+      app.iconEmoji = editAppSelectedEmoji || app.iconEmoji || "⚡";
       app.filePath = path || null;
       app.isLinked = !!path;
 
       saveData();
-      renderCategoryPills();
-      renderAppCards();
+      renderAllExplorerViews();
       closeEditAppModal();
       showToast("Güncellendi", `"${title}" kartı başarıyla güncellendi.`);
     }
 
     /* =========================================================================
-       7. SAĞ ALT KÖŞE: AYARLANABİLİR CANLI SAAT WİDGET'I MOTORU
+       9. SAĞ ALT KÖŞE: AYARLANABİLİR CANLI SAAT WİDGET'I MOTORU
        ========================================================================= */
-    let clockMode = localStorage.getItem('hub_clock_mode') || 'digital-sec';
-    let clockScale = parseFloat(localStorage.getItem('hub_clock_scale')) || 2.0;
+    let clockMode = safeGetStorage('hub_clock_mode', 'digital-sec');
+    let clockScale = parseFloat(safeGetStorage('hub_clock_scale', '2.0')) || 2.0;
+    let clockIntervalId = null;
 
     function initClockWidget() {
       applyClockScale(clockScale);
       document.getElementById('clockModeSelect').value = clockMode;
       updateClockDisplay();
-      setInterval(updateClockDisplay, 1000);
+      if (clockIntervalId) clearInterval(clockIntervalId);
+      clockIntervalId = setInterval(updateClockDisplay, 1000);
     }
 
     function applyClockScale(scale) {
@@ -2240,7 +3557,7 @@
       widget.style.setProperty('--clock-scale', scale);
       document.getElementById('clockScaleLabel').innerText = `${parseFloat(scale).toFixed(1)}x`;
       document.getElementById('clockScaleInput').value = scale;
-      localStorage.setItem('hub_clock_scale', scale);
+      safeSetStorage('hub_clock_scale', scale);
     }
 
     function handleClockScaleChange(val) {
@@ -2249,7 +3566,7 @@
 
     function handleClockModeChange(mode) {
       clockMode = mode;
-      localStorage.setItem('hub_clock_mode', mode);
+      safeSetStorage('hub_clock_mode', mode);
       updateClockDisplay();
     }
 
@@ -2324,7 +3641,7 @@
     }
 
     /* =========================================================================
-       8. SOL ALT KÖŞE: HİCRİ/MİLADİ TAKVİM & ÖZEL GÜNLER MOTORU
+       10. SOL ALT KÖŞE: HİCRİ/MİLADİ TAKVİM & ÖZEL GÜNLER MOTORU
        ========================================================================= */
     function getHijriDate(date) {
       try {
@@ -2414,10 +3731,12 @@
     let calDate = new Date();
     let selectedDate = new Date();
     let specialDaysFilter = 'all';
+    let calendarPillIntervalId = null;
 
     function initCalendarEngine() {
       updateCalendarPill();
-      setInterval(updateCalendarPill, 60000);
+      if (calendarPillIntervalId) clearInterval(calendarPillIntervalId);
+      calendarPillIntervalId = setInterval(updateCalendarPill, 60000);
     }
 
     function updateCalendarPill() {
@@ -2639,7 +3958,7 @@
     }
 
     /* =========================================================================
-       9. GENEL YARDIMCI FONKSİYONLAR
+       11. GENEL YARDIMCI FONKSİYONLAR
        ========================================================================= */
     function showToast(title, message) {
       const toast = document.getElementById('toastNotification');
@@ -2667,7 +3986,7 @@
     }
 
     function initTheme() {
-      const savedTheme = localStorage.getItem('hub_theme');
+      const savedTheme = safeGetStorage('hub_theme');
       if (savedTheme === 'light') {
         document.documentElement.classList.remove('dark');
         document.getElementById('moonIcon').classList.remove('hidden');
@@ -2681,7 +4000,7 @@
 
     function toggleTheme() {
       const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('hub_theme', isDark ? 'dark' : 'light');
+      safeSetStorage('hub_theme', isDark ? 'dark' : 'light');
       const moon = document.getElementById('moonIcon');
       const sun = document.getElementById('sunIcon');
       if (isDark) {
@@ -2729,6 +4048,7 @@
       closeGroupModal,
       addNewCategory: () => requireAdminAuth(addNewCategory),
       renameCategory: (k, v) => requireAdminAuth(() => renameCategory(k, v)),
+      changeCategoryParent: (k, p) => requireAdminAuth(() => changeCategoryParent(k, p)),
       deleteCategory: (k) => requireAdminAuth(() => deleteCategory(k)),
       resetAllDataToDefaults: () => requireAdminAuth(resetAllDataToDefaults),
       openNewAppModal: () => requireAdminAuth(openNewAppModal),
@@ -2764,21 +4084,48 @@
       saveFirebaseCustomConfig,
       resetFirebaseCustomConfig,
       toggleAdminLockModal,
+      closeAdminAuthModal,
       submitAdminUnlock,
       lockAdminSession,
       showAdminSetPasswordView,
       cancelSetAdminPassword,
       saveNewAdminPassword,
       removeAdminPassword,
-      requireAdminAuth
+      resetAdminPasswordDirectly,
+      toggleRecoveryRuleBox,
+      requireAdminAuth,
+      // Yeni Klasör Gezgini ve Mega Simge Kütüphanesi Fonksiyonları
+      toggleMobileExplorer,
+      handleTreeFilter,
+      toggleFolderExpand,
+      expandAllFolders,
+      collapseAllFolders,
+      toggleIncludeSubfolders,
+      openQuickSubgroupModal,
+      openQuickEditFolderModal,
+      closeQuickSubgroupModal,
+      openEmojiPickerForQuickFolder,
+      saveQuickSubgroup,
+      openEmojiPickerForCategory,
+      openEmojiPickerForNewCategory,
+      openEmojiPickerForNewApp,
+      openEmojiPickerForEditApp,
+      openEmojiPickerForAppCard,
+      openEmojiLibraryStandalone,
+      closeEmojiLibraryModal,
+      setEmojiCategoryTab,
+      handleEmojiSearch,
+      updateEmojiHoverInfo,
+      selectEmojiFromLibrary,
+      applyCustomEmojiInput
     });
 
     window.onload = function() {
       initTheme();
+      initEmojiLibrary();
       initData();
       updateAdminLockUI();
-      renderCategoryPills();
-      renderAppCards();
+      renderAllExplorerViews();
       initClockWidget();
       initCalendarEngine();
       initFirebaseConnection();
