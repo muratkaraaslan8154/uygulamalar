@@ -1,0 +1,1456 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123f35">
+<title>Tasarruf Atlası Pro — Eminevim & Tasarruf Finansman Uzman Hesaplayıcı ve Otomatik Ödeme Takibi</title>
+<style>
+:root{--bg:#f4f5f0;--ink:#1b362f;--muted:#5c6e64;--green:#144d3e;--green-dark:#0e382d;--lime:#dfef9b;--line:#d8e0d5;--white:#fff;--amber:#8b5b17;--amber-bg:#fdf6e2;--blue:#1d4ed8;--blue-bg:#eff6ff;--red:#963c30;--red-bg:#fbe9e5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,select,textarea{font:inherit}
+button,a,input,select{outline-offset:3px}
+button{cursor:pointer;transition:all .15s ease}
+header{background:#fff;border-bottom:1px solid var(--line);padding:16px max(20px,calc((100vw - 1440px)/2));display:flex;justify-content:space-between;align-items:center;gap:16px;position:sticky;top:0;z-index:30}
+.brand{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:750}
+.logo{background:var(--green);color:var(--lime);width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:22px;flex-shrink:0}
+.tag{font-size:12px;color:var(--muted);font-weight:500}
+.header-badges{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill-badge{background:#edf4eb;color:var(--green);border:1px solid #cbe0c7;padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:650}
+main{max-width:1468px;margin:auto;padding:24px 20px 56px}
+.intro{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:22px;flex-wrap:wrap}
+h1{font-size:31px;letter-spacing:-0.9px;line-height:1.2;margin:6px 0}
+p{margin:6px 0 12px}
+.eyebrow{font-size:11px;letter-spacing:1.8px;font-weight:800;color:var(--green);text-transform:uppercase}
+.muted,small{color:var(--muted)}
+.layout{display:grid;grid-template-columns:380px minmax(0,1fr);gap:22px;align-items:start}
+.panel{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:18px;box-shadow:0 2px 8px rgba(18,63,53,.03)}
+.panel h2{font-size:17px;margin:0 0 14px;display:flex;align-items:center;gap:6px}
+.num{font-size:11px;background:#e8f0e3;border-radius:6px;padding:4px 7px;color:var(--green);font-weight:750}
+label{display:block;font-size:12px;font-weight:650;margin:12px 0 5px}
+input,select,textarea{width:100%;height:42px;padding:8px 11px;border:1px solid #cbd5ca;background:#fff;border-radius:9px;color:var(--ink)}
+textarea{height:auto;padding:10px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(20,77,62,.12)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.hint{font-size:11.5px;margin-top:5px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.chip{padding:4px 8px;border:1px solid var(--line);border-radius:7px;background:#f7f9f5;color:var(--ink);font-size:11px;font-weight:600}
+.chip:hover,.chip.active{background:var(--green);color:#fff;border-color:var(--green)}
+.btn{padding:9px 14px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-weight:650;font-size:12.5px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{background:#eef3e8;border-color:#b8c7b4}
+.primary{background:var(--green);color:white;border-color:var(--green)}
+.primary:hover{background:var(--green-dark)}
+.accent{background:var(--lime);color:var(--ink);border-color:#c5db75}
+.accent:hover{background:#d4e885}
+.wide{width:100%;margin-top:12px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:#e6ece1;padding:5px;border-radius:13px;margin-bottom:16px}
+.tabs button{border:0;background:none;border-radius:9px;padding:10px 8px;font-size:12.5px;font-weight:700;color:var(--muted);text-align:center}
+.tabs button.active{background:white;color:var(--green);box-shadow:0 2px 6px rgba(0,0,0,.07)}
+.hero{background:linear-gradient(135deg,#134b3c 0%,#1d614e 100%);border-radius:18px;padding:24px 28px;color:#fff;position:relative;overflow:hidden}
+.hero .muted{color:#c9dfd4}
+.hero h2{font-size:36px;letter-spacing:-0.8px;line-height:1.15;margin:10px 0 6px}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);padding:5px 11px;border-radius:30px;font-size:11px;font-weight:650}
+.hero .date{color:var(--lime);font-size:19px;font-weight:700}
+.hero-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;align-items:center}
+.hero-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:13px;padding:14px 16px;font-size:12.5px}
+.hero-card div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.12)}
+.hero-card div:last-child{border-bottom:0}
+.hero-bottom{display:flex;justify-content:space-between;gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.2);font-size:12.5px;flex-wrap:wrap}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.metric{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px}
+.metric span{font-size:11.5px;color:var(--muted);font-weight:600}
+.metric strong{display:block;font-size:21px;margin:4px 0;color:var(--ink)}
+.metric small{font-size:11px}
+.notice{border-radius:11px;background:var(--amber-bg);border:1px solid #f0dfaf;padding:11px 14px;color:#6e4f16;font-size:12px;margin:10px 0}
+.error{background:var(--red-bg);border-color:#f1c2bc;color:var(--red)}
+.info-box{background:var(--blue-bg);border:1px solid #bfdbfe;color:#1e3a8a;border-radius:11px;padding:12px 14px;font-size:12px;margin:10px 0}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sectionhead h2{margin:0}
+.sectionhead small{font-size:11.5px}
+.scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.scenario{border:1px solid var(--line);border-radius:13px;padding:15px;background:#fff;display:flex;flex-direction:column;justify-content:space-between}
+.scenario.selected{border:2px solid var(--green);padding:14px;background:#f6faf0}
+.scenario-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px}
+.scenario h3{font-size:13.5px;margin:0;color:var(--ink)}
+.scenario-tag{font-size:10px;font-weight:750;padding:2px 7px;border-radius:99px;background:#e8f0e3;color:var(--green)}
+.scenario .month{font-size:24px;font-weight:800;color:var(--green)}
+.scenario .sub{font-size:11.5px;color:var(--muted);margin-bottom:10px}
+.scenario dl{font-size:12px;margin:0}
+.scenario dl div{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid #edf0e7}
+.scenario dd{font-weight:700;margin:0}
+.scenario button{width:100%;margin-top:12px}
+.scroll{overflow:auto;max-height:580px;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}
+th{text-align:right;color:var(--muted);background:#f7f8f2;font-weight:700;padding:10px 9px;position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line)}
+td{text-align:right;padding:9px;border-bottom:1px solid #edf0e7}
+th:first-child,td:first-child{text-align:left}
+tr.delivery{background:#eaf5d3;font-weight:700}
+tr.paid-row{background:#f3f9f4}
+tr.paid-row.delivery{background:#dcf0be}
+.pay-btn{padding:4px 9px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid var(--line);background:#fff}
+.pay-btn.paid{background:var(--green);color:#fff;border-color:var(--green)}
+.bar{height:12px;border-radius:8px;background:#e6eddf;overflow:hidden;display:flex;margin:14px 0 8px}
+.bar span{background:var(--green);transition:width .25s ease}
+.bar i{background:#a8bf7d;transition:width .25s ease}
+.legend{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);gap:10px;flex-wrap:wrap}
+details summary{cursor:pointer;font-size:13px;font-weight:700;padding:4px 0}
+details p,details li{font-size:12px;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hidden{display:none!important}
+.saved{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--line);padding:10px 0;font-size:12px}
+.saved button{font-size:11px;padding:6px 10px}
+footer{font-size:11.5px;color:var(--muted);margin-top:20px}
+a{color:var(--green);font-weight:600}
+.status{font-size:11.5px;min-height:18px;margin:8px 0;color:var(--green);font-weight:600}
+.targetarea{margin-bottom:16px;background:#fff;border:1px solid var(--line);padding:15px 18px;border-radius:13px}
+.targetarea label{margin-top:0}
+.targetarea .two{align-items:center}
+.empty{padding:20px;color:var(--muted);font-size:12.5px;text-align:center}
+.autopay-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+.autopay-stat{background:#f7faf6;border:1px solid var(--line);border-radius:11px;padding:12px}
+.autopay-stat span{font-size:11px;color:var(--muted);display:block}
+.autopay-stat strong{font-size:16.5px;color:var(--green);display:block;margin-top:3px}
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f4f8f2;border:1px solid #d5e2d0;padding:11px 14px;border-radius:11px;margin-bottom:12px;flex-wrap:wrap}
+.switch-label{display:flex;align-items:center;gap:9px;font-weight:700;font-size:13px;cursor:pointer}
+.switch-label input{width:18px;height:18px;margin:0;accent-color:var(--green)}
+.expert-grid{display:grid;grid-template-columns:1.15fr 0.85fr;gap:14px}
+.rule-check{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.rule-item{display:flex;justify-content:space-between;align-items:center;background:#f8faf6;border:1px solid var(--line);padding:9px 12px;border-radius:10px;font-size:12px}
+.rule-item b{color:var(--green)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:#fff;padding:12px 18px;border-radius:11px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:100;transition:opacity .2s,transform .2s}
+@media(max-width:1100px){
+  .layout{grid-template-columns:340px minmax(0,1fr)}
+  .metrics,.autopay-grid{grid-template-columns:repeat(2,1fr)}
+  .scenarios{grid-template-columns:repeat(2,1fr)}
+  .expert-grid,.hero-grid{grid-template-columns:1fr}
+}
+@media(max-width:760px){
+  header{padding:12px 15px}
+  .layout,.metrics,.autopay-grid,.scenarios,.tabs,.two,.three{grid-template-columns:1fr}
+  h1{font-size:24px}
+  .hero h2{font-size:28px}
+}
+@media print{
+  header,.intro .actions,.inputs,.tabs,.actions,.targetarea,.scenario button,#savedPanel,footer,.no-print,.toast{display:none!important}
+  main{padding:0}
+  .layout{display:block}
+  .hero{background:white;color:#111;border:1px solid #aaa}
+  .hero .muted,.hero .date{color:#333}
+  .panel,.metric,.hero{break-inside:avoid}
+  .scroll{overflow:visible;max-height:none}
+  body{background:white;font-size:11px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="logo">◈</span>
+    <div>
+      <div>Tasarruf Atlası Pro</div>
+      <div class="tag">Eminevim &amp; Tasarruf Finansman Uzman Simülatörü · Otomatik Taksit Takibi</div>
+    </div>
+  </div>
+  <div class="header-badges">
+    <span class="pill-badge">✓ 180 Gün &amp; %45/%50 BDDK Uyumlu</span>
+    <span class="pill-badge">✓ Otomatik Ödeme &amp; 6 Varyasyon</span>
+  </div>
+</header>
+
+<main>
+  <div class="intro">
+    <div>
+      <div class="eyebrow">EMİNEVİM HESAP UZMANI &amp; OTOMATİK ÖDEME STÜDYOSU</div>
+      <h1>İstediğin Tutarı Gir, Varyasyonları Karşılaştır, Otomatik Öde.</h1>
+      <p class="muted">İstediğin finansman tutarını, organizasyon ücreti taksit sayısını ve aylık bütçeni gir; parayı ne zaman alacağını veya en kısa sürede teslim için gereken taksiti anında hesapla.</p>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" id="copyPitchTop">📋 Müşteri Teklifini Kopyala</button>
+      <button type="button" class="btn" id="download">HTML İndir</button>
+      <button type="button" class="btn" id="printTop">Yazdır / PDF</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="inputs">
+      <form id="form">
+        <section class="panel">
+          <h2><span class="num">01</span>Finansman Tutarı &amp; Bütçe</h2>
+
+          <label for="amount">İstenen Finansman / Sözleşme Tutarı (TL)</label>
+          <input id="amount" type="number" min="1000" max="100000000" step="1000" value="1000000">
+          <div class="chips" id="amountChips">
+            <button type="button" class="chip" data-set-amount="500000">500 Bin ₺</button>
+            <button type="button" class="chip active" data-set-amount="1000000">1 Milyon ₺</button>
+            <button type="button" class="chip" data-set-amount="1500000">1.5 Milyon ₺</button>
+            <button type="button" class="chip" data-set-amount="2000000">2 Milyon ₺</button>
+            <button type="button" class="chip" data-set-amount="3000000">3 Milyon ₺</button>
+            <button type="button" class="chip" data-set-amount="5000000">5 Milyon ₺</button>
+          </div>
+          <div class="hint">Ev, araç veya iş yeri için almak istediğin toplam ana para.</div>
+
+          <label for="downPayment">Peşinat Tutarı (TL) — İsteğe Bağlı</label>
+          <input id="downPayment" type="number" min="0" max="99000000" step="1000" value="0">
+          <div class="chips" id="downChips">
+            <button type="button" class="chip active" data-set-down="0">Peşinatsız (0 ₺)</button>
+            <button type="button" class="chip" data-set-down-pct="5">%5 Peşinat</button>
+            <button type="button" class="chip" data-set-down-pct="10">%10 Peşinat</button>
+            <button type="button" class="chip" data-set-down-pct="20">%20 Peşinat</button>
+          </div>
+          <div class="hint">Peşinat doğrudan %45/%50 birikim eşiğine sayılır ve teslimatı öne çeker.</div>
+
+          <label for="budget">Ödeyebileceğim Aylık Taksit Bütçesi (TL)</label>
+          <input id="budget" type="number" min="1" max="100000000" step="500" value="35000">
+          <div class="chips" id="budgetChips">
+            <button type="button" class="chip" data-set-budget="15000">15.000 ₺</button>
+            <button type="button" class="chip" data-set-budget="25000">25.000 ₺</button>
+            <button type="button" class="chip active" data-set-budget="35000">35.000 ₺</button>
+            <button type="button" class="chip" data-set-budget="50000">50.000 ₺</button>
+            <button type="button" class="chip" data-set-budget="75000">75.000 ₺</button>
+            <button type="button" class="chip" data-set-budget="100000">100.000 ₺</button>
+          </div>
+          <div class="hint">Her ay cebinden çıkabilecek maksimum taksit bütçesi.</div>
+
+          <div class="two">
+            <div>
+              <label for="start">Sözleşme Başlangıcı</label>
+              <input type="date" id="start" required>
+            </div>
+            <div>
+              <label for="asset">Finansman Türü</label>
+              <select id="asset">
+                <option value="vehicle">Taşıt (Araç)</option>
+                <option value="home" selected>Konut / Çatılı İş Yeri</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2><span class="num">02</span>Organizasyon Ücreti &amp; Taksidi</h2>
+          <div class="two">
+            <div>
+              <label for="feeType">Ücret Biçimi</label>
+              <select id="feeType">
+                <option value="percent">Yüzde (%)</option>
+                <option value="fixed">Sabit TL (₺)</option>
+              </select>
+            </div>
+            <div>
+              <label for="fee">Organizasyon Oranı / Tutarı</label>
+              <input id="fee" type="number" min="0" max="100000000" step="0.1" value="8">
+            </div>
+          </div>
+          <div class="chips" id="feeChips">
+            <button type="button" class="chip" data-set-fee="7">%7 (Kısa Vade)</button>
+            <button type="button" class="chip" data-set-fee="7.5">%7,5</button>
+            <button type="button" class="chip active" data-set-fee="8">%8 (Standart)</button>
+            <button type="button" class="chip" data-set-fee="8.5">%8,5</button>
+            <button type="button" class="chip" data-set-fee="10">%10 (Uzun Vade)</button>
+          </div>
+          <div class="hint" id="feeSummary">Toplam ₺80.000,00 · 4 taksit · aylık ₺20.000,00</div>
+
+          <label for="feeN">Organizasyon Ücreti Kaç Taksit Olacak?</label>
+          <input id="feeN" type="number" min="1" max="60" step="1" value="4">
+          <div class="chips" id="feeNChips">
+            <button type="button" class="chip" data-set-feen="1">Peşin (1)</button>
+            <button type="button" class="chip" data-set-feen="2">2 Taksit</button>
+            <button type="button" class="chip" data-set-feen="3">3 Taksit</button>
+            <button type="button" class="chip active" data-set-feen="4">4 Taksit</button>
+            <button type="button" class="chip" data-set-feen="6">6 Taksit</button>
+            <button type="button" class="chip" data-set-feen="12">12 Taksit</button>
+          </div>
+
+          <label for="feeMode">Organizasyon ve Taksit Ödeme Şekli</label>
+          <select id="feeMode">
+            <option value="split_budget" selected>Bütçe İçinde Otomatik Dengele (Toplam ödeme bütçeyi aşmaz)</option>
+            <option value="parallel">Taksit + Organizasyon Birlikte (Normal taksit sabit kalır)</option>
+            <option value="after">Önce Organizasyon Bitsin, Sonra Taksit Başlasın</option>
+          </select>
+          <div class="hint">“Bütçe İçinde Otomatik Dengele” modunda ilk aylarda organizasyon taksiti ödenirken kalan bütçe birikime aktarılır, organizasyon bitince tüm bütçe taksite döner.</div>
+        </section>
+
+        <section class="panel">
+          <h2><span class="num">03</span>Teslimat Kuralları (Eminevim &amp; BDDK)</h2>
+          <label for="rule">Teslimat Hesaplama Modeli</label>
+          <select id="rule">
+            <option value="scenario" selected>BDDK Yeni Dönem: %45 Birikim &amp; En Erken 180 Gün (6. Ay)</option>
+            <option value="midpoint">Eminevim Klasik Vade Ortası (%50 Eşik + Vade Ortası)</option>
+            <option value="custom">Şube Özel Kampanya / Esnek Koşullar</option>
+          </select>
+
+          <div id="custom" class="hidden">
+            <div class="two">
+              <div>
+                <label for="savePct">Birikim Eşiği (%)</label>
+                <input id="savePct" type="number" min="1" max="100" value="45">
+              </div>
+              <div>
+                <label for="timePct">Vade Süre Eşiği (%)</label>
+                <input id="timePct" type="number" min="1" max="100" value="45">
+              </div>
+            </div>
+            <div class="two">
+              <div>
+                <label for="minDays">Asgari Gün (BDDK)</label>
+                <input id="minDays" type="number" min="0" max="3650" value="180">
+              </div>
+              <div>
+                <label for="extra">Ek Bekleme (Ay)</label>
+                <input id="extra" type="number" min="0" max="24" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="hint" id="ruleHint">Birikim %45 + vade süresi %45 + en az 180 gün (6 ay) koşullarının tamamı sağlandığında teslimat hak edilir.</div>
+          <button type="submit" class="btn primary wide">Hesaplamayı Güncelle ↗</button>
+          <button type="button" id="reset" class="btn wide">Varsayılan Değerlere Dön</button>
+          <div id="storageStatus" class="status" role="status">Ayarlar ve otomatik ödeme durumu bu tarayıcıda kaydedildi.</div>
+        </section>
+      </form>
+
+      <section class="panel">
+        <details open>
+          <summary>Eminevim Uzman Notları &amp; Resmi Kaynaklar</summary>
+          <p><strong>1. Organizasyon Ücreti:</strong> Sisteme katılım bedelidir; ana para birikimine dahil edilmez. Seçtiğiniz taksit sayısına (1–12+ ay) bölünerek tahsil edilir.</p>
+          <p><strong>2. 180 Gün &amp; %45/%50 Teslimat Kuralı:</strong> 1 Temmuz 2026 BDDK düzenlemesiyle kurasız modellerde en erken teslim süresi 150 günden <strong>180 güne (6 ay)</strong>, erken teslimat asgari tasarruf oranı ise <strong>%45’e</strong> çıkarılmıştır.</p>
+          <p><strong>3. 14 Gün Koşulsuz Cayma Hakkı:</strong> Sözleşme imzalandıktan sonra 14 gün içinde cayma hakkı kullanılırsa organizasyon ücreti dahil tüm ödemeler 14 gün içinde kesintisiz iade edilir.</p>
+          <ul>
+            <li><a href="https://www.eminevim.com/bireysel-finansman-pesinatsiz" target="_blank" rel="noopener">Eminevim: Peşinatsız Bireysel Finansman</a></li>
+            <li><a href="https://www.eminevim.com/bireysel-finansman-pesinatli" target="_blank" rel="noopener">Eminevim: Peşinatlı Bireysel Finansman</a></li>
+            <li><a href="https://www.aa.com.tr/tr/ekonomi/bddk-tasarruf-finansman-faaliyetlerine-iliskin-degisiklige-gitti/3983203" target="_blank" rel="noopener">Anadolu Ajansı: BDDK %45 ve 180 Gün Kararı</a></li>
+            <li><a href="https://www.bddk.org.tr/Sss/Liste/117" target="_blank" rel="noopener">BDDK: Tasarruf Finansman Resmi SSS</a></li>
+            <li><a href="https://www.fkb.org.tr/uploads/file/tasarruf-finansman-sirketlerinin-kurulus-ve-faaliyet-esaslari-hakkinda-yonetmelik.pdf" target="_blank" rel="noopener">FKB: Tasarruf Finansman Yönetmeliği (PDF)</a></li>
+          </ul>
+        </details>
+      </section>
+    </aside>
+
+    <article>
+      <div class="tabs" role="group" aria-label="Hesaplama yöntemi">
+        <button type="button" class="active" data-mode="budget">💰 Ödeyebileceğim Taksite Göre</button>
+        <button type="button" data-mode="fast">⚡ En Kısa Sürede (En Erken)</button>
+        <button type="button" data-mode="target">📅 İstenen Teslim Ayına Göre</button>
+        <button type="button" data-mode="term">🔢 Toplam Taksit Sayısına Göre</button>
+      </div>
+
+      <div class="targetarea hidden" id="targetArea">
+        <div class="two">
+          <div>
+            <label for="target">Parayı Kaçıncı Ayda Almak İstiyorsun?</label>
+            <input id="target" type="number" min="1" max="360" value="8">
+            <div class="chips">
+              <button type="button" class="chip" data-set-target="6">6. Ay (En Erken)</button>
+              <button type="button" class="chip" data-set-target="8">8. Ay</button>
+              <button type="button" class="chip" data-set-target="10">10. Ay</button>
+              <button type="button" class="chip" data-set-target="12">12. Ay (1 Yıl)</button>
+              <button type="button" class="chip" data-set-target="18">18. Ay</button>
+              <button type="button" class="chip" data-set-target="24">24. Ay</button>
+            </div>
+          </div>
+          <small>Seçtiğin ayda teslimat alabilmen için ödemen gereken en düşük aylık taksit ve toplam vade otomatik hesaplanır.</small>
+        </div>
+      </div>
+
+      <div class="targetarea hidden" id="termArea">
+        <div class="two">
+          <div>
+            <label for="targetTerm">Toplam Kaç Taksit (Ay Vade) Olsun?</label>
+            <input id="targetTerm" type="number" min="6" max="240" value="36">
+            <div class="chips">
+              <button type="button" class="chip" data-set-term="12">12 Taksit</button>
+              <button type="button" class="chip" data-set-term="24">24 Taksit</button>
+              <button type="button" class="chip" data-set-term="36">36 Taksit</button>
+              <button type="button" class="chip" data-set-term="48">48 Taksit</button>
+              <button type="button" class="chip" data-set-term="60">60 Taksit</button>
+              <button type="button" class="chip" data-set-term="120">120 Taksit</button>
+            </div>
+          </div>
+          <small>Toplam vade sayısını belirlediğinde aylık taksit tutarın ve parayı teslim alacağın ay otomatik hesaplanır.</small>
+        </div>
+      </div>
+
+      <div class="targetarea hidden" id="fastArea">
+        <strong>⚡ En Kısa Sürede (En Erken) Teslimat Modu Aktif</strong>
+        <div class="hint">BDDK 180 gün (6. ay) ve %45/%50 birikim-vade koşullarının izin verdiği <b>en erken ayda</b> parayı teslim almak için gereken ideal aylık taksit ve ödeme tablosu aşağıda hesaplanmıştır.</div>
+      </div>
+
+      <div id="error" class="notice error hidden" role="alert"></div>
+
+      <div id="results" aria-live="polite">
+        <section class="hero">
+          <div class="hero-grid">
+            <div>
+              <span class="badge" id="heroBadge">★ EMİNEVİM UZMAN PLANI · KURASIZ KESİN TARİHLİ SİSTEM</span>
+              <h2 id="delivery">14. ayda tahmini teslim</h2>
+              <div class="date" id="deliveryDate">15 Ocak 2028</div>
+              <div class="muted" id="heroCaption">₺1.000.000,00 sözleşme tutarı · Konut / Çatılı İş Yeri · Peşinatsız</div>
+            </div>
+            <div class="hero-card">
+              <div><span>Finansman Ana Para:</span><strong id="heroAmount">₺1.000.000,00</strong></div>
+              <div><span>Peşinat:</span><strong id="heroDown">₺0,00</strong></div>
+              <div><span>Organizasyon Ücreti:</span><strong id="heroFee">₺80.000,00 (4 Taksit)</strong></div>
+              <div><span>Teslimde Biriken:</span><strong id="heroSavedAtDelivery">₺450.000,00</strong></div>
+            </div>
+          </div>
+          <div class="hero-bottom">
+            <span id="heroBudget">Teslime kadar toplam çıkış: ₺530.000,00</span>
+            <span id="heroTerm">31 normal taksit · Son ödeme 15 Haziran 2029</span>
+          </div>
+        </section>
+
+        <div class="metrics">
+          <div class="metric">
+            <span>Aylık Normal Taksit</span>
+            <strong id="monthly">₺35.000,00</strong>
+            <small id="monthlySub">Organizasyon sonrası standart taksit</small>
+          </div>
+          <div class="metric">
+            <span>İlk Aylarda En Yüksek Yük</span>
+            <strong id="peak">₺35.000,00</strong>
+            <small id="peakSub">Organizasyon taksiti dahil</small>
+          </div>
+          <div class="metric">
+            <span>Teslimatta Alacağın Net Para</span>
+            <strong id="netPayout">₺1.000.000,00</strong>
+            <small>Tapu / Noter devrinde satıcıya ödenir</small>
+          </div>
+          <div class="metric">
+            <span>Toplam Geri Ödeme</span>
+            <strong id="total">₺1.080.000,00</strong>
+            <small>Ana para + organizasyon (Faiz: ₺0)</small>
+          </div>
+        </div>
+
+        <div id="warnings"></div>
+
+        <!-- EMİNEVİM UZMAN ANALİZİ VE DANIŞMAN PANELİ -->
+        <section class="panel" id="expertPanel">
+          <div class="sectionhead">
+            <div>
+              <h2>👨‍💼 Eminevim Hesaplama Uzmanı Analizi &amp; Müşteri Sunumu</h2>
+              <small>Müşteriye teslimat tarihinin dayanağını ve alternatif avantajları tek bakışta anlatın.</small>
+            </div>
+            <button type="button" class="btn accent" id="copyPitchBtn">📋 Uzman Sunum Metnini Kopyala</button>
+          </div>
+
+          <div class="expert-grid">
+            <div>
+              <div class="info-box" id="expertAdviceBox"></div>
+              <div class="rule-check" id="ruleChecklist"></div>
+            </div>
+            <div>
+              <label for="expertPitch">Müşteriye Gönderilecek Hazır Teklif &amp; WhatsApp Özeti</label>
+              <textarea id="expertPitch" rows="6" readonly></textarea>
+              <div class="hint">“Kopyala” butonuna basarak müşteriye WhatsApp veya e-posta üzerinden anında iletebilirsiniz.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- OTOMATİK ÖDEME & TAKSİT TAKİP PANELİ -->
+        <section class="panel" id="autoPayPanel">
+          <div class="sectionhead">
+            <div>
+              <h2>🔄 Otomatik Ödeme &amp; Aylık Taksit Takip Sistemi</h2>
+              <small>Aylık taksitleri otomatik ödeyin, simülasyon tarihini ilerletin veya ödenen ayları işaretleyin.</small>
+            </div>
+            <div class="actions">
+              <button type="button" class="btn primary" id="payNextBtn">+1 Taksit Otomatik Öde</button>
+              <button type="button" class="btn" id="payUntilDeliveryBtn">Teslimat Ayına Kadar Öde</button>
+              <button type="button" class="btn" id="resetPaidBtn">Ödemeleri Sıfırla</button>
+            </div>
+          </div>
+
+          <div class="switch-row">
+            <label class="switch-label" for="autoPayToggle">
+              <input type="checkbox" id="autoPayToggle" checked>
+              <span>Otomatik Ödeme Talimatı Aktif (Seçili tarihe kadar vadesi gelen taksitleri otomatik öde)</span>
+            </label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <label for="autoPayDate" style="margin:0;white-space:nowrap">Otomatik Ödeme Tarihi:</label>
+              <input type="date" id="autoPayDate" style="width:165px;height:36px">
+            </div>
+          </div>
+
+          <div class="autopay-grid">
+            <div class="autopay-stat">
+              <span>Ödenen / Toplam Taksit</span>
+              <strong id="paidCountStat">0 / 31 Ay</strong>
+            </div>
+            <div class="autopay-stat">
+              <span>Şimdiye Kadar Ödenen Toplam</span>
+              <strong id="paidAmountStat">₺0,00</strong>
+            </div>
+            <div class="autopay-stat">
+              <span>Kalan Toplam Borç</span>
+              <strong id="remainingDebtStat">₺1.080.000,00</strong>
+            </div>
+            <div class="autopay-stat">
+              <span>Sıradaki Otomatik Taksit</span>
+              <strong id="nextPaymentStat">1. Ay · ₺35.000,00</strong>
+            </div>
+          </div>
+
+          <div class="bar">
+            <span id="savedBar" style="width:45%"></span>
+            <i id="feeBar" style="width:7%"></i>
+          </div>
+          <div class="legend">
+            <span id="savedLegend">Teslimde birikimin: ₺450.000,00 · Organizasyon: ₺80.000,00</span>
+            <span id="remainingLegend">Teslim sonrası kalan ana para borcu: ₺550.000,00</span>
+          </div>
+          <p class="hint" id="math"></p>
+        </section>
+
+        <!-- 6 PRATİK VARYASYON STÜDYOSU -->
+        <section class="panel" id="comparisonPanel">
+          <div class="sectionhead">
+            <div>
+              <h2>📊 Müşteri İçin 6 Pratik Varyasyon (Anında Karşılaştırma)</h2>
+              <small>Farklı taksit, en kısa süre, organizasyon taksidi ve peşinat varyasyonlarını tek tıkla plana uygulayın.</small>
+            </div>
+          </div>
+          <div class="scenarios" id="scenarios"></div>
+
+          <div class="scroll" style="margin-top:16px">
+            <table>
+              <thead>
+                <tr>
+                  <th>Varyasyon Adı</th>
+                  <th>Teslimat Ayı &amp; Tarihi</th>
+                  <th>İlk Aylar (En Yüksek)</th>
+                  <th>Normal Taksit</th>
+                  <th>Org. Taksidi</th>
+                  <th>Toplam Vade</th>
+                  <th>Teslimde Biriken</th>
+                  <th>İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="variationTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- AYLIK ÖDEME VE OTOMATİK TAHSİLAT TAKVİMİ -->
+        <section class="panel">
+          <div class="sectionhead">
+            <div>
+              <h2>📅 Aylık Otomatik Ödeme &amp; Taksit Takvimi</h2>
+              <small>Yeşil satır parayı teslim alacağın ayı, ✓ işaretli satırlar ödenmiş taksitleri gösterir.</small>
+            </div>
+            <div class="actions">
+              <button type="button" id="savePlan" class="btn primary">⭐ Bu Planı Kaydet</button>
+              <button type="button" id="csv" class="btn">📥 Excel / CSV İndir</button>
+              <button type="button" id="print" class="btn">🖨️ PDF / Yazdır</button>
+            </div>
+          </div>
+          <div class="scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ay / Vade Tarihi</th>
+                  <th>Durum (Otomatik/Manuel)</th>
+                  <th>Normal Taksit (Ana Para)</th>
+                  <th>Organizasyon Taksidi</th>
+                  <th>Aylık Toplam Çıkış</th>
+                  <th>Kümülatif Ana Para Birikimi</th>
+                  <th>Kalan Ana Para Borcu</th>
+                </tr>
+              </thead>
+              <tbody id="schedule"></tbody>
+              <tfoot id="totals"></tfoot>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel" id="savedPanel">
+        <div class="sectionhead">
+          <h2>💾 Kaydettiğim Müşteri Planları</h2>
+          <div class="actions">
+            <button type="button" id="export" class="btn">JSON Yedek İndir</button>
+            <button type="button" id="import" class="btn">Yedek Yükle</button>
+            <input id="file" type="file" accept="application/json,.json" class="hidden">
+          </div>
+        </div>
+        <div id="savedList">
+          <div class="empty">Henüz kayıtlı plan yok. Yukarıdaki “Bu Planı Kaydet” butonuna basarak müşteri alternatiflerini saklayabilirsin.</div>
+        </div>
+      </section>
+
+      <footer>
+        Bu uygulama Eminevim ve tasarruf finansman sistemlerinin kurasız/bireysel modellerini pratik şekilde simüle etmek için geliştirilmiş bağımsız uzman hesaplama ve otomatik taksit takip aracıdır. Kesin tahsisat tarihi ve sözleşme şartları şube onayına tabidir.
+      </footer>
+    </article>
+  </div>
+</main>
+
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const money = c => new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 2 }).format((Number(c) || 0) / 100);
+const fmtDate = d => d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+const round = x => Math.round(x);
+const cent = x => round(Number(x) * 100);
+const KEY = 'tasarruf-atlasi-v2';
+
+function showToast(msg) {
+  const t = $('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => t.classList.add('hidden'), 3200);
+}
+
+function copyText(text, label) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast(label || 'Panoya kopyalandı!')).catch(() => fallbackCopy(text, label));
+  } else {
+    fallbackCopy(text, label);
+  }
+}
+
+function fallbackCopy(text, label) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showToast(label || 'Panoya kopyalandı!');
+  } catch {
+    showToast('Kopyalama başarısız oldu.');
+  }
+  document.body.removeChild(ta);
+}
+
+function addMonths(str, n) {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1 + n, Math.min(d, new Date(y, m + n, 0).getDate()), 12);
+}
+
+function daysSince(a, b) {
+  return Math.round((Date.UTC(a.getFullYear(), a.getMonth(), a.getDate()) - Date.UTC(b.getFullYear(), b.getMonth(), b.getDate())) / 86400000);
+}
+
+const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+
+const defaults = {
+  amount: 1000000,
+  downPayment: 0,
+  budget: 35000,
+  start: todayStr,
+  asset: 'home',
+  feeType: 'percent',
+  fee: 8,
+  feeN: 4,
+  feeMode: 'split_budget',
+  rule: 'scenario',
+  savePct: 45,
+  timePct: 45,
+  minDays: 180,
+  extra: 0,
+  target: 8,
+  targetTerm: 36
+};
+
+let mode = 'budget';
+let current = null;
+let plans = [];
+let variants = [];
+let manualPaidMonths = new Set();
+let autoPayEnabled = true;
+let autoPayDateStr = todayStr;
+
+function config() {
+  const c = {};
+  Object.keys(defaults).forEach(k => {
+    const el = $(k);
+    c[k] = el ? el.value : defaults[k];
+  });
+  for (const k of ['amount', 'downPayment', 'budget', 'fee', 'feeN', 'savePct', 'timePct', 'minDays', 'extra', 'target', 'targetTerm']) {
+    c[k] = Number(c[k]);
+  }
+  return c;
+}
+
+function validate(c) {
+  for (const k of ['amount', 'downPayment', 'budget', 'fee', 'feeN', 'savePct', 'timePct', 'minDays', 'extra', 'target', 'targetTerm']) {
+    if (!Number.isFinite(c[k])) throw Error('Lütfen tüm sayısal alanları geçerli biçimde doldurun.');
+  }
+  if (c.amount < 1000 || c.amount > 1e8 || c.budget <= 0 || c.budget > 1e8 || c.fee < 0 || c.fee > 1e8 || (c.feeType === 'percent' && c.fee > 100)) {
+    throw Error('Finansman tutarı, aylık bütçe veya organizasyon ücreti geçerli aralıkta değil.');
+  }
+  if (c.downPayment < 0 || c.downPayment >= c.amount) {
+    throw Error('Peşinat tutarı 0 TL ile sözleşme tutarı arasında olmalıdır.');
+  }
+  for (const [k, min, max] of [['feeN', 1, 60], ['minDays', 0, 3650], ['extra', 0, 24], ['target', 1, 360], ['targetTerm', 1, 360]]) {
+    if (!Number.isInteger(c[k]) || c[k] < min || c[k] > max) {
+      throw Error('Taksit sayısı, hedef ay ve gün alanlarına geçerli tam sayılar girin.');
+    }
+  }
+  if (c.savePct <= 0 || c.savePct > 100 || c.timePct <= 0 || c.timePct > 100) {
+    throw Error('Birikim ve vade oranları %1–100 aralığında olmalıdır.');
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(c.start) || isNaN(addMonths(c.start, 0)) || +c.start.slice(0, 4) < 2000 || +c.start.slice(0, 4) > 2100) {
+    throw Error('2000–2100 arasında geçerli bir sözleşme başlangıç tarihi seçin.');
+  }
+  return c;
+}
+
+function terms(c) {
+  if (c.rule === 'midpoint') return { s: 0.5, t: 0.5, days: 180, extra: 1 };
+  if (c.rule === 'custom') return { s: c.savePct / 100, t: c.timePct / 100, days: c.minDays, extra: c.extra };
+  return { s: 0.45, t: 0.45, days: 180, extra: 0 };
+}
+
+function feeTotal(c) {
+  return c.feeType === 'percent' ? round(cent(c.amount) * c.fee / 100) : cent(c.fee);
+}
+
+function feeAt(c, m) {
+  const f = feeTotal(c);
+  if (f <= 0 || m > c.feeN) return 0;
+  const base = Math.floor(f / c.feeN);
+  return base + (m <= f % c.feeN ? 1 : 0);
+}
+
+function offset(c) {
+  return c.feeMode === 'after' && feeTotal(c) > 0 ? c.feeN : 0;
+}
+
+function simulate(c, p) {
+  p = round(p);
+  if (p < 1) return null;
+  const a = cent(c.amount);
+  const down = Math.min(a - 100, Math.max(0, cent(c.downPayment || 0)));
+  const remPrincipal = a - down;
+  const f = feeTotal(c);
+  const o = offset(c);
+  const t = terms(c);
+
+  let paid = down;
+  let delivery = null;
+  let peak = 0;
+  const rows = [];
+  let normalMonthsCount = 0;
+
+  // First pass to compute total months & cashflow schedule
+  for (let m = 1; m <= 600; m++) {
+    const fee = feeAt(c, m);
+    let principal = 0;
+    if (paid < a) {
+      if (c.feeMode === 'after' && m <= o) {
+        principal = 0;
+      } else if (c.feeMode === 'split_budget' && fee > 0) {
+        principal = Math.max(0, Math.min(p - fee, a - paid));
+      } else {
+        principal = Math.min(p, a - paid);
+      }
+    }
+    if (principal > 0) normalMonthsCount++;
+    paid += principal;
+    const date = addMonths(c.start, m);
+    peak = Math.max(peak, principal + fee);
+    rows.push({ m, date, principal, fee, sum: principal + fee, paid, left: a - paid });
+    if (paid >= a && m >= c.feeN && m >= Math.ceil(t.days / 28) + 2) break;
+  }
+
+  if (paid < a || normalMonthsCount === 0 || rows.length >= 600) return null;
+
+  const n = normalMonthsCount;
+  const v = c.rule === 'midpoint' ? Math.floor(n / 2) + 1 : Math.ceil(n * t.t - 1e-10) + t.extra;
+  const requiredMonthByTerm = o + v;
+  const threshold = Math.ceil(a * t.s - 1e-8);
+
+  let saveReachedMonth = null;
+  let daysReachedMonth = null;
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const dCount = daysSince(row.date, addMonths(c.start, 0));
+    if (saveReachedMonth === null && row.paid >= threshold) saveReachedMonth = row.m;
+    if (daysReachedMonth === null && dCount >= t.days) daysReachedMonth = row.m;
+    if (delivery === null && row.paid >= threshold && row.m >= requiredMonthByTerm && dCount >= t.days) {
+      delivery = row.m;
+    }
+  }
+
+  // If delivery hasn't occurred by the time principal finishes (e.g., very fast payoff < 6 months), extend rows to minDays
+  while (delivery === null && rows.length < 600) {
+    const m = rows.length + 1;
+    const date = addMonths(c.start, m);
+    const fee = feeAt(c, m);
+    const dCount = daysSince(date, addMonths(c.start, 0));
+    if (daysReachedMonth === null && dCount >= t.days) daysReachedMonth = m;
+    rows.push({ m, date, principal: 0, fee, sum: fee, paid, left: 0 });
+    if (paid >= threshold && m >= requiredMonthByTerm && dCount >= t.days) {
+      delivery = m;
+      break;
+    }
+  }
+
+  if (delivery === null) return null;
+  const end = rows.filter(r => r.principal > 0).reduce((maxM, r) => Math.max(maxM, r.m), 0);
+  const last = rows[rows.length - 1];
+  return {
+    p,
+    a,
+    down,
+    remPrincipal,
+    f,
+    n,
+    o,
+    end,
+    delivery,
+    date: addMonths(c.start, delivery),
+    peak,
+    total: a + f,
+    at: rows[delivery - 1],
+    rows,
+    v: requiredMonthByTerm,
+    days: t.days,
+    threshold,
+    saveReachedMonth: saveReachedMonth || 1,
+    daysReachedMonth: daysReachedMonth || 6,
+    post: Math.max(0, end - delivery),
+    limit: c.asset === 'vehicle' ? 60 : 120,
+    last: last.m
+  };
+}
+
+function budgetPlan(c, b = cent(c.budget)) {
+  const maxFeeMonth = Math.ceil(feeTotal(c) / c.feeN);
+  if (c.feeMode === 'parallel') {
+    const p = b - maxFeeMonth;
+    if (p < 100) return null;
+    return simulate(c, Math.min(p, cent(c.amount)));
+  }
+  if (c.feeMode === 'after') {
+    if (maxFeeMonth > b && feeTotal(c) > 0) return null;
+    return simulate(c, Math.min(b, cent(c.amount)));
+  }
+  // split_budget mode
+  if (maxFeeMonth > b && feeTotal(c) > 0) return null;
+  return simulate(c, Math.min(b, cent(c.amount)));
+}
+
+function targetPlan(c, m) {
+  let lo = 100;
+  let hi = cent(c.amount);
+  const test = simulate(c, hi);
+  if (!test || test.delivery > m) return null;
+  while (lo < hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    const r = simulate(c, mid);
+    if (r && r.delivery <= m) hi = mid;
+    else lo = mid + 1;
+  }
+  return simulate(c, lo);
+}
+
+function termPlan(c, desiredTerm) {
+  const rem = Math.max(100, cent(c.amount) - cent(c.downPayment || 0));
+  const baseP = Math.ceil(rem / Math.max(1, desiredTerm));
+  const simC = { ...c, feeMode: c.feeMode === 'split_budget' ? 'parallel' : c.feeMode };
+  return simulate(simC, baseP);
+}
+
+function fastest(c) {
+  const simC = { ...c, feeMode: c.feeMode === 'split_budget' ? 'parallel' : c.feeMode };
+  const r = simulate(simC, cent(c.amount));
+  return r ? targetPlan(simC, r.delivery) : null;
+}
+
+function apply(c) {
+  Object.keys(defaults).forEach(k => {
+    if ($(k)) $(k).value = c[k] ?? defaults[k];
+  });
+}
+
+function syncAutoPaidMonths(plan) {
+  if (!plan || !autoPayEnabled) return;
+  const refDate = new Date(autoPayDateStr + 'T23:59:59');
+  plan.rows.forEach(r => {
+    if (r.date <= refDate) {
+      manualPaidMonths.add(r.m);
+    }
+  });
+}
+
+function storeState() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify({
+      config: config(),
+      mode,
+      plans,
+      paid: Array.from(manualPaidMonths),
+      autoPayEnabled,
+      autoPayDateStr
+    }));
+    $('storageStatus').textContent = 'Ayarlar ve otomatik ödeme durumu bu tarayıcıda kaydedildi.';
+  } catch {
+    $('storageStatus').textContent = 'Tarayıcı kaydı kullanılamıyor; JSON yedeği alabilirsin.';
+  }
+}
+
+function downloadFile(name, data, type) {
+  const a = document.createElement('a');
+  const u = URL.createObjectURL(new Blob([data], { type }));
+  a.href = u;
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(u), 1000);
+}
+
+function buildExpertSection(c, r, fastPlan) {
+  const bottleneck = [];
+  if (r.saveReachedMonth === r.delivery) bottleneck.push(`Birikim eşiği (${money(r.threshold)}) ${r.saveReachedMonth}. ayda tamamlanıyor`);
+  if (r.v === r.delivery) bottleneck.push(`Vade süresi eşiği (${r.v}. ay) belirleyici oluyor`);
+  if (r.daysReachedMonth === r.delivery) bottleneck.push(`BDDK 180 gün (${r.daysReachedMonth}. ay) yasal alt sınırı belirleyici oluyor`);
+
+  let tipHtml = `<strong>Eminevim Uzman Değerlendirmesi:</strong> Seçtiğiniz <b>${money(r.a)}</b> tutarındaki finansman için <b>${r.delivery}. ayda (${fmtDate(r.date)})</b> kurasız kesin teslimat hak ediyorsunuz. `;
+  if (r.delivery > 6 && fastPlan) {
+    const diffMonth = r.delivery - fastPlan.delivery;
+    const extraPay = Math.max(0, fastPlan.p - r.p);
+    tipHtml += `Eğer parayı <b>en kısa sürede (${fastPlan.delivery}. ayda - ${diffMonth} ay daha erken)</b> almak isterseniz aylık normal taksitinizi <b>${money(fastPlan.p)}</b> seviyesine (+${money(extraPay)}) çıkarmanız yeterlidir.`;
+  } else {
+    tipHtml += `Şu anda BDDK mevzuatının izin verdiği <b>en erken yasal teslimat süresindesiniz (${r.delivery}. ay / 180 gün)</b>! Daha erken teslimat yasal olarak mümkün olmadığından taksiti daha fazla artırmanıza gerek yoktur.`;
+  }
+  $('expertAdviceBox').innerHTML = tipHtml;
+
+  $('ruleChecklist').innerHTML = `
+    <div class="rule-item"><span>1. Asgari Birikim Eşiği (${money(r.threshold)}):</span><b>${r.saveReachedMonth}. Ayda Sağlanıyor ✓</b></div>
+    <div class="rule-item"><span>2. Sözleşme Vade Süresi Eşiği:</span><b>${r.v}. Ayda Sağlanıyor ✓</b></div>
+    <div class="rule-item"><span>3. BDDK Yasal Bekleme Süresi (${r.days} Gün):</span><b>${r.daysReachedMonth}. Ayda Doluyor ✓</b></div>
+    <div class="rule-item"><span>Teslimatı Belirleyen Ana Kriter:</span><b>${bottleneck.join(' + ') || (r.delivery + '. Ay Ortak Kesişim')}</b></div>
+  `;
+
+  const pitchLines = [
+    `📌 EMİNEVİM / TASARRUF FİNANSMAN UZMAN TEKLİF ÖZETİ`,
+    `• Hedef Finansman Tutarı: ${money(r.a)} (${c.asset === 'vehicle' ? 'Taşıt' : 'Konut / İş Yeri'})`,
+    `• Peşinat: ${money(r.down)} | Organizasyon Ücreti: ${money(r.f)} (${c.feeN} Taksit)`,
+    `• Aylık Normal Taksit: ${money(r.p)} (İlk aylarda en yüksek çıkış: ${money(r.peak)})`,
+    `• Kesin Teslimat Tarihi: ${r.delivery}. Ay (${fmtDate(r.date)})`,
+    `• Teslimatta Biriken Ana Para: ${money(r.at.paid)} | Teslim Sonrası Kalan Borç: ${money(r.at.left)}`,
+    `• Toplam Vade: ${r.n} Normal Taksit | Toplam Geri Ödeme: ${money(r.total)} (%0 Faiz)`,
+    fastPlan ? `⚡ Alternatif (En Kısa Sürede Teslim): Aylık ${money(fastPlan.p)} taksitle ${fastPlan.delivery}. ayda (${fmtDate(fastPlan.date)}) teslimat!` : ''
+  ].filter(Boolean).join('\n');
+
+  $('expertPitch').value = pitchLines;
+}
+
+function updateAutoPayUI(r) {
+  const paidRows = r.rows.filter(row => manualPaidMonths.has(row.m));
+  const paidPrincipal = paidRows.reduce((s, x) => s + x.principal, 0) + r.down;
+  const paidFee = paidRows.reduce((s, x) => s + x.fee, 0);
+  const totalPaidSoFar = paidPrincipal + paidFee;
+  const remainingTotalDebt = Math.max(0, r.total - totalPaidSoFar);
+  const nextRow = r.rows.find(row => !manualPaidMonths.has(row.m) && row.sum > 0);
+
+  $('paidCountStat').textContent = `${paidRows.length} / ${r.rows.length} Ay`;
+  $('paidAmountStat').textContent = money(totalPaidSoFar);
+  $('remainingDebtStat').textContent = money(remainingTotalDebt);
+  $('nextPaymentStat').textContent = nextRow
+    ? `${nextRow.m}. Ay (${fmtDate(nextRow.date)}) · ${money(nextRow.sum)}`
+    : 'Tüm Taksitler Ödendi 🎉';
+}
+
+function render() {
+  try {
+    const c = validate(config());
+    const f = feeTotal(c);
+    $('custom').classList.toggle('hidden', c.rule !== 'custom');
+    $('targetArea').classList.toggle('hidden', mode !== 'target');
+    $('termArea').classList.toggle('hidden', mode !== 'term');
+    $('fastArea').classList.toggle('hidden', mode !== 'fast');
+
+    document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    $('feeSummary').textContent = `Toplam Organizasyon: ${money(f)} · ${c.feeN} taksit · aylık ${money(Math.ceil(f / c.feeN))}`;
+    $('ruleHint').textContent = c.rule === 'midpoint'
+      ? 'Normal vadenin yarısını izleyen ay (%50 birikim ve 180 gün koşulu ile birlikte) kontrol edilir.'
+      : c.rule === 'custom'
+      ? 'Şubenin özel kampanya koşullarını girin. Teslimat 3 koşulun kesişiminde gerçekleşir.'
+      : 'BDDK Yeni Dönem: Birikim %45 + vade süresi %45 + en az 180 gün (6. ay) koşulu birlikte aranır.';
+
+    const base = budgetPlan(c);
+    const fast = fastest(c);
+    const splitPlan = budgetPlan({ ...c, feeMode: 'split_budget' });
+    const parallelPlan = budgetPlan({ ...c, feeMode: 'parallel' });
+    const accelPlan = budgetPlan(c, cent(c.budget * 1.25));
+    const comfortPlan = budgetPlan(c, cent(c.budget * 0.8));
+    const down10Config = { ...c, downPayment: Math.round(c.amount * 0.10) };
+    const down10Plan = budgetPlan(down10Config);
+
+    if (mode === 'budget') current = base;
+    else if (mode === 'fast') current = fast;
+    else if (mode === 'target') current = targetPlan({ ...c, feeMode: c.feeMode === 'split_budget' ? 'parallel' : c.feeMode }, c.target);
+    else if (mode === 'term') current = termPlan(c, c.targetTerm);
+
+    if (!current) {
+      throw Error(
+        mode === 'budget'
+          ? 'Bu aylık bütçeyle plan oluşturulamıyor. Organizasyon taksiti aylık bütçeyi aşıyor olabilir. Aylık bütçeyi artırın veya organizasyon taksit sayısını (Ör: 4 veya 6 taksit) yükseltin.'
+          : 'Seçilen koşullarda bu hedef ay için teslimat mümkün değil (BDDK 180 gün / 6. ay alt sınırını kontrol edin).'
+      );
+    }
+
+    const r = current;
+    syncAutoPaidMonths(r);
+    storeState();
+
+    $('error').classList.add('hidden');
+    $('results').classList.remove('hidden');
+
+    $('delivery').textContent = `${r.delivery}. ayda kesinleşen teslimat`;
+    $('deliveryDate').textContent = fmtDate(r.date);
+    $('heroCaption').textContent = `${money(r.a)} finansman · ${c.asset === 'vehicle' ? 'Taşıt' : 'Konut / Çatılı İş Yeri'} · ${r.down > 0 ? money(r.down) + ' Peşinatlı' : 'Peşinatsız'}`;
+    $('heroAmount').textContent = money(r.a);
+    $('heroDown').textContent = money(r.down);
+    $('heroFee').textContent = `${money(r.f)} (${c.feeN} Taksit)`;
+    $('heroSavedAtDelivery').textContent = money(r.at.paid);
+
+    const cashUntilDelivery = r.down + r.rows.slice(0, r.delivery).reduce((s, x) => s + x.sum, 0);
+    $('heroBudget').textContent = `Teslime kadar toplam cebinden çıkan: ${money(cashUntilDelivery)}`;
+    $('heroTerm').textContent = `${r.n} normal taksit · Son ödeme: ${fmtDate(addMonths(c.start, Math.max(r.end, f ? c.feeN : 0)))}`;
+
+    $('monthly').textContent = money(r.p);
+    $('peak').textContent = money(r.peak);
+    $('netPayout').textContent = money(r.a);
+    $('total').textContent = money(r.total);
+
+    const warnings = [];
+    if (r.peak > cent(c.budget)) {
+      warnings.push(`Seçilen bu modda ilk aylardaki en yüksek ödeme (${money(r.peak)}), belirttiğin aylık bütçe sınırını (${money(cent(c.budget))}) ${money(r.peak - cent(c.budget))} aşıyor. İlk aylarda bütçeyi aşmamak için sol menüden "Bütçe İçinde Otomatik Dengele" seçeneğini veya organizasyon taksit sayısını artırabilirsin.`);
+    }
+    if (r.post > r.limit) {
+      warnings.push(`Teslim sonrası kalan vade ${r.post} ay; seçili alım türünün ${r.limit} aylık yasal model sınırını aşıyor. Taksit tutarını artırmanız önerilir.`);
+    }
+    $('warnings').innerHTML = warnings.map((x, i) => `<div class="notice ${i === 0 && r.peak > cent(c.budget) ? 'error' : ''}">${x}</div>`).join('');
+
+    $('savedBar').style.width = Math.min(100, (100 * r.at.paid / r.total)).toFixed(2) + '%';
+    $('feeBar').style.width = Math.min(100, (100 * f / r.total)).toFixed(2) + '%';
+    $('savedLegend').textContent = `Teslimde ana para birikimin: ${money(r.at.paid)} (%${((r.at.paid / r.a) * 100).toFixed(1)}) · Organizasyon: ${money(f)}`;
+    $('remainingLegend').textContent = `Teslim sonrası kalan ana para borcu: ${money(r.at.left)}`;
+    $('math').textContent = `Birikim eşiği: ${money(r.threshold)} (${r.saveReachedMonth}. ayda tamamlanıyor). Vade süresi eşiği: ${r.v}. ay. Asgari yasal bekleme: ${r.days} gün (${r.daysReachedMonth}. ay). Üç koşul birlikte ilk kez ${r.delivery}. ayda (${fmtDate(r.date)}) sağlanmaktadır.`;
+
+    buildExpertSection(c, r, fast);
+    updateAutoPayUI(r);
+
+    variants = [
+      {
+        name: 'Mevcut Bütçem (Dengeli)',
+        tag: 'Standart',
+        plan: splitPlan || base,
+        applyFn: () => { $('feeMode').value = 'split_budget'; mode = 'budget'; }
+      },
+      {
+        name: 'En Kısa Sürede Teslim',
+        tag: 'Maksimum Hız',
+        plan: fast,
+        applyFn: () => { mode = 'fast'; }
+      },
+      {
+        name: 'Taksit + Org. Birlikte',
+        tag: 'Sabit Taksit',
+        plan: parallelPlan || (fast ? simulate({ ...c, feeMode: 'parallel' }, c.budget * 100) : null),
+        applyFn: () => { $('feeMode').value = 'parallel'; if (parallelPlan) { mode = 'budget'; } else { $('budget').value = Math.ceil((c.budget * 100 + feeTotal(c) / c.feeN) / 100); mode = 'budget'; } }
+      },
+      {
+        name: 'Hızlandırılmış (+%25 Bütçe)',
+        tag: 'Erken Teslim',
+        plan: accelPlan,
+        applyFn: () => { $('budget').value = Math.round(c.budget * 1.25); mode = 'budget'; }
+      },
+      {
+        name: 'Rahat Bütçe (-%20 Taksit)',
+        tag: 'Düşük Taksit',
+        plan: comfortPlan,
+        applyFn: () => { $('budget').value = Math.round(c.budget * 0.8); mode = 'budget'; }
+      },
+      {
+        name: '%10 Peşinat Destekli',
+        tag: 'Peşinatlı Avantaj',
+        plan: down10Plan,
+        applyFn: () => { $('downPayment').value = Math.round(c.amount * 0.10); mode = 'budget'; }
+      }
+    ];
+
+    $('scenarios').innerHTML = variants.map((v, i) => {
+      const q = v.plan;
+      const isSelected = q && q.p === r.p && q.delivery === r.delivery && q.down === r.down && q.peak === r.peak;
+      return `<div class="scenario ${isSelected ? 'selected' : ''}">
+        <div>
+          <div class="scenario-top">
+            <h3>${v.name}</h3>
+            <span class="scenario-tag">${v.tag}</span>
+          </div>
+          ${q ? `
+            <div class="month">${q.delivery}. ayda teslim</div>
+            <div class="sub">${fmtDate(q.date)}</div>
+            <dl>
+              <div><dt>Normal Taksit</dt><dd>${money(q.p)}</dd></div>
+              <div><dt>İlk Aylar En Yüksek</dt><dd>${money(q.peak)}</dd></div>
+              <div><dt>Peşinat</dt><dd>${money(q.down)}</dd></div>
+              <div><dt>Toplam Vade</dt><dd>${q.n} Taksit</dd></div>
+            </dl>
+            <div class="hint">${q.peak > cent(c.budget) ? 'İlk aylarda bütçe üzeri' : 'Aylık bütçeye tam uygun'}</div>
+          ` : '<p class="muted">Bu bütçe ile hesaplanamıyor (Bütçeyi veya org. taksidini artırın).</p>'}
+        </div>
+        ${q ? `<button type="button" class="btn ${isSelected ? 'primary' : ''}" data-variant="${i}">${isSelected ? '✓ Aktif Plan' : 'Bu Varyasyonu Uygula →'}</button>` : ''}
+      </div>`;
+    }).join('');
+
+    $('variationTableBody').innerHTML = variants.map((v, i) => {
+      const q = v.plan;
+      if (!q) return '';
+      return `<tr>
+        <td><b>${v.name}</b> <small>(${v.tag})</small></td>
+        <td><b>${q.delivery}. Ay</b> (${fmtDate(q.date)})</td>
+        <td>${money(q.peak)}</td>
+        <td>${money(q.p)}</td>
+        <td>${c.feeN} × ${money(Math.ceil(q.f / c.feeN))}</td>
+        <td>${q.n} Ay</td>
+        <td>${money(q.at.paid)}</td>
+        <td><button type="button" class="btn" data-variant="${i}" style="padding:4px 10px;font-size:11px">Seç</button></td>
+      </tr>`;
+    }).join('');
+
+    const downRowHtml = r.down > 0 ? `<tr class="paid-row">
+      <td>Başlangıç (Peşinat)<br><small>${fmtDate(addMonths(c.start, 0))}</small></td>
+      <td><span class="pay-btn paid">✓ Peşinat Ödendi</span></td>
+      <td>${money(r.down)}</td>
+      <td>${money(0)}</td>
+      <td><b>${money(r.down)}</b></td>
+      <td>${money(r.down)}</td>
+      <td>${money(r.a - r.down)}</td>
+    </tr>` : '';
+
+    $('schedule').innerHTML = downRowHtml + r.rows.map(x => {
+      const isPaid = manualPaidMonths.has(x.m);
+      return `<tr class="${x.m === r.delivery ? 'delivery' : ''} ${isPaid ? 'paid-row' : ''}">
+        <td>${x.m}. ay${x.m === r.delivery ? ' · ★ TESLİMAT AYI' : ''}<br><small>${fmtDate(x.date)}</small></td>
+        <td><button type="button" class="pay-btn ${isPaid ? 'paid' : ''}" data-toggle-pay="${x.m}">${isPaid ? '✓ Ödendi (Otomatik)' : '○ Bekliyor (Öde)'}</button></td>
+        <td>${money(x.principal)}</td>
+        <td>${money(x.fee)}</td>
+        <td><b>${money(x.sum)}</b></td>
+        <td>${money(x.paid)}</td>
+        <td>${money(x.left)}</td>
+      </tr>`;
+    }).join('');
+
+    $('totals').innerHTML = `<tr>
+      <td><b>GENEL TOPLAM</b></td>
+      <td><b>${manualPaidMonths.size} / ${r.rows.length} Ödendi</b></td>
+      <td><b>${money(r.a)}</b></td>
+      <td><b>${money(r.f)}</b></td>
+      <td><b>${money(r.total)}</b></td>
+      <td>—</td>
+      <td><b>${money(0)}</b></td>
+    </tr>`;
+  } catch (e) {
+    current = null;
+    $('error').textContent = e.message;
+    $('error').classList.remove('hidden');
+    $('results').classList.add('hidden');
+  }
+}
+
+function showSaved() {
+  $('savedList').replaceChildren();
+  if (!plans.length) {
+    $('savedList').innerHTML = '<div class="empty">Henüz kayıtlı plan yok. Yukarıdaki “Bu Planı Kaydet” butonuna basarak müşteri alternatiflerini saklayabilirsin.</div>';
+    return;
+  }
+  plans.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'saved';
+    const text = document.createElement('span');
+    text.textContent = p.name;
+    const acts = document.createElement('div');
+    acts.className = 'actions';
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn';
+    b.textContent = 'Planı Aç';
+    b.onclick = () => {
+      apply(p.config);
+      mode = p.mode || 'budget';
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('Kayıtlı plan yüklendi.');
+    };
+    const d = document.createElement('button');
+    d.type = 'button';
+    d.className = 'btn';
+    d.textContent = 'Sil';
+    d.onclick = () => {
+      plans.splice(i, 1);
+      storeState();
+      showSaved();
+      showToast('Plan silindi.');
+    };
+    acts.append(b, d);
+    row.append(text, acts);
+    $('savedList').append(row);
+  });
+}
+
+// Event Listeners
+$('form').onsubmit = e => { e.preventDefault(); render(); };
+let timer;
+$('form').oninput = () => { clearTimeout(timer); timer = setTimeout(render, 180); };
+$('form').onchange = render;
+$('target').oninput = render;
+$('targetTerm').oninput = render;
+
+document.querySelectorAll('[data-mode]').forEach(b => {
+  b.onclick = () => {
+    mode = b.dataset.mode;
+    render();
+  };
+});
+
+// Quick Chip Selectors
+document.addEventListener('click', e => {
+  const amtBtn = e.target.closest('[data-set-amount]');
+  if (amtBtn) {
+    $('amount').value = amtBtn.dataset.setAmount;
+    document.querySelectorAll('[data-set-amount]').forEach(x => x.classList.toggle('active', x === amtBtn));
+    render();
+    return;
+  }
+  const downBtn = e.target.closest('[data-set-down]');
+  if (downBtn) {
+    $('downPayment').value = downBtn.dataset.setDown;
+    document.querySelectorAll('#downChips .chip').forEach(x => x.classList.toggle('active', x === downBtn));
+    render();
+    return;
+  }
+  const downPctBtn = e.target.closest('[data-set-down-pct]');
+  if (downPctBtn) {
+    const pct = Number(downPctBtn.dataset.setDownPct);
+    $('downPayment').value = Math.round((Number($('amount').value) || 0) * pct / 100);
+    document.querySelectorAll('#downChips .chip').forEach(x => x.classList.toggle('active', x === downPctBtn));
+    render();
+    return;
+  }
+  const budBtn = e.target.closest('[data-set-budget]');
+  if (budBtn) {
+    $('budget').value = budBtn.dataset.setBudget;
+    mode = 'budget';
+    document.querySelectorAll('[data-set-budget]').forEach(x => x.classList.toggle('active', x === budBtn));
+    render();
+    return;
+  }
+  const feeBtn = e.target.closest('[data-set-fee]');
+  if (feeBtn) {
+    $('feeType').value = 'percent';
+    $('fee').value = feeBtn.dataset.setFee;
+    document.querySelectorAll('[data-set-fee]').forEach(x => x.classList.toggle('active', x === feeBtn));
+    render();
+    return;
+  }
+  const feeNBtn = e.target.closest('[data-set-feen]');
+  if (feeNBtn) {
+    $('feeN').value = feeNBtn.dataset.setFeen;
+    document.querySelectorAll('[data-set-feen]').forEach(x => x.classList.toggle('active', x === feeNBtn));
+    render();
+    return;
+  }
+  const targetBtn = e.target.closest('[data-set-target]');
+  if (targetBtn) {
+    $('target').value = targetBtn.dataset.setTarget;
+    mode = 'target';
+    render();
+    return;
+  }
+  const termBtn = e.target.closest('[data-set-term]');
+  if (termBtn) {
+    $('targetTerm').value = termBtn.dataset.setTerm;
+    mode = 'term';
+    render();
+    return;
+  }
+  const varBtn = e.target.closest('[data-variant]');
+  if (varBtn) {
+    const v = variants[+varBtn.dataset.variant];
+    if (v && v.applyFn) {
+      v.applyFn();
+      render();
+      showToast(`"${v.name}" varyasyonu uygulandı.`);
+    }
+    return;
+  }
+  const payToggleBtn = e.target.closest('[data-toggle-pay]');
+  if (payToggleBtn) {
+    const m = Number(payToggleBtn.dataset.togglePay);
+    if (manualPaidMonths.has(m)) manualPaidMonths.delete(m);
+    else manualPaidMonths.add(m);
+    render();
+    return;
+  }
+});
+
+$('autoPayToggle').onchange = e => {
+  autoPayEnabled = e.target.checked;
+  render();
+};
+
+$('autoPayDate').onchange = e => {
+  autoPayDateStr = e.target.value || todayStr;
+  if (autoPayEnabled && current) {
+    manualPaidMonths.clear();
+    syncAutoPaidMonths(current);
+  }
+  render();
+};
+
+$('payNextBtn').onclick = () => {
+  if (!current) return;
+  const next = current.rows.find(r => !manualPaidMonths.has(r.m));
+  if (next) {
+    manualPaidMonths.add(next.m);
+    render();
+    showToast(`${next.m}. ay taksiti (${money(next.sum)}) ödendi olarak işaretlendi.`);
+  } else {
+    showToast('Tüm taksitler zaten ödendi!');
+  }
+};
+
+$('payUntilDeliveryBtn').onclick = () => {
+  if (!current) return;
+  current.rows.forEach(r => {
+    if (r.m <= current.delivery) manualPaidMonths.add(r.m);
+  });
+  render();
+  showToast(`Teslimat ayına (${current.delivery}. ay) kadar olan tüm taksitler ödendi!`);
+};
+
+$('resetPaidBtn').onclick = () => {
+  manualPaidMonths.clear();
+  autoPayEnabled = false;
+  $('autoPayToggle').checked = false;
+  render();
+  showToast('Tüm ödeme işaretleri sıfırlandı.');
+};
+
+$('copyPitchBtn').onclick = () => copyText($('expertPitch').value, 'Uzman müşteri teklif metni panoya kopyalandı!');
+$('copyPitchTop').onclick = () => copyText($('expertPitch').value, 'Uzman müşteri teklif metni panoya kopyalandı!');
+
+$('reset').onclick = () => {
+  apply(defaults);
+  mode = 'budget';
+  manualPaidMonths.clear();
+  render();
+  showToast('Varsayılan değerlere dönüldü.');
+};
+
+$('print').onclick = $('printTop').onclick = () => window.print();
+
+$('csv').onclick = () => {
+  if (!current) return;
+  const r = current;
+  const rows = [
+    ['Tasarruf Atlası Pro - Eminevim & Tasarruf Finansman Uzman Ödeme Planı'],
+    ['Model', config().rule],
+    ['Tahmini Teslim', fmtDate(r.date)],
+    ['Ay', 'Tarih', 'Ödeme Durumu', 'Normal Taksit TL', 'Organizasyon TL', 'Toplam Çıkış TL', 'Birikim TL', 'Kalan Borç TL'],
+    ...r.rows.map(x => [
+      x.m,
+      fmtDate(x.date),
+      manualPaidMonths.has(x.m) ? 'Ödendi' : 'Bekliyor',
+      ...[x.principal, x.fee, x.sum, x.paid, x.left].map(v => (v / 100).toFixed(2).replace('.', ','))
+    ])
+  ];
+  downloadFile(
+    'Tasarruf_Atlasi_Odeme_Plani.csv',
+    '\ufeff' + rows.map(row => row.map(v => '"' + String(v).replaceAll('"', '""') + '"').join(';')).join('\r\n'),
+    'text/csv;charset=utf-8'
+  );
+  showToast('CSV / Excel ödeme tablosu indirildi.');
+};
+
+$('savePlan').onclick = () => {
+  if (!current) return;
+  if (plans.length >= 30) {
+    showToast('En fazla 30 plan saklanabilir. Eski bir planı silebilirsin.');
+    return;
+  }
+  plans.push({
+    name: `${money(current.a)} · ${current.delivery}. ayda teslim · ${money(current.p)} / taksit (${config().feeN} org. taksit)`,
+    config: config(),
+    mode
+  });
+  storeState();
+  showSaved();
+  showToast('Plan listeye kaydedildi!');
+};
+
+$('export').onclick = () => {
+  downloadFile('Tasarruf_Atlasi_Yedek.json', JSON.stringify({ version: 1, config: config(), mode, plans }, null, 2), 'application/json');
+  showToast('JSON yedek dosyası indirildi.');
+};
+
+$('import').onclick = () => $('file').click();
+
+$('file').onchange = async e => {
+  try {
+    const f = e.target.files[0];
+    if (!f) return;
+    if (f.size > 1000000) throw Error('Yedek dosyası çok büyük.');
+    const d = JSON.parse(await f.text());
+    if (d.version !== 1 || !Array.isArray(d.plans) || d.plans.length > 30) throw Error('Geçersiz yedek dosyası formatı.');
+    const mergedCfg = { ...defaults, ...d.config };
+    validate(mergedCfg);
+    apply(mergedCfg);
+    mode = ['budget', 'target', 'fast', 'term'].includes(d.mode) ? d.mode : 'budget';
+    plans = d.plans;
+    render();
+    showSaved();
+    showToast('Yedek başarıyla yüklendi!');
+  } catch (err) {
+    showToast('Yedek yüklenemedi: ' + err.message);
+  }
+  e.target.value = '';
+};
+
+$('download').onclick = () => {
+  downloadFile('Tasarruf_Atlasi_Pro.html', '<!doctype html>\n' + document.documentElement.outerHTML, 'text/html;charset=utf-8');
+  showToast('HTML uygulama dosyası indirildi.');
+};
+
+// Initialize
+apply(defaults);
+$('autoPayDate').value = autoPayDateStr;
+try {
+  const s = JSON.parse(localStorage.getItem(KEY));
+  if (s && s.config) {
+    const merged = { ...defaults, ...s.config };
+    validate(merged);
+    apply(merged);
+    mode = ['budget', 'target', 'fast', 'term'].includes(s.mode) ? s.mode : 'budget';
+    if (Array.isArray(s.paid)) manualPaidMonths = new Set(s.paid);
+    if (typeof s.autoPayEnabled === 'boolean') {
+      autoPayEnabled = s.autoPayEnabled;
+      $('autoPayToggle').checked = autoPayEnabled;
+    }
+    if (s.autoPayDateStr) {
+      autoPayDateStr = s.autoPayDateStr;
+      $('autoPayDate').value = autoPayDateStr;
+    }
+    plans = Array.isArray(s.plans) ? s.plans.slice(0, 30) : [];
+  }
+} catch {}
+render();
+showSaved();
+</script>
+</body>
+</html>
