@@ -29,14 +29,14 @@
 </aside>
 <main class="main"><header class="topbar"><div><div class="row"><button class="btn sm mobileToggle" id="menuBtn">☰</button><h1 id="pageTitle">Kontrol Paneli</h1></div><div class="subtitle" id="pageDesc">Günlük tüketim, aylık eğilim ve tahmini fatura tek ekranda</div></div><div class="topActions"><button class="btn sm" id="fbQuickStatus" type="button" title="Firebase bağlantı durumunu göster" aria-live="polite" style="font-size:11px">⏳ DB kontrol ediliyor</button><span class="pill" id="dateBadge">🗓️</span><button class="btn sm hideMobile" id="themeBtn">🌙 Tema</button><button class="btn primary" data-action="newReading">＋ Endeks Ekle</button></div></header>
 <section class="view active" id="view-dashboard"><div class="grid stats" id="statGrid"></div><div class="grid two"><div class="card"><div class="row between"><div><h2>📈 Günlük Gaz Tüketimi</h2><div class="muted">Ölçülen aralıklar ve tahmini dağılım ayrı gösterilir</div></div><div class="tabs" id="dashRanges"><button data-days="7">7G</button><button data-days="30" class="active">30G</button><button data-days="90">90G</button></div></div><div class="chartWrap"><canvas id="dashChart"></canvas><div class="chartTip" id="dashTip"></div></div><div class="row hint" style="margin-top:11px"><span class="pill green">● Ölçümden hesaplandı</span><span class="pill warn">● Eksik günlere dağıtıldı</span><span class="pill">● İleriye yönelik tahmin</span></div></div><div class="card"><h2>🧾 Aktif Fatura Dönemi</h2><p class="muted" id="cycleLabel"></p><div class="metric"><span>Hesaplanan tüketim</span><strong id="cycleConsumption">—</strong></div><div class="metric"><span>Günlük ortalama</span><strong id="cycleAverage">—</strong></div><div class="metric"><span>Şu ana kadarki tahmini tutar</span><strong id="cycleCurrentCost">—</strong></div><div class="metric"><span>Dönem sonu tahmini fatura</span><strong id="cycleProjectedCost">—</strong></div><div class="metric"><span>Kademe durumu</span><strong id="cycleTier">—</strong></div><div id="cycleWarning" class="notice warn"></div><div class="row"><button class="btn soft" data-view="bills">Fatura detayları</button><button class="btn" data-view="settings">Başlangıç ayarı</button></div></div></div><div class="grid twoEq" style="margin-top:17px"><div class="card"><h2>🕒 Son Endeksler</h2><div id="recentReadings"></div></div><div class="card"><h2>📅 Son 12 Takvim Ayı</h2><div class="chartWrap" style="height:250px"><canvas id="monthChart"></canvas><div class="chartTip" id="monthTip"></div></div><div class="muted">Takvim ayına göre dağıtılmış m³; fatura dönemlerinden bağımsızdır.</div></div></div></section>
-<section class="view" id="view-readings"><div class="toolbar"><div><h2 class="sectionTitle">📸 Sayaç Fotoğrafları ve Endeks Kayıtları</h2><div class="hint">Bir günde birden fazla kayıt ekleyebilirsin. Eksik günler gerçek okuma gibi işaretlenmez.</div></div><button class="btn primary" data-action="newReading">📷 Yeni sayaç okuması</button></div><div class="card"><div class="row between"><input class="search" id="readingSearch" placeholder="Endeks, tarih, not ara..." style="flex:1;max-width:380px"><span class="pill" id="readingCount">0 kayıt</span></div><div id="readingTable" style="margin-top:15px"></div></div></section>
+<section class="view" id="view-readings"><div class="toolbar"><div><h2 class="sectionTitle">📸 Sayaç Fotoğrafları ve Endeks Kayıtları</h2><div class="hint">Bir günde birden fazla kayıt ekleyebilirsin. Eksik günler gerçek okuma gibi işaretlenmez.</div></div><div class="row"><button class="btn" id="repairDuplicates" type="button">🛠 Çift kayıtları incele</button><button class="btn primary" data-action="newReading">📷 Yeni sayaç okuması</button></div></div><div class="card"><div class="row between"><input class="search" id="readingSearch" placeholder="Endeks, tarih, not ara..." style="flex:1;max-width:380px"><span class="pill" id="readingCount">0 kayıt</span></div><div id="readingTable" style="margin-top:15px"></div></div></section>
 <section class="view" id="view-calendar"><div class="grid two"><div class="card"><div class="calendarHead"><div><h2>🗓️ Tüketim Takvimi</h2><div class="hint">Miladî ve Hicrî tarih, günlük tüketim ve notlar</div></div><div class="row"><button class="btn sm" id="calPrev">‹</button><strong id="calMonth"></strong><button class="btn sm" id="calNext">›</button></div></div><div class="calendarGrid" id="calendarGrid"></div></div><div class="card"><h2 id="calSelectedTitle">Seçili Gün</h2><div id="calSelectedInfo"></div><div class="divider"></div><div class="field"><label>Günlük not / özel gün</label><textarea id="calNote" placeholder="Örn. kombi 48 °C, misafir vardı..."></textarea></div><div class="row" style="margin-top:12px"><button class="btn primary" id="calSaveNote">Notu Kaydet</button><button class="btn" id="calAddReading">Bu güne okuma ekle</button></div><div class="divider"></div><h2>🕰️ Canlı Saat</h2><div id="calendarClockText" class="muted"></div><p class="hint">Saat widget'ının konumu ve büyüklüğü Ayarlar bölümünden düzenlenir.</p></div></div></section>
 <section class="view" id="view-analysis"><div class="toolbar"><div><h2 class="sectionTitle">📈 İstatistikler ve Karşılaştırmalar</h2><div class="hint">Günlük, aylık ve takvim yılına göre analiz.</div></div><div class="row"><div class="tabs" id="analysisModes"><button class="active" data-mode="daily">Günlük</button><button data-mode="monthly">Aylık</button><button data-mode="yearly">Yıllık</button></div><select class="search" id="analysisYear" aria-label="Yıl seç"></select></div></div><div class="card"><div class="row between"><h2 id="analysisTitle">Günlük Tüketim</h2><span class="pill" id="analysisSummary">—</span></div><div class="chartWrap" style="height:360px"><canvas id="analysisChart"></canvas><div class="chartTip" id="analysisTip"></div></div><div class="hint" id="analysisHint"></div></div><div class="card" style="margin-top:16px"><h2>📋 Sayısal Döküm</h2><div id="analysisTable"></div></div></section>
 <section class="view" id="view-bills"><div class="toolbar"><div><h2 class="sectionTitle">🧾 Fatura Dönemleri ve Tahminler</h2><div class="hint">Fatura dönemleri takvim aylarından ayrı tutulur. Gerçek faturayı kaydedip tahminle karşılaştırabilirsin.</div></div><div class="row"><button class="btn" data-view="settings">⚙️ Fatura başlangıcı</button><button class="btn soft" data-action="newEstimate">📋 İGDAŞ Sitesi Tahmini</button><button class="btn primary" data-action="newBill">＋ Gerçek Fatura Ekle</button></div></div><div id="billHero"></div><div class="card" style="margin-top:17px"><h2>📑 Gerçek Fatura Geçmişi</h2><div id="billsTable"></div></div><div class="card" style="margin-top:17px"><h2>🗓️ Otomatik Fatura Dönemi Arşivi</h2><p class="hint">Belirlediğin ilk okuma tarihinden itibaren tüm dönemler otomatik oluşturulur; kesin okuma olmayan günler tahmini diye işaretlenir.</p><div id="autoCycles"></div></div></section>
 <section class="view" id="view-tariffs"><div class="toolbar"><div><h2 class="sectionTitle">💰 İGDAŞ Tarife ve Hesaplama Merkezi</h2><div class="hint">Konut kademeli tarife, düzeltme katsayısı (K), aylık limitler, KDV ve enerji dönüşümü.</div></div><div class="row"><button class="btn primary" data-action="newTariff">＋ Aylık Tarife Ekle</button><a class="btn" target="_blank" rel="noopener" href="https://igdas.istanbul/musteri-hizmetleri/fiyat-tarifeleri/perakende-satis-fiyatlari">Resmî fiyatlar ↗</a><a class="btn" target="_blank" rel="noopener" href="https://internetsubesi.igdas.com.tr/">İGDAŞ Fatura Hesaplama ↗</a></div></div><div class="card" id="officialPricePanel" style="margin:0 0 16px"><div class="row between"><div><h2>🌐 İGDAŞ Resmî Tarifeler — Otomatik Güncelleme</h2><p class="hint">Yalnızca İGDAŞ'ın herkese açık konut Kademe 1/2 fiyatları ve yakalara göre K katsayıları okunur. Sayaç ve abonelik bilgileri bu siteye gönderilmez.</p></div><button class="btn primary" id="igdasFetchNow">🔄 Resmî fiyatları şimdi çek</button></div><div id="igdasFetchStatus" class="notice">Henüz güncelleme yapılmadı. Açılışta resmî kaynaklar kontrol edilir.</div><details style="margin-top:8px"><summary class="hint" style="cursor:pointer">Tarayıcı erişimi engellenirse: okuma bağlantısı (CORS) ayarı</summary><div class="fields" style="margin:9px 0"><div class="field full"><label>İsteğe bağlı kişisel Cloudflare Worker URL'si (yalnız sabit İGDAŞ sayfaları)</label><input class="search" id="igdasWorker" type="url" placeholder="https://igdas-tarife.kullanici.workers.dev"></div></div><div class="row"><button class="btn sm soft" id="igdasWorkerSave">💾 Okuma bağlantısını kaydet</button><button class="btn sm" id="igdasWorkerClear">Bağlantıyı kaldır</button></div><p class="hint">İGDAŞ sunucusu CORS izni vermezse doğrudan HTML'den veri okumak tarayıcı güvenliği nedeniyle mümkün olmaz. Paketteki sabit adresli Worker, yalnızca resmî İGDAŞ sayfalarını getirir. Servis ayarlanana kadar kayıtlı fiyat korunur ve eski olduğu gösterilir.</p></details></div><div class="grid twoEq"><div class="card"><h2>🧮 Serbest Tüketim Hesaplayıcı</h2><p class="hint">İGDAŞ ekranındaki değerleri buraya aktararak tahmini tutarı kontrol edebilirsin.</p><div class="fields"><div class="field"><label>Tüketim (sayaç m³)</label><input id="calcVolume" type="number" min="0" step="0.001" value="100"></div><div class="field"><label>Hesap ayı</label><input id="calcMonth" type="month" value="2026-11"></div><div class="field"><label>K faktörü (boş = otomatik)</label><input id="calcK" type="number" step="0.000001" placeholder="Otomatik"></div><div class="field"><label>Üst ısıl değer (boş = otomatik)</label><input id="calcHV" type="number" step="0.000001" placeholder="Otomatik"></div><div class="field"><label>KDV (%)</label><input id="calcVat" type="number" min="0" step="0.1" value="20"></div><div class="field"><label>Ay içindeki fatura gün sayısı</label><input id="calcDays" type="number" min="1" max="31" value="30"></div><div class="field"><label>Kademe seçimi</label><select id="calcTier"><option value="auto">Limitten otomatik</option><option value="1">Kademe 1</option><option value="2">Kademe 2</option></select></div></div><div class="row" style="margin-top:12px"><button class="btn sm soft" type="button" id="calcSample">🧪 İGDAŞ 27 m³ / 474,83 TL örneğini kontrol et</button></div><div id="calcResult" class="notice" style="margin-top:14px"></div></div><div class="card"><h2>📘 Faturalandırma Bilgisi</h2><div class="metric"><span>Sayaç hacmi</span><strong>m³</strong></div><div class="metric"><span>Düzeltilmiş hacim</span><strong>m³ × K = Stdm³</strong></div><div class="metric"><span>Enerji karşılığı</span><strong>Stdm³ × üst ısıl değer = kWh</strong></div><div class="metric"><span>Faturaya esas hacim</span><strong>kWh ÷ 10,64 = Sm³</strong></div><div class="metric"><span>Tahmini tutar</span><strong>Sm³ × TL/Sm³ + KDV</strong></div><p class="hint">Düzeltilmiş hacim Stdm³ ile faturalandırma hacmi Sm³ aynı değildir: Stdm³ × üst ısıl değer ÷ 10,64 = Sm³. İGDAŞ sayfasındaki satış fiyatı TL/Sm³ ise fiyat hesabında bu enerji eşdeğeri Sm³ kullanılır. 2026 konutlarında bir ayın eşik üstü tüketimi yalnız aşan kısmı değil, ilgili ayın tamamını Kademe 2 yapabilir.</p><div class="notice warn">KDV, fiyat, 2026 dışı aylık limit ve yayımlanmamış K değeri değişebilir. Resmî faturanın birebir kopyası değil, kullanıcı denetimli tahmindir.</div><div class="row"><a class="sourceLink" target="_blank" href="https://igdas.istanbul/musteri-hizmetleri/faturalandirma/hacim-duzeltme-k-sayisi-ve-ust-isil-deger">Resmî K ve üst ısıl değer ↗</a><a class="sourceLink" target="_blank" href="https://igdas.istanbul/musteri-hizmetleri/fiyat-tarifeleri/kademeli-tarife">Resmî kademeler ↗</a></div></div></div><div class="card" style="margin-top:16px"><h2>📚 Aylık Tarife Kayıtları</h2><div id="tariffTable"></div></div><div class="card" style="margin-top:16px"><div class="row between"><div><h2>🪜 İstanbul Konut Tüketim Limitleri</h2><div class="hint">2026 İGDAŞ kaynaklı aylık değerler; yıl bazında farklılık olabilir.</div></div><select class="search" id="limitYear"><option>2026</option></select></div><div id="limitTable" style="margin-top:16px"></div></div></section>
 <section class="view" id="view-photos"><div class="toolbar"><h2 class="sectionTitle">🖼️ Sayaç Fotoğraf Arşivi</h2><button class="btn primary" data-action="newReading">＋ Fotoğraf Ekle</button></div><div class="card"><div class="notice">Fotoğraflar cihazda IndexedDB'de saklanır. Bulut fotoğraf eşitlemesi için Firebase Storage yetkisi ayrıca gerekir. Fotoğraf tarihi varsa EXIF'ten okunur; yoksa elle belirlenir.</div><div id="photosGrid" class="photoGrid"></div></div></section>
 <section class="view" id="view-emoji"><div class="card"><div class="row between"><div><h2>🎨 Geniş Emoji ve İkon Kütüphanesi</h2><p class="hint">Emojiye dokunup uygulama simgesi yap veya panoya kopyala. Seçim bu cihazda saklanır.</p></div><input id="emojiSearch" class="search" placeholder="🔎 Emoji ara..." style="width:210px"></div><div class="row" style="margin:15px 0"><select id="emojiCategory" class="search" style="min-width:210px"></select><span class="pill" id="emojiCount">—</span></div><div id="emojiGrid" class="emojiGrid"></div></div></section>
-<section class="view" id="view-backup"><div class="grid twoEq"><div class="card"><h2>💾 Yedekleme ve Dışa Aktarım</h2><p class="hint">Ayarlar, tüm okuma kayıtları, fotoğraflar, notlar, faturalar ve tarifeler JSON yedeğinde toplanabilir.</p><div class="row"><button class="btn primary" id="exportJson">⬇️ Tam JSON + fotoğraflar</button><button class="btn" id="exportCsv">⬇️ CSV raporu</button><button class="btn" id="printReport">🖨️ PDF / Yazdır</button></div><div class="notice">Önemli: CSV yalnızca sayısal kayıtları içerir. Cihaz değiştirirken fotoğrafları da taşıyabilmek için tam JSON yedeğini kullan.</div></div><div class="card"><h2>📥 Güvenli Geri Yükleme</h2><p class="hint">Veriler kayıt kimliklerine göre birleştirilir. Mevcut kayıtlar topluca silinmez. Aynı kayıtta çakışma varsa ikinci kopya korunur.</p><input id="importFile" type="file" accept="application/json,.json" class="search" style="width:100%"><button class="btn soft" id="importJson" style="margin-top:12px">📂 Dosyayı İçe Aktar</button><div id="backupMeta" class="notice"></div></div></div></section>
+<section class="view" id="view-backup"><div class="grid twoEq"><div class="card"><h2>💾 Yedekleme ve Dışa Aktarım</h2><p class="hint">Ayarlar, tüm okuma kayıtları, fotoğraflar, notlar, faturalar ve tarifeler JSON yedeğinde toplanabilir.</p><div class="row"><button class="btn primary" id="exportJson">⬇️ Tam JSON + fotoğraflar</button><button class="btn" id="exportCsv">⬇️ CSV raporu</button><button class="btn" id="printReport">🖨️ PDF / Yazdır</button></div><div class="notice">Önemli: CSV yalnızca sayısal kayıtları içerir. Cihaz değiştirirken fotoğrafları da taşıyabilmek için tam JSON yedeğini kullan.</div></div><div class="card"><h2>📥 Güvenli Geri Yükleme</h2><p class="hint">Veriler kayıt kimliklerine göre birleştirilir. Mevcut kayıtlar topluca silinmez. Aynı kayıtta çakışma varsa ikinci kopya korunur.</p><input id="importFile" type="file" accept="application/json,.json" class="search" style="width:100%"><button class="btn soft" id="importJson" style="margin-top:12px">📂 Dosyayı İçe Aktar</button><div id="backupMeta" class="notice"></div></div></div><div class="card" style="margin-top:16px"><h2>🛡️ Firebase Kurtarma ve Kayıt Güvenliği</h2><p class="hint">Eski eşitlemenin oluşturduğu kopyalar otomatik silinmez. Sayaç listesinde tekrarlı okumalar tek satır görünür. Eski Firebase dalı arşiv olarak kalır; yeni kayıtlar temiz ve ayrı bir alt alana yazılır.</p><button class="btn soft" type="button" id="repairBackupPage">🔎 Kayıt tekrarlarını incele / tam yedek al</button><div id="safeRecoveryMeta" class="notice"></div></div></section>
 <section class="view" id="view-settings"><div class="grid" style="grid-template-columns:minmax(0,1fr);max-width:880px"><div class="card"><h2>⚙️ Sayaç ve Fatura Ayarları</h2><div class="fields" style="margin-top:17px"><div class="field"><label>Sayaç adı</label><input id="s-meterName" placeholder="Ev doğal gaz sayacı"></div><div class="field"><label>Sayaç seri numarası (isteğe bağlı)</label><input id="s-serial"></div><div class="field"><label>İstanbul yakası</label><select id="s-zone"><option value="Anadolu">Anadolu</option><option value="Avrupa">Avrupa</option></select></div><div class="field"><label>Fatura başlangıç tarihi</label><input id="s-start" type="date"></div><div class="field"><label>Fatura başlangıç endeksi (m³)</label><input id="s-baseIndex" inputmode="decimal" placeholder="Örn. 900,123"></div><div class="field"><label>Varsayılan fatura dönemi (gün)</label><input id="s-cycleDays" type="number" min="7" max="65"></div><div class="field"><label>Bir sonraki kesim tarihi (opsiyonel)</label><input id="s-end" type="date"></div><div class="field"><label>Varsayılan KDV (%)</label><input id="s-vat" type="number" min="0" max="100" step="0.1"></div><div class="field"><label>Saat boyutu</label><input id="s-clockScale" type="range" min="0.7" max="2" step="0.1"></div><div class="field"><label>Arayüz teması</label><select id="s-theme"><option value="dark">Koyu</option><option value="light">Açık</option></select></div></div><div class="notice warn">Başlangıç tarihi ve o günkü fatura son endeksi doğru girilmelidir. Aynı endeks tarihli diğer okumalar korunur. Boş günler gözlem yapılmış gibi sayılmaz.</div><button class="btn primary" id="saveSettings">💾 Ayarları Kaydet</button></div></div></section>
 </main></div>
 <div class="clockDock" id="clockDock"><div class="clock" id="clock"><div class="hand hour" id="clockH"></div><div class="hand minute" id="clockM"></div><div class="hand second" id="clockS"></div><div class="pin"></div></div><div class="clockCaption" id="clockCaption"></div></div>
@@ -78,7 +78,7 @@ function askConfirm(msg,onYes){modal('⚠️ Onay Gerekli',`<div class="notice w
 function askPrompt(msg,defVal,onOk){modal('✏️ Bilgi Girişi',`<div class="field"><label>${esc(msg)}</label><input id="pr-val" class="search" value="${esc(defVal||'')}"></div>`,`<button class="btn" id="pr-no">Vazgeç</button><button class="btn primary" id="pr-ok">Tamam</button>`);document.getElementById('pr-no').onclick=closeModal;document.getElementById('pr-ok').onclick=()=>{const v=document.getElementById('pr-val').value.trim();closeModal();if(v)onOk(v)}}
 function setView(view){currentView=view;document.querySelectorAll('.view').forEach(e=>e.classList.toggle('active',e.id==='view-'+view));document.querySelectorAll('.nav').forEach(e=>e.classList.toggle('active',e.dataset.view===view));const titles={dashboard:['Kontrol Paneli','Günlük tüketim, aylık eğilim ve tahmini fatura tek ekranda'],readings:['Sayaç Okumaları','Fotoğraf, tarih, saat ve endeks kayıtları'],calendar:['Takvim & Günlük','Miladî–Hicrî tarihler ve günlük tüketim'],analysis:['Grafikler & Analiz','Tüketimin günlük, aylık ve yıllık dökümü'],bills:['Fatura Dönemleri','Tahmini hesaplama ve gerçek fatura arşivi'],tariffs:['Tarife Merkezi','Kademe, K, üst ısıl değer ve KDV ayarları'],photos:['Fotoğraf Arşivi','Kaydedilen sayaç görselleri'],emoji:['Emoji Kütüphanesi','Kişiselleştirilebilir ikon koleksiyonu'],backup:['Yedekleme','JSON, CSV, PDF ve geri yükleme'],settings:['Ayarlar','Sayaç ve fatura tercihleri']};document.getElementById('pageTitle').textContent=titles[view][0];document.getElementById('pageDesc').textContent=titles[view][1];document.getElementById('sidebar').classList.remove('open');render()}
 function setTheme(v){document.body.dataset.theme=v;state.settings.theme=v;document.getElementById('themeBtn').textContent=v==='dark'?'☀️ Açık Tema':'🌙 Koyu Tema';}
-function uniquePerDay(){const map=new Map();const readings=state.readings.filter(r=>!r.deleted&&Number.isFinite(+r.value)).sort((a,b)=>a.at.localeCompare(b.at));if(state.settings.baseIndex!==''&&Number.isFinite(parseVal(state.settings.baseIndex)))map.set(state.settings.start,{date:state.settings.start,value:parseVal(state.settings.baseIndex),source:'başlangıç'});for(const r of readings){const day=r.at.slice(0,10);const old=map.get(day);if(old&&old.source==='başlangıç'&&day===state.settings.start)continue;map.set(day,{date:day,value:+r.value,source:'photo',id:r.id})}return [...map.values()].sort((a,b)=>a.date.localeCompare(b.date))}
+function uniquePerDay(){const map=new Map();const readings=safeUniqueReadings(state.readings.filter(r=>!r.deleted&&Number.isFinite(+r.value))).sort((a,b)=>a.at.localeCompare(b.at));if(state.settings.baseIndex!==''&&Number.isFinite(parseVal(state.settings.baseIndex)))map.set(state.settings.start,{date:state.settings.start,value:parseVal(state.settings.baseIndex),source:'başlangıç'});for(const r of readings){const day=r.at.slice(0,10);const old=map.get(day);if(old&&old.source==='başlangıç'&&day===state.settings.start)continue;map.set(day,{date:day,value:+r.value,source:'photo',id:r.id})}return [...map.values()].sort((a,b)=>a.date.localeCompare(b.date))}
 function dailyData(includeForecast=false,limitDay=null){const pts=uniquePerDay(),result=new Map();for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],gap=diffDays(a.date,b.date),total=b.value-a.value;if(gap<=0||total<0)continue;for(let j=1;j<=gap;j++){const d=shiftDay(a.date,j),val=total/gap;result.set(d,{day:d,value:val,kind:gap===1?'ölçüm':'dağıtım',gap,source:`${dateText(a.date)} → ${dateText(b.date)}`})}}if(includeForecast&&pts.length){const last=pts[pts.length-1],end=limitDay||tomorrow(),recent=[...result.values()].filter(o=>o.day<=last.date&&o.day>=shiftDay(last.date,-14));const avg=recent.reduce((a,b)=>a+b.value,0)/(recent.length||1);if(recent.length){let n=0;for(let d=shiftDay(last.date,1);d<=end&&n<66;d=shiftDay(d,1),n++)if(!result.has(d))result.set(d,{day:d,value:avg,kind:'tahmin',gap:1,source:'Son 14 gün tahmini'});}}return result}
 function getK(month){
   const zone=state.settings.zone;
@@ -125,15 +125,25 @@ function billCost(days,vat=+state.settings.vat){
 function activeCycle(){const s=state.settings;let start=s.start||localDay(),days=Math.max(7,Math.min(65,+s.cycleDays||30)),end=s.end&&s.end>start?s.end:shiftDay(start,days);const today=localDay();if(!s.end){let safety=0;while(end<today&&safety++<800){start=end;end=shiftDay(start,days)}while(start>today&&safety++<1600){end=start;start=shiftDay(end,-days)}}return {start,end}}
 function billOverview(){const c=activeCycle(),all=dailyData(true,c.end),actual=dailyData(false),known=[],projected=[];for(let d=shiftDay(c.start,1);d<=c.end;d=shiftDay(d,1)){const a=actual.get(d),p=all.get(d);if(a)known.push(a);if(p)projected.push(p)}const liveDay=localDay(),untilNow=projected.filter(x=>x.day<=liveDay),endCost=billCost(projected),current=billCost(untilNow);const pts=uniquePerDay(),last=pts.at(-1);return {...c,known,projected,untilNow,endCost,current,hasBaseline:pts.length>=2,latest:last}}
 function addDisplayDay(day){const d=dayDate(day);return d.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'})}
-function readingDelta(r){const arr=state.readings.filter(x=>!x.deleted&&Number.isFinite(+x.value)).sort((a,b)=>a.at.localeCompare(b.at)),i=arr.findIndex(x=>x.id===r.id);const prev=arr[i-1]||(state.settings.baseIndex!==''&&state.settings.start<=r.at.slice(0,10)?{value:parseVal(state.settings.baseIndex),at:state.settings.start+'T00:00'}:null);if(!prev||r.value<prev.value)return null;const interval=(new Date(r.at).getTime()-new Date(prev.at).getTime())/86400000;return {vol:r.value-prev.value,days:interval,avg:interval>0?(r.value-prev.value)/interval:null}}
-function renderDashboard(){const pts=uniquePerDay(),last=pts.at(-1),first=pts[0],o=billOverview(),recentData=dailyData(false),known=[...recentData.values()],monthly=[...aggregateByMonth(known).entries()],month=localDay().slice(0,7),monthvol=monthly.find(x=>x[0]===month)?.[1].reduce((a,b)=>a+b.value,0)||0;const recent=known.filter(x=>x.day>=shiftDay(localDay(),-7)&&x.day<=localDay());const avg=recent.length?recent.reduce((a,b)=>a+b.value,0)/recent.length:NaN;const kpis=[['⛽','Son sayaç endeksi',last?fmtNumber(last.value,3)+' m³':'—',last?dateText(last.date):'İlk okuma eklenmedi'],['📅','Bu takvim ayı',known.length?fmtNumber(monthvol,2)+' m³':'—','Fatura dönemiyle aynı olmayabilir'],['📉','Son 7 gün ortalaması',Number.isFinite(avg)?fmtNumber(avg,2)+' m³/gün':'—',recent.length+' gün hesaplandı'],['💳','Fatura dönemi tahmini',o.projected.length?money(o.endCost.total):'—',o.projected.length?o.endCost.warnings.length+' uyarı / '+o.projected.length+' gün':'Başlangıç endeksi veya 2 okuma gerekli']];document.getElementById('statGrid').innerHTML=kpis.map(x=>`<div class="kpi"><div class="kicon">${x[0]}</div><label>${x[1]}</label><div class="value">${esc(x[2])}</div><div class="sub">${esc(x[3])}</div></div>`).join('');document.getElementById('cycleLabel').textContent=dateText(o.start)+' — '+dateText(o.end);document.getElementById('cycleConsumption').textContent=o.untilNow.length?fmtNumber(o.untilNow.reduce((a,b)=>a+b.value,0),2)+' m³':'—';document.getElementById('cycleAverage').textContent=o.untilNow.length?fmtNumber(o.untilNow.reduce((a,b)=>a+b.value,0)/o.untilNow.length,2)+' m³/gün':'—';document.getElementById('cycleCurrentCost').textContent=o.untilNow.length?money(o.current.total):'—';document.getElementById('cycleProjectedCost').textContent=o.projected.length?money(o.endCost.total):'—';document.getElementById('cycleTier').textContent=o.projected.length?o.endCost.tier2months.length?'⚠️ Kademe 2 olası':'✅ Kademe 1':'—';document.getElementById('cycleWarning').textContent=!o.hasBaseline?'Başlangıç endeksi ve/veya en az iki farklı tarihli okuma gerekli.':o.endCost.warnings.length?o.endCost.warnings.slice(0,3).join(' • '):o.projected.some(x=>x.kind==='tahmin')?'İleri günler geçmiş ortalamaya göre tahmin edildi; gerçek ölçüm değildir.':'Resmî fatura ile karşılaştırın.';const records=state.readings.filter(r=>!r.deleted).sort((a,b)=>b.at.localeCompare(a.at)).slice(0,5);document.getElementById('recentReadings').innerHTML=records.length?records.map(r=>{const d=readingDelta(r);return `<div class="metric"><span>${r.photo?'📸':'🔢'} ${esc(dateText(r.at.slice(0,10)))} <small class="muted">${esc(r.at.slice(11,16))}</small><br><small class="muted">${esc(r.note||'Sayaç okuması')}</small></span><strong>${fmtNumber(r.value,3)}<br><small style="color:var(--green);font-size:12px">${d?'+ '+fmtNumber(d.vol,3)+' m³':'İlk kayıt'}</small></strong></div>`}).join(''):'<div class="empty">Henüz endeks kaydı yok.<br><button class="btn soft" data-action="newReading">İlk okumayı ekle</button></div>';let period=[];for(let i=11;i>=0;i--){let d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);const m=localDay(d).slice(0,7),items=monthly.find(x=>x[0]===m);period.push({label:MONTHS[d.getMonth()].slice(0,3),value:items?items[1].reduce((a,b)=>a+b.value,0):0,full:m,kind:items?'ölçüm':'boş'})}drawChart('monthChart',period,'bar');const daily=[];for(let i=dashDays-1;i>=0;i--){const d=shiftDay(localDay(),-i),v=recentData.get(d);daily.push({label:d.slice(8),full:d,value:v?.value??0,kind:v?.kind||'boş'})}drawChart('dashChart',daily,'line')}
+function readingDelta(r){const arr=safeUniqueReadings(state.readings.filter(x=>!x.deleted&&Number.isFinite(+x.value))).sort((a,b)=>a.at.localeCompare(b.at)),i=arr.findIndex(x=>x.id===r.id);const prev=arr[i-1]||(state.settings.baseIndex!==''&&state.settings.start<=r.at.slice(0,10)?{value:parseVal(state.settings.baseIndex),at:state.settings.start+'T00:00'}:null);if(!prev||r.value<prev.value)return null;const interval=(new Date(r.at).getTime()-new Date(prev.at).getTime())/86400000;return {vol:r.value-prev.value,days:interval,avg:interval>0?(r.value-prev.value)/interval:null}}
+function renderDashboard(){const pts=uniquePerDay(),last=pts.at(-1),first=pts[0],o=billOverview(),recentData=dailyData(false),known=[...recentData.values()],monthly=[...aggregateByMonth(known).entries()],month=localDay().slice(0,7),monthvol=monthly.find(x=>x[0]===month)?.[1].reduce((a,b)=>a+b.value,0)||0;const recent=known.filter(x=>x.day>=shiftDay(localDay(),-7)&&x.day<=localDay());const avg=recent.length?recent.reduce((a,b)=>a+b.value,0)/recent.length:NaN;const kpis=[['⛽','Son sayaç endeksi',last?fmtNumber(last.value,3)+' m³':'—',last?dateText(last.date):'İlk okuma eklenmedi'],['📅','Bu takvim ayı',known.length?fmtNumber(monthvol,2)+' m³':'—','Fatura dönemiyle aynı olmayabilir'],['📉','Son 7 gün ortalaması',Number.isFinite(avg)?fmtNumber(avg,2)+' m³/gün':'—',recent.length+' gün hesaplandı'],['💳','Fatura dönemi tahmini',o.projected.length?money(o.endCost.total):'—',o.projected.length?o.endCost.warnings.length+' uyarı / '+o.projected.length+' gün':'Başlangıç endeksi veya 2 okuma gerekli']];document.getElementById('statGrid').innerHTML=kpis.map(x=>`<div class="kpi"><div class="kicon">${x[0]}</div><label>${x[1]}</label><div class="value">${esc(x[2])}</div><div class="sub">${esc(x[3])}</div></div>`).join('');document.getElementById('cycleLabel').textContent=dateText(o.start)+' — '+dateText(o.end);document.getElementById('cycleConsumption').textContent=o.untilNow.length?fmtNumber(o.untilNow.reduce((a,b)=>a+b.value,0),2)+' m³':'—';document.getElementById('cycleAverage').textContent=o.untilNow.length?fmtNumber(o.untilNow.reduce((a,b)=>a+b.value,0)/o.untilNow.length,2)+' m³/gün':'—';document.getElementById('cycleCurrentCost').textContent=o.untilNow.length?money(o.current.total):'—';document.getElementById('cycleProjectedCost').textContent=o.projected.length?money(o.endCost.total):'—';document.getElementById('cycleTier').textContent=o.projected.length?o.endCost.tier2months.length?'⚠️ Kademe 2 olası':'✅ Kademe 1':'—';document.getElementById('cycleWarning').textContent=!o.hasBaseline?'Başlangıç endeksi ve/veya en az iki farklı tarihli okuma gerekli.':o.endCost.warnings.length?o.endCost.warnings.slice(0,3).join(' • '):o.projected.some(x=>x.kind==='tahmin')?'İleri günler geçmiş ortalamaya göre tahmin edildi; gerçek ölçüm değildir.':'Resmî fatura ile karşılaştırın.';const records=safeUniqueReadings(state.readings.filter(r=>!r.deleted)).sort((a,b)=>b.at.localeCompare(a.at)).slice(0,5);document.getElementById('recentReadings').innerHTML=records.length?records.map(r=>{const d=readingDelta(r);return `<div class="metric"><span>${r.photo?'📸':'🔢'} ${esc(dateText(r.at.slice(0,10)))} <small class="muted">${esc(r.at.slice(11,16))}</small><br><small class="muted">${esc(r.note||'Sayaç okuması')}</small></span><strong>${fmtNumber(r.value,3)}<br><small style="color:var(--green);font-size:12px">${d?'+ '+fmtNumber(d.vol,3)+' m³':'İlk kayıt'}</small></strong></div>`}).join(''):'<div class="empty">Henüz endeks kaydı yok.<br><button class="btn soft" data-action="newReading">İlk okumayı ekle</button></div>';let period=[];for(let i=11;i>=0;i--){let d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);const m=localDay(d).slice(0,7),items=monthly.find(x=>x[0]===m);period.push({label:MONTHS[d.getMonth()].slice(0,3),value:items?items[1].reduce((a,b)=>a+b.value,0):0,full:m,kind:items?'ölçüm':'boş'})}drawChart('monthChart',period,'bar');const daily=[];for(let i=dashDays-1;i>=0;i--){const d=shiftDay(localDay(),-i),v=recentData.get(d);daily.push({label:d.slice(8),full:d,value:v?.value??0,kind:v?.kind||'boş'})}drawChart('dashChart',daily,'line')}
 function chartColor(k){return k==='tahmin'?'#d6a45e':k==='dağıtım'?'#51b7b2':k==='boş'?'#526581':'#5593ef'}
 const chartMeta={};
 function drawChart(target,data,type='line'){const canvas=document.getElementById(target);if(!canvas||!canvas.offsetWidth)return;const w=canvas.clientWidth,h=canvas.clientHeight,dpr=devicePixelRatio||1;canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);const c=canvas.getContext('2d');c.scale(dpr,dpr);const dark=state.settings.theme==='dark',grid=dark?'#2c3d55':'#e2e9f3',ink=dark?'#9aafc7':'#66778c';const pad={l:45,r:14,t:20,b:39},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;const max=Math.max(1,...data.map(x=>+x.value||0))*1.15;for(let i=0;i<=4;i++){const y=pad.t+ch*i/4;c.strokeStyle=grid;c.beginPath();c.moveTo(pad.l,y);c.lineTo(w-pad.r,y);c.stroke();c.fillStyle=ink;c.font='11px system-ui';c.textAlign='right';c.fillText(fmtNumber(max*(1-i/4),max>=10?0:1),pad.l-7,y+4)}const n=data.length,step=cw/Math.max(1,n-(type==='line'?1:0));const pts=[];for(let i=0;i<n;i++){const d=data[i],x=pad.l+(type==='line'?i*step:(i+.5)*step),y=pad.t+ch*(1-d.value/max);pts.push({x,y,...d});if(type==='bar'&&d.value){c.fillStyle=chartColor(d.kind);c.fillRect(x-Math.min(27,step*.36),y,Math.min(54,step*.72),pad.t+ch-y)}}if(type==='line'&&n){let started=false;c.beginPath();pts.forEach(p=>{if(p.kind==='boş'){started=false;return}if(!started){c.moveTo(p.x,p.y);started=true}else c.lineTo(p.x,p.y)});c.lineWidth=2.5;c.strokeStyle='#4e92f3';c.stroke();pts.forEach(p=>{if(p.kind==='boş')return;c.beginPath();c.arc(p.x,p.y,Math.max(2,Math.min(4,130/n)),0,Math.PI*2);c.fillStyle=chartColor(p.kind);c.fill()})}const stride=Math.max(1,Math.ceil(n/10));c.fillStyle=ink;c.textAlign='center';c.font='10px system-ui';pts.forEach((p,i)=>{if(i%stride===0||i===n-1)c.fillText(p.label,p.x,h-12)});chartMeta[target]={points:pts,pad,max};if(!canvas._chartHover){canvas._chartHover=true;canvas.addEventListener('pointermove',e=>{const meta=chartMeta[target],tooltip=document.getElementById(target.replace('Chart','Tip'));if(!meta||!meta.points.length||!tooltip)return;const rc=canvas.getBoundingClientRect(),x=e.clientX-rc.left,y=e.clientY-rc.top;let best=meta.points.reduce((a,b)=>Math.abs(b.x-x)<Math.abs(a.x-x)?b:a);if(Math.abs(x-best.x)>Math.max(18,canvas.clientWidth/Math.max(1,meta.points.length)))return tooltip.style.display='none';tooltip.textContent=`${best.full||best.label}\n${fmtNumber(best.value,3)} m³ · ${best.kind}`;tooltip.style.display='block';tooltip.style.left=Math.min(canvas.clientWidth-160,Math.max(4,best.x+8))+'px';tooltip.style.top=Math.max(2,best.y-52)+'px'});canvas.addEventListener('pointerleave',()=>{const t=document.getElementById(target.replace('Chart','Tip'));if(t)t.style.display='none'})}}
-function renderReadingTable(){const q=(document.getElementById('readingSearch')?.value||'').toLocaleLowerCase('tr'),arr=state.readings.filter(r=>!r.deleted&&[r.at,r.value,r.note].join(' ').toLocaleLowerCase('tr').includes(q)).sort((a,b)=>b.at.localeCompare(a.at));document.getElementById('readingCount').textContent=arr.length+' kayıt';const el=document.getElementById('readingTable');el.innerHTML=arr.length?`<div class="tablewrap"><table class="dataTable"><thead><tr><th>Okuma tarihi</th><th>Endeks</th><th>Önceki okumaya fark</th><th>Ortalama</th><th>Fotoğraf</th><th>İşlemler</th></tr></thead><tbody>${arr.map(r=>{let d=readingDelta(r);return `<tr><td><b>${esc(dateText(r.at.slice(0,10)))}</b><br><small class="muted">${esc(r.at.slice(11,16))} · ${esc(r.note||'')}</small></td><td><strong>${fmtNumber(r.value,3)} m³</strong></td><td>${d?fmtNumber(d.vol,3)+' m³':'İlk ölçüm'}</td><td>${d&&d.avg!==null?fmtNumber(d.avg,2)+' m³/gün':'—'}</td><td>${r.photo?'📷 Var':'—'}</td><td><button class="btn sm" data-action="photoRecord" data-id="${r.id}">👁️</button> <button class="btn sm" data-action="editReading" data-id="${r.id}">✏️</button> <button class="btn sm danger" data-action="deleteReading" data-id="${r.id}">🗑️</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Aramanıza uygun kayıt bulunamadı.</div>'}
+function renderReadingTable(){const q=(document.getElementById('readingSearch')?.value||'').toLocaleLowerCase('tr'),arr=safeUniqueReadings(state.readings.filter(r=>!r.deleted)).filter(r=>[r.at,r.value,r.note].join(' ').toLocaleLowerCase('tr').includes(q)).sort((a,b)=>b.at.localeCompare(a.at));document.getElementById('readingCount').textContent=arr.length+' kayıt';const el=document.getElementById('readingTable');el.innerHTML=arr.length?`<div class="tablewrap"><table class="dataTable"><thead><tr><th>Okuma tarihi</th><th>Endeks</th><th>Önceki okumaya fark</th><th>Ortalama</th><th>Fotoğraf</th><th>İşlemler</th></tr></thead><tbody>${arr.map(r=>{let d=readingDelta(r);return `<tr><td><b>${esc(dateText(r.at.slice(0,10)))}</b><br><small class="muted">${esc(r.at.slice(11,16))} · ${esc(r.note||'')}</small></td><td><strong>${fmtNumber(r.value,3)} m³</strong></td><td>${d?fmtNumber(d.vol,3)+' m³':'İlk ölçüm'}</td><td>${d&&d.avg!==null?fmtNumber(d.avg,2)+' m³/gün':'—'}</td><td>${r.photo?'📷 Var':'—'}</td><td><button class="btn sm" data-action="photoRecord" data-id="${r.id}">👁️</button> <button class="btn sm" data-action="editReading" data-id="${r.id}">✏️</button> <button class="btn sm danger" data-action="deleteReading" data-id="${r.id}">🗑️</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Aramanıza uygun kayıt bulunamadı.</div>'}
 function readDb(){if(dbInstance)return Promise.resolve(dbInstance);return new Promise((resolve,reject)=>{if(!('indexedDB'in window)){reject(new Error('IndexedDB desteklenmiyor'));return}const req=indexedDB.open('GazAtlasPhotos_v1',1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('photos'))req.result.createObjectStore('photos')};req.onsuccess=()=>{dbInstance=req.result;resolve(req.result)};req.onerror=()=>reject(req.error)})}
 async function putPhoto(id,blob){try{const db=await readDb();return await new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').put(blob,id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}catch(err){const data=await fileToDataURL(blob);try{localStorage.setItem('gazatlas_photo_fallback_'+id,data);return}catch(e){throw new Error('IndexedDB ve yedek fotoğraf depolaması kullanılamıyor: '+e.message)}}}
-async function getPhoto(id){try{const db=await readDb();const result=await new Promise((resolve,reject)=>{const r=db.transaction('photos','readonly').objectStore('photos').get(id);r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>reject(r.error)});if(result)return result}catch{}try{const data=localStorage.getItem('gazatlas_photo_fallback_'+id);if(data)return await(await fetch(data)).blob()}catch{}return null}
+async function getPhoto(id){
+  // After stabilizing an older overlong Firebase ID, its photo may still have
+  // the original local IndexedDB key. Keep that image available without moving it.
+  const record=(state.readings||[]).find(r=>r.id===id);
+  const keys=[id];if(record?.photoLocalId&&record.photoLocalId!==id)keys.push(record.photoLocalId);
+  for(const key of keys){
+    try{const db=await readDb();const result=await new Promise((resolve,reject)=>{const r=db.transaction('photos','readonly').objectStore('photos').get(key);r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>reject(r.error)});if(result)return result}catch{}
+    try{const data=localStorage.getItem('gazatlas_photo_fallback_'+key);if(data)return await(await fetch(data)).blob()}catch{}
+  }
+  return null;
+}
 async function removePhoto(id){try{localStorage.removeItem('gazatlas_photo_fallback_'+id)}catch{}try{const db=await readDb();await new Promise((res,rej)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}catch(e){console.warn(e)}}
 function fileToDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.readAsDataURL(file)})}
 async function jpegCompress(file,max=1500,quality=.82){const uri=await fileToDataURL(file),img=new Image();await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=uri});const scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));const cv=document.createElement('canvas');cv.width=Math.round(img.naturalWidth*scale);cv.height=Math.round(img.naturalHeight*scale);cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);return await new Promise(resolve=>cv.toBlob(b=>resolve(b||file),'image/jpeg',quality))}
@@ -155,7 +165,7 @@ async function loadExamplePhoto(){try{if(!SAMPLE_PHOTO){toast('Örnek fotoğraf 
 async function saveReading(){const d=document.getElementById('r-date').value,t=document.getElementById('r-time').value,index=parseVal(document.getElementById('r-value').value),note=document.getElementById('r-note').value.trim();if(!d||!t||!Number.isFinite(index)||index<0)return toast('Geçerli tarih, saat ve endeks gir.',true);const at=d+'T'+t,other=state.readings.filter(r=>!r.deleted&&r.id!==editingRecord);const prev=other.filter(r=>r.at<at).sort((a,b)=>b.at.localeCompare(a.at))[0],next=other.filter(r=>r.at>at).sort((a,b)=>a.at.localeCompare(b.at))[0];const base=state.settings.baseIndex!==''?parseVal(state.settings.baseIndex):NaN;if((prev&&index<prev.value-.0001)||(next&&index>next.value+.0001)||(!prev&&d>=state.settings.start&&Number.isFinite(base)&&index<base-.0001))return toast('Endeks kronolojide önceki okumadan küçük veya sonraki okumadan büyük. Tarih/endeksi kontrol et.',true);const existing=state.readings.find(r=>r.id===editingRecord),record={id:existing?.id||id(),at,value:Math.round(index*1000)/1000,note,photo:!!(photoBlob||existing?.photo),photoUrl:existing?.photoUrl||'',updatedAt:now(),deleted:false};const near=other.find(r=>r.at===at);if(near)toast('Aynı tarih ve saatte başka bir okuma vardı; yeni kayıt eklendi.');const btn=document.getElementById('saveReading');btn.disabled=true;try{if(photoBlob){try{await putPhoto(record.id,photoBlob);record.photo=true}catch(photoError){record.photo=false;toast('Fotoğraf depolanamadı; endeks yine de kaydediliyor. '+photoError.message,true)}}if(existing)Object.assign(existing,record);else state.readings.push(record);save();closeModal();toast('Sayaç endeksi kaydedildi.'+(fb.ready?' Bulut eşitlemesi sırada.':''));}catch(e){toast('Kayıt hatası: '+e.message,true)}finally{if(document.getElementById('saveReading'))btn.disabled=false}}
 function deleteReading(rid){const r=state.readings.find(x=>x.id===rid&&!x.deleted);if(!r)return;askConfirm(dateText(r.at.slice(0,10))+' tarihli endeks kaydı silinsin mi? (Bulutta silme işareti konur.)',()=>{r.deleted=true;r.updatedAt=now();save();toast('Kayıt arşivden kaldırıldı.')})}
 async function showRecordPhoto(rid){const r=state.readings.find(x=>x.id===rid);if(!r)return;const blob=await getPhoto(rid),url=blob?URL.createObjectURL(blob):r.photoUrl||'';modal('🖼️ Sayaç Fotoğrafı · '+dateText(r.at.slice(0,10)),url?`<img src="${esc(url)}" alt="Sayaç fotoğrafı" style="max-width:100%;max-height:69vh;display:block;margin:auto;border-radius:12px"><div class="notice">Endeks: <b>${fmtNumber(r.value,3)} m³</b> · ${esc(r.at.replace('T',' '))}</div>`:'<div class="notice warn">Bu cihazda fotoğraf bulunamadı. JSON fotoğraf yedeğinden geri yükleyebilir veya Storage eşitlemesini kontrol edebilirsiniz.</div>','<button class="btn" id="onlyClose">Kapat</button>');document.getElementById('onlyClose').onclick=()=>{if(blob)URL.revokeObjectURL(url);closeModal()}}
-function renderPhotos(){const a=state.readings.filter(r=>!r.deleted&&r.photo).sort((a,b)=>b.at.localeCompare(a.at)),wrap=document.getElementById('photosGrid');wrap.innerHTML=a.length?a.map(r=>`<div class="photoCard"><div id="img-${r.id}" style="height:145px;display:grid;place-items:center">📷</div><div class="padded"><b>${esc(dateText(r.at.slice(0,10)))}</b><br><span class="muted">${fmtNumber(r.value,3)} m³</span><div class="row" style="margin-top:10px"><button class="btn sm" data-action="photoRecord" data-id="${r.id}">👁️ Aç</button><button class="btn sm" data-action="editReading" data-id="${r.id}">✏️ Düzenle</button></div></div></div>`).join(''):'<div class="empty">Henüz fotoğraflı endeks kaydı yok.</div>';for(const r of a){getPhoto(r.id).then(blob=>{const box=document.getElementById('img-'+r.id);if(!box)return;const url=blob?URL.createObjectURL(blob):r.photoUrl;if(!url){box.textContent='Fotoğraf bu cihazda yok';return}const im=new Image();im.onload=()=>{box.innerHTML='';box.appendChild(im)};im.onerror=()=>box.textContent='Fotoğraf yüklenemedi';im.src=url;im.alt='Sayaç fotoğrafı';im.style.cssText='width:100%;height:145px;object-fit:cover';if(blob){box.dataset.objectUrl=url;}})}}
+function renderPhotos(){const a=safeUniqueReadings(state.readings.filter(r=>!r.deleted&&r.photo)).sort((a,b)=>b.at.localeCompare(a.at)),wrap=document.getElementById('photosGrid');wrap.innerHTML=a.length?a.map(r=>`<div class="photoCard"><div id="img-${r.id}" style="height:145px;display:grid;place-items:center">📷</div><div class="padded"><b>${esc(dateText(r.at.slice(0,10)))}</b><br><span class="muted">${fmtNumber(r.value,3)} m³</span><div class="row" style="margin-top:10px"><button class="btn sm" data-action="photoRecord" data-id="${r.id}">👁️ Aç</button><button class="btn sm" data-action="editReading" data-id="${r.id}">✏️ Düzenle</button></div></div></div>`).join(''):'<div class="empty">Henüz fotoğraflı endeks kaydı yok.</div>';for(const r of a){getPhoto(r.id).then(blob=>{const box=document.getElementById('img-'+r.id);if(!box)return;const url=blob?URL.createObjectURL(blob):r.photoUrl;if(!url){box.textContent='Fotoğraf bu cihazda yok';return}const im=new Image();im.onload=()=>{box.innerHTML='';box.appendChild(im)};im.onerror=()=>box.textContent='Fotoğraf yüklenemedi';im.src=url;im.alt='Sayaç fotoğrafı';im.style.cssText='width:100%;height:145px;object-fit:cover';if(blob){box.dataset.objectUrl=url;}})}}
 function renderCalendar(){document.getElementById('calMonth').textContent=MONTHS[+calendarMonth.slice(5,7)-1]+' '+calendarMonth.slice(0,4);const first=calendarMonth+'-01',d=dayDate(first),offset=(d.getDay()+6)%7,last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),cells=['Pt','Sa','Ça','Pe','Cu','Ct','Pa'].map(n=>`<div class="calDayName">${n}</div>`),daily=dailyData(false);for(let i=0;i<42;i++){const day=i-offset+1,inMonth=day>=1&&day<=last,ds=shiftDay(first,day-1),val=daily.get(ds),notes=state.notes[ds],special=holiday(ds);let hij='';try{hij=new Intl.DateTimeFormat('tr-TR-u-ca-islamic-umalqura',{day:'numeric',month:'short'}).format(dayDate(ds))}catch{}cells.push(`<button class="calDay ${!inMonth?'off':''} ${ds===localDay()?'today':''} ${ds===calendarDay?'active':''}" data-cald="${ds}"><span class="date">${day}</span><span class="hijri">${esc(hij)}</span>${val?`<span class="usage">${fmtNumber(val.value,2)} m³ ${val.kind==='dağıtım'?'≈':''}</span>`:''}${state.readings.some(r=>!r.deleted&&r.at.startsWith(ds))?'<span class="dot"></span>':''}${special?`<span class="event">${esc(special)}</span>`:notes?'<span class="event">📝 Not</span>':''}</button>`)}document.getElementById('calendarGrid').innerHTML=cells.join('');renderSelectedCalendar()}
 function holiday(s){const d=s.slice(5);const map={'01-01':'Yılbaşı','04-23':'Ulusal Egemenlik ve Çocuk Bayramı','05-01':'Emek ve Dayanışma Günü','05-19':'Atatürk’ü Anma, Gençlik ve Spor Bayramı','07-15':'Demokrasi ve Millî Birlik Günü','08-30':'Zafer Bayramı','10-29':'Cumhuriyet Bayramı','11-10':'Atatürk’ü Anma Günü'};if(map[d])return map[d];try{const z=new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura',{month:'numeric',day:'numeric'}).formatToParts(dayDate(s));const mn=z.find(x=>x.type==='month')?.value,dy=z.find(x=>x.type==='day')?.value;if(mn==='10'&&dy==='1')return 'Ramazan Bayramı (Hicrî yaklaşık)';if(mn==='12'&&dy==='10')return 'Kurban Bayramı (Hicrî yaklaşık)'}catch{}return ''}
 function renderSelectedCalendar(){document.getElementById('calSelectedTitle').textContent=addDisplayDay(calendarDay);const item=dailyData(false).get(calendarDay),readings=state.readings.filter(r=>!r.deleted&&r.at.startsWith(calendarDay));document.getElementById('calSelectedInfo').innerHTML=`<div class="metric"><span>Günlük tüketim</span><strong>${item?fmtNumber(item.value,3)+' m³':'Ölçüm yetersiz'}</strong></div><div class="metric"><span>Hesap yöntemi</span><strong>${item?esc(item.kind):'—'}</strong></div><div class="metric"><span>O günkü okumalar</span><strong>${readings.length} adet</strong></div>${item?.kind==='dağıtım'?'<div class="notice warn">Ölçüm yapılmayan günler iki endeks arasına eşit dağıtılmıştır. Gerçek günlük değer bilinmiyor.</div>':''}${holiday(calendarDay)?`<div class="notice">🎉 ${esc(holiday(calendarDay))}</div>`:''}`;document.getElementById('calNote').value=state.notes[calendarDay]||''}
@@ -211,7 +221,7 @@ function renderEmoji(){const cat=document.getElementById('emojiCategory');if(!ca
 function updateClock(){const d=new Date(),s=d.getSeconds(),m=d.getMinutes()+s/60,h=d.getHours()%12+m/60;document.getElementById('clockH').style.transform=`translateX(-50%) rotate(${h*30}deg)`;document.getElementById('clockM').style.transform=`translateX(-50%) rotate(${m*6}deg)`;document.getElementById('clockS').style.transform=`translateX(-50%) rotate(${s*6}deg)`;const txt=d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});document.getElementById('clockCaption').textContent=txt;document.getElementById('dateBadge').textContent='🗓️ '+d.toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'numeric'});document.getElementById('calendarClockText').textContent=txt+' · '+d.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
 function downloadBlob(content,name,type='application/octet-stream'){const blob=content instanceof Blob?content:new Blob([content],{type});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000)}
 async function exportJson(){try{const data={app:'GazAtlas',version:1,exportedAt:now(),state:structuredClone(state),photos:{}};for(const r of state.readings.filter(r=>r.photo)){const b=await getPhoto(r.id);if(b)data.photos[r.id]=await fileToDataURL(b)}downloadBlob(JSON.stringify(data),'GazAtlas_TAM_Yedek_'+localDay()+'_'+new Date().toTimeString().slice(0,8).replaceAll(':','-')+'.json','application/json');toast('Tam JSON yedeği indirildi.')}catch(e){toast('Yedek hazırlanamadı: '+e.message,true)}}
-function exportCsv(){const csvCell=s=>'"'+String(s??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"';let rows=[['Tarih','Saat','Endeks_m3','Onceki_fark_m3','Gunluk_ortalama_m3','Not','Fotoğraf']];for(const r of state.readings.filter(r=>!r.deleted).sort((a,b)=>a.at.localeCompare(b.at))){const d=readingDelta(r);rows.push([r.at.slice(0,10),r.at.slice(11,16),fmtNumber(r.value,3),d?fmtNumber(d.vol,3):'',d&&d.avg!==null?fmtNumber(d.avg,3):'',r.note,r.photo?'Evet':'Hayır'])}const content='\ufeffsep=;\r\n'+rows.map(row=>row.map(csvCell).join(';')).join('\r\n');downloadBlob(content,'GazAtlas_Endeksler_'+localDay()+'.csv','text/csv;charset=utf-8');toast('CSV raporu indirildi.')}
+function exportCsv(){const csvCell=s=>'"'+String(s??'').replace(/"/g,'""').replace(/\r?\n/g,' ')+'"';let rows=[['Tarih','Saat','Endeks_m3','Onceki_fark_m3','Gunluk_ortalama_m3','Not','Fotoğraf']];for(const r of safeUniqueReadings(state.readings.filter(r=>!r.deleted)).sort((a,b)=>a.at.localeCompare(b.at))){const d=readingDelta(r);rows.push([r.at.slice(0,10),r.at.slice(11,16),fmtNumber(r.value,3),d?fmtNumber(d.vol,3):'',d&&d.avg!==null?fmtNumber(d.avg,3):'',r.note,r.photo?'Evet':'Hayır'])}const content='\ufeffsep=;\r\n'+rows.map(row=>row.map(csvCell).join(';')).join('\r\n');downloadBlob(content,'GazAtlas_Endeksler_'+localDay()+'.csv','text/csv;charset=utf-8');toast('CSV raporu indirildi.')}
 async function importJson(){const file=document.getElementById('importFile').files?.[0];if(!file)return toast('Önce JSON dosyası seç.',true);if(file.size>100*1024*1024)return toast('Yedek 100 MB üstünde; bölerek içe aktarın.',true);try{const data=JSON.parse(await file.text());if(data.app!=='GazAtlas'||data.version!==1||!data.state||!Array.isArray(data.state.readings)||!Array.isArray(data.state.bills)||!Array.isArray(data.state.tariffs))throw Error('GazAtlas biçiminde JSON değil');let merged=0,conflicts=0;for(const type of ['readings','bills','estimates','tariffs']){for(const remote of data.state[type]){if(!remote?.id||typeof remote.id!=='string')continue;const local=state[type].find(x=>x.id===remote.id);if(!local){state[type].push({...remote,_dirty:true});merged++}else if(JSON.stringify({...local,updatedAt:undefined,_dirty:undefined})!==JSON.stringify({...remote,updatedAt:undefined,_dirty:undefined})){const cloned={...remote,id:id(),note:(remote.note||'')+' [Yedekten çakışma kopyası]',_dirty:true,updatedAt:now()};state[type].push(cloned);if(type==='readings'&&data.photos?.[remote.id])data.photos[cloned.id]=data.photos[remote.id];conflicts++;}}}for(const [date,text] of Object.entries(data.state.notes||{}))if(!state.notes[date])state.notes[date]=String(text).slice(0,2000);for(const [year,lim] of Object.entries(data.state.limitsByYear||{}))if(!state.limitsByYear[year]&&Array.isArray(lim)&&lim.length===12)state.limitsByYear[year]=lim;let photos=0;for(const [rid,url] of Object.entries(data.photos||{})){if(!url.startsWith('data:image/')||url.length>7_000_000)continue;const blob=await(await fetch(url)).blob();await putPhoto(rid,blob);photos++}state.settings={...state.settings,...data.state.settings};state.settingsUpdatedAt=now();state._settingsDirty=true;save();fillSettings();toast(`${merged} kayıt eklendi, ${conflicts} çakışma kopyalandı, ${photos} fotoğraf geri yüklendi.`)}catch(e){toast('İçe aktarma hatası: '+e.message,true)}}
 function renderBackupMeta(){const r=state.readings.filter(x=>!x.deleted).length,b=state.bills.filter(x=>!x.deleted).length,t=state.tariffs.filter(x=>!x.deleted).length;document.getElementById('backupMeta').textContent=`Yerel arşiv: ${r} sayaç okuması, ${b} fatura, ${t} tarife. Fotoğraflar IndexedDB'de, metinler yerel kayıtta saklanır.`}
 function render(){fillSettings();const view=currentView;if(view==='dashboard')renderDashboard();if(view==='readings')renderReadingTable();if(view==='calendar')renderCalendar();if(view==='analysis')renderAnalysis();if(view==='bills')renderBills();if(view==='tariffs')renderTariffs();if(view==='photos')renderPhotos();if(view==='emoji')renderEmoji();if(view==='backup')renderBackupMeta();if(view==='settings'){}cloudStatus()}
@@ -228,7 +238,14 @@ function cloudStatus(){
   else if(fb.user){title='⚠️ DB BAĞLANTISI DOĞRULANMADI';detail=fb.lastError||'Oturum açık fakat veritabanı eşitlemesi henüz başarılı olmadı.';level='pending'}
   else if(fb.auth){title=fb.lastError?'🔴 DB BAĞLI DEĞİL':'🟡 OTOMATİK BAĞLANIYOR';detail=fb.lastError||'Firebase anonim oturumu açılıyor; kullanıcı adı/şifre gerekmez.';level=fb.lastError?'offline':'pending'}
   else if(!config?.apiKey){title='⛔ DB BAĞLI DEĞİL';detail='Firebase proje yapılandırması yok.'}
-  if(fb.networkOnline===false&&fb.user&&!fb.syncing){title='🔴 FİREBASE ÇEVRİMDIŞI';detail='Ağ bağlantısı kesildi; kayıtlar cihazda korunuyor.';level='offline'}
+  // Anlık .info/connected=false, kalıcı yetki/oturum hatası değildir.
+  // Kısa kopmalarda alarm rengi yerine yeniden-bağlanma durumunu göster;
+  // kesinti sürüyorsa kullanıcıya dürüstçe çevrimdışı bildir.
+  if(fb.networkOnline===false&&fb.user){
+    const elapsed=Date.now()-(fb.networkDisconnectedAt||Date.now());
+    if(elapsed<8000){title='🟡 FIREBASE YENİDEN BAĞLANIYOR';detail='Sunucu bağlantısı kısa süreli kesildi; yerel kayıtlar korunuyor. Otomatik tekrar deneniyor.';level='pending'}
+    else{title='🔴 FIREBASE ÇEVRİMDIŞI';detail='Firebase sunucusuyla bağlantı yok. Kayıtlar cihazda saklanıyor ve yeniden bağlanınca eşitlenecek.';level='offline'}
+  }
   if(credentials)credentials.style.display='none';
   if(logout)logout.style.display='none';
   const syncDate=fb.lastSuccessfulSync?new Date(fb.lastSuccessfulSync).toLocaleString('tr-TR'):'Henüz doğrulanmadı';
@@ -258,10 +275,26 @@ async function initFirebase(){
     fb.auth=fb.app.auth();fb.db=fb.app.database();
     try{await fb.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)}catch(e){console.warn('Firebase kalıcı anonim oturum:',e.message)}
     if(!fb.networkWatcher){fb.networkWatcher=fb.db.ref('.info/connected').on('value',snap=>{
-      const was=fb.networkOnline;fb.networkOnline=snap.val()===true;
-      if(!fb.networkOnline)fb.connected=false;
+      const was=fb.networkOnline;
+      fb.networkOnline=snap.val()===true;
+      if(!fb.networkOnline){
+        // Bağlantı durumu geçici dalgalanabileceğinden 8 sn sonra yeniden değerlendir.
+        fb.connected=false;
+        if(was!==false){
+          fb.networkDisconnectedAt=Date.now();
+          clearTimeout(fb.offlineStatusTimer);
+          fb.offlineStatusTimer=setTimeout(()=>{if(fb.networkOnline===false)cloudStatus()},8100);
+        }
+      }else{
+        fb.networkDisconnectedAt=0;
+        clearTimeout(fb.offlineStatusTimer);
+      }
       cloudStatus();
-      if(fb.networkOnline&&was===false&&fb.user&&!fb.syncing)scheduleSync();
+      // İlk gerçek bağlantıda da ve her yeniden bağlanışta güncel durumu eşitle.
+      if(fb.networkOnline&&was!==true&&fb.user){
+        if(fb.syncing)fb.resyncPending=true;
+        else scheduleSync();
+      }
     },e=>{fb.lastError='Ağ durumu izlenemiyor: '+e.message;cloudStatus()});}
     if(c.storageBucket)setTimeout(async()=>{
       try{
@@ -272,6 +305,7 @@ async function initFirebase(){
     },2500);
     fb.auth.onAuthStateChanged(async user=>{
       fb.user=user;fb.ready=!!user;fb.connected=false;
+      if(user){try{fb.lastSuccessfulSync=localStorage.getItem('gazatlas_firebase_last_success_v1_'+user.uid)||fb.lastSuccessfulSync}catch(_){}}
       if(fb.unwatch){fb.unwatch();fb.unwatch=null}
       cloudStatus();
       if(user){await syncFirebase();if(fb.ready)attachRemoteWatcher()}
@@ -336,8 +370,45 @@ function openFirebaseDiagnostics(){
 function cloudBaseKey(){return 'gazatlas_firebase_syncbase_v1_'+(fb.config?.projectId||'default')+'_'+(fb.user?.uid||'none')}
 function readCloudBase(){try{return JSON.parse(localStorage.getItem(cloudBaseKey())||'null')}catch{return null}}
 function storeCloudBase(d){try{localStorage.setItem(cloudBaseKey(),JSON.stringify({notes:d.notes||{},limitsByYear:d.limitsByYear||{}}))}catch(e){console.warn('Firebase eşitleme işareti kaydedilemedi:',e)}}
-function cloudRecord(r){const c={...r};delete c._dirty;return c}
+// Firebase RTDB allows at most 768 UTF-8 bytes for a child key path.
+// Older GazAtlas builds repeatedly concatenated '_conflict_' to reading IDs.
+// Use a stable, bounded key WITHOUT deleting any readings or Firebase siblings.
+function cloudHash(v){
+  const t=String(v);let a=2166136261,b=2246822519;
+  for(let i=0;i<t.length;i++){const n=t.charCodeAt(i);a=Math.imul(a^n,16777619);b=Math.imul(b^(n+(i&255)),3266489917)}
+  return (a>>>0).toString(36).padStart(7,'0')+(b>>>0).toString(36).padStart(7,'0');
+}
+function cloudSafeId(v){
+  const key=String(v||'');
+  if(/^[a-zA-Z0-9_-]{1,96}$/.test(key))return key;
+  const prefix=key.replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,52)||'record';
+  return prefix+'_safe_'+cloudHash(key);
+}
+function cloudRecord(r){
+  const c={...r};delete c._dirty;
+  if(typeof c.id==='string'&&cloudSafeId(c.id)!==c.id){
+    c.cloudOriginalId=c.cloudOriginalId||c.id;
+    if(c.photo)c.photoLocalId=c.photoLocalId||c.id;
+    c.id=cloudSafeId(c.id);
+  }
+  return c;
+}
 function cloudSame(a,b){return JSON.stringify(cloudRecord(a))===JSON.stringify(cloudRecord(b))}
+function cloudAssertSafePaths(object){
+  const pathRoot=firebasePath();
+  const utf8Bytes=t=>new TextEncoder().encode(t).length;
+  function walk(node,path){
+    if(node==null||typeof node!=='object')return;
+    for(const [k,val] of Object.entries(node)){
+      const full=path+'/'+k;
+      const n=utf8Bytes(full);
+      if(n>768)throw Error('Uzun Firebase anahtar yolu ('+n+' bayt): '+full.slice(0,140)+'…');
+      if(/[.#$\[\]\/\x00-\x1f\x7f]/.test(k))throw Error('Firebase anahtarında geçersiz karakter: '+k.slice(0,85));
+      walk(val,full);
+    }
+  }
+  walk(object,pathRoot);
+}
 function mergeGazAtlas(remote,local,base=null){
   // Bu fonksiyon transaction içinde salt hesaplama yapar; başka projelere veya dallara erişmez.
   if(remote!=null&&(typeof remote!=='object'||Array.isArray(remote)))throw Error('GazAtlas bulut dalı beklenmeyen biçimde; güvenlik için yazma durduruldu.');
@@ -346,28 +417,31 @@ function mergeGazAtlas(remote,local,base=null){
     const target=result[type]&&typeof result[type]==='object'&&!Array.isArray(result[type])?{...result[type]}:{};
     for(const entry of local[type]||[]){
       if(!entry||typeof entry.id!=='string'||!/^[\w-]+$/.test(entry.id))continue;
-      const incoming=cloudRecord(entry),previous=target[entry.id];
-      if(!previous){target[entry.id]=incoming;continue}
-      // Yeni açılmış cihazın uygulama içindeki otomatik örnek tarifesi, buluttaki gerçek tarifeyi geçersiz kılamaz.
-      if(type==='tariffs'&&entry.id==='official-2026-11'&&!Object.prototype.hasOwnProperty.call(entry,'deleted'))continue;
+      // Existing local IDs can include very long, repeatedly-suffixed legacy conflict IDs.
+      const incoming=cloudRecord(entry),safeId=incoming.id,previous=target[safeId];
+      if(!previous){target[safeId]=incoming;continue}
+      // New device's bundled example tariff must never replace a real cloud tariff.
+      if(type==='tariffs'&&safeId==='official-2026-11'&&!Object.prototype.hasOwnProperty.call(entry,'deleted'))continue;
       if(cloudSame(incoming,previous))continue;
-      // Sadece Storage fotoğraf bağlantısı eksikse bunu içerik çakışması sayma.
+      // A missing Storage URL is not a real conflict.
       if(type==='readings'){
         const a={...incoming},b={...previous};delete a.photoUrl;delete b.photoUrl;
         if(JSON.stringify(a)===JSON.stringify(b)){
-          if(!previous.photoUrl&&incoming.photoUrl)target[entry.id]={...previous,photoUrl:incoming.photoUrl};
+          if(!previous.photoUrl&&incoming.photoUrl)target[safeId]={...previous,photoUrl:incoming.photoUrl};
           continue;
         }
       }
+      // CRITICAL FIX: NEVER create a second reading ID with another '_conflict_'
+      // suffix. Preserve the losing version in a short-keyed internal archive instead.
+      // This prevents unbounded ID growth and repeated visible reading duplicates.
       const it=incoming.updatedAt||'',pt=previous.updatedAt||'';
-      if(it>pt){target[entry.id]=incoming;continue}
-      if(entry._dirty||it===pt){
-        // Aynı kayıt üzerinde gerçek çakışma: uzak sürümü silmek yerine yerel kopya korunur.
-        // Sabit conflict kimliği işlemin tekrarında yeni kopya üretmez.
-        const signature=[entry.id,it,JSON.stringify(incoming)].join('|');
-        let hash=2166136261;for(let i=0;i<signature.length;i++){hash^=signature.charCodeAt(i);hash=Math.imul(hash,16777619)}
-        const cId=entry.id+'_conflict_'+(hash>>>0).toString(36);
-        if(!target[cId])target[cId]={...incoming,id:cId,note:((incoming.note||'')+' [Yerel çakışma kopyası]').trim()};
+      const incomingWins=it>pt;
+      const loser=incomingWins?previous:incoming;
+      if(incomingWins)target[safeId]=incoming;
+      if(incomingWins||entry._dirty||it===pt){
+        result.syncConflicts={...(result.syncConflicts||{})};
+        const archiveId=type+'_'+cloudHash(JSON.stringify([safeId,loser]));
+        if(!result.syncConflicts[archiveId])result.syncConflicts[archiveId]={type,record:loser,savedAt:loser.updatedAt||'',sourceId:safeId};
       }
     }
     result[type]=target;
@@ -418,6 +492,9 @@ function mergeGazAtlas(remote,local,base=null){
 }
 async function syncFirebase(){
   if(!fb.user||!fb.db)return;
+  // Çevrimdışıyken sunucu transaction'ını bekletme: yerel kayıt zaten kaydedilmiş.
+  // Yeniden bağlantı callback'i eşitlemeyi güvenle tetikler.
+  if(fb.networkOnline===false){cloudStatus();return}
   if(fb.syncing){fb.resyncPending=true;return}
   fb.syncing=true;fb.resyncPending=false;cloudStatus();
   const currentUser=fb.user.uid;
@@ -434,6 +511,8 @@ async function syncFirebase(){
     const transaction=await ref.transaction(remote=>{
       try{
         const merged=(!wasStoredLocally&&remote&&Object.keys(remote).length)?remote:mergeGazAtlas(remote,local,base);
+        // Catch invalid cloud child paths BEFORE sending a rejected transaction.
+        cloudAssertSafePaths(merged);
         if(JSON.stringify(merged)===JSON.stringify(remote))return;
         return merged;
       }catch(e){txError=e;return}
@@ -467,6 +546,7 @@ async function syncFirebase(){
     storeCloudBase(confirmed);
     fb.connected=true;
     fb.lastSuccessfulSync=now();
+    try{localStorage.setItem('gazatlas_firebase_last_success_v1_'+currentUser,fb.lastSuccessfulSync)}catch(_){}
     // Photo uploads are isolated to the same UID and scheduled separately; DB remains usable if Storage is disabled.
     if(fb.store)queueCloudPhotoUploads(currentUser);
     fb.lastError=photoWarnings.length?photoWarnings.length+' fotoğraf Storage izni nedeniyle buluta alınamadı; endeks ve faturalar eşitlendi.':'';
@@ -509,7 +589,12 @@ function attachRemoteWatcher(){
   if(fb.unwatch){fb.unwatch();fb.unwatch=null}
   if(!fb.ready)return;
   const ref=fb.db.ref(firebasePath());
-  const handler=()=>{
+  const handler=snapshot=>{
+    // Dinleyici aynı veriyi yeniden bildirdiğinde sürekli eşitleme döngüsü yaratma.
+    const fingerprint=JSON.stringify(snapshot.val());
+    if(fb.remoteFingerprint===fingerprint)return;
+    fb.remoteFingerprint=fingerprint;
+    if(fb.networkOnline===false)return;
     if(fb.syncing){fb.resyncPending=true;return}
     clearTimeout(fb.remoteTimer);fb.remoteTimer=setTimeout(syncFirebase,1300);
   };
@@ -676,6 +761,268 @@ function igdasWire(){
  if(!last.checkedAt||Date.now()-new Date(last.checkedAt).getTime()>12*3600*1000)setTimeout(()=>igdasRefresh(false),1800);
  setInterval(()=>{const p=igdasReadPref();if(!p.checkedAt||Date.now()-new Date(p.checkedAt).getTime()>12*3600*1000)igdasRefresh(false)},6*3600*1000);
 }
+
+
+/* GazAtlas güvenli eşitleme sürümü v2:
+   - Legacy GazAtlas dalı YAZILMAZ; yeni yalıtılmış alt dal kullanılır.
+   - Aynı okumanın çakışma kopyaları yeni buluta gönderilmez.
+   - Fotoğraf/yerel kayıtlar manuel onay olmadan SİLİNMEZ.
+   - Old Prompt Atlası public/no-auth REST model is intentionally NOT used. */
+const SAFE_CLOUD_SUFFIX='safe_v2';
+const SAFE_REPAIR_MARKERS=/\s*\[(?:Yerel çakışma kopyası|Yedekten çakışma kopyası)\]/gi;
+function safeCleanNote(s){return String(s||'').replace(SAFE_REPAIR_MARKERS,'').trim();}
+function safePhysicalKey(r){
+ const at=String(r?.at||'');
+ const value=Number(r?.value);
+ if(!/^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(at)||!Number.isFinite(value))return 'other_'+cloudHash(JSON.stringify([r?.id,r?.at,r?.value]));
+ return at+'|'+value.toFixed(3);
+}
+function safeQuality(r){
+ // Prefer an original record with a short, meaningful note and attached photo.
+ const note=String(r.note||'');
+ const extra=(note.match(/\[(?:Yerel çakışma kopyası|Yedekten çakışma kopyası)\]/g)||[]).length;
+ return (r.photo?200:0)+(r.photoUrl?100:0)+(safeCleanNote(note)?30:0)-extra*100-Math.min(150,Math.floor((r.id||'').length/5));
+}
+function safeChoose(a,b){
+ if(!a)return b;
+ if(!b)return a;
+ const qa=safeQuality(a),qb=safeQuality(b);
+ if(qa!==qb)return qb>qa?b:a;
+ return String(a.id||'').length<=String(b.id||'').length?a:b;
+}
+function safeUniqueReadings(rows){
+ const m=new Map();
+ for(const r of rows||[]){if(!r||!r.at)continue;const k=safePhysicalKey(r);m.set(k,safeChoose(m.get(k),r));}
+ return [...m.values()].map(r=>({...r,note:safeCleanNote(r.note)}));
+}
+function safeRecoveryStats(){
+ const all=(state.readings||[]).filter(r=>r&&!r.deleted);
+ const unique=safeUniqueReadings(all);
+ return {total:all.length,unique:unique.length,duplicates:all.length-unique.length,all};
+}
+function safeCloudKey(type,r){
+ if(type==='readings')return 'reading_'+String(r.at||'').replace(/[^0-9T]/g,'').slice(0,18)+'_'+(Number.isFinite(+r.value)?Number(r.value).toFixed(3).replace('.','p'):'unknown');
+ return type.slice(0,2)+'_'+cloudHash(String(r.id||JSON.stringify(r)));
+}
+function safeRecord(r){
+ const x={...r};delete x._dirty;
+ if(x.note!==undefined)x.note=safeCleanNote(x.note);
+ if(typeof x.id!=='string'||cloudSafeId(x.id)!==x.id){
+   if(x.photo)x.photoLocalId=x.photoLocalId||x.id;
+   x.id=cloudSafeId(x.id);
+ }
+ return x;
+}
+function safeRecordChoice(a,b){
+ if(!a)return b;
+ if(!b)return a;
+ // Deleted records are tombstones: latest timestamp wins. Stable tie resolution.
+ const aa=String(a.updatedAt||''),bb=String(b.updatedAt||'');
+ if(aa!==bb)return aa>bb?a:b;
+ if(a.deleted!==b.deleted)return a.deleted?a:b;
+ if(a.photoUrl&&!b.photoUrl)return a;
+ if(b.photoUrl&&!a.photoUrl)return b;
+ return JSON.stringify(a)>=JSON.stringify(b)?a:b;
+}
+function safeIndex(type,rows){
+ const dict={};
+ const raw=type==='readings'?[...safeUniqueReadings((rows||[]).filter(r=>!r.deleted)),...(rows||[]).filter(r=>r.deleted)]:rows||[];
+ for(const r of raw){if(!r||typeof r!=='object'||!r.id)continue;
+   const item=safeRecord(r),key=safeCloudKey(type,item);
+   if(!/^[a-zA-Z0-9_]{1,84}$/.test(key))continue;
+   dict[key]=safeRecordChoice(dict[key],item);
+ }
+ return dict;
+}
+function safeCloudStateFromLocal(){
+ const x={schemaVersion:2,readings:safeIndex('readings',state.readings),bills:safeIndex('bills',state.bills),estimates:safeIndex('estimates',state.estimates),tariffs:safeIndex('tariffs',state.tariffs),
+   notes:state.notes||{},settings:state.settings||{},settingsUpdatedAt:state.settingsUpdatedAt||'',limitsByYear:state.limitsByYear||{},igdasFactors:state.igdasFactors||{}};
+ return x;
+}
+function safeCloudMerge(oldValue,localValue){
+ const old=oldValue&&typeof oldValue==='object'&&!Array.isArray(oldValue)&&oldValue.schemaVersion===2?oldValue:{};
+ const result={...old,schemaVersion:2};
+ for(const type of ['readings','bills','estimates','tariffs']){
+   const dst={...(old[type]&&typeof old[type]==='object'?old[type]:{})};
+   for(const [key,record] of Object.entries(localValue[type]||{})){
+     if(type==='readings')for(const [oldKey,oldRecord] of Object.entries(dst)){
+       // Editing an existing reading must retire its earlier key, not duplicate it.
+       if(oldKey!==key&&oldRecord?.id===record.id&&String(record.updatedAt||'')>String(oldRecord.updatedAt||''))delete dst[oldKey];
+     }
+     dst[key]=safeRecordChoice(dst[key],record);
+   }
+   result[type]=dst;
+ }
+ result.notes={...(localValue.notes||{}),...(old.notes||{})};
+ result.limitsByYear={...(old.limitsByYear||{}),...(localValue.limitsByYear||{})};
+ result.igdasFactors={...(old.igdasFactors||{}),...(localValue.igdasFactors||{})};
+ const localChanged=String(localValue.settingsUpdatedAt||'');
+ const remoteChanged=String(old.settingsUpdatedAt||'');
+ if(!old.settings||localChanged>remoteChanged){result.settings=localValue.settings;result.settingsUpdatedAt=localChanged;}
+ else {result.settings=old.settings;result.settingsUpdatedAt=remoteChanged;}
+ return result;
+}
+function safeAdoptRemote(value){
+ if(!value||value.schemaVersion!==2)return;
+ let changed=false;
+ for(const type of ['readings','bills','estimates','tariffs']){
+   const records=Object.values(value[type]||{}).filter(v=>v&&typeof v==='object');
+   const current=Array.isArray(state[type])?state[type]:[];
+   const byId=new Map(current.map((r,i)=>[r.id,i]));
+   const physical=new Set(type==='readings'?current.map(safePhysicalKey):[]);
+   for(const record of records){
+      const item={...record,_dirty:false};
+      const at=byId.get(item.id);
+      if(at!==undefined){const ex=current[at];if(String(item.updatedAt||'')>String(ex.updatedAt||'')){current[at]={...item};changed=true;}continue;}
+      if(type==='readings'&&physical.has(safePhysicalKey(item)))continue;
+      current.push(item);byId.set(item.id,current.length-1);
+      if(type==='readings')physical.add(safePhysicalKey(item));changed=true;
+   }
+ }
+ for(const [day,note] of Object.entries(value.notes||{}))if(!state.notes[day]){state.notes[day]=note;changed=true;}
+ for(const [year,limits] of Object.entries(value.limitsByYear||{}))if(!state.limitsByYear[year]){state.limitsByYear[year]=limits;changed=true;}
+ state.igdasFactors={...(value.igdasFactors||{}),...(state.igdasFactors||{})};
+ if(value.settings&&(!localStorage.getItem(KEY)||String(value.settingsUpdatedAt||'')>String(state.settingsUpdatedAt||''))){
+   state.settings={...state.settings,...value.settings};state.settingsUpdatedAt=value.settingsUpdatedAt;changed=true;
+ }
+ if(changed)save(false);
+}
+function firebasePath(){if(!fb.user?.uid||!/^[\w-]+$/.test(fb.user.uid))throw Error('Firebase UID eksik');return 'users/'+fb.user.uid+'/igdas_meter_tracker_v1/'+SAFE_CLOUD_SUFFIX;}
+function scheduleSync(){if(!fb.ready)return;if(fb.syncing){fb.resyncPending=true;return}clearTimeout(syncTimer);syncTimer=setTimeout(syncFirebase,1100);}
+async function syncFirebase(){
+ if(!fb.user||!fb.db)return;
+ if(fb.networkOnline===false){fb.lastError='Ağ bağlantısı kapalı, yerel veriler korunuyor.';cloudStatus();return;}
+ if(fb.syncing){fb.resyncPending=true;return;}
+ const uid=fb.user.uid;fb.syncing=true;fb.resyncPending=false;cloudStatus();
+ try{
+   const target=fb.db.ref(firebasePath());
+   const local=safeCloudStateFromLocal();
+   const result=await target.transaction(remote=>{
+      const merged=safeCloudMerge(remote,local);
+      cloudAssertSafePaths(merged);
+      if(remote&&JSON.stringify(remote)===JSON.stringify(merged))return;
+      return merged;
+   },undefined,false);
+   if(fb.user?.uid!==uid)return;
+   const remote=result.snapshot.val();
+   safeAdoptRemote(remote);
+   fb.connected=true;fb.lastError='';fb.lastSuccessfulSync=now();
+   try{localStorage.setItem('gazatlas_safe_v2_last_success_'+uid,fb.lastSuccessfulSync)}catch{}
+   // IMPORTANT: photo uploads to legacy v1 are disabled until explicitly migrated.
+   cloudStatus();
+ }catch(err){
+   fb.connected=false;
+   fb.lastError=(err.code?err.code+' — ':'')+(err.message||String(err));
+   cloudStatus();console.error('GazAtlas safe_v2 eşitleme:',err);
+ }finally{
+   fb.syncing=false;cloudStatus();
+   if(fb.resyncPending&&fb.ready){fb.resyncPending=false;clearTimeout(syncTimer);syncTimer=setTimeout(syncFirebase,1400);}
+ }
+}
+function queueCloudPhotoUploads(_uid){ /* Safe mode: no automatic writes to legacy photo metadata. */ }
+function attachRemoteWatcher(){
+ if(fb.unwatch){fb.unwatch();fb.unwatch=null;}
+ if(!fb.ready||!fb.db)return;
+ const target=fb.db.ref(firebasePath());
+ const handler=snap=>{
+   const remote=snap.val();if(!remote||remote.schemaVersion!==2)return;
+   const fingerprint=JSON.stringify(remote);
+   if(fingerprint===fb.safeLastFingerprint)return;
+   fb.safeLastFingerprint=fingerprint;
+   if(fb.syncing){fb.resyncPending=true;return;}
+   safeAdoptRemote(remote);
+   // Only run an idempotent comparison; never create cloned records.
+   if(fb.networkOnline!==false)scheduleSync();
+ };
+ target.on('value',handler,err=>{fb.connected=false;fb.lastError='Güvenli alan okuma hatası: '+err.message;cloudStatus();});
+ fb.unwatch=()=>target.off('value',handler);
+}
+function cloudStatus(){
+ const connected=!!(fb.user&&fb.connected&&fb.networkOnline!==false);
+ const title=fb.syncing?'🟡 DB EŞİTLENİYOR':connected?'✅ FIREBASE BAĞLI':fb.networkOnline===false&&fb.user?'⚠️ YENİDEN BAĞLANIYOR':'⚠️ DB KONTROL GEREKİYOR';
+ const detail=connected?'Temiz kayıt alanı doğrulandı. Eski bozuk dal arşiv olarak korunuyor.':(fb.lastError||'Otomatik anonim bağlantı kontrol ediliyor.');
+ const flag=document.getElementById('cloudFlag');if(flag)flag.innerHTML=esc(title)+'<small>'+esc(detail)+'</small>';
+ const quick=document.getElementById('fbQuickStatus');if(quick){quick.textContent=title;quick.style.color=connected?'#24c99c':'#e7ad53';}
+ const box=document.getElementById('fbStatus');if(box){box.innerHTML='<b>'+esc(title)+'</b><div>'+esc(detail)+'</div><small>Proje: muratilactakip · Kayıt yolu: '+(fb.user?esc(firebasePath()):'users/{uid}/igdas_meter_tracker_v1/safe_v2')+'<br>Eski dal değiştirilmez, fotoğraf bulut aktarımı güvenlik için duraklatıldı.</small>';
+   box.dataset.status=connected?'online':'pending';}
+ const meta=document.getElementById('safeRecoveryMeta');if(meta){const st=safeRecoveryStats();meta.textContent='Yerelde '+st.total+' aktif okuma var; '+st.duplicates+' tekrar belirleniyor. Ekranda '+st.unique+' tekil okuma gösteriliyor. Orijinal kayıtlar otomatik silinmedi.';}
+}
+function openFirebaseDiagnostics(){
+ const count=safeRecoveryStats();
+ modal('☁️ GazAtlas Güvenli Bulut Bağlantısı',
+ '<div class="metric"><span>Durum</span><strong>'+esc(fb.connected?'✅ Bağlı':'⚠️ Kontrol ediliyor')+'</strong></div>'+ 
+ '<div class="metric"><span>Firebase projesi</span><strong>muratilactakip</strong></div>'+ 
+ '<div class="metric"><span>Temiz kayıt alanı</span><code style="overflow-wrap:anywhere">'+esc(fb.user?firebasePath():'users/{uid}/igdas_meter_tracker_v1/safe_v2')+'</code></div>'+ 
+ '<div class="metric"><span>Eski kayıt kopyaları</span><strong>'+count.duplicates+'</strong></div>'+ 
+ '<div class="notice warn">Eski GazAtlas verileri silinmedi. Önceki eşitlemenin oluşturduğu çoğaltılmış kayıtlar temiz bulut alanına gönderilmez. Fotoğrafların buluta aktarımı geçici olarak devre dışı.</div>'+ 
+ (fb.lastError?'<div class="notice error">'+esc(fb.lastError)+'</div>':''),
+ '<button class="btn" id="diag-close">Kapat</button><button class="btn primary" id="diag-test">🔍 Yeni bağlantıyı test et</button>');
+ document.getElementById('diag-close').onclick=closeModal;
+ document.getElementById('diag-test').onclick=async()=>{if(!fb.app)await initFirebase();if(fb.user)await syncFirebase();closeModal();openFirebaseDiagnostics();};
+}
+let safeBackupAcknowledged=false;
+function openSafeRepair(){
+ const stats=safeRecoveryStats();safeBackupAcknowledged=false;
+ const samples=new Map();
+ for(const r of stats.all){const k=safePhysicalKey(r);samples.set(k,(samples.get(k)||0)+1);}
+ const examples=[...samples.entries()].filter(([,n])=>n>1).slice(0,6).map(([key,n])=>'<li>'+esc(key)+' — '+n+' kopya</li>').join('');
+ modal('🛡️ Tekrarlanan Endeksleri İncele',
+ '<div class="notice warn"><b>Orijinal kayıtlar henüz silinmedi.</b> Önce bütün kayıtları ve fotoğrafları içeren JSON yedeğini al. Yalnızca aynı tarih/saat ve aynı endeks değerine sahip kopyalar temizlenecek.</div>'+ 
+ '<div class="metric"><span>Aktif kayıt</span><strong>'+stats.total+'</strong></div><div class="metric"><span>Tekil okuma</span><strong>'+stats.unique+'</strong></div><div class="metric"><span>Tekrar kopyalar</span><strong>'+stats.duplicates+'</strong></div>'+ 
+ '<ul style="max-height:125px;overflow:auto;font-size:12px">'+(examples||'<li>Tekrar yok</li>')+'</ul>'+ 
+ '<p class="hint">Eski Firebase dalındaki kopyalar uzaktan silinmez. Onarım sadece bu cihazdaki kopyalara uygulanır; temiz bulut alt alanı ayrıca kullanılır.</p>',
+ '<button class="btn" id="repClose">Kapat</button><button class="btn soft" id="repLegacy">Eski buluttaki okumaları tara (salt okunur)</button><button class="btn soft" id="repBackup">1. Tam JSON yedeği indir</button><button class="btn primary" id="repApply" disabled>2. Yerel tekrarları temizle</button>');
+ document.getElementById('repClose').onclick=closeModal;
+ document.getElementById('repLegacy').onclick=async()=>{
+   if(!fb.user||!fb.db){toast('Önce Firebase bağlantısı kurulmalı.',true);return;}
+   const btn=document.getElementById('repLegacy');btn.disabled=true;btn.textContent='Eski alan taranıyor…';
+   try{
+     const path='users/'+fb.user.uid+'/igdas_meter_tracker_v1';
+     const data=(await fb.db.ref(path).once('value')).val();
+     if(!data||typeof data!=='object'){toast('Eski GazAtlas bulut alanı boş.');return;}
+     const raw=data.readings&&typeof data.readings==='object'?(Array.isArray(data.readings)?data.readings:Object.values(data.readings)):[];
+     const source=safeUniqueReadings(raw.filter(r=>r&&typeof r==='object'&&!r.deleted&&r.at&&Number.isFinite(Number(r.value))));
+     const existing=new Set(safeUniqueReadings(state.readings.filter(r=>!r.deleted)).map(safePhysicalKey));
+     const additions=source.filter(r=>!existing.has(safePhysicalKey(r)));
+     const types=['bills','estimates','tariffs'];
+     const other={};
+     for(const type of types){const records=data[type]&&typeof data[type]==='object'?(Array.isArray(data[type])?data[type]:Object.values(data[type])):[];
+       const have=new Set((state[type]||[]).map(r=>r.id));other[type]=records.filter(r=>r?.id&&!have.has(r.id));}
+     const total=additions.length+types.reduce((n,k)=>n+other[k].length,0);
+     if(!total){toast('Eski bulutta bu cihazda bulunmayan tekil kayıt yok.');return;}
+     askConfirm('Eski Firebase alanı yalnızca okundu. '+raw.length+' ham okuma içinden '+source.length+' tekil okuma bulundu. Yeni '+additions.length+' okuma ve '+(total-additions.length)+' diğer kayıt yerelde eksik. Bu kayıtlar yeni temiz alana da eklensin mi? Eski alan silinmez.',()=>{
+       // Read-only source. Never copy legacy conflict archive or long database keys.
+       for(const record of additions)state.readings.push(safeRecord(record));
+       for(const type of types)for(const r of other[type])state[type].push(safeRecord(r));
+       save();toast(total+' benzersiz kayıt eski buluttan eklendi.');
+     });
+   }catch(err){toast('Eski bulut taraması başarısız: '+err.message,true);}
+   finally{btn.disabled=false;btn.textContent='Eski buluttaki okumaları tara (salt okunur)';}
+ };
+ document.getElementById('repBackup').onclick=async()=>{
+   const data={app:'GazAtlas',version:1,exportedAt:now(),state:JSON.parse(JSON.stringify(state)),photos:{}};
+   try{
+     for(const r of state.readings.filter(x=>x?.photo)){
+       const blob=await getPhoto(r.id);if(blob)data.photos[r.id]=await fileToDataURL(blob);
+     }
+     downloadBlob(JSON.stringify(data),'GazAtlas_KURTARMA_ONCESI_TAM_'+localDay()+'.json','application/json');
+     safeBackupAcknowledged=true;document.getElementById('repApply').disabled=stats.duplicates===0;
+     toast('Tam yedek indirme işlemi başlatıldı. Dosyayı kaydettiğinden emin ol.');
+   }catch(err){toast('Yedek alınamadı: '+err.message,true)}
+ };
+ document.getElementById('repApply').onclick=()=>{
+   if(!safeBackupAcknowledged)return;
+   askConfirm('Yedeği bilgisayarına kaydettiğini kontrol et. Aynı tarih/saat VE aynı endekse sahip '+stats.duplicates+' yerel kopya kaldırılacak. Eski Firebase alanı değişmeyecek. Devam?',()=>{
+      const kept=safeUniqueReadings(state.readings.filter(x=>!x.deleted));
+      // Keep tombstones as separate records, so deliberate removals are not resurrected.
+      const tombstones=state.readings.filter(x=>x.deleted);
+      state.readings=[...kept,...tombstones];
+      save();toast(stats.duplicates+' tekrar yerelden ayıklandı.');
+   });
+ };
+}
+document.getElementById('repairDuplicates')?.addEventListener('click',openSafeRepair);
+document.getElementById('repairBackupPage')?.addEventListener('click',openSafeRepair);
 
 (function boot(){igdasWire();document.getElementById('calcMonth').value=localDay().slice(0,7);document.getElementById('calcVat').value=state.settings.vat;const clock=document.getElementById('clock');for(let i=0;i<12;i++){const el=document.createElement('span');el.className='tick';el.style.transform=`rotate(${i*30}deg)`;el.style.height=i%3===0?'8px':'4px';clock.prepend(el)}wireUI();fillSettings();render();cloudStatus();updateClock();setInterval(updateClock,1000);setInterval(()=>{const today=localDay();if(today!==boot.day){boot.day=today;render()}},60000);boot.day=localDay();})();
 // Daha önce kullanılan Firebase ayarıyla başlangıçta sessizce bağlantı kur; mevcut arayüz ve kayıtlar değişmez.
