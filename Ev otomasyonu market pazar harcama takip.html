@@ -105,7 +105,21 @@ button { font-family:inherit; }
 #view-harcama .fixed-table-container { min-height: 0; max-height: calc(100vh - 300px); overflow-y: auto; }
 #view-odeme .flex-col { gap: 10px; }
 #view-odeme #tx-list { min-height: 0; max-height: calc((100vh - 390px) / 2); overflow-y: auto; }
-#view-odeme .fixed-table-container { min-height: 0; max-height: calc((100vh - 390px) / 2); overflow-y: auto; }
+#view-odeme .fixed-table-container { min-height: 0; max-height: calc((100vh - 445px) / 2); overflow-y: auto; }
+#view-odeme #tx-list { min-height: 0; max-height: calc((100vh - 445px) / 2); overflow-y: auto; }
+.odeme-kasa-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+.odeme-kasa-mini { background: var(--card-bg); border: 1.5px solid var(--v35-stroke); border-radius: 9px; padding: 7px 10px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, transform 0.15s ease; user-select: none; }
+.odeme-kasa-mini:hover { border-color: var(--primary); transform: translateY(-1px); }
+.odeme-kasa-mini-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.odeme-kasa-mini-amount { font-size: 0.98rem; font-weight: 800; color: var(--text-main); line-height: 1.2; }
+.odeme-kasa-mini-badge { font-size: 0.6rem; font-weight: 800; padding: 1px 6px; border-radius: 999px; display: none; }
+.odeme-kasa-mini.selected-kasa { border: 2.5px solid #dc2626 !important; background: rgba(220, 38, 38, 0.08); box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.18); }
+.odeme-kasa-mini.selected-kasa .odeme-kasa-mini-label, .odeme-kasa-mini.selected-kasa .odeme-kasa-mini-amount { color: #dc2626 !important; font-weight: 900 !important; }
+.odeme-kasa-mini.selected-kasa .odeme-kasa-mini-badge { display: inline-block; background: #dc2626; color: #fff; }
+.odeme-bakiye-uyari { display: none; margin-top: 6px; padding: 8px 10px; border-radius: 7px; border: 1.5px solid #dc2626; background: rgba(220, 38, 38, 0.1); color: #b91c1c; font-size: 0.76rem; font-weight: 700; line-height: 1.35; }
+body[data-theme="gece"] .odeme-bakiye-uyari { color: #fca5a5; background: rgba(220, 38, 38, 0.22); }
+.odeme-bakiye-uyari.show { display: block; }
+@media (max-width: 720px) { .odeme-kasa-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 /* KasaPratik 2 Sütunlu Nakit Kasa Sayımı + Sayım Geçmişi Frame İçinde 3. Sütun (Sıfır Scrollbar Tasarımı) */
 .app-content.kasalar-no-scroll { overflow: hidden !important; padding-top: 8px !important; padding-bottom: 50px !important; display: flex; flex-direction: column; }
 #view-kasalar.active { display: flex !important; flex-direction: column; height: calc(100vh - 132px); max-height: calc(100vh - 132px); overflow: hidden !important; }
@@ -576,6 +590,26 @@ tr:nth-child(even) { background-color: rgba(0,0,0,0.01); }
                 <div class="page-intro">
                     <div><div class="intro-overline">KASA / FATURA</div><h2 class="editable-text" id="view-head-odeme">Fatura ve Borç Öde</h2><p>Bekleyen borçları sistemden seçip ilgili kasadan veya kredi kartından düşün.</p></div>
                 </div>
+
+                <!-- KOMPAKT AKTİF & ANA KASA BAKİYE ŞERİDİ -->
+                <div class="odeme-kasa-strip" id="odeme-kasa-strip" aria-label="Aktif ve Ana Kasa Bakiyeleri">
+                    <div class="odeme-kasa-mini" data-kasa="Market" role="button" tabindex="0" onclick="odemeKasaKartSec('Market')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();odemeKasaKartSec('Market');}" title="Market Aktif Kasayı seç">
+                        <div class="odeme-kasa-mini-label"><span>🛒 Market Aktif Kasa</span><span class="odeme-kasa-mini-badge">SEÇİLİ</span></div>
+                        <div class="odeme-kasa-mini-amount" id="odeme-mini-market">0,00 TL</div>
+                    </div>
+                    <div class="odeme-kasa-mini" data-kasa="Pazar" role="button" tabindex="0" onclick="odemeKasaKartSec('Pazar')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();odemeKasaKartSec('Pazar');}" title="Pazar Aktif Kasayı seç">
+                        <div class="odeme-kasa-mini-label"><span>🧺 Pazar Aktif Kasa</span><span class="odeme-kasa-mini-badge">SEÇİLİ</span></div>
+                        <div class="odeme-kasa-mini-amount" id="odeme-mini-pazar">0,00 TL</div>
+                    </div>
+                    <div class="odeme-kasa-mini" data-kasa="Market Ana Kasa" role="button" tabindex="0" onclick="odemeKasaKartSec('Market Ana Kasa')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();odemeKasaKartSec('Market Ana Kasa');}" title="Market Ana Kasayı seç">
+                        <div class="odeme-kasa-mini-label"><span>🏦 Market Ana Kasa</span><span class="odeme-kasa-mini-badge">SEÇİLİ</span></div>
+                        <div class="odeme-kasa-mini-amount" id="odeme-mini-market-ana">0,00 TL</div>
+                    </div>
+                    <div class="odeme-kasa-mini" data-kasa="Pazar Ana Kasa" role="button" tabindex="0" onclick="odemeKasaKartSec('Pazar Ana Kasa')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();odemeKasaKartSec('Pazar Ana Kasa');}" title="Pazar Ana Kasayı seç">
+                        <div class="odeme-kasa-mini-label"><span>🏦 Pazar Ana Kasa</span><span class="odeme-kasa-mini-badge">SEÇİLİ</span></div>
+                        <div class="odeme-kasa-mini-amount" id="odeme-mini-pazar-ana">0,00 TL</div>
+                    </div>
+                </div>
                 
                 <div class="flex-row">
                     <!-- SOL: ÖDEME FORMU -->
@@ -609,7 +643,7 @@ tr:nth-child(even) { background-color: rgba(0,0,0,0.01); }
                                         <option value="Bireysel Harcama">👤 Bireysel Harcama / Fatura</option>
                                     </select>
                                 </div>
-                                <div class="form-group"><label>Çıkan Tutar (TL)</label><input id="kk-odeme-tutar" required="" step="0.01" type="number"/></div>
+                                <div class="form-group"><label>Çıkan Tutar (TL)</label><input id="kk-odeme-tutar" oninput="odemeKasaDurumGuncelle()" required="" step="0.01" type="number"/><div id="odeme-bakiye-uyari" class="odeme-bakiye-uyari" role="alert" aria-live="polite"></div></div>
                                 
                                 <!-- ZENGİN METİN EDİTÖRÜ (Madde 41) -->
                                 <div class="form-group">
@@ -1014,6 +1048,14 @@ tr:nth-child(even) { background-color: rgba(0,0,0,0.01); }
 <div class="modal" id="biriken-modal">
 <div class="modal-content"><h3 id="biriken-modal-baslik" style="margin-top:0;">Biriken Bakiye Düzenle</h3><input id="biriken-modal-kat" type="hidden"/><div class="form-group"><label>Yeni Bakiye (TL)</label><input id="biriken-modal-tutar" step="0.01" type="number"/></div><div style="display:flex; gap:8px; margin-top:10px;"><button class="btn-submit" onclick="birikenBakiyeKaydet()">Kaydet</button><button class="btn-small-danger" onclick="modalKapat('biriken-modal')">İptal</button></div></div>
 </div>
+<!-- Yetersiz Bakiye Uyarı Modalı -->
+<div class="modal" id="odeme-yetersiz-modal" onclick="if(event.target===this) modalKapat('odeme-yetersiz-modal')" style="z-index:2400;">
+<div class="modal-content" role="alertdialog" aria-modal="true" style="max-width:420px; border-top:5px solid #dc2626;">
+<h3 style="margin-top:0; color:#dc2626;">⚠️ Yetersiz Kasa Bakiyesi</h3>
+<div id="odeme-yetersiz-mesaj" style="font-size:0.86rem; line-height:1.5; margin-bottom:14px; color:var(--text-main);"></div>
+<button type="button" class="btn-small-danger" style="width:100%; padding:10px; font-size:0.85rem;" onclick="modalKapat('odeme-yetersiz-modal')">Tamam, Anladım</button>
+</div>
+</div>
 <!-- Entegre Borç Takip Fotoğraf Yükleme ve Önizleme Modalı -->
 <input accept="image/*" id="late-photo-upload" style="display: none;" type="file"/>
 <div class="modal" id="photo-modal" onclick="this.style.display='none'">
@@ -1306,7 +1348,7 @@ tr:nth-child(even) { background-color: rgba(0,0,0,0.01); }
     
     // Düzenlenebilir Seçiciler
     const relevant='.sidebar-link .nav-label, .sidebar-link .nav-label small, .sidebar-section-title, .page-intro h2, .page-intro p, .intro-overline, .view-section-heading h3, .view-section-heading span, .app-content .card h2, .app-content .card h3, .app-content .card label, .app-content .card thead th, .app-content .card button:not(.btn-page), .page-intro button, .devir-tools button, .settings-option b, .settings-option small, .quick-action-list b, .quick-action-list small, .kpi-label, .kpi-hint, .report-category dt, .report-explain, .report-subtext, .page-intro .primary-quick-btn, .topbar-eyebrow, .brand-text strong, .brand-text span, .app-topbar .header-actions button, .v35-top-devir, .top-banner h2, .top-banner small, .report-category h3, .report-row > span, .report-subtotal > span, .editable-text';
-    const noEdit='input, select, textarea, .naming-box, .theme-library, .modal, .pagination-bar, .nav-notification, .mobile-notification, [id^="rapor-"], .kpi-tile strong, .rich-textarea, .rich-toolbar';
+    const noEdit='input, select, textarea, .naming-box, .theme-library, .modal, .pagination-bar, .nav-notification, .mobile-notification, [id^="rapor-"], .kpi-tile strong, .rich-textarea, .rich-toolbar, .odeme-kasa-strip, .odeme-bakiye-uyari';
     
     const directText = el => [...el.childNodes].find(n=>n.nodeType===Node.TEXT_NODE&&n.nodeValue.trim());
     const original=new Map(), byKey=new Map();
@@ -2287,6 +2329,7 @@ window.addEventListener('DOMContentLoaded',()=>{
                 if (elM) elM.innerText = (parseFloat(birikenKasaObje.Market) || 0).toFixed(2) + ' TL';
                 const elP = document.getElementById('toplam-biriken-pazar');
                 if (elP) elP.innerText = (parseFloat(birikenKasaObje.Pazar) || 0).toFixed(2) + ' TL';
+                if (typeof odemeKasaDurumGuncelle === 'function') odemeKasaDurumGuncelle();
             });
             db.ref('devirGecmisi').on('value', s => {
                 devirGecmisiObje = s.val() || {};
@@ -3035,6 +3078,7 @@ window.addEventListener('DOMContentLoaded',()=>{
             if(oldSummary) oldSummary.remove();
             const elBM = document.getElementById('toplam-biriken-market'); if(elBM) elBM.innerText = (parseFloat(birikenKasaObje.Market) || 0).toFixed(2) + ' TL';
             const elBP = document.getElementById('toplam-biriken-pazar'); if(elBP) elBP.innerText = (parseFloat(birikenKasaObje.Pazar) || 0).toFixed(2) + ' TL';
+            if (typeof odemeKasaDurumGuncelle === 'function') odemeKasaDurumGuncelle();
 
             const dbd = document.getElementById('devir-gecmisi-body'); 
             if(dbd) {
@@ -3087,10 +3131,72 @@ window.addEventListener('DOMContentLoaded',()=>{
                 const select=document.createElement('select');select.id=id;
                 ['Market','Pazar','Diğer'].forEach(k=>select.add(new Option(k,k)));select.value='Market';
                 group.append(label,select);source.closest('.form-group').after(group);
-                const update=()=>{group.hidden=source.value!=='Kredi Kartı';};source.addEventListener('change',update);update();
+                const update=()=>{group.hidden=source.value!=='Kredi Kartı'; if(sourceId==='kk-odeme-kasa' && typeof odemeKasaDurumGuncelle==='function') odemeKasaDurumGuncelle();};source.addEventListener('change',update);update();
             });
         }
         odemeKategoriAlanlariniKur();
+
+        function getOdemeKasaBakiyeleri() {
+            const f = 'bu-hafta';
+            const bakiyeler = {
+                'Market': 0,
+                'Pazar': 0,
+                'Market Ana Kasa': parseFloat(birikenKasaObje.Market) || 0,
+                'Pazar Ana Kasa': parseFloat(birikenKasaObje.Pazar) || 0
+            };
+            ['Market', 'Pazar'].forEach(kat => {
+                let n = 0;
+                Object.values(harcamalarObje || {}).forEach(h => {
+                    if (isHarcamaSeciliDonemde(h, f)) {
+                        if (!isKKRecord(h)) { if (h.kategori === kat) n += Number(h.nakit) || 0; }
+                        else { if (h.kasaTipi === kat && !h.anaKasaMi) n += Number(h.nakit) || 0; }
+                    }
+                });
+                const butce = getSeciliDonemButcesi(kat, f);
+                bakiyeler[kat] = Math.round((butce - n) * 100) / 100;
+            });
+            return bakiyeler;
+        }
+
+        window.odemeKasaKartSec = function(kasaVal) {
+            const sel = document.getElementById('kk-odeme-kasa');
+            if (!sel) return;
+            sel.value = kasaVal;
+            sel.dispatchEvent(new Event('change'));
+        };
+
+        window.odemeKasaDurumGuncelle = function() {
+            const bakiyeler = getOdemeKasaBakiyeleri();
+            const fmt = v => (Number(v) || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TL';
+            const map = [
+                ['odeme-mini-market', bakiyeler['Market']],
+                ['odeme-mini-pazar', bakiyeler['Pazar']],
+                ['odeme-mini-market-ana', bakiyeler['Market Ana Kasa']],
+                ['odeme-mini-pazar-ana', bakiyeler['Pazar Ana Kasa']]
+            ];
+            map.forEach(([id, val]) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = fmt(val);
+            });
+
+            const seciliKasa = document.getElementById('kk-odeme-kasa')?.value || '';
+            document.querySelectorAll('#odeme-kasa-strip .odeme-kasa-mini').forEach(card => {
+                card.classList.toggle('selected-kasa', card.dataset.kasa === seciliKasa);
+            });
+
+            const uyariEl = document.getElementById('odeme-bakiye-uyari');
+            const tutar = Number(document.getElementById('kk-odeme-tutar')?.value) || 0;
+            if (!uyariEl) return;
+            if (seciliKasa && seciliKasa !== 'Kredi Kartı' && Object.hasOwn(bakiyeler, seciliKasa) && tutar > 0 && tutar > bakiyeler[seciliKasa] + 0.009) {
+                const eksik = tutar - bakiyeler[seciliKasa];
+                uyariEl.textContent = `⚠️ Yetersiz Bakiye! "${seciliKasa}" (${fmt(bakiyeler[seciliKasa])}) seçilen ödeme tutarını (${fmt(tutar)}) karşılamıyor. Eksik: ${fmt(eksik)} — Başka bir kasa seçin veya tutarı azaltın.`;
+                uyariEl.classList.add('show');
+            } else {
+                uyariEl.textContent = '';
+                uyariEl.classList.remove('show');
+            }
+        };
+        odemeKasaDurumGuncelle();
 
         function hasGercekTimestamp(h) {
             if (!h) return false;
@@ -3098,15 +3204,17 @@ window.addEventListener('DOMContentLoaded',()=>{
             return typeof ts === 'number' || /^\d{10,13}$/.test(String(ts || '')) || Boolean(ts && (typeof ts.toDate === 'function' || typeof ts.seconds === 'number'));
         }
 
-        // Kullanıcının daha önce ödediği eski dönem kayıtlarının (2026-09-15 449.66, 2026-10-07 106.00, 2026-10-08 169.74 veya timestamp öncesi eski kayıtlar) kontrolü
+        // Kullanıcının daha önce ödediği eski dönem kayıtlarının (2026-10-24 öncesi eski dönemler, 2026-10-18 kırtasiye/yemek ve timestamp öncesi eski kayıtlar) kontrolü
         function isOncedenOdenmisEskiKK(h, amountCents) {
             if (!h) return false;
-            if (h.kkAcikBorc === true) return false;
             if (h.kkAcikBorc === false) return true;
             const t = toYMD(h.tarih || h.date || '');
             if (t === '2026-09-15' && amountCents === 44966) return true;
             if (t === '2026-10-07' && amountCents === 10600) return true;
             if (t === '2026-10-08' && amountCents === 16974) return true;
+            if (t === '2026-10-18' && (amountCents === 3500 || amountCents === 47000)) return true;
+            if (t && t < '2026-10-24' && !isHarcamaAktifDonemde(h)) return true;
+            if (h.kkAcikBorc === true) return false;
             if (!hasGercekTimestamp(h) && Number(aktifDonemTimestamp) > 0) return true;
             return false;
         }
@@ -3203,10 +3311,10 @@ window.addEventListener('DOMContentLoaded',()=>{
                 }
             }
 
-            // Devir öncesi bağlantısız ödemeleri केवल birebir tutar + açıklama/kategori eşleşmesi varsa ilgili devir öncesi kayıtlardan düş
+            // Devir öncesi bağlantısız ödemeleri (zaman damgası olmayan eski ödemeler dahil) birebir tutar + açıklama/kategori eşleşmesiyle ilgili devir öncesi kayıtlardan düş
             for(const [key,h,kat,amount,result] of devirOncesiBagimsiz){
                 let left=amount;
-                if(left>0 && hasGercekTimestamp(h)){
+                if(left>0){
                     const temizNot=sablonDuzMetin(h.aciklama||'').replace(/^kk alışveriş borcu:\s*/i,'').replace(/^(market|pazar)\s*\/\s*/i,'').trim().toLocaleLowerCase('tr-TR');
                     const havuz=borclar.filter(b=>!isHarcamaAktifDonemde(b.h) && remaining[b.key]>0);
                     let aday=havuz.find(b=>b.kategori===kat && remaining[b.key]===left && temizNot && sablonDuzMetin(b.h.aciklama||'').trim().toLocaleLowerCase('tr-TR')===temizNot);
@@ -3222,15 +3330,12 @@ window.addEventListener('DOMContentLoaded',()=>{
                 odemeler[key]=result;
             }
 
-            // Devir sınırında: devir öncesinden kalan ödenmemiş KK kayıtlarından yalnızca en alttaki (en yeni) 3 tanesini (veya kkAcikBorc===true olanları) açık bırak; daha eski dönem kayıtlarını kapat
-            const devirOncesiAciklar = borclar.filter(b => !isHarcamaAktifDonemde(b.h) && remaining[b.key] > 0 && b.h.kkAcikBorc !== false);
-            const korunanDevirKeys = new Set([
-                ...devirOncesiAciklar.filter(b => b.h.kkAcikBorc === true).map(b => b.key),
-                ...devirOncesiAciklar.slice(-3).map(b => b.key)
-            ]);
+            // Devir sınırında: 2026-10-24 ve sonrası devreden ödenmemiş KK borçlarını koru; eski dönem kayıtlarını geri getirmemek için kayan pencere (slice) kullanma
             for(const b of borclar){
-                if(!isHarcamaAktifDonemde(b.h) && remaining[b.key] > 0 && !korunanDevirKeys.has(b.key)){
-                    remaining[b.key] = 0;
+                if(!isHarcamaAktifDonemde(b.h) && remaining[b.key] > 0){
+                    const tarihYMD = toYMD(b.h.tarih || b.h.date || '');
+                    const gecerliDevirBorcu = (b.h.kkAcikBorc !== false) && (!tarihYMD || tarihYMD >= '2026-10-24');
+                    if(!gecerliDevirBorcu) remaining[b.key] = 0;
                 }
             }
 
@@ -3381,6 +3486,7 @@ window.addEventListener('DOMContentLoaded',()=>{
                 document.getElementById('kk-odeme-kasa').dispatchEvent(new Event('change'));
                 tutarInput.readOnly = !credit; if(credit)tutarInput.max=opt.dataset.amount;else tutarInput.removeAttribute('max');
             }
+            if (typeof odemeKasaDurumGuncelle === 'function') odemeKasaDurumGuncelle();
         }
 
         function updateBekleyenDropdown() {
@@ -3450,6 +3556,28 @@ window.addEventListener('DOMContentLoaded',()=>{
             e.preventDefault(); const btn=document.getElementById('btn-save-kk-odeme'); if (btn.disabled) return;
             const kasa=document.getElementById('kk-odeme-kasa').value, tur=document.getElementById('kk-odeme-tur').value, tutar=Number(document.getElementById('kk-odeme-tutar').value), selected=document.getElementById('kk-odeme-bekleyen').value, tarih=document.getElementById('kk-odeme-tarih').value;
             if (!tarih || !Number.isFinite(tutar) || tutar <= 0) return alert('Tarih ve pozitif ödeme tutarı girin.');
+            if (kasa !== 'Kredi Kartı') {
+                const bakiyeler = getOdemeKasaBakiyeleri();
+                const mevcutBakiye = Number(bakiyeler[kasa]) || 0;
+                if (tutar > mevcutBakiye + 0.009) {
+                    odemeKasaDurumGuncelle();
+                    const eksik = tutar - mevcutBakiye;
+                    const fmt = v => (Number(v) || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TL';
+                    const msgEl = document.getElementById('odeme-yetersiz-mesaj');
+                    if (msgEl) {
+                        msgEl.innerHTML = `<p style="margin:0 0 8px 0;">Seçtiğiniz kasadaki bakiye bu ödemeyi karşılamıyor:</p>
+                        <div style="background:rgba(220,38,38,0.08); border:1px solid #dc2626; border-radius:8px; padding:10px; margin-bottom:10px;">
+                            <div><b>Seçilen Kasa:</b> ${guvenliMetin(kasa)}</div>
+                            <div><b>Mevcut Bakiye:</b> ${fmt(mevcutBakiye)}</div>
+                            <div><b>Ödenecek Tutar:</b> ${fmt(tutar)}</div>
+                            <div style="color:#dc2626; font-weight:900; margin-top:4px;">Eksik Tutar: ${fmt(eksik)}</div>
+                        </div>
+                        <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">Lütfen bakiyesi yeterli başka bir kasa seçin veya kısmi ödeme için tutarı azaltın.</p>`;
+                    }
+                    document.getElementById('odeme-yetersiz-modal').style.display = 'flex';
+                    return;
+                }
+            }
             
             const rTxt = document.getElementById('kk-odeme-not-rich');
             const not = rTxt ? rTxt.innerHTML : '';
