@@ -574,7 +574,7 @@ tr:nth-child(even) { background-color: rgba(0,0,0,0.01); }
                             </div>
                             <div class="fixed-table-container" style="flex:1;">
                                 <table id="harcama-tablosu">
-                                    <thead><tr><th>Tarih/Saat</th><th>Kat.</th><th>Kişi</th><th>Tutar</th><th>Nakit</th><th>KK</th><th>İşlem</th></tr></thead>
+                                    <thead><tr><th>Tarih/Saat</th><th>Kat.</th><th>Kişi</th><th>Açıklama</th><th>Tutar</th><th>Nakit</th><th>KK</th><th>İşlem</th></tr></thead>
                                     <tbody></tbody>
                                 </table>
                             </div>
@@ -2533,6 +2533,7 @@ window.addEventListener('DOMContentLoaded',()=>{
                     <td><b>${h.tarih}</b> <small style="color:var(--text-muted)">${h.saat ? h.saat.substring(0,5) : ''}</small></td>
                     <td>${item.bireyselHarcama ? guvenliMetin(h.kasaTipi === 'Kredi Kartı' ? (h.harcamaKategorisi||'Diğer')+' / Kredi Kartı' : (h.kasaTipi||h.kategori||'Market')+(item.anaKasaHarcama?' Ana Kasa':' (Aktif)'))+' <span style="font-size:0.6rem; color:#d35400;">'+(h.bagliHarcamaKey?'(KK borcu ödemesi)':h.kasaTipi==='Kredi Kartı'?'(Kart harcaması)':item.anaKasaHarcama?'🚨 Ana Kasa':'(Bireysel)')+'</span>' : guvenliMetin(h.kategori)}</td>
                     <td><b>${guvenliMetin(h.kisi || 'Bilinmiyor')}</b></td>
+                    <td style="text-align:left; max-width:220px; word-break:break-word;">${aciklamaHtmlGuvenli(h.aciklama || (item.bireyselHarcama ? (h.odemeTuru || '-') : '-'))}</td>
                     <td style="${item.bireyselHarcama ? 'color:var(--text-muted);' : ''}">${(item.bireyselHarcama?Number(h.nakit)||0:Number(h.toplam)||0).toFixed(2)}₺</td>
                     <td style="color:#27ae60; font-weight:bold;">${(h.kasaTipi==='Kredi Kartı'?0:Number(h.nakit)||0).toFixed(2)}₺</td>
                     <td style="${item.bireyselHarcama ? 'color:var(--text-muted);' : 'color:#8e44ad;'}">${h.kasaTipi==='Kredi Kartı' ? (Number(h.nakit)||0).toFixed(2)+'₺' : item.bireyselHarcama ? '-' : (Number(h.kk)||0).toFixed(2)+'₺'}${kkDurumRozeti(item.key)}</td>
